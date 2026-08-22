@@ -12,11 +12,17 @@ Claude 認定資格(CCAR-F: 2026-09-27 / CCAR-P: F 合格後)対策の個人用�
 
 ## コマンド
 
-package.json は未作成。Phase 0 スキャフォールド後に確定コマンド(dev/build/test 等)でこの節を更新すること。
+- `npm ci` — 依存インストール(package-lock.json が exact バージョンの再現ソース。`npm install` での更新は禁止)
+- `npm run dev` — 開発サーバー
+- `npm test` / `npm run test:watch` — Vitest(`src/**/*.test.ts`, `scripts/**/*.test.ts`)
+- `npm run typecheck` — `next typegen && tsc --noEmit`
+- `npm run lint` — ESLint
+- `npm run build` — Next.js ビルド
+- `npm run validate-bank` — バンク静的検証 `scripts/validate-bank.ts`(CI で push ごとに実行、失敗時はデプロイ中止。D0-3 で実装)
+- `npm run db:generate` / `db:migrate` / `db:check` — Drizzle migration 生成・適用・両 branch 整合検証(D0-4 で実装)
+- shadcn/ui コンポーネント追加: `npx shadcn@latest add <name>`
 
-- 依存インストールは `npm ci` のみ(package-lock.json が exact バージョンの再現ソース)
-- テストは Vitest
-- バンク静的検証は `scripts/validate-bank.ts`(CI で push ごとに実行、失敗時はデプロイ中止)
+タスク ID と実行順は `specs/09_task-plan.md` が単一ソース。着手時に ID を宣言し depends を確認する。
 
 ## 禁止事項
 
