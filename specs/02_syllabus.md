@@ -60,6 +60,6 @@ Governance / Stakeholder & Lifecycle / Developer Enablement(計 35%)は F に存
 
 ## 主要ソース
 
-- 公式 Exam Guide v1.0(CCAR-F): Partner Academy 配布 PDF(取得後 `design/refs/` に保存)
+- 公式 Exam Guide v1.0(CCAR-F): Partner Academy 配布 PDF(`ExamGuide/CCAR-F.pdf` に保存済み)
 - Pearson VUE: https://www.pearsonvue.com/us/en/anthropic.html
 - Anthropic Academy 対応コース(無料)、docs.claude.com、Anthropic engineering ブログ(解説 refs の一次参照先)

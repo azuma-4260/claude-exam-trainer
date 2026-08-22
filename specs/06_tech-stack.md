@@ -54,7 +54,8 @@ Next.js 16 では middleware.ts の file convention は deprecated であり、�
 
 ```
 /
-  design/ (+ design/refs/)   # 設計書・公式PDF
+  specs/                      # 設計書(唯一の仕様ソース)
+  ExamGuide/                  # 公式 Exam Guide PDF
   content/                    # バンク
   src/app/ src/lib/srs/ src/lib/bank/ src/db/
   scripts/validate-bank.ts    # CI
@@ -65,6 +66,7 @@ Next.js 16 では middleware.ts の file convention は deprecated であり、�
 - Zod 検証(`03` の全不変条件)、id 重複、syllabus 整合、refs
 - ドメイン別問題数の重み乖離(±30% 超で警告)
 - **固定フォーム検証**: 60 問 / ドメイン配分 16-11-12-12-9 / form 間重複なし / mock eligible / scenario_id 非 null / scenario_id ∈ form.scenario_ids / 実使用シナリオ集合 = form.scenario_ids / (公式確認済みの場合のみ)各シナリオ 15 問
+- **deploy は CI の後続 job からのみ実行**(validator → `npm test` → `npm run build` が全て成功した場合のみ Vercel CLI + token で deploy)。Vercel の Git 連携による自動 deploy は無効化する。これにより「CI 失敗 = deploy 中止」を仕組みで保証する
 - 失敗時は CI fail・デプロイ中止。**フラグの resolved_at 更新はデプロイ成功条件に含めない**(旧 rev フラグは superseded として自動失効)
 
 ## 不採用(変更なし)
