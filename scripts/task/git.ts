@@ -62,7 +62,8 @@ export function revParse(cwd: string, ref: string): string | null {
 /** origin/main 上の台帳ファイル一覧(tasks/status/ 直下、相対名) */
 export function ledgerFilesOnOriginMain(cwd: string): string[] {
   if (!revParse(cwd, "origin/main")) throw new GitError("origin/main が存在しない(git fetch origin を確認)");
-  const out = git(cwd, ["ls-tree", "--name-only", "origin/main", `${LEDGER_DIR}/`], { allowFail: true });
+  // ディレクトリ不在は exit 0 で空出力。それ以外の失敗は伝播させる(fail closed)
+  const out = git(cwd, ["ls-tree", "--name-only", "origin/main", `${LEDGER_DIR}/`]);
   if (!out) return [];
   return out.split("\n").filter(Boolean).map((p) => p.slice(LEDGER_DIR.length + 1));
 }
