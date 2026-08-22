@@ -54,7 +54,7 @@
 | O-2b | O | CI 経由の最初の deploy 成功 | O-2a, D0-3 | 06 | Actions の deploy job 緑、本番 URL で Next.js 初期ページ表示 |
 | O-3 | O | Marketplace で Neon 追加 + dev branch 作成 | O-2a | 06 §本番/開発 DB の分離 | production / dev の DATABASE_URL が 2 本、Vercel 環境ごとに紐付け |
 | O-4 | O | `APP_PASSCODE` 設定、`SESSION_SECRET` 生成(`vercel env add` 代行可) | O-3 | 06 §認証 | `vercel env ls` に 4 変数が環境別に存在 |
-| O-5 | O | 9/6・9/13・9/20・9/24 の 120 分枠をカレンダー確保 | – | 08 | 4 件登録(即日) |
+| O-5 | O | 9/6・9/13・9/20・9/24 の 120 分枠をカレンダー確保 — **完了(8/23)** | – | 08 | 4 件登録(即日) ✅ |
 | D0-1 | D | scaffold: Next.js 16 + TS + Tailwind + shadcn + Vitest + Drizzle + `@neondatabase/serverless` + ts-fsrs **5.4.1 exact**。`.gitignore` 更新。**CLAUDE.md コマンド節更新** | O-1 | 06 §採用スタック, CLAUDE.md | `npm ci && npm test && npm run build` 通過(テスト 1 件以上)。lock の ts-fsrs が 5.4.1 |
 | D0-2 | D | Zod バンク schema(discriminated union、`03` §1 の全不変条件、`z.infer` 型) | D0-1 | 03 §1 | 不変条件ごとの valid/invalid Vitest green |
 | D0-3 | D | `scripts/validate-bank.ts` + GitHub Actions(validator → test → build → **deploy job**) | D0-2, C1, O-2a | 06 §バンク静的検証, 03 §mock_forms | main で CI 緑。**一時ブランチ**で故意に壊した push → CI 赤 + deploy job skip を確認 |
@@ -198,7 +198,7 @@ Content: C0 → C1 → D0-3 → C2 → M1(D0-3 は C1 / D0-2 / O-2a の 3 つ待
 
 | 日 | Owner | Dev / Test | Content |
 |---|---|---|---|
-| 8/23 | ~~O-1~~(済), **O-2a, O-3, O-4**, O-5 | S-1, D0-1, D0-2 | C0, C1(+粒度レビュー) |
+| 8/23 | ~~O-1~~(済), ~~O-5~~(済), **O-2a, O-3, O-4** | S-1, D0-1, D0-2 | C0, C1(+粒度レビュー) |
 | 8/24 | O-2b 確認 | D0-4, D0-5, D0-3, T-srs, T-holdout → **M0** | C2 生成開始 |
 | 8/25 | – | D1-1, D1-2, T-write, T-queue, D1-3 | C2 生成 |
 | 8/26 | C2 抜き取り | D1-4, D1-5, D1-6 | C2 レビュー・deploy |
