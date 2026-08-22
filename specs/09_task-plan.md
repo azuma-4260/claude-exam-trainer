@@ -2,7 +2,7 @@
 
 `08` が「いつ」のカレンダーであるのに対し、本書は「何を・どの順で・何が終われば完了か」を定める実行順の単一ソース。タスク ID は本書で採番し、以後のセッション・commit メッセージ・TODO(owner) で参照する。
 
-前提(2026-08-23 時点): Exam Guide PDF は `ExamGuide/CCAR-F.pdf` に commit 済み。GitHub リポジトリ `azuma-4260/claude-exam-trainer` 作成・remote 設定・main push 済み(**O-1 完了**)。Vercel / Neon / APP_PASSCODE は未着手。
+前提(2026-08-23 時点): Exam Guide PDF は `ExamGuide/CCAR-F.pdf` に commit 済み。GitHub リポジトリ `azuma-4260/claude-exam-trainer` 作成・remote 設定・main push 済み(**O-1 完了**)。Vercel project・Neon・環境変数も設定済み(**O-2a / O-3 / O-4 完了**、詳細は `06` §環境の実体)。残るオーナー手作業は O-2b(D0-3 後)と O-5。
 
 ## 1. 順序を支配する原則
 
@@ -50,10 +50,10 @@
 |---|---|---|---|---|---|
 | S-1 | D | `02`/`06`/`07` の旧パス記述を `specs/`・`ExamGuide/` に修正。README 表に 09 追加、08 冒頭に 09 参照追記 | – | 02 §主要ソース, 06 §リポジトリ構成, 07 Step 0 | `grep -rn "design/" specs/02_syllabus.md specs/06_tech-stack.md specs/07_content-pipeline.md README.md` が 0 件。差分をオーナーが確認 |
 | O-1 | O | GitHub repo 作成 + remote 設定 — **完了(8/23)**: `origin = azuma-4260/claude-exam-trainer` | S-1 | 06 §オーナーの手作業 | `git remote -v` に origin、`git push -u origin main` 成功 ✅ |
-| O-2a | O | Vercel project 作成・GitHub 連携、**Git 自動 deploy を無効化**、`VERCEL_TOKEN` 等を GitHub Secrets に登録。着手時に dashboard で未着手を再確認 | O-1 | 06 | Vercel dashboard に project、GitHub Secrets に token |
+| O-2a | O | Vercel project 作成・GitHub 連携、**Git 自動 deploy を無効化**、`VERCEL_TOKEN` 等を GitHub Secrets に登録 — **完了(8/23)**: project `azx3/claude-exam-trainer`、Ignored Build Step = Don't build anything、Secrets 3 件 | O-1 | 06 | Vercel dashboard に project、GitHub Secrets に token ✅ |
 | O-2b | O | CI 経由の最初の deploy 成功 | O-2a, D0-3 | 06 | Actions の deploy job 緑、本番 URL で Next.js 初期ページ表示 |
-| O-3 | O | Marketplace で Neon 追加 + dev branch 作成 | O-2a | 06 §本番/開発 DB の分離 | production / dev の DATABASE_URL が 2 本、Vercel 環境ごとに紐付け |
-| O-4 | O | `APP_PASSCODE` 設定、`SESSION_SECRET` 生成(`vercel env add` 代行可) | O-3 | 06 §認証 | `vercel env ls` に 4 変数が環境別に存在 |
+| O-3 | O | Marketplace で Neon 追加 + dev branch 作成 — **完了(8/23)**: `claude-exam-trainer-db`(sin1)、main → Production / dev → Preview+Development | O-2a | 06 §本番/開発 DB の分離 | production / dev の DATABASE_URL が 2 本、Vercel 環境ごとに紐付け ✅ |
+| O-4 | O | `APP_PASSCODE` 設定、`SESSION_SECRET` 生成(`vercel env add` 代行可) — **完了(8/23)** | O-3 | 06 §認証 | `vercel env ls` に 4 変数が環境別に存在 ✅ |
 | O-5 | O | 9/6・9/13・9/20・9/24 の 120 分枠をカレンダー確保 | – | 08 | 4 件登録(即日) |
 | D0-1 | D | scaffold: Next.js 16 + TS + Tailwind + shadcn + Vitest + Drizzle + `@neondatabase/serverless` + ts-fsrs **5.4.1 exact**。`.gitignore` 更新。**CLAUDE.md コマンド節更新** | O-1 | 06 §採用スタック, CLAUDE.md | `npm ci && npm test && npm run build` 通過(テスト 1 件以上)。lock の ts-fsrs が 5.4.1 |
 | D0-2 | D | Zod バンク schema(discriminated union、`03` §1 の全不変条件、`z.infer` 型) | D0-1 | 03 §1 | 不変条件ごとの valid/invalid Vitest green |

@@ -50,6 +50,21 @@ Next.js 16 では middleware.ts の file convention は deprecated であり、�
 3. Marketplace で Neon 追加 + dev branch 作成
 4. `APP_PASSCODE` 設定(`SESSION_SECRET` は Claude Code が生成し `vercel env add` 代行可)
 
+## 環境の実体(2026-08-23 設定済み)
+
+オーナー手作業 O-2a / O-3 / O-4 の結果。変更する場合は本節を更新する。
+
+| 項目 | 値 |
+|---|---|
+| Vercel project | `azx3/claude-exam-trainer`(Hobby)。`VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` / `VERCEL_TOKEN` は GitHub Repository secrets |
+| Git 自動 deploy 無効化 | Build and Deployment → Ignored Build Step = **Don't build anything**(CI の `vercel deploy --prebuilt` には影響しない) |
+| Function Region | **sin1**(Singapore)。Neon の Vercel 統合に東京が無いため最寄りを選択 |
+| Neon | Marketplace 統合(Free)、DB `claude-exam-trainer-db`、Region **ap-southeast-1**、**Neon Auth は無効**(認証は本書 §認証の自前実装) |
+| Neon branch | `main`(Production 専用)/ `dev`(Auto-delete: Never) |
+| `DATABASE_URL` | Production = main(統合が自動注入、Sensitive)/ Preview + Development = dev(手動登録、Non-sensitive) |
+| `SESSION_SECRET` / `APP_PASSCODE` | Production + Preview に Sensitive で登録。**Development には置かない**(Vercel の Sensitive 変数は Development 不可)→ ローカルは `.env.local` に開発専用の値を書く |
+| ローカル | `vercel link` 済み(`.vercel/` と `.env*` は git 除外)。`vercel env pull --environment=development` で dev branch の `DATABASE_URL` を取得 |
+
 ## リポジトリ構成
 
 ```
