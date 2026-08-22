@@ -1,0 +1,3 @@
+state: done
+evidence: "bootstrap(CI 導入前の一度限り例外): npm test で Zod schema 不変条件テスト green を 2026-08-23 に再確認(commit 8a4954c)"
+recorded: 2026-08-23

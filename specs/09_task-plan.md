@@ -218,6 +218,6 @@ Content: C0 → C1 → D0-3 → C2 → M1(D0-3 は C1 / D0-2 / O-2a の 3 つ待
 
 ## 7. 運用ルール
 
-- 新しいセッションは「本書のどの ID に着手するか」を冒頭で宣言し、depends が全て完了していることを確認してから始める
+- 新しいセッションは「本書のどの ID に着手するか」を冒頭で宣言し、`npm run task:check <ID>` が READY であることを確認して `npm run task:start <ID>` で始める(完了判定・worktree 規約は `tasks/README.md`)
 - DoD を満たさない状態で次の ID に進まない。満たせない場合は TODO(owner) を残して停止する(README 停止条件)
 - 日付が遅延した場合は `08` のリスク表(form A → 9/8 後ろ倒し等)に従い、本書の depends は変更しない

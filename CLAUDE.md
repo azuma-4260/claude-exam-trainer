@@ -20,9 +20,10 @@ Claude 認定資格(CCAR-F: 2026-09-27 / CCAR-P: F 合格後)対策の個人用�
 - `npm run build` — Next.js ビルド
 - `npm run validate-bank` — バンク静的検証 `scripts/validate-bank.ts`(CI で push ごとに実行、失敗時はデプロイ中止。D0-3 で実装)
 - `npm run db:generate` / `db:migrate` / `db:check` — Drizzle migration 生成・適用・両 branch 整合検証(D0-4 で実装)
+- `npm run task:check [ID]` / `npm run task:start <ID>` — タスク状態の判定と worktree での着手(`tasks/README.md`)
 - shadcn/ui コンポーネント追加: `npx shadcn@latest add <name>`
 
-タスク ID と実行順は `specs/09_task-plan.md` が単一ソース。着手時に ID を宣言し depends を確認する。
+タスク ID と実行順は `specs/09_task-plan.md` が単一ソース。着手は `npm run task:check <ID>` → READY なら `npm run task:start <ID>` のみ(並行セッション運用の規約は `tasks/README.md`)。
 
 ## 禁止事項
 
