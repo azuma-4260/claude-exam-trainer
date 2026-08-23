@@ -1,2 +1,3 @@
-state: merged
+state: done
+evidence: "CI 導入(D0-3)前 merge の例外(tasks/README §完了の記録 7): オーナー承認(2026-08-23、粒度レビュー対話で 5 ドメイン承認)後 merge で main 取り込み。敵対的レビューループ(Claude + Codex、2 ラウンド + 最終ゲート)ACCEPT、Codex review P1 なし。main で npm test(212 件)&& npm run build green を 2026-08-23 に確認。DoD: content/ccar-f/syllabus.yaml 73 topics(60〜80 内)、30 TS 1:1"
 recorded: 2026-08-23
