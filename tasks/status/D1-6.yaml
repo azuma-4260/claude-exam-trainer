@@ -1,0 +1,3 @@
+state: merged
+evidence: "commit 4292077 を merge b7fb6d4 で main 取り込み。Codex レビュー 3 回(P1 なし)、main で npm test(177 件)green を 2026-08-23 に確認。done は D1-4/D1-5 統合後の dev E2E(画面からフラグ → キューから消える)を証跡にして記録する"
+recorded: 2026-08-23
