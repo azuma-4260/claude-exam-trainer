@@ -15,6 +15,7 @@
 | Mock(full / mini / half) | **提出時一括**(`03`) | No | Yes(提出時分) |
 
 - 回答時間による Easy 自動判定はしない
+- **flash の is_correct(v1.2.2 確定)**: 利用者評価 Again → false、Hard / Good / Easy → true(「思い出せた」を正解とみなす)。coverage(§習熟度)の「1 回以上正解」はこの定義で数える。MCQ は集合一致・部分点なし
 - 初期診断テストは存在しない(v1.2 で廃止)
 
 ## 試験日対応
