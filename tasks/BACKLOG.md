@@ -4,6 +4,5 @@
 
 | 起票日 | 起票元 | 内容 | 提案する扱い |
 |---|---|---|---|
-| 2026-08-23 | C0 | `07` Step 0 手順 2 は「syllabus.yaml に転記」とあるが、09 では syllabus.yaml は C1 の成果物(オーナー粒度レビュー付き)。C0 は `SOURCES.md` に転記した。`07` の文言を「SOURCES.md に転記、C1 で syllabus.yaml に展開」に直す | C1 着手時に `07` Step 0/1 を 1 行修正 |
 | 2026-08-23 | C0 | 公式は「each item states how many responses to select」(選択数は問ごと)。`03` の mcq_multi 不変条件は "Select TWO" 固定。自己制約として満たせるが、3 択正解を作りたくなった場合は `03` を先に更新する | 当面そのまま。C3b で必要になったら `03` 更新 |
 | 2026-08-23 | C0 | `SOURCES.md` §0 の参照 docs スナップショットは「参照開始日」のみ。Step 2 以降で実際に refs に使った docs ページの URL と参照日を表に追記していく | C2 / C3a 作業時に追記 |
