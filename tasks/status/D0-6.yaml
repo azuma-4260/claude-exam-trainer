@@ -1,2 +1,3 @@
-state: merged
+state: done
+evidence: "D0-3(CI)前の規則: main worktree で npm test(212 件)&& npm run build green(2026-08-23、merge 3ae8faf)"
 recorded: 2026-08-23
