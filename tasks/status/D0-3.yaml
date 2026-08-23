@@ -1,3 +1,3 @@
-state: merged
-evidence: "commit b948604 を merge  で main 取り込み。Codex レビュー 3 回(P1 3 件修正済み)、main で npm test(294 件)green を 2026-08-23 に確認。done は Actions run(main 緑 + deploy 成功、一時ブランチ赤 + deploy skip)を証跡にして記録する"
-recorded: 2026-08-23
+state: done
+evidence: "commit b948604 を merge 6f5cbc2 で main 取り込み(Codex レビュー 3 回、P1 3 件修正済み)。CI 緑 + deploy 成功: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/32647931231(ci/deploy とも success、本番 https://claude-exam-trainer.vercel.app が 307 → /login で応答)。故意に壊した一時ブランチ ci-break-test: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/32646649048(validate-bank step 赤、deploy job skipped。ブランチ削除済み)。途中の deploy 失敗 2 件は Vercel token のスコープ(プロジェクト限定 → チーム)と framework 未検出(vercel.json で nextjs 明示 f3432ba)で解消"
+recorded: 2026-08-24
