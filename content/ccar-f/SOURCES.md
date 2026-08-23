@@ -708,6 +708,7 @@ You are building a structured data extraction system using Claude. The system ex
 | `03` | §1 mock_forms validator | 「各シナリオ 15 問」検証 OFF を確定記録 |
 | `06` | §バンク静的検証 | 同上 |
 | `README` | 未確定事項 | 「4×15 か否か」を解消 |
+| `07` | Step 0 手順 2 | 転記先を `SOURCES.md` に訂正(C1 で反映。`syllabus.yaml` はトピックツリー専用) |
 
 ## 9. 改訂履歴
 

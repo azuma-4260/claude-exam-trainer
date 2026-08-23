@@ -10,7 +10,7 @@
 ## Step 0: 公式 Exam Guide の取得と転記(最初のタスク)
 
 1. オーナーが PDF を取得し `ExamGuide/` へ(`ExamGuide/CCAR-F.pdf` 格納済み)
-2. ドメイン・タスクステートメント・サンプル問題・サンプルシナリオを `syllabus.yaml` に転記
+2. ドメイン・タスクステートメント・サンプル問題・サンプルシナリオを `content/ccar-f/SOURCES.md` に転記(`syllabus.yaml` は Step 1 で作るトピックツリー専用。シナリオは `scenarios.yaml`、`03` §1)
 3. `02` と突合、公式優先で更新
 4. 模試構造の確認: 「4 シナリオ × 各 15 問」の明記有無。明記があれば validator の各シナリオ 15 問検証を有効化、なければ件数を固定しない
 

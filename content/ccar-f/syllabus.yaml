@@ -1,0 +1,347 @@
+# CCAR-F トピックツリー(単一ソース)
+# 階層: exam > domain > task_statement > topic(specs/02 §トピックツリーの構造方針)
+# - task_statement 層は公式 Exam Guide v1.0 §6 の 30 本と 1:1(原文: content/ccar-f/SOURCES.md §3)
+# - topic = フラッシュ 3〜5 枚で覆える概念単位。問題は primary_topic_id 1 つに帰属し、関連 topic は secondary
+# - ID 形式: f-d<n>-t<m>-<NN>(src/lib/bank/schema.ts の topicIdSchema と一致)
+# - name は英語(問題文が英語のため)、scope_ja は日本語で「この topic が問う範囲」を 1 行で示す
+# - Out-of-Scope(SOURCES.md §4.3)は topic 化しない
+
+exam: ccar-f
+version: 1
+source: content/ccar-f/SOURCES.md  # Exam Guide v1.0 §6 / §17 の転記
+
+domains:
+  - id: f-d1
+    name: "Agentic Architecture & Orchestration"
+    weight: 27
+    form_questions: 16
+    task_statements:
+      - id: f-d1-t1
+        name: "Design and implement agentic loops for autonomous task execution"
+        topics:
+          - id: f-d1-t1-01
+            name: "Agentic loop lifecycle and stop_reason control"
+            scope_ja: "リクエスト送信 → stop_reason 検査(\"tool_use\" で継続 / \"end_turn\" で終了)→ ツール実行 → 結果返却の制御フロー、stop_reason \"max_tokens\" の扱いと max_tokens 設定"
+          - id: f-d1-t1-02
+            name: "Tool results in conversation history and model-driven decisions"
+            scope_ja: "ツール結果を履歴に追加して次の推論に使う仕組み、モデル駆動の判断 vs 事前定義の決定木/固定シーケンス"
+          - id: f-d1-t1-03
+            name: "Loop termination anti-patterns"
+            scope_ja: "自然言語シグナルの解析・恣意的な反復上限を主停止条件にする・assistant テキストの有無を完了判定にする、の各アンチパターン"
+      - id: f-d1-t2
+        name: "Orchestrate multi-agent systems with coordinator-subagent patterns"
+        topics:
+          - id: f-d1-t2-01
+            name: "Hub-and-spoke coordinator and isolated subagent context"
+            scope_ja: "coordinator が通信・エラー処理・情報ルーティングを一元管理する構造、subagent は会話履歴を自動継承しない"
+          - id: f-d1-t2-02
+            name: "Dynamic subagent selection and scope partitioning"
+            scope_ja: "クエリ複雑度に応じた subagent の動的選択(常に全パイプラインを通さない)、重複最小化のためのサブトピック/ソース種別分割、分解が狭すぎるリスク"
+          - id: f-d1-t2-03
+            name: "Iterative refinement loops"
+            scope_ja: "coordinator が synthesis 出力のギャップを評価 → 的を絞った再委任 → 再 synthesis をカバレッジ十分まで反復"
+      - id: f-d1-t3
+        name: "Configure subagent invocation, context passing, and spawning"
+        topics:
+          - id: f-d1-t3-01
+            name: "Task tool, allowedTools, and AgentDefinition"
+            scope_ja: "Task tool による subagent 起動、coordinator の allowedTools に \"Task\" が必要、AgentDefinition(description / system prompt / tool 制限)"
+          - id: f-d1-t3-02
+            name: "Explicit context passing with structured attribution"
+            scope_ja: "subagent は親の文脈を継承せず呼出し間でメモリも共有しないため、先行エージェントの完全な所見を prompt に直接含める、content と metadata(URL・文書名・ページ)を構造化して分離し出典を保持"
+          - id: f-d1-t3-03
+            name: "Parallel spawning and goal-oriented coordinator prompts"
+            scope_ja: "1 応答内の複数 Task 呼出しによる並列起動、手順指示ではなく目標と品質基準を示して subagent の適応性を確保"
+      - id: f-d1-t4
+        name: "Implement multi-step workflows with enforcement and handoff patterns"
+        topics:
+          - id: f-d1-t4-01
+            name: "Programmatic enforcement vs prompt-based guidance"
+            scope_ja: "決定論的な順序遵守が必要な場面(本人確認 → 金融操作)での prerequisite gate、prompt 指示のみでは失敗率がゼロにならない"
+          - id: f-d1-t4-02
+            name: "Structured handoff and multi-concern request decomposition"
+            scope_ja: "会話ログにアクセスできない人間へのエスカレーション時の構造化サマリ(顧客 ID・根本原因・金額・推奨対応)、複数論点の分解 → 並列調査 → 統合回答"
+      - id: f-d1-t5
+        name: "Apply Agent SDK hooks for tool call interception and data normalization"
+        topics:
+          - id: f-d1-t5-01
+            name: "PostToolUse hooks for data normalization"
+            scope_ja: "異種 MCP ツールの出力形式(Unix time / ISO 8601 / 数値ステータス)をモデルが処理する前に正規化する hook"
+          - id: f-d1-t5-02
+            name: "Tool call interception hooks for policy enforcement"
+            scope_ja: "閾値超過の refund などポリシー違反の呼出しをブロックし代替フロー(人間エスカレーション)へ誘導、hook の決定論的保証 vs prompt の確率的遵守"
+      - id: f-d1-t6
+        name: "Design task decomposition strategies for complex workflows"
+        topics:
+          - id: f-d1-t6-01
+            name: "Prompt chaining vs dynamic decomposition"
+            scope_ja: "予測可能な多面的レビューには固定シーケンシャルパイプライン、オープンエンドな調査には中間所見に基づく動的分解"
+          - id: f-d1-t6-02
+            name: "Per-file passes, integration passes, and adaptive plans"
+            scope_ja: "大規模レビューをファイル単位ローカル分析 + 横断統合パスに分ける、構造把握 → 高影響領域特定 → 依存発見に応じて更新する優先順位付き計画。【primary 境界】ワークフローの分解戦略として問う場合はここ、レビュー品質(注意の希釈・矛盾所見)として問う場合は f-d4-t6-02"
+      - id: f-d1-t7
+        name: "Manage session state, resumption, and forking"
+        topics:
+          - id: f-d1-t7-01
+            name: "Named session resumption and change notification"
+            scope_ja: "--resume <session-name> による名前付きセッション再開、再開時に変更ファイルを明示して対象再分析に限定する"
+          - id: f-d1-t7-02
+            name: "fork_session and resume vs fresh start with summary"
+            scope_ja: "共有ベースラインからの fork_session による分岐探索、stale なツール結果が多い場合は構造化サマリを注入した新セッションが信頼できる"
+  - id: f-d2
+    name: "Tool Design & MCP Integration"
+    weight: 18
+    form_questions: 11
+    task_statements:
+      - id: f-d2-t1
+        name: "Design effective tool interfaces with clear descriptions and boundaries"
+        topics:
+          - id: f-d2-t1-01
+            name: "Tool descriptions as the selection mechanism"
+            scope_ja: "description が LLM のツール選択の主手段、入力形式・例・エッジケース・境界説明を含めることの重要性、最小限の説明は類似ツール間で不安定"
+          - id: f-d2-t1-02
+            name: "Resolving overlap by renaming, splitting, and consolidating tools"
+            scope_ja: "近似 description による誤ルーティング(analyze_content vs analyze_document)、用途特化へのリネーム、汎用ツールの目的別分割 vs 統合(splitting vs consolidating)の判断と入出力契約"
+          - id: f-d2-t1-03
+            name: "System prompt keyword interference with tool selection"
+            scope_ja: "system prompt のキーワード依存の指示が良質な description を上書きして意図しないツール連想を生む問題とそのレビュー"
+      - id: f-d2-t2
+        name: "Implement structured error responses for MCP tools"
+        topics:
+          - id: f-d2-t2-01
+            name: "isError flag and error taxonomy with structured metadata"
+            scope_ja: "MCP の isError、transient / validation / business / permission の分類、errorCategory・isRetryable・人間可読な説明の返却、一様な \"Operation failed\" の害"
+          - id: f-d2-t2-02
+            name: "Retryable vs non-retryable and business-rule explanations"
+            scope_ja: "無駄なリトライを防ぐ retriable: false、ビジネスルール違反の顧客向け説明、アクセス失敗と正当な空結果を区別して返す、subagent 内で transient 失敗を局所回復し解決不能分のみ部分結果・試行内容付きで coordinator へ伝播。【primary 境界】ツール/subagent 側の回復と返却(局所回復を含む・何を返すか)はここ、coordinator 側の受領後の判断は f-d5-t3-02"
+      - id: f-d2-t3
+        name: "Distribute tools appropriately across agents and configure tool choice"
+        topics:
+          - id: f-d2-t3-01
+            name: "Scoped tool access per agent role"
+            scope_ja: "ツール数過多(18 vs 4〜5)による選択信頼性低下、専門外ツールの誤用(synthesis agent が web search)、役割に必要なツールだけを付与"
+          - id: f-d2-t3-02
+            name: "Constrained alternatives and scoped cross-role tools"
+            scope_ja: "汎用 fetch_url を検証付き load_document に置換、高頻度ニーズ向けの限定的クロスロールツール(verify_fact)と複雑ケースの coordinator 経由"
+          - id: f-d2-t3-03
+            name: "tool_choice auto / any / forced"
+            scope_ja: "\"auto\"・\"any\"・{\"type\": \"tool\", \"name\": ...} の違い、特定ツールを先に強制してから後続ターンで処理、\"any\" で会話テキストではなくツール呼出しを保証。【primary 境界】エージェント/ツール配分の設計文脈はここ、構造化データ抽出の文脈は f-d4-t3-02"
+      - id: f-d2-t4
+        name: "Integrate MCP servers into Claude Code and agent workflows"
+        topics:
+          - id: f-d2-t4-01
+            name: "MCP server scoping and environment variable expansion"
+            scope_ja: "project スコープ .mcp.json(チーム共有)vs user スコープ ~/.claude.json(個人/実験)、${GITHUB_TOKEN} 展開で秘密をコミットしない"
+          - id: f-d2-t4-02
+            name: "Multi-server discovery, description quality, and build vs adopt"
+            scope_ja: "接続時に全サーバーのツールが同時利用可能、built-in(Grep)より MCP ツールを選ばせる description 強化、標準統合(Jira)は community サーバー・チーム固有はカスタム"
+          - id: f-d2-t4-03
+            name: "MCP resources for content catalogs"
+            scope_ja: "issue 一覧・ドキュメント階層・DB スキーマなどをリソースとして公開し、探索的ツール呼出しを減らす"
+      - id: f-d2-t5
+        name: "Select and apply built-in tools (Read, Write, Edit, Bash, Grep, Glob) effectively"
+        topics:
+          - id: f-d2-t5-01
+            name: "Built-in tool selection criteria and Edit fallback"
+            scope_ja: "Grep = 内容検索、Glob = パスパターン、Read/Write = 全体操作、Edit = 一意テキストによる部分修正、Bash = コマンド実行(テスト・ビルド等)、Edit が一意に一致しない場合の Read + Write"
+          - id: f-d2-t5-02
+            name: "Incremental codebase understanding with built-in tools"
+            scope_ja: "全ファイル先読みではなく Grep でエントリポイント → Read で import を辿る段階的理解、wrapper モジュール経由の関数利用追跡(export 名列挙 → 各名を検索)"
+  - id: f-d3
+    name: "Claude Code Configuration & Workflows"
+    weight: 20
+    form_questions: 12
+    task_statements:
+      - id: f-d3-t1
+        name: "Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization"
+        topics:
+          - id: f-d3-t1-01
+            name: "CLAUDE.md hierarchy and sharing scope"
+            scope_ja: "user(~/.claude/CLAUDE.md)/ project(ルート or .claude/)/ directory の 3 階層、user レベルは VCS で共有されない(新メンバーに指示が届かない診断)"
+          - id: f-d3-t1-02
+            name: "Modularization with @import and .claude/rules/"
+            scope_ja: "@import でパッケージごとに関連標準ファイルを選択的に取り込む、肥大化した CLAUDE.md を .claude/rules/ のトピック別ファイルに分割"
+          - id: f-d3-t1-03
+            name: "Diagnosing loaded memory with /memory"
+            scope_ja: "どの memory ファイルが読み込まれているかの確認とセッション間で挙動が一貫しない問題の診断"
+      - id: f-d3-t2
+        name: "Create and configure custom slash commands and skills"
+        topics:
+          - id: f-d3-t2-01
+            name: "Slash command scoping (project vs user)"
+            scope_ja: ".claude/commands/(VCS 共有)vs ~/.claude/commands/(個人)、チーム共有のためのプロジェクトスコープ"
+          - id: f-d3-t2-02
+            name: "SKILL.md frontmatter (context: fork, allowed-tools, argument-hint)"
+            scope_ja: "context: fork による隔離実行(冗長出力・探索的文脈の汚染防止)、allowed-tools による破壊操作の制限、argument-hint による引数プロンプト"
+          - id: f-d3-t2-03
+            name: "Skills vs CLAUDE.md and personal skill variants"
+            scope_ja: "オンデマンド起動(skills)と常時ロード(CLAUDE.md)の使い分け、チームに影響しない ~/.claude/skills/ の別名個人変種"
+      - id: f-d3-t3
+        name: "Apply path-specific rules for conditional convention loading"
+        topics:
+          - id: f-d3-t3-01
+            name: "Path-scoped rules with YAML frontmatter paths"
+            scope_ja: ".claude/rules/ の paths: [\"terraform/**/*\"] などの glob で該当ファイル編集時のみロードし無関係な文脈とトークンを削減"
+          - id: f-d3-t3-02
+            name: "Glob rules vs directory-level CLAUDE.md"
+            scope_ja: "ディレクトリ横断の規約(**/*.test.tsx など)には path-specific rules、サブディレクトリ CLAUDE.md との使い分け"
+      - id: f-d3-t4
+        name: "Determine when to use plan mode vs direct execution"
+        topics:
+          - id: f-d3-t4-01
+            name: "Plan mode vs direct execution criteria"
+            scope_ja: "大規模変更・複数の妥当な手法・アーキテクチャ判断・多ファイル変更は plan mode、明確な単一ファイル修正は直接実行、計画 → 実行の組合せ"
+          - id: f-d3-t4-02
+            name: "Explore subagent for verbose discovery"
+            scope_ja: "Claude Code の Explore subagent で冗長な探索出力を隔離しサマリだけ返し、多段タスクでメイン文脈の枯渇を防ぐ。【primary 境界】Claude Code 機能の選択として問う場合はここ、Agent SDK での汎用 subagent 委任・文脈劣化対策は f-d5-t4-01"
+      - id: f-d3-t5
+        name: "Apply iterative refinement techniques for progressive improvement"
+        topics:
+          - id: f-d3-t5-01
+            name: "Concrete input/output examples for clarification"
+            scope_ja: "散文説明が一貫しない変換要件には 2〜3 個の具体的 I/O 例、エッジケース(null 値など)修正にも例で示す"
+          - id: f-d3-t5-02
+            name: "Test-driven iteration and the interview pattern"
+            scope_ja: "期待動作・エッジケース・性能要件を覆うテストスイートを先に書きテスト失敗を共有して改善、未知領域では実装前に Claude に質問させて考慮事項(キャッシュ無効化・障害モード)を引き出す"
+          - id: f-d3-t5-03
+            name: "Batched vs sequential issue resolution"
+            scope_ja: "相互作用する問題は 1 メッセージに全部まとめて指示、独立した問題は逐次修正"
+      - id: f-d3-t6
+        name: "Integrate Claude Code into CI/CD pipelines"
+        topics:
+          - id: f-d3-t6-01
+            name: "CI CLI flags (-p / --print, --output-format json, --json-schema)"
+            scope_ja: "対話入力ハングを防ぐ非対話モード -p / --print、--output-format json + --json-schema で機械可読な所見を生成し PR インラインコメントとして自動投稿"
+          - id: f-d3-t6-02
+            name: "Independent review instance and incremental re-review in CI"
+            scope_ja: "CI では生成と同一セッションでなく独立インスタンスにレビューさせる、再レビュー時は前回所見を渡して新規/未対応のみ報告し重複コメントを防ぐ。【primary 境界】CI パイプラインの実行・文脈設計として問う場合はここ、自己レビュー限界の一般原理は f-d4-t6-01"
+          - id: f-d3-t6-03
+            name: "Context for CI test generation (existing tests, CLAUDE.md standards)"
+            scope_ja: "既存テストファイルを文脈に含めて重複シナリオを避ける、CLAUDE.md にテスト標準・価値あるテストの基準・fixture を記述して低価値出力を減らす"
+  - id: f-d4
+    name: "Prompt Engineering & Structured Output"
+    weight: 20
+    form_questions: 12
+    task_statements:
+      - id: f-d4-t1
+        name: "Design prompts with explicit criteria to improve precision and reduce false positives"
+        topics:
+          - id: f-d4-t1-01
+            name: "Explicit categorical criteria over vague instructions"
+            scope_ja: "「保守的に」「高確信のみ」は精度改善に効かない、報告する/しないカテゴリ(bug・security vs style)を明示、各重大度に具体コード例"
+          - id: f-d4-t1-02
+            name: "Managing false positives and developer trust"
+            scope_ja: "高誤検知カテゴリが正確なカテゴリへの信頼まで損なう、改善まで当該カテゴリを一時無効化する運用"
+      - id: f-d4-t2
+        name: "Apply few-shot prompting to improve output consistency and quality"
+        topics:
+          - id: f-d4-t2-01
+            name: "Designing few-shot examples for ambiguous cases and format"
+            scope_ja: "詳細指示だけで不安定なときの 2〜4 例、選択理由を示す例、出力形式(location・issue・severity・fix)の実演、新規パターンへの一般化"
+          - id: f-d4-t2-02
+            name: "Few-shot for false-positive reduction and extraction robustness"
+            scope_ja: "許容パターン vs 真の問題を区別する例、多様な文書構造(インライン引用 vs 文献リスト)からの抽出例で空/null 抽出やハルシネーションを減らす"
+      - id: f-d4-t3
+        name: "Enforce structured output using tool use and JSON schemas"
+        topics:
+          - id: f-d4-t3-01
+            name: "tool_use with JSON schema for guaranteed structure"
+            scope_ja: "抽出ツールを定義し tool_use 応答から構造化データを取り出す、スキーマ準拠の最も信頼できる手段で構文エラーを排除(JSON Schema の strict mode)"
+          - id: f-d4-t3-02
+            name: "tool_choice for extraction control"
+            scope_ja: "文書種別不明・複数スキーマ時の \"any\"、enrichment 前に extract_metadata を強制する forced 選択、\"auto\" はテキスト応答もあり得る。【primary 境界】構造化出力・抽出の保証文脈はここ、エージェント設計文脈は f-d2-t3-03"
+          - id: f-d4-t3-03
+            name: "Schema design and syntax vs semantic errors"
+            scope_ja: "捏造防止の nullable/optional、\"unclear\"・\"other\" + detail の enum 設計、prompt 側の正規化ルール、スキーマは意味エラー(合計不一致・フィールド取り違え)を防げない"
+      - id: f-d4-t4
+        name: "Implement validation, retry, and feedback loops for extraction quality"
+        topics:
+          - id: f-d4-t4-01
+            name: "Retry with error feedback and its limits"
+            scope_ja: "Pydantic 等によるスキーマ/意味検証 → 元文書 + 失敗抽出 + 具体的検証エラーを付けた再試行ループ、情報が文書に存在しない場合はリトライ無効(形式/構造エラーなら有効)"
+          - id: f-d4-t4-02
+            name: "Feedback loop fields (detected_pattern, calculated_total, conflict_detected)"
+            scope_ja: "却下パターン分析のための detected_pattern、stated_total と並べて不一致を検知する calculated_total、矛盾ソースを示す conflict_detected"
+      - id: f-d4-t5
+        name: "Design efficient batch processing strategies"
+        topics:
+          - id: f-d4-t5-01
+            name: "Message Batches API characteristics and appropriateness"
+            scope_ja: "50% コスト減・最大 24h・レイテンシ SLA なし・1 リクエスト内の多ターン tool 呼出し不可、非ブロッキング(夜間/週次)向き・pre-merge には不向き"
+          - id: f-d4-t5-02
+            name: "SLA-driven scheduling and failure handling by custom_id"
+            scope_ja: "SLA から逆算した提出間隔(24h 処理で 30h SLA → 4h 窓)、完了の polling、失敗分のみ custom_id で再提出(超過文書はチャンク化)、大量処理前のサンプルで prompt 調整"
+      - id: f-d4-t6
+        name: "Design multi-instance and multi-pass review architectures"
+        topics:
+          - id: f-d4-t6-01
+            name: "Independent review instances vs self-review"
+            scope_ja: "生成時の推論文脈を持つ同一セッションは自分の判断を疑いにくい、文脈を持たない第二インスタンスが自己レビュー指示や extended thinking より有効。【primary 境界】自己レビュー限界の一般原理はここ、CI パイプライン固有の設計は f-d3-t6-02"
+          - id: f-d4-t6-02
+            name: "Multi-pass review and confidence self-reporting"
+            scope_ja: "ファイル単位パス + 横断統合パスで注意の希釈と矛盾所見を回避、所見ごとの自己申告 confidence で較正されたレビュー振り分け。【primary 境界】レビュー品質の文脈はここ、一般的なタスク分解戦略は f-d1-t6-02"
+  - id: f-d5
+    name: "Context Management & Reliability"
+    weight: 15
+    form_questions: 9
+    task_statements:
+      - id: f-d5-t1
+        name: "Manage conversation context to preserve critical information across long interactions"
+        topics:
+          - id: f-d5-t1-01
+            name: "Summarization risks and the case facts block"
+            scope_ja: "要約で数値・日付・顧客の明示した期待が曖昧化する、取引事実(金額・日付・注文番号・ステータス)を要約外の永続ブロックに抽出、多論点セッションの構造化データ層"
+          - id: f-d5-t1-02
+            name: "Lost-in-the-middle and position-aware ordering"
+            scope_ja: "長文入力の中央部が欠落しやすい、要点サマリを先頭に置き明示的セクション見出しで整理、完全な会話履歴を各リクエストに渡す"
+          - id: f-d5-t1-03
+            name: "Tool output trimming and context budgets for downstream agents"
+            scope_ja: "40+ フィールドの注文照会を関連 5 フィールドに絞る、上流エージェントに冗長な推論ではなく構造化データ(要点・引用・関連度)と metadata を返させる"
+      - id: f-d5-t2
+        name: "Design effective escalation and ambiguity resolution patterns"
+        topics:
+          - id: f-d5-t2-01
+            name: "Escalation triggers and honoring explicit requests"
+            scope_ja: "人間要求・ポリシー例外/欠落・進展不能が適切なトリガー、明示要求は調査せず即エスカレーション、不満には解決を提示し再度の要求で移譲、sentiment や自己申告 confidence は不適"
+          - id: f-d5-t2-02
+            name: "Policy gaps and multiple-match clarification"
+            scope_ja: "ポリシーが沈黙/曖昧なケース(競合他社価格マッチ)はエスカレーション、複数一致はヒューリスティック選択ではなく追加識別子を要求、few-shot 付き明示基準"
+      - id: f-d5-t3
+        name: "Implement error propagation strategies across multi-agent systems"
+        topics:
+          - id: f-d5-t3-01
+            name: "Structured error context vs generic status"
+            scope_ja: "失敗種別・試行クエリ・部分結果・代替案を含む構造化文脈、\"search unavailable\" の害、黙殺(空結果を成功扱い)と単一失敗での全体停止の両アンチパターン"
+          - id: f-d5-t3-02
+            name: "Coordinator recovery decisions and coverage annotations"
+            scope_ja: "coordinator が受け取った伝播エラーからの回復判断、アクセス失敗と正当な空結果を受けた後の判断分岐、synthesis に「裏付け十分 / ソース欠落によるギャップ」の注記。【primary 境界】coordinator が伝播を受けた後の判断・synthesis への反映はここ、ツール/subagent 側の局所回復と返却契約は f-d2-t2-02"
+      - id: f-d5-t4
+        name: "Manage context effectively in large codebase exploration"
+        topics:
+          - id: f-d5-t4-01
+            name: "Context degradation countermeasures (scratchpad, delegation, /compact)"
+            scope_ja: "長期セッションで「典型パターン」への退行が起きる、要点を scratchpad に永続化して参照、特定質問は subagent に委任、冗長出力で埋まったら /compact。【primary 境界】Agent SDK / 一般的な文脈劣化対策はここ、Claude Code の Explore subagent 機能の選択は f-d3-t4-02"
+          - id: f-d5-t4-02
+            name: "Phase summaries and crash recovery with manifests"
+            scope_ja: "次フェーズの subagent 起動前に要点を要約して初期文脈に注入、各エージェントが既知の場所に状態を書き出し coordinator が再開時に manifest を読み込む"
+      - id: f-d5-t5
+        name: "Design human review workflows and confidence calibration"
+        topics:
+          - id: f-d5-t5-01
+            name: "Segmented accuracy analysis before automation"
+            scope_ja: "集計精度(97%)が特定文書種別/フィールドの低性能を隠す、自動化前に文書種別 × フィールドで精度を検証"
+          - id: f-d5-t5-02
+            name: "Confidence calibration, stratified sampling, and review routing"
+            scope_ja: "フィールド単位 confidence を labeled set で較正して閾値設定、高確信抽出の層化ランダム抽出で誤り率と新規パターンを監視、低確信/矛盾文書を限られたレビュー能力に優先配分"
+      - id: f-d5-t6
+        name: "Preserve information provenance and handle uncertainty in multi-source synthesis"
+        topics:
+          - id: f-d5-t6-01
+            name: "Claim-source mappings and attribution preservation"
+            scope_ja: "要約で出典が失われる問題、subagent に URL・文書名・抜粋の claim-source mapping を出力させ synthesis まで保持・統合"
+          - id: f-d5-t6-02
+            name: "Conflict annotation and coordinator reconciliation"
+            scope_ja: "信頼できるソース間の矛盾は恣意的選択でなく出典付きで注記し、文書分析は矛盾値を含めて完了、調停は coordinator が synthesis 前に判断、確立済み/係争中の区分とソースの元の表現・方法論的文脈の保持"
+          - id: f-d5-t6-03
+            name: "Temporal data and content-type rendering in synthesis"
+            scope_ja: "公開/収集日付を構造化出力で必須化して時間差を矛盾と誤認しない、財務は表・ニュースは散文・技術所見は構造化リストと型に応じて描画し一様形式に潰さない"
