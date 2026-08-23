@@ -57,6 +57,8 @@ forms:
 
 validator: 60 問 / ドメイン配分 16-11-12-12-9 / form 間の問題重複なし / 全問 eligible_modes に mock を含む / **全問 scenario_id != null** / **各問の scenario_id ∈ form.scenario_ids** / **実使用 scenario_id 集合 = form.scenario_ids(完全一致)** / Step 0 で「各 15 問」が公式確認できた場合のみ各シナリオ 15 問も検証(未確認なら件数を固定しない)。
 
+**Step 0 判定(2026-08-23, C0)**: Exam Guide v1.0 に各シナリオの問題数の記述は**なし**(`content/ccar-f/SOURCES.md` §1.1)。したがって各シナリオ 15 問検証は **OFF で確定**。validator はシナリオ内件数を検証せず、上記の scenario_id 整合のみ検証する。
+
 ## 2. 進捗 DB(Postgres)
 
 数値は double precision。mode / exam / reason / status / kind は enum または CHECK で TypeScript union と一致させる。

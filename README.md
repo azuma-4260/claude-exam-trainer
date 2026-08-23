@@ -72,5 +72,5 @@ UI 文言、loading/empty state、コンポーネント分割、CSS、内部関�
 ## 未確定事項
 
 - CCAR-P の受験時期
-- 公式 Exam Guide の模試構造(4×15 か否か)→ `07` Step 0 で照合
+- ~~公式 Exam Guide の模試構造(4×15 か否か)→ `07` Step 0 で照合~~ → **解消(2026-08-23, C0)**: Guide に各シナリオ問題数の記述なし。各シナリオ 15 問検証は OFF 確定(`content/ccar-f/SOURCES.md` §1.1)
 - ハーフ模試: 任意機能(Phase 4 以降・余力時のみ)
