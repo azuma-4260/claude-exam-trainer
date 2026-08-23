@@ -1,0 +1,3 @@
+state: merged
+evidence: "commit b948604 を merge  で main 取り込み。Codex レビュー 3 回(P1 3 件修正済み)、main で npm test(294 件)green を 2026-08-23 に確認。done は Actions run(main 緑 + deploy 成功、一時ブランチ赤 + deploy skip)を証跡にして記録する"
+recorded: 2026-08-23
