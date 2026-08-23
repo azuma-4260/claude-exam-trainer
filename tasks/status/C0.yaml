@@ -1,3 +1,3 @@
-state: merged
-evidence: "オーナー承認(2026-08-23)後、merge 3a23d23 で main 取り込み。Codex review P1 なし、main で npm test 155 件 green"
+state: done
+evidence: "CI 導入(D0-3)前 merge の例外(tasks/README §完了の記録 7): オーナー承認後 merge 4ebc45a で main 取り込み。Codex review P1 なし。main で npm test(155 件)&& npm run build green を 2026-08-23 に確認。DoD: content/ccar-f/SOURCES.md 作成、02 更新、15 問検証 OFF を 03/06 に追記"
 recorded: 2026-08-23
