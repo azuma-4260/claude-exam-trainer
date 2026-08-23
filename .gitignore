@@ -42,3 +42,6 @@ next-env.d.ts
 
 # task:start が作る worktree
 .claude/worktrees/
+
+# /task-session のセッション状態(worktree ごと、commit しない。specs/10 §4)
+.task-session-state

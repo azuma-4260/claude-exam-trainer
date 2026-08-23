@@ -53,6 +53,7 @@ UI 文言、loading/empty state、コンポーネント分割、CSS、内部関�
 | `07_content-pipeline.md` | バンク生成パイプライン(シナリオ優先) |
 | `08_roadmap.md` | 絶対日付スケジュール |
 | `09_task-plan.md` | トラック・依存表・クリティカルパス・DoD・リリースゲート・セッション配分 |
+| `10_task-ops.md` | タスク運用補助: バックログ形式・`task:report` 出力・`/task-session` のセッション状態と承認ハッシュ |
 
 ## 確定した決定事項(v1.2)
 

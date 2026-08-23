@@ -26,7 +26,7 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
 | `status` | string | ✓ | `open` / `absorbed-by <ID>` / `promoted-to <ID>` / `closed`。埋込 ID は 09 に存在 |
 | `related_tasks` | string[] | ✓(空可) | 09 に存在するタスク ID |
 | `related_specs` | string[] | ✓(空可) | `<spec番号>#<見出しスラッグ>`(例 `03#出題プールの判定順序`)。文字列形式のみ検証 |
-| `related_paths` | string[] | ✓(空可) | リポジトリ相対パス。存在確認はしない |
+| `related_paths` | string[] | ✓(空可) | リポジトリ相対パス(先頭 `/` と `..` セグメントは不可)。存在確認はしない |
 | `related_backlog` | string[] | 任意 | `B-<ID>-<n>` 形式。存在確認はしない(未マージ項目を参照できる) |
 | `stop_condition` | string | ✓ | `none` / `schema` / `transition` / `scoring` / `srs` / `mock` / `auth` / `prod-data`(README 停止条件の 7 領域) |
 | `decisions` | object[] | 任意 | 各要素 `{at: YYYY-MM-DD, by: <09 ID>, action: absorb|defer|escalate|close, note: string}` |
@@ -54,7 +54,7 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
   "nodes": [{ "id": "D0-4", "status": "READY", "track": "D", "spec": "03 §2, 06 §…",
               "depends": ["D0-1", "O-3"], "blockedBy": [], "worktree": null }],
   "candidates": [{ "id": "D0-4", "rank": 1, "scheduled": "8/24", "reason": "当日" }],
-  "excluded": [{ "id": "O-2b", "reason": "owner-track" }],   // owner-track | milestone | paired-dependent | lock-conflict | frozen | not-ready
+  "excluded": [{ "id": "O-2b", "reason": "owner-track" }],   // owner-track | milestone | paired-dependent | paired-blocked | lock-conflict | frozen
   "bottlenecks": [{ "id": "D0-3", "blockedBy": [{ "id": "O-2b", "status": "BLOCKED" }],
                     "ownerAction": "O-2b: CI 経由 deploy を確認して tasks/status/O-2b.yaml を done で記録" }],
   "worktrees": [{ "id": "T-holdout", "path": "…/.claude/worktrees/T-holdout", "branch": "task/T-holdout",
@@ -70,7 +70,7 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
 ### 自動選択候補 `candidates`
 
 1. 母集合 = `status === "READY"` のノード
-2. 除外(`excluded` に理由付きで列挙): O-\*(`owner-track`)、M-\*(`milestone`)、paired task の実装側 D-y(`paired-dependent`、§3)、「同時 1 本」対象で同じ lock の IN_PROGRESS がある(`lock-conflict`、§3)、凍結後(`frozen`: `today >= 2026-09-20`、または O-6 / M5 が DONE)
+2. 除外(`excluded` に理由付きで列挙): O-\*(`owner-track`)、M-\*(`milestone`)、paired task の実装側 D-y(`paired-dependent`、§3)、paired の T-x で相方 D-y の depends(T-x 自身を除く)に DONE でないものがある(`paired-blocked`: 両方 green で一緒に main に入れる規約を満たせないため)、「同時 1 本」対象で同じ lock の IN_PROGRESS がある(`lock-conflict`、§3)、凍結後(`frozen`: `today >= 2026-09-20`、または O-6 / M5 が DONE)
 3. 順位: 09 §6 の表から各 ID の予定日(行の日付。範囲行 `8/29–9/4` は開始日)を引き、**予定日が today より前のもの(期限超過)を古い順** → **当日** → **以降を日付順**。同日内はクリティカルパス優先(直近の未 DONE マイルストーンの depends に含まれるものを先に)。§6 に現れない ID は末尾
 4. 日付はすべて Asia/Tokyo。実行環境の `TZ` に依存しない
 
@@ -102,15 +102,18 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
 
 ## 4. `/task-session` セッション状態(`.task-session-state`)
 
-スキル `.claude/skills/task-session/SKILL.md` が、自分の worktree ルートに置く JSON ファイル。`.claude/worktrees/` は gitignore 済みなので commit されない。他セッションはこれを `task:report` 経由で読むだけ。
+スキル `.claude/skills/task-session/SKILL.md` が、自分の worktree ルートに置く JSON ファイル。`.gitignore` に登録されているので commit されず、承認ハッシュの未追跡ファイル列挙(`--exclude-standard`)にも含まれない。他セッションはこれを `task:report` 経由で読むだけ。
 
 ```jsonc
 { "id": "D1-2", "state": "implementing" }
 { "id": "D1-2", "state": "awaiting-approval", "head": "<HEAD SHA>", "hash": "<sha256>" }
+{ "id": "D1-2", "state": "committed", "head": "<commit 後の HEAD SHA>" }
 { "id": "D1-2", "state": "stopped", "reason": "codex-unavailable" }
 ```
 
-遷移: `implementing → awaiting-approval`(Codex レビュー + P1 修正が終わり、commit せずに承認依頼した時点)/ `implementing | awaiting-approval → stopped`(停止条件・DoD 未達・Codex 利用不能)/ `awaiting-approval → (approved)`(承認後にスキルが commit と完了記録を行い、worktree が消えるのでファイルも消える)。
+遷移: `implementing → awaiting-approval`(Codex レビュー + P1 修正が終わり、commit せずに承認依頼した時点)/ `implementing | awaiting-approval → stopped`(停止条件・DoD 未達・Codex 利用不能)/ `awaiting-approval → committed`(承認後、共有 checkout が使えることを確認してから commit した時点。`head` は commit 後の HEAD)/ `committed → (完了)`(完了記録が終わり worktree が消えるのでファイルも消える。途中で共有 checkout が使えなくなっても `committed` のまま残り、再実行で merge から再開する)。
+
+各 state の必須フィールド: `implementing` = `id`、`awaiting-approval` = `id, head, hash`、`committed` = `id, head`、`stopped` = `id, reason`。`task:report` はこれを検証し、列挙外の state・必須欠落・worktree ID と `id` の不一致は `session: null` + `warnings[]` にする。
 
 ### 承認ハッシュ
 

@@ -48,6 +48,18 @@
 
 台帳導入(2026-08-23)前に main に入っていた S-1 / D0-1 / D0-2 は CI 未導入のため、ローカル DoD の再実行結果を証跡として `done` 登録した。O-1〜O-5 はオーナー確認済みの旨を証跡とした。導入作業自体は 09 のノードではないため台帳に記録しない。以後この例外は使わない。
 
+## バックログ(`tasks/backlog/`)
+
+仕様は `specs/10_task-ops.md` §1。ここでは手順だけを書く。
+
+- タスクの DoD 外で見つけた未解決事項は、**自分の worktree** に `tasks/backlog/B-<自ID>-<n>.md` として起票する(形式は `tasks/backlog/README.md`)。`npm run backlog:check` を DoD 検証に含める。main へはタスクの merge と一緒に入る
+- 着手直後に `npm run task:report -- --json` の `backlog` を見て、`related_tasks` が自分の ID / depends と重なる `open` 項目、`related_specs` が自分の spec 節と重なる項目について **absorb / defer / escalate** を決め、セッションの最終報告に判断と理由を書く。他ブランチ由来の項目は書き換えられない(未マージのため)。absorb したら自分の起票の `related_backlog` で参照する
+- 昇格(09 のノードにする)はオーナー作業(`specs/10` §1.4)
+
+## セッション状態(`.task-session-state`)
+
+`/task-session` スキルが自分の worktree ルートに置く JSON(`specs/10` §4、`.gitignore` 済み)。他セッションは `task:report` の `worktrees[].session` で読むだけ。`awaiting-approval` のものだけを「承認待ち」と扱い、ファイルが無い dirty worktree は「状態不明」として扱う(実装中と承認待ちを推測で区別しない)。
+
 ## worktree 固有の注意
 
 - `.env.local` / `.vercel/project.json` の配布元は main worktree ルート。`task:start` がコピーする。値を表示しない
