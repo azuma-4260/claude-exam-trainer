@@ -15,6 +15,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { Rating, State } from "ts-fsrs";
 import { EXAMS, MODES } from "../lib/bank/schema";
+import { FLAG_REASONS } from "../lib/flags/reasons";
 
 /**
  * 進捗 DB スキーマの単一ソース(specs/03 §2)。
@@ -31,8 +32,7 @@ export type SessionStatus = (typeof SESSION_STATUSES)[number];
 export const SUBMISSION_REASONS = ["manual", "timeout"] as const;
 export type SubmissionReason = (typeof SUBMISSION_REASONS)[number];
 
-export const FLAG_REASONS = ["ambiguous", "wrong", "outdated"] as const;
-export type FlagReason = (typeof FLAG_REASONS)[number];
+export { FLAG_REASONS, type FlagReason } from "../lib/flags/reasons";
 
 /** ts-fsrs 5.4.1 State enum の許容値(New=0 / Learning=1 / Review=2 / Relearning=3) */
 export const FSRS_STATE_VALUES = [State.New, State.Learning, State.Review, State.Relearning] as const;
