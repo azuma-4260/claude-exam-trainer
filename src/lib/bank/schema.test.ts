@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   mockFormSchema,
+  mockFormsFileSchema,
   questionSchema,
   questionsFileSchema,
+  scenariosFileSchema,
+  syllabusFileSchema,
   type Question,
 } from "./schema";
 
@@ -220,5 +223,80 @@ describe("mockFormSchema(mock_forms.yaml の forms[])", () => {
 
   it("id は form-* 形式", () => {
     expect(mockFormSchema.safeParse({ ...form, id: "A" }).success).toBe(false);
+  });
+});
+
+// --- syllabus.yaml / scenarios.yaml(D0-3) ---
+
+const syllabus = {
+  exam: "ccar-f",
+  version: 1,
+  source: "content/ccar-f/SOURCES.md",
+  domains: [
+    {
+      id: "f-d1",
+      name: "A",
+      weight: 60,
+      form_questions: 36,
+      task_statements: [
+        { id: "f-d1-t1", name: "t", topics: [{ id: "f-d1-t1-01", name: "x", scope_ja: "範囲" }] },
+      ],
+    },
+    {
+      id: "f-d2",
+      name: "B",
+      weight: 40,
+      form_questions: 24,
+      task_statements: [
+        { id: "f-d2-t1", name: "t", topics: [{ id: "f-d2-t1-01", name: "y", scope_ja: "範囲" }] },
+      ],
+    },
+  ],
+};
+
+describe("syllabusFileSchema", () => {
+  it("valid fixture を受理", () => {
+    expect(syllabusFileSchema.safeParse(syllabus).success).toBe(true);
+  });
+  const bad: [string, (s: string) => string, RegExp][] = [
+    ["domain id 重複", (s) => s.replace('"id":"f-d2"', '"id":"f-d1"'), /id 重複/],
+    ["topic id 重複", (s) => s.replace('"id":"f-d2-t1-01"', '"id":"f-d1-t1-01"'), /id 重複/],
+    ["task_statement が他 domain 配下", (s) => s.replace('"id":"f-d2-t1"', '"id":"f-d1-t9"'), /配下でない/],
+    ["topic が他 task_statement 配下", (s) => s.replace('"id":"f-d2-t1-01"', '"id":"f-d1-t1-02"'), /配下でない/],
+    ["weight 合計 ≠ 100", (s) => s.replace('"weight":40', '"weight":30'), /weight 合計/],
+    ["form_questions 合計 ≠ 60", (s) => s.replace('"form_questions":24', '"form_questions":20'), /form_questions 合計/],
+    ["exam と domain 接頭辞不一致", (s) => s.replace('"exam":"ccar-f"', '"exam":"ccar-p"'), /p- で始まる/],
+    ["未知キー", (s) => s.replace('"version":1', '"version":1,"extra":1'), /unrecognized|Unrecognized/i],
+  ];
+  for (const [name, mutate, re] of bad) {
+    it(`invalid: ${name}`, () => {
+      const r = syllabusFileSchema.safeParse(JSON.parse(mutate(JSON.stringify(syllabus))));
+      expect(r.success).toBe(false);
+      expect(JSON.stringify(r.error?.issues)).toMatch(re);
+    });
+  }
+});
+
+describe("mockFormsFileSchema", () => {
+  it("form id 重複を拒否", () => {
+    const f = { id: "form-a", exam: "ccar-f", scenario_ids: ["sc-1"], question_ids: Array.from({ length: 60 }, (_, i) => `f-d1-q${String(i + 1).padStart(3, "0")}`) };
+    expect(mockFormsFileSchema.safeParse({ forms: [f] }).success).toBe(true);
+    const r = mockFormsFileSchema.safeParse({ forms: [f, f] });
+    expect(r.success).toBe(false);
+    expect(JSON.stringify(r.error?.issues)).toMatch(/form id 重複/);
+  });
+});
+
+describe("scenariosFileSchema", () => {
+  it("id のみ必須、他キーは passthrough", () => {
+    const r = scenariosFileSchema.safeParse({ scenarios: [{ id: "sc-1", title_en: "x" }] });
+    expect(r.success).toBe(true);
+  });
+  it("id 重複を拒否", () => {
+    const r = scenariosFileSchema.safeParse({ scenarios: [{ id: "sc-1" }, { id: "sc-1" }] });
+    expect(r.success).toBe(false);
+  });
+  it("id 形式違反を拒否", () => {
+    expect(scenariosFileSchema.safeParse({ scenarios: [{ id: "scenario1" }] }).success).toBe(false);
   });
 });

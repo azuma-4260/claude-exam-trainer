@@ -152,6 +152,8 @@ export const questionsFileSchema = z.array(questionSchema).superRefine((qs, ctx)
 
 /** mock_forms.yaml の forms[] 1 件(specs/03 §mock_forms.yaml) */
 export const MOCK_FORM_SIZE = 60;
+/** full form のシナリオ本数(specs/01 FR-5: 各 60 問・4 シナリオ)。件数の整合は validate-bank が照合 */
+export const FORM_SCENARIO_COUNT = 4;
 
 export const mockFormSchema = z
   .object({
@@ -169,4 +171,116 @@ export const mockFormSchema = z
   });
 export type MockForm = z.infer<typeof mockFormSchema>;
 
-export const mockFormsFileSchema = z.object({ forms: z.array(mockFormSchema) }).strict();
+export const mockFormsFileSchema = z
+  .object({ forms: z.array(mockFormSchema) })
+  .strict()
+  .superRefine((f, ctx) => {
+    const seen = new Set<string>();
+    f.forms.forEach((form, i) => {
+      if (seen.has(form.id))
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["forms", i, "id"], message: `form id 重複: ${form.id}` });
+      seen.add(form.id);
+    });
+  });
+
+/**
+ * 固定フォームのドメイン配分(specs/03 §mock_forms, 06 §バンク静的検証: 16-11-12-12-9)。
+ * syllabus.yaml の form_questions はこの値と一致しなければならない(validate-bank が照合)。
+ * 配分はリリースゲートなので、同じ deploy に入る content 側の値を正としない。
+ */
+export const FORM_DOMAIN_QUOTA: Partial<Record<Exam, Readonly<Record<string, number>>>> = {
+  "ccar-f": { "f-d1": 16, "f-d2": 11, "f-d3": 12, "f-d4": 12, "f-d5": 9 },
+};
+
+// ---------------------------------------------------------------------------
+// syllabus.yaml / scenarios.yaml(ファイル横断の照合元。validate-bank.ts が import)
+// ---------------------------------------------------------------------------
+
+const syllabusTopicSchema = z
+  .object({
+    id: topicIdSchema,
+    name: z.string().trim().min(1),
+    scope_ja: z.string().trim().min(1),
+  })
+  .strict();
+
+const syllabusTaskStatementSchema = z
+  .object({
+    id: z.string().regex(/^[fp]-d[1-7]-t\d+$/, "task_statement id は f-d1-t1 形式"),
+    name: z.string().trim().min(1),
+    topics: z.array(syllabusTopicSchema).min(1),
+  })
+  .strict();
+
+const syllabusDomainSchema = z
+  .object({
+    id: domainIdSchema,
+    name: z.string().trim().min(1),
+    weight: z.number().int().min(0).max(100),
+    form_questions: z.number().int().min(0),
+    task_statements: z.array(syllabusTaskStatementSchema).min(1),
+  })
+  .strict();
+
+/**
+ * syllabus.yaml(specs/02 §トピックツリー)。
+ * 階層整合(task_statement / topic が自 domain 配下)・ID の全体一意性・
+ * weight 合計 100・form_questions 合計 = MOCK_FORM_SIZE をここで強制する。
+ */
+export const syllabusFileSchema = z
+  .object({
+    exam: examSchema,
+    version: z.number().int().min(1),
+    source: z.string().trim().min(1),
+    domains: z.array(syllabusDomainSchema).min(1),
+  })
+  .strict()
+  .superRefine((s, ctx) => {
+    const issue = (path: (string | number)[], message: string) =>
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+    const prefix = EXAM_PREFIX[s.exam];
+    const seen = new Set<string>();
+    const dup = (id: string, path: (string | number)[]) => {
+      if (seen.has(id)) issue(path, `id 重複: ${id}`);
+      seen.add(id);
+    };
+    s.domains.forEach((d, di) => {
+      dup(d.id, ["domains", di, "id"]);
+      if (!d.id.startsWith(`${prefix}-`)) issue(["domains", di, "id"], `exam=${s.exam} の id は ${prefix}- で始まる`);
+      d.task_statements.forEach((t, ti) => {
+        const tp = ["domains", di, "task_statements", ti];
+        dup(t.id, [...tp, "id"]);
+        if (!t.id.startsWith(`${d.id}-`)) issue([...tp, "id"], `${t.id} は ${d.id} 配下でない`);
+        t.topics.forEach((tc, ci) => {
+          const cp = [...tp, "topics", ci, "id"];
+          dup(tc.id, cp);
+          if (!tc.id.startsWith(`${t.id}-`)) issue(cp, `${tc.id} は ${t.id} 配下でない`);
+        });
+      });
+    });
+    const weight = s.domains.reduce((a, d) => a + d.weight, 0);
+    if (weight !== 100) issue(["domains"], `weight 合計が 100 でない(${weight})`);
+    const fq = s.domains.reduce((a, d) => a + d.form_questions, 0);
+    if (fq !== MOCK_FORM_SIZE) issue(["domains"], `form_questions 合計が ${MOCK_FORM_SIZE} でない(${fq})`);
+  });
+export type Syllabus = z.infer<typeof syllabusFileSchema>;
+export type SyllabusDomain = Syllabus["domains"][number];
+
+/**
+ * scenarios.yaml(specs/03 §1)。本文の項目は spec 未定義(C3a で確定)のため、
+ * ここでは validator が参照する id だけを固定し、他キーは passthrough で許容する。
+ */
+export const scenarioSchema = z.object({ id: scenarioIdSchema }).passthrough();
+export type Scenario = z.infer<typeof scenarioSchema>;
+
+export const scenariosFileSchema = z
+  .object({ scenarios: z.array(scenarioSchema) })
+  .strict()
+  .superRefine((s, ctx) => {
+    const seen = new Set<string>();
+    s.scenarios.forEach((sc, i) => {
+      if (seen.has(sc.id))
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["scenarios", i, "id"], message: `id 重複: ${sc.id}` });
+      seen.add(sc.id);
+    });
+  });

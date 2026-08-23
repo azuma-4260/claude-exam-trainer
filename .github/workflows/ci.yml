@@ -1,0 +1,59 @@
+# CI + deploy 直列化(specs/06 §バンク静的検証, specs/09 §1 原則 3)。
+# - 全ブランチの push で validator → backlog:check → test → build を実行
+# - deploy は main のみ、ci job 成功後の後続 job からのみ(Vercel の Git 自動 deploy は O-2a で無効化済み)
+# - CI 失敗 = deploy job skip。これが「CI 失敗 = deploy 中止」の仕組み上の保証
+name: ci
+
+on:
+  push:
+
+# 同一 ref の連続 push は古い run を取り消す(deploy の直列化。main は cancel せず順番に流す)
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  NODE_VERSION: 22
+  VERCEL_CLI_VERSION: 59.5.0
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: validate-bank(バンク静的検証)
+        run: npm run validate-bank
+      - name: backlog:check(tasks/backlog 静的検証)
+        run: npm run backlog:check
+      - name: test
+        run: npm test
+      - name: build
+        run: npm run build
+
+  deploy:
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      # job 間で作業ディレクトリは共有されないので checkout / node / npm ci をやり直す
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: vercel pull(production の env と project 設定)
+        run: npx --yes vercel@${{ env.VERCEL_CLI_VERSION }} pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: vercel build(--prebuilt 用の成果物。ci job の next build とは別物)
+        run: npx --yes vercel@${{ env.VERCEL_CLI_VERSION }} build --prod --token="$VERCEL_TOKEN"
+      - name: vercel deploy --prebuilt --prod
+        run: npx --yes vercel@${{ env.VERCEL_CLI_VERSION }} deploy --prebuilt --prod --token="$VERCEL_TOKEN"
