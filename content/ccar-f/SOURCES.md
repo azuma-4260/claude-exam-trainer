@@ -1,6 +1,6 @@
 # CCAR-F ソーススナップショット(`07` Step 0 成果物)
 
-本ファイルは公式 Exam Guide の**転記**(英語原文をそのまま保持)と、`02`/`03`/`06` への反映判断の記録。バンク生成(Step 1 以降)の一次参照先。原文と食い違う記述がアプリ内・specs 内にあれば**本ファイル(=公式)が正**。
+本ファイルは公式 Exam Guide の**転記**(英語原文をそのまま保持)と、`02`/`03`/`06` への反映判断の記録。バンク生成(Step 1 以降)の一次参照先(根拠資料)。**仕様の正本は引き続き `specs/`**(AGENTS.md): 公式と specs の食い違いを見つけたら、本ファイルに追従するのではなく **spec を先に更新**し、その判断を本ファイル §8 / §9 に記録する。
 
 ## 0. スナップショット
 
@@ -71,7 +71,7 @@
 | シナリオ | 6 本から 4 本抽選(一致) | 同左 + **6 本の名称と primary domains が明記** | `02` に 6 本を転記 |
 | 各シナリオ 15 問 | 要検証 | **記述なし** | §1.1 のとおり OFF 確定。`02`/`03`/`06`/README から「要検証」を解消 |
 | D2 主なトピック | トランスポートのトレードオフ、認証パターン | **範囲外**(Deploying/hosting MCP servers、OAuth/auth protocol details は Out-of-Scope) | `02` の主なトピックを公式タスクステートメントで全面置換 |
-| D5 主なトピック | プロンプトキャッシュ(cache_control)、トークン見積り | **範囲外**(Prompt caching implementation details、Token counting は Out-of-Scope)。D5 の実体は要約リスク・lost-in-the-middle・エスカレーション・エラー伝播・来歴・信頼度較正 | 同上 |
+| D5 主なトピック | プロンプトキャッシュ(cache_control)、トークン見積り | **範囲外**(Prompt caching implementation details、Token counting algorithms / tokenization specifics は Out-of-Scope。ただし token budgets の判断は In-Scope)。D5 の実体は要約リスク・lost-in-the-middle・エスカレーション・エラー伝播・来歴・信頼度較正 | 同上 |
 | D1/D3/D4 主なトピック | 概ね整合 | タスクステートメント 7/6/6 本 | 公式の文言で置換 |
 | 推奨経験 | 6 ヶ月以上 | "6+ months of practical experience"(一致) | 変更なし |
 
@@ -569,7 +569,7 @@ You are building a structured data extraction system using Claude. The system ex
 - Prompt caching implementation details (beyond knowing it exists)
 - Token counting algorithms or tokenization specifics
 
-生成時の注意: `02` v1.1 の D2「トランスポート / 認証パターン」、D5「プロンプトキャッシュ / トークン見積り」はこの Out-of-Scope に該当するため、**問題化しない**(知っていることを前提にした文脈としての言及は可)。
+生成時の注意: `02` v1.1 の D2「トランスポート / 認証パターン」、D5「プロンプトキャッシュ(cache_control)実装詳細 / トークン計数アルゴリズム」はこの Out-of-Scope に該当するため、**問題化しない**(知っていることを前提にした文脈としての言及は可)。ただし **`Context window management — token budgets`(§4.1)は出題対象**: コンテキスト予算の判断(冗長なツール出力のトリミング、構造化事実抽出、subagent への予算配慮)は D5 で出題する。範囲外なのは token counting algorithms / tokenization specifics のみ。
 
 ## 5. 公式サンプル問題(§9 転記・12 問)
 

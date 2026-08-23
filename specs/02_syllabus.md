@@ -24,7 +24,7 @@
 | F-D4 | Prompt Engineering & Structured Output | 20% | 4.1 明示基準で精度向上(vague な「保守的に」は効かない・誤検知カテゴリの一時無効化)/ 4.2 few-shot(2〜4 例・曖昧ケース・形式統一)/ 4.3 tool_use + JSON schema(tool_choice・nullable・enum "other"+detail・構文 vs 意味エラー)/ 4.4 検証・リトライ・フィードバックループ(エラー付き再試行・retry が無効なケース・detected_pattern・calculated_total)/ 4.5 Message Batches API(50%・24h・custom_id・多ターン tool 不可・SLA 逆算)/ 4.6 多インスタンス・多パスレビュー(自己レビューの限界・per-file + integration pass・confidence 併記) |
 | F-D5 | Context Management & Reliability | 15% | 5.1 長期会話の文脈保持(要約による数値喪失・lost-in-the-middle・case facts ブロック・ツール出力のトリミング)/ 5.2 エスカレーションと曖昧性解消(明示基準・顧客の明示要求は即時・sentiment/自己申告 confidence は不可・複数一致は追加識別子)/ 5.3 マルチエージェントのエラー伝播(構造化エラー文脈・access failure vs 空結果・局所回復・coverage 注記)/ 5.4 大規模コードベース探索の文脈管理(scratchpad・subagent 委任・manifest による crash recovery・/compact)/ 5.5 人間レビューと信頼度較正(層化抽出・文書種別/フィールド別精度・labeled set で閾値較正)/ 5.6 来歴と不確実性(claim-source mapping・矛盾の注記・日付必須・型に応じた描画) |
 
-**v1.1 からの主な訂正**(`SOURCES.md` §1.3): D2 の「トランスポートのトレードオフ・認証パターン」、D5 の「プロンプトキャッシュ(cache_control)・トークン見積り」は公式の **Out-of-Scope**(MCP サーバーのデプロイ/ホスティング、OAuth/認証プロトコル、prompt caching の実装詳細、token counting)に該当するため削除。バンクではこれらを問題化しない。
+**v1.1 からの主な訂正**(`SOURCES.md` §1.3): D2 の「トランスポートのトレードオフ・認証パターン」、D5 の「プロンプトキャッシュ(cache_control)・トークン見積り」は公式の **Out-of-Scope**(MCP サーバーのデプロイ/ホスティング、OAuth/認証プロトコル、prompt caching の実装詳細、token counting algorithms / tokenization specifics)に該当するため削除。バンクではこれらを問題化しない。**ただし `Context window management — token budgets` は Appendix の出題対象概念**であり、コンテキスト予算の判断(ツール出力のトリミング・構造化事実抽出・subagent の予算配慮)は D5 5.1 / 5.4 として出題する。除外するのは計数アルゴリズム・tokenization の詳細のみ。
 
 ### 60 問へのドメイン配分(largest-remainder 法で固定・公式重みで確認済み)
 
