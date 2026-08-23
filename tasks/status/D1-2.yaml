@@ -1,0 +1,3 @@
+state: merged
+evidence: "paired 納品(T-holdout fc695be / D1-2 05c2356)を merge 83b27a3 で main 取り込み。main で npm test(155 件)green"
+recorded: 2026-08-23
