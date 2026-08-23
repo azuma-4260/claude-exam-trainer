@@ -1,0 +1,3 @@
+state: done
+evidence: "CI 導入(D0-3)前 merge の例外(tasks/README §完了の記録 7): commit 81894ba が main マージ済み(merge fa4c459、D1-1 と paired 納品)。main で npm test(121 件)&& npm run build green を 2026-08-23 に確認"
+recorded: 2026-08-23

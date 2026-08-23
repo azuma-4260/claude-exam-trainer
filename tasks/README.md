@@ -9,6 +9,7 @@
 3. `task:start` は `fetch → main が origin/main と一致 → READY 判定 → .claude/worktrees/<ID> に task/<ID> ブランチで worktree 作成 → .env.local / .vercel/project.json を mode 600 で配布 → npm ci` を行う。**worktree 作成の成功 = 着手権の獲得**(同じ ID の ref が既にあれば git が拒否する)。準備に失敗したら worktree と ref は自動でロールバックされる
 4. 以後の作業は作成された worktree で行う(`cd` するか、そのパスで別セッションを開く)
 5. `EnterWorktree` や手動の `git worktree add` は使わない。ブランチ名は `task/<ID>` 厳密一致、**複合 ID(`task/T-srs+D1-1`)は禁止**。連続タスクはマージ後に次を `task:start` する
+6. **paired task**(09 §7): T-x と対応する実装 D-y は `task/T-x` の worktree で一緒に納品する。paired の D-y は `task:check` が BLOCKED / READY のどちらを出しても**単独では着手しない**。マージ時は `tasks/status/T-x.yaml` と `D-y.yaml` の両方を同じ push で記録する
 
 ## 状態の定義
 

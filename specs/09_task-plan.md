@@ -221,3 +221,4 @@ Content: C0 → C1 → D0-3 → C2 → M1(D0-3 は C1 / D0-2 / O-2a の 3 つ待
 - 新しいセッションは「本書のどの ID に着手するか」を冒頭で宣言し、`npm run task:check <ID>` が READY であることを確認して `npm run task:start <ID>` で始める(完了判定・worktree 規約は `tasks/README.md`)
 - DoD を満たさない状態で次の ID に進まない。満たせない場合は TODO(owner) を残して停止する(README 停止条件)
 - 日付が遅延した場合は `08` のリスク表(form A → 9/8 後ろ倒し等)に従い、本書の depends は変更しない
+- **paired task**: テストタスク T-x と直後の実装タスク D-y(T-srs/D1-1、T-holdout/D1-2、T-write/D1-3、T-queue/D1-4、T-mock/D3-1)は、同一 worktree `task/T-x` でテスト先行 → 実装の順に作り、**両方 green の状態で一緒に main に入れる**(§1-2 の red テスト禁止の帰結。T-x 単独では main に入れない)。D-y の `task:start` は行わず、マージ時に両 ID を台帳記録する。T-rev は実装タスクが C6(コンテンツ)なので paired ではない
