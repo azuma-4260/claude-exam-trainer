@@ -15,7 +15,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:check": "tsx scripts/db-check.ts",
     "task:check": "tsx scripts/task/check.ts",
-    "task:start": "tsx scripts/task/start.ts"
+    "task:start": "tsx scripts/task/start.ts",
+    "task:report": "tsx scripts/task/report.ts",
+    "backlog:check": "tsx scripts/backlog/check.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
