@@ -58,10 +58,10 @@ afterEach(() => {
 });
 
 describe("task:check", () => {
-  it("初期状態: D0-4 / D0-5 / T-srs / C0 が READY、DONE は 8 件", () => {
+  it("初期状態: D0-4 / D0-5 / D0-6 / T-srs / C0 が READY、DONE は 8 件", () => {
     const v = judgeAll(takeSnapshot(repo));
     const ready = [...v.values()].filter((x) => x.status === "READY").map((x) => x.id).sort();
-    expect(ready).toEqual(["C0", "D0-4", "D0-5", "T-srs"]);
+    expect(ready).toEqual(["C0", "D0-4", "D0-5", "D0-6", "T-srs"]);
     expect([...v.values()].filter((x) => x.status === "DONE")).toHaveLength(8);
     expect(v.get("D0-3")!.status).toBe("BLOCKED");
     expect(v.get("D0-3")!.blockedBy).toEqual([{ id: "C1", status: "BLOCKED" }]);

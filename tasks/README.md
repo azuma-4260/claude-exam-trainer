@@ -40,6 +40,10 @@
 
 記録主体は**オーナー**。`task:check` が `MILESTONE_PENDING` を出したら 09 §3 の DoD を実際に確認し、証跡(Actions run URL・本番 URL・migration 適用ログ等)を `evidence` に書いて `tasks/status/M*.yaml` を `done` で commit する。Claude Code は代行しない(DoD に本番確認が含まれるため)。
 
+### 非ノード保守(規約文・台帳・運用スクリプトの小修正)
+
+09 のノードにならない保守作業(09/README/tasks/README の規約文の追記、台帳の記録、`scripts/task/` の小修正、新 spec の追加)は、差分をオーナーに提示して承認を得たうえで、clean な `main` checkout から直接 commit・push してよい(実績: dbb63b1 の paired task 追記、D0-6 の 09 登録)。機能実装・テスト・スキーマ変更はこの対象外で、必ず 09 の ID で `task:start` する。
+
 ### bootstrap 例外(導入時のみ・再利用禁止)
 
 台帳導入(2026-08-23)前に main に入っていた S-1 / D0-1 / D0-2 は CI 未導入のため、ローカル DoD の再実行結果を証跡として `done` 登録した。O-1〜O-5 はオーナー確認済みの旨を証跡とした。導入作業自体は 09 のノードではないため台帳に記録しない。以後この例外は使わない。

@@ -40,6 +40,8 @@
 | M8 | 9/26 | D-1 総ざらい | M5, O-7 | D-1 モードのキュー提示で間違いノート周回完了 |
 | – | 9/27 | 本試験 | | |
 
+D0-6(タスク運用補助ツール)は M0 の depends に含めない: アプリの土台ではなくセッション運用の補助であり、遅延しても M0 の DoD に影響しないため。
+
 ## 4. 依存表(単一ソース)
 
 以下が唯一の依存ソース。§5 のグラフは depends 列から導出する(G は暗黙)。spec 列は実装前に必ず読む節。
@@ -60,6 +62,7 @@
 | D0-3 | D | `scripts/validate-bank.ts` + GitHub Actions(validator → test → build → **deploy job**) | D0-2, C1, O-2a | 06 §バンク静的検証, 03 §mock_forms | main で CI 緑。**一時ブランチ**で故意に壊した push → CI 赤 + deploy job skip を確認 |
 | D0-4 | D | Drizzle schema 5 テーブル + partial unique index 2 本 + enum/CHECK + migration。dev → production 適用(cutover 前なので reset 自由) | D0-1, O-3 | 03 §2, 06 §本番/開発 DB の分離と data-protection cutover | 両 branch で定義が 03 と一致、`drizzle-kit check` 差分 0 |
 | D0-5 | D | 認証: `POST /login`、HMAC 署名 Cookie、`proxy.ts`(optimistic)、write/export ハンドラ内の再検証 | D0-1, O-4 | 06 §リクエスト前段, §認証 | Vitest: 未ログイン 401 / 正パスコードで Cookie / 改竄 Cookie 401。`middleware.ts` 不在 |
+| D0-6 | D | タスク運用補助: `/task-session` スキル、`tasks/backlog/`(validator 付き)、`task:report`(読み取り専用)。既存の状態機械(check/start/ledger)は変更しない | D0-1 | 10 | `npm test` 緑(report/backlog/pair テスト含む)、`npm run backlog:check` 緑、`npm run task:check` 引数なし正常終了 |
 | C0 | C | Step 0: PDF からドメイン・タスクステートメント・サンプル転記、`02` 突合(公式優先)、**「4 シナリオ × 各 15 問」明記有無を記録** | – | 07 Step 0, 02 | `content/ccar-f/SOURCES.md` 作成、`02` 更新、15 問検証 ON/OFF を `03`/`06` に追記 |
 | C1 | C | Step 1: `syllabus.yaml`(60〜80 topics)+ オーナー粒度レビュー | C0 | 07 Step 1, 02 §トピックツリー | topic 数 60〜80、オーナー承認 |
 
@@ -119,7 +122,7 @@
 |---|---|---|---|---|---|
 | O-7 | O | 9/26 間違いノート総ざらい(D-1 モード) | M5, D5-1 | 08, 04 §D-1 | 実施 |
 
-## 5. 依存グラフ(§4 の depends 列から機械生成・全 54 ノード)
+## 5. 依存グラフ(§4 の depends 列から機械生成・全 55 ノード)
 
 `X ← A, B` は「X は A と B の完了後に着手可能」。§4 を更新したら本節も再生成する(§4 との 1:1 を検証スクリプトで確認する)。
 
@@ -136,6 +139,7 @@ D0-2 ← D0-1
 D0-3 ← D0-2, C1, O-2a
 D0-4 ← D0-1, O-3
 D0-5 ← D0-1, O-4
+D0-6 ← D0-1
 C0 ← (なし)
 C1 ← C0
 T-srs ← D0-1
@@ -199,7 +203,7 @@ Content: C0 → C1 → D0-3 → C2 → M1(D0-3 は C1 / D0-2 / O-2a の 3 つ待
 | 日 | Owner | Dev / Test | Content |
 |---|---|---|---|
 | 8/23 | ~~O-1~~, ~~O-2a~~, ~~O-3~~, ~~O-4~~, ~~O-5~~(全て済) | S-1, D0-1, D0-2 | C0, C1(+粒度レビュー) |
-| 8/24 | O-2b 確認 | D0-4, D0-5, D0-3, T-srs, T-holdout → **M0** | C2 生成開始 |
+| 8/24 | O-2b 確認 | D0-4, D0-5, D0-3, D0-6, T-srs, T-holdout → **M0** | C2 生成開始 |
 | 8/25 | – | D1-1, D1-2, T-write, T-queue, D1-3 | C2 生成 |
 | 8/26 | C2 抜き取り | D1-4, D1-5, D1-6 | C2 レビュー・deploy |
 | 8/27 | **学習開始(M1)** | 実機確認、D2-1 | C3a |
