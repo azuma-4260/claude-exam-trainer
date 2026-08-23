@@ -1,0 +1,3 @@
+state: merged
+evidence: "オーナー承認(2026-08-23)後、merge 3a23d23 で main 取り込み。Codex review P1 なし、main で npm test 155 件 green"
+recorded: 2026-08-23
