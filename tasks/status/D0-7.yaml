@@ -1,3 +1,3 @@
-state: merged
-evidence: "commit 81539d4 を merge 7d77884 で main 取り込み。Codex CLI 直接レビュー(P1 なし)、隔離 workspace 疎通、main で npm test(324 件)green を 2026-08-24 に確認"
+state: done
+evidence: "commit 81539d4 を merge 7d77884 で main 取り込み。Codex CLI 直接レビュー(P1 なし)、隔離 workspace 疎通、main で npm test(324 件)green。CI 緑: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/32729496431 を 2026-08-24 に確認"
 recorded: 2026-08-24
