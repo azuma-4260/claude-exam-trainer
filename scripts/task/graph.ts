@@ -95,7 +95,7 @@ function assertNoCycle(g: Graph): void {
  * 正本と導出を照合し、整合していれば正本グラフを返す。
  * 不整合・未知 ID・循環・ノード数不一致はすべて GraphError(fail closed)。
  */
-export function loadGraph(md: string, expectedNodes = 55): Graph {
+export function loadGraph(md: string, expectedNodes = 56): Graph {
   const canon = parseCanonical(md);
   const derived = parseDerived(md);
   for (const [id, deps] of canon) {

@@ -1,6 +1,6 @@
 # 10. タスク運用補助(バックログ・レポート・セッション状態)
 
-`09` がタスクの依存と完了条件、`tasks/README.md` が着手・完了の運用手順を定めるのに対し、本書は **セッション運用を補助する 3 つの仕組み**の仕様を定める。実装は D0-6。既存の状態機械(`scripts/task/check.ts` / `start.ts` / `ledger.ts`、台帳の state 集合 `merged | done`)は**変更しない**。ここで定める仕組みはすべてそれらの上に乗る読み取り専用の層、またはブランチ内ファイルである。
+`09` がタスクの依存と完了条件、`tasks/README.md` が着手・完了の運用手順を定めるのに対し、本書はセッション運用の補助仕様を定める。§1〜5 の 3 仕組み(バックログ・レポート・セッション状態)は D0-6、§6 の Codex CLI 直接連携は D0-7 で実装する。既存の状態機械(`scripts/task/check.ts` / `start.ts` / `ledger.ts`、台帳の state 集合 `merged | done`)は**変更しない**。§1〜5 はそれらの上に乗る読み取り専用の層、またはブランチ内ファイルである。
 
 ## 1. バックログ(`tasks/backlog/`)
 
@@ -130,3 +130,14 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
 - `/task-session` は `disable-model-invocation: true` のスラッシュ明示呼び出し専用
 - スキルは **commit・merge・push を承認前に行わない**。承認後(`approved`)の commit・merge・台帳は `tasks/README.md` の「完了の記録」をそのまま実行する(README 実装契約 6 と 09 原則 4/8 を変更しない)
 - 必須レビューはプロジェクトスキル `codex-review` で行う(`/codex:review` はユーザー起動専用)。使えなければ `stopped` で報告する
+
+## 6. Codex CLI の直接利用
+
+Claude Code が自律的に Codex を起動する経路は、PATH 上の `codex` を使う **Codex CLI の直接実行**に統一する。Claude プラグインのキャッシュ配下にある `codex-companion.mjs`、`/codex:rescue`、その他のプラグイン内部 API は使用しない。プラグイン更新によってレビュー手順が壊れることを避け、CLI の公開コマンドだけを実装契約にする。
+
+- 可用性確認は `command -v codex`、`codex --version`、`codex login status` の 3 段階。バイナリの版やインストール先をハードコードしない。テスト時だけ `CODEX_BIN` で偽 CLI を注入してよい
+- 未コミット差分は `codex review --uncommitted`、ブランチ差分は `codex review --base <ref>`。レビュー対象と custom prompt は CLI 上で排他的なので、設計観点を与える敵対的レビューは `codex exec --ephemeral --sandbox read-only` で行う
+- 非対話タスクは `codex exec` を foreground で実行し、セッションを継続しない用途では `--ephemeral` を付ける。出力の機械検証が必要なら `--output-schema` または `--output-last-message` を使う
+- 敵対的レビューループは Git 管理外の隔離 workspace を `-C` で指定し、`--skip-git-repo-check` を付ける。`.env*` / `.vercel/` / `.git/` / `node_modules/` をコピーしない既存の秘密情報対策は維持する
+- レビュー用途では `--sandbox read-only` を明示し、`--dangerously-bypass-approvals-and-sandbox`、`danger-full-access`、`--add-dir` は使用しない。Codex 返却後の作業ツリー改変検知も維持する
+- CLI 不在・未認証・非 0 終了・timeout・出力形式不正は `codex-unavailable` または既存の Claude フォールバック規則で扱い、無期限の再試行はしない

@@ -38,7 +38,7 @@ UI 文言、loading/empty state、コンポーネント分割、CSS、内部関�
 3. 本番学習データの保護は `06` の data-protection cutover ルールに従う
 4. UI の完成度より「回答 → 保存 → 復元 → 復習」の end-to-end 経路の堅牢性を優先する
 5. バージョン方針: 設計書で固定するのはセマンティックに重要なもののみ(Next.js 16.x / ts-fsrs **5.4.1 exact**)。実際の exact バージョンの再現ソースは package-lock.json とし、以後 `npm ci` を使用。試験前の無目的な依存更新は禁止
-6. 実装完了後、commit 前に Codex による第二者レビューを実行する: `/codex:review`(未コミット差分)または `/codex:review --base main`(ブランチ差分)。P1(Blocking)指摘は修正してから commit する。設計書の実装契約を観点に含めたい場合は `/codex:adversarial-review` で指示する。これらのスラッシュコマンドはユーザー起動専用のため、Claude Code が自律的に実行するときはプロジェクトスキル `codex-review`(`.claude/skills/codex-review/`)を使う
+6. 実装完了後、commit 前に Codex による第二者レビューを実行する: `/codex:review`(未コミット差分)または `/codex:review --base main`(ブランチ差分)。P1(Blocking)指摘は修正してから commit する。設計書の実装契約を観点に含めたい場合は `/codex:adversarial-review` で指示する。これらのスラッシュコマンドはユーザー起動専用のため、Claude Code が自律的に実行するときはプロジェクトスキル `codex-review`(`.claude/skills/codex-review/`)から **Codex CLI を直接**呼ぶ(Claude プラグインの companion スクリプトは経由しない)
 
 ## ドキュメント構成
 
