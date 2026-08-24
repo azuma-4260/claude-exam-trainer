@@ -81,7 +81,7 @@ D0-6(タスク運用補助ツール)と D0-7(Codex CLI 直接連携)は M0 の d
 | D1-4 | D | キュー生成 + proficiency 集計 | T-queue, D1-2 | 04 | T-queue green |
 | D1-5 | D | Quick Drill 画面 + Home(ノルマ/バックログ/カウントダウン/pace 警告)。**ACK 前 Next disabled、失敗時 Retry** | D1-3, D1-4 | 05 S-1, S-3 | スマホ実機: 回答→保存→再読込で復元、機内モードで Retry 表示 |
 | D1-6 | D | 悪問フラグ API + 右上メニュー(同 rev 再フラグは update) | D0-4, D0-5 | 03 §question_flag, 01 FR-9 | フラグ後その問題がキューから消える。旧 rev フラグは除外されない(テスト) |
-| C2 | C | Step 2: 最小フラッシュ 100(20×5)→ Step 4 全工程(抜き取り含む)→ deploy | C1, D0-3 | 07 Step 2, 4 | 8/26 までに本番 active 100 件 |
+| C2 | C | Step 2: 最小フラッシュ 150(weight 比例)→ Step 4 全工程(抜き取り含む)→ deploy | C1, D0-3 | 07 Step 2, 4 | 8/26 までに本番 active 150 件 |
 | D2-1 | D | Practice 画面(シナリオ折りたたみ、全選択肢解説 + refs、解放バッジ)。保存は D1-3 を共用 | D1-5 | 05 S-4, 04 | **統合テスト**: dev fixture の提出済み session + 解放問題で applied_rating=null(本番 E2E は D3-4) |
 | C3a | C | Step 3a: Practice 専用シナリオ MCQ 15〜20 → Step 4 全工程 → deploy | C1, D0-3 | 07 Step 3a | 8/28 までに本番反映 |
 

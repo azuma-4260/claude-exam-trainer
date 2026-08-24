@@ -97,6 +97,21 @@ describe("parseSessionState", () => {
     expect(() => parseSessionState('{"id":"D1-1","state":"implementing"}', "D1-2")).toThrow(/一致しない/);
     expect(() => parseSessionState("nope", "D1-2")).toThrow();
   });
+  it("next(specs/10 §4)は implementing + 許可値なら保持、それ以外は warning で session 有効", () => {
+    const ok: string[] = [];
+    expect(parseSessionState('{"id":"C2","state":"implementing","next":"step4-review"}', "C2", ok).next).toBe("step4-review");
+    expect(ok).toEqual([]);
+    const w1: string[] = [];
+    expect(parseSessionState('{"id":"C2","state":"implementing","next":"nope"}', "C2", w1)).toEqual({ id: "C2", state: "implementing" });
+    expect(w1.some((w) => w.includes("許可値"))).toBe(true);
+    const w2: string[] = [];
+    expect(parseSessionState('{"id":"C2","state":"stopped","reason":"x","next":"step4-review"}', "C2", w2)).toEqual({
+      id: "C2",
+      state: "stopped",
+      reason: "x",
+    });
+    expect(w2.some((w) => w.includes("next は付けられない"))).toBe(true);
+  });
 });
 
 describe("findBottlenecks", () => {
@@ -193,6 +208,17 @@ describe("buildReport(一時 repo)", () => {
     expect(r.nodes.find((n) => n.id === "D0-4")?.status).toBe("IN_PROGRESS");
     expect(r.candidates.map((c) => c.id)).toEqual(["C0", "D0-6", "T-srs"]); // C0 は 8/23 予定 = 期限超過
     expect(r.sharedCheckout.branch).toBe("main");
+  });
+
+  it("implementing + next の session は task:report に保持され、warning は出ない", () => {
+    const wt = path.join(repo, ".claude/worktrees/D0-4");
+    g(repo, "worktree", "add", "-q", wt, "-b", "task/D0-4", "origin/main");
+    writeFileSync(path.join(wt, ".task-session-state"), JSON.stringify({ id: "D0-4", state: "implementing", next: "step4-review" }));
+    const r = buildReport(repo, { now: new Date("2026-08-24T03:00:00Z") });
+    const w = r.worktrees.find((x) => x.id === "D0-4")!;
+    expect(w.session).toEqual({ id: "D0-4", state: "implementing", next: "step4-review" });
+    expect(JSON.parse(JSON.stringify(r)).worktrees[0].session.next).toBe("step4-review"); // JSON 出力でも保持
+    expect(r.warnings.some((x) => x.includes("next"))).toBe(false);
   });
 
   it("origin/main 上のバックログ破損は fail closed", () => {

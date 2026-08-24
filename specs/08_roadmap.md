@@ -14,7 +14,7 @@
 
 ### Phase 1: 8/25–8/28 — 学習開始
 
-- 最小フラッシュ 100 枚(〜8/26)
+- 最小フラッシュ 150 枚(〜8/26)
 - Quick Drill + SRS(初回 commit 時 lazy create・厳密 ACK)+ Home 時間予算キュー
 - **8/27 Drill で学習開始**(最初の本番 attempt = data-protection cutover 発動)
 - 最小 Practice 画面 + **Practice 専用シナリオ MCQ 15〜20 問(〜8/28)** → **8/28 から Drill + Practice 並走**

@@ -1,0 +1,737 @@
+[
+  {
+    "id": "f-d4-q001",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why do instructions like \"be conservative\" or \"only report high-confidence issues\" fail to improve review precision?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "They are vague relative to the model's calibration;\nprecision improves when you specify categories to report and to skip.",
+    "explanation_ja": "「保守的に」「高確信のみ」という指示は基準が曖昧で、精度改善にほとんど効かない。報告すべきカテゴリ(bug・security)と報告しないカテゴリ(style)を明示する方が確実に効く。曖昧な程度表現より、カテゴリの線引きを与えるのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q002",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What concrete structure should explicit review criteria take in a prompt?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Report/skip category lists\nplus a concrete code example for each severity level.",
+    "explanation_ja": "報告する/しないカテゴリの列挙に加え、各重大度に具体的なコード例を付ける。例があると重大度の解釈が揃い、境界事例の判定も安定する。基準は宣言だけでなく実例で定義する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q003",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How can XML tags make a complex review prompt easier for Claude to follow?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Wrap distinct instructions, context, and examples in clearly named XML tags\nso the prompt's sections and priorities are explicit.",
+    "explanation_ja": "XML タグで instructions・context・examples などを区画すると、長い prompt の各部分と役割を明確にできる。内容を表す一貫したタグ名を使い、タグ構造を保つことで、Claude が指示と参照資料を区別しやすくなる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q004",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why does one high-false-positive category damage the whole review system's value?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Developers lose trust and start ignoring all findings,\nincluding the accurate categories.",
+    "explanation_ja": "誤検知の多いカテゴリが混ざると、開発者は所見全体を無視するようになり、正確なカテゴリへの信頼まで損なわれる。信頼は系全体で共有される資源である。精度の低い部分は切り分けて対処する必要がある。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q005",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What is the pragmatic response when one review category keeps producing false positives?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Temporarily disable that category while improving its criteria,\npreserving trust in the rest of the system.",
+    "explanation_ja": "問題カテゴリは基準を改善するまで一時的に無効化するのが実務的である。全体を止める必要はなく、信頼を守りながら改善を進められる。復帰は精度検証を通してから行う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q006",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Detailed instructions alone still give inconsistent outputs — what prompting technique comes next?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Few-shot prompting:\nadd 2-4 well-chosen examples demonstrating the desired behavior.",
+    "explanation_ja": "詳細指示だけで出力が安定しないときは、望ましい挙動を実演する例を 2〜4 個加える few-shot が次の一手である。例は指示の解釈を固定し、形式も内容も安定させる。例の質と多様性が効果を決める。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q007",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What makes a few-shot example set effective for ambiguous judgment tasks?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Examples that cover the ambiguous cases and show why each choice was made,\nso the model generalizes to new patterns.",
+    "explanation_ja": "曖昧な判断課題では、境界事例を含む例と選択理由の提示が効く。理由付きの例はルールの根拠を伝え、新規パターンへの一般化を促す。単純例だけ並べても境界の判断は安定しない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q008",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you lock down an output format like location/issue/severity/fix using few-shot examples?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Demonstrate the exact format in each example;\nmodels imitate demonstrated structure more reliably than described structure.",
+    "explanation_ja": "出力形式は記述で指定するより、例の中で実演する方が確実に守られる。location・issue・severity・fix のような形式は全例で同一構造を見せる。実演された構造は模倣されやすいという性質を利用する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q009",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How can few-shot examples reduce false positives in a review or classification task?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Include contrastive pairs:\nacceptable patterns labeled as fine versus genuinely problematic ones.",
+    "explanation_ja": "許容されるパターンと真の問題を対で示す contrastive な例が誤検知を直接減らす。「これは報告しない」という負例が境界を教える。正例だけの例示では過剰報告が残りやすい。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q010",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Extraction returns empty or hallucinated fields on unusual document layouts — how do few-shot examples help?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Show examples across diverse structures (inline citations vs reference lists)\nso the model handles variation instead of guessing.",
+    "explanation_ja": "多様な文書構造(インライン引用と文献リストなど)からの抽出例を示すと、未知のレイアウトでも推測ではなく手順の適用になる。単一構造の例だけでは形式が変わった途端に空抽出やハルシネーションが出る。例の多様性は抽出の頑健性に直結する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q011",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What should you use when downstream code requires JSON that always conforms to a specific schema?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Structured Outputs; alternatively, use tool use with strict: true\nwhen the result is a tool input that must match its JSON Schema.",
+    "explanation_ja": "特定の schema に常に準拠する JSON が必要なら Structured Outputs を主に使う。tool input を schema に適合させる必要がある場合は strict tool use（strict: true）が代替になる。通常の tool use だけで schema 準拠を保証するものではない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/strict-tool-use",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q012",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How does strict tool use strengthen structured extraction?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It makes tool inputs conform to the JSON Schema,\npreventing values the schema does not allow and missing required fields.",
+    "explanation_ja": "strict tool use（strict: true）は tool input の schema 準拠を保証する。許可されない余分な値を出さず、required で指定した必須フィールドの欠落を防ぐ。意味的な正しさは別途検証する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q013",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What part of a tool definition helps Claude choose the right extraction tool for a request?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A clear, detailed tool name and description that states\nwhat the tool does and when it should be used.",
+    "explanation_ja": "複数の tool から適切なものを選ばせるには、tool name と description を明確に書く。description では tool の機能だけでなく、どの条件・用途で使うべきかも具体化する。モデルの tool 選択はこの定義の品質に依存する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q014",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Documents of unknown type may match one of several extraction schemas — which tool_choice setting fits?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "\"any\": the model must call some tool,\nchoosing the schema that fits the document.",
+    "explanation_ja": "文書種別が不明で複数スキーマがあるときは \"any\" で「いずれかのツールを必ず呼ぶ」ようにし、どのスキーマに当てるかはモデルに選ばせる。\"auto\" だとテキスト応答に流れる可能性が残る。抽出を確実にしつつ分類は委ねる構成である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q015",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "You must guarantee metadata extraction happens before any enrichment step — how do you configure tool_choice?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Force it: tool_choice {\"type\": \"tool\", \"name\": \"extract_metadata\"} on the first call,\nthen relax to \"auto\".",
+    "explanation_ja": "前段処理を保証したい場合は extract_metadata を forced 指定で強制し、完了後のターンで \"auto\" に戻す。順序の保証をプロンプトに頼らず API 設定で行う。パイプラインの決定性を上げる定石である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q016",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How should an extraction schema handle fields that may be absent from the document?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Make them nullable/optional and add enum escape values like \"unclear\" or \"other\" with a detail field,\nso the model is not forced to fabricate.",
+    "explanation_ja": "欠落し得るフィールドを必須にすると、モデルは値を捏造してでも埋めようとする。nullable/optional にし、\"unclear\"・\"other\" + 詳細フィールドの enum 逃げ道を設計する。スキーマ設計自体がハルシネーション対策になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q017",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A schema-valid extraction still has the total not matching line items — what does this illustrate?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Schemas guarantee structural and type conformance,\nbut semantic consistency (such as a valid total) needs separate validation.",
+    "explanation_ja": "schema は構造・型・必須項目の適合を保証するが、合計と明細の整合のような意味的正しさまでは保証しない。意味検証は別レイヤの検証コードや突合で行う。「schema に通った = 内容も正しい」ではない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q018",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Describe the standard retry loop for failed extraction validation.",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Re-send the original document, the failed extraction,\nand the specific validation errors, asking for a corrected extraction.",
+    "explanation_ja": "検証失敗時は、元文書・失敗した抽出結果・具体的な検証エラーの 3 点を添えて再試行させる。何がどう違反したかを伝えることで修正が的中しやすくなる。Pydantic などによる機械検証とこのループの組合せが基本形である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q019",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When does retrying a failed extraction help, and when is it futile?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Retries fix format/structure errors;\nthey cannot conjure information that is absent from the document.",
+    "explanation_ja": "形式や構造の誤りはリトライで直るが、文書に存在しない情報はリトライしても得られない。欠落は null や \"unclear\" として受理する設計が正しい。失敗原因が「形式」か「不在」かで対応を分岐させる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q020",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What validation layers should run before accepting an extraction result?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Schema validation (types, required fields)\nplus semantic checks like totals matching and cross-field consistency.",
+    "explanation_ja": "受理前にスキーマ検証(型・必須)と意味検証(合計一致・フィールド間整合)の両方を通す。前者だけでは意味エラーが素通りする。検証は多層で設計し、失敗はエラー付き再試行へ回す。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q021",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What should an extraction return alongside its primary values to support a validation and feedback loop?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Validation-ready auxiliary values, such as detected patterns\nor calculated totals, alongside the primary extraction values.",
+    "explanation_ja": "検出パターンや計算済み合計のような検証可能な補助値を、主値と同時に構造化して返す。下流の validator はそれらを比較・検証し、失敗を修正のフィードバックとして使える。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q022",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why should an extraction pipeline validate relationships between returned fields instead of accepting a schema-valid object immediately?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Schema validity checks shape, not whether the values make sense together;\nsemantic validation catches cross-field inconsistencies before acceptance.",
+    "explanation_ja": "JSON Schema は型や必須項目を確認するが、複数フィールドの意味的な整合までは保証しない。抽出後に業務ルールやフィールド間の関係を検証し、失敗をフィードバックして修正する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q023",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What are the key characteristics of the Message Batches API?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "50% cost reduction; batches expire after a processing window of up to 24 hours with no latency SLA.\nClient-side tool_result round trips need follow-up requests; server tools can run in the batch worker's loop.",
+    "explanation_ja": "Batches API は通常 API の 50% の料金で、処理にはレイテンシ保証がなく、24 時間で未完了リクエストが期限切れになり得る。client-side tool は処理中に呼出元が tool_result を返せないため、結果取得後に follow-up request が必要になる。server tools は例外で、batch worker が server-side agentic loop を実行する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q024",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which workloads suit the Batches API, and which do not?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Non-blocking bulk jobs (nightly/weekly processing) suit it;\nlatency-sensitive paths like pre-merge checks do not.",
+    "explanation_ja": "夜間・週次の大量処理のような非ブロッキング処理は Batches に適する。pre-merge チェックのように人が待つ経路は、完了時刻が保証されないため不適である。「誰かが待つか」が判断基準になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q025",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What batch limitation applies specifically to client-side tools that need the caller to send back a tool_result?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The caller cannot return a client-side tool_result for another turn\nwithin that batch request; server tools can still run inside one request.",
+    "explanation_ja": "client-side tool の呼出し結果を batch 処理の途中で返すことはできず、結果取得後の follow-up request で会話を継続する。server tools は例外で、batch worker が同一リクエスト内の agentic loop を実行する。したがって、すべての tool use や multi-turn conversation が非対応だと一般化してはいけない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q026",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How should a 30-hour completion target be planned when batches have a 24-hour expiry window but no latency SLA?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "For nominal planning, submit at intervals no longer than six hours; four hours leaves two hours of scheduling margin.\nThis cannot guarantee a hard SLA, so start a synchronous fallback at a pre-deadline cutoff when the deadline is mandatory.",
+    "explanation_ja": "nominal な計画では、30時間から24時間の処理窓を引き、投入間隔を最大6時間と見積もれる。4時間間隔なら投入待ちに2時間の余裕を持たせられるが、BatchesにはレイテンシSLAがなく未完了項目はexpiredになり得るため完了保証ではない。hard SLAなら締切までに処理できる余裕を残したcutoffを定め、未完了ならexpiredを待たず同期APIなどの別経路へ切り替える。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 2
+  },
+  {
+    "id": "f-d4-q027",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you handle partial failures in a completed batch efficiently?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Resubmit only the failed items identified by custom_id\n(chunking oversized documents), not the whole batch.",
+    "explanation_ja": "失敗分は custom_id で特定し、その項目だけを再提出する。全体の再実行はコストと時間の無駄である。サイズ超過の文書はチャンク化して再投入し、大量処理の前にはサンプルでプロンプトを調整しておく。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q028",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why does a fresh second instance outperform self-review by the generating session?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The generator carries its own reasoning context and rarely doubts its judgments;\na context-free reviewer evaluates the artifact on its merits.",
+    "explanation_ja": "生成セッションは自らの推論文脈を保持しており、自分の判断を疑いにくい。文脈を持たない第二インスタンスは成果物そのものを白紙で評価できる。自己レビュー指示や extended thinking より、インスタンス分離の方が効果的である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q029",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What context should be withheld from a fresh reviewer to avoid anchoring it to the generator's choices?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Withhold the generator's reasoning and chat history;\ngive the reviewer the artifact or diff and the review criteria instead.",
+    "explanation_ja": "自己レビューの盲点は注意不足ではなく、生成時の文脈と結論を共有していることに起因する。同一セッションへの丁寧なレビュー指示では解消しない。文脈を持たない別インスタンスへの分離が正しい対処である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices",
+      "https://docs.claude.com/en/docs/claude-code/github-actions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q030",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How should a reviewer be scoped when a change set is too broad for one focused assessment?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Give a fresh subagent a bounded artifact and explicit review criteria,\nthen combine independently produced findings at the orchestrating layer.",
+    "explanation_ja": "大きな差分はファイル単位パスと横断統合パスに分け、注意の希釈と矛盾所見を避ける。所見ごとに自己申告 confidence を出させ、較正した上でレビューの振り分けに使う。構造化された多段レビューが単発の全体レビューに勝る。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

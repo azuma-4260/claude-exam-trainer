@@ -44,14 +44,14 @@ domains:
         name: "Configure subagent invocation, context passing, and spawning"
         topics:
           - id: f-d1-t3-01
-            name: "Task tool, allowedTools, and AgentDefinition"
-            scope_ja: "Task tool による subagent 起動、coordinator の allowedTools に \"Task\" が必要、AgentDefinition(description / system prompt / tool 制限)"
+            name: "Agent tool (formerly Task), allowedTools, and AgentDefinition"
+            scope_ja: "現行 Agent tool による subagent 起動、coordinator の allowedTools に \"Agent\" が必要、AgentDefinition(description / system prompt / tool 制限)。Exam Guide の旧称 Task も互換判定できるようにする"
           - id: f-d1-t3-02
             name: "Explicit context passing with structured attribution"
             scope_ja: "subagent は親の文脈を継承せず呼出し間でメモリも共有しないため、先行エージェントの完全な所見を prompt に直接含める、content と metadata(URL・文書名・ページ)を構造化して分離し出典を保持"
           - id: f-d1-t3-03
             name: "Parallel spawning and goal-oriented coordinator prompts"
-            scope_ja: "1 応答内の複数 Task 呼出しによる並列起動、手順指示ではなく目標と品質基準を示して subagent の適応性を確保"
+            scope_ja: "1 応答内の複数 Agent 呼出し（Exam Guide では旧称 Task）による並列起動、手順指示ではなく目標と品質基準を示して subagent の適応性を確保"
       - id: f-d1-t4
         name: "Implement multi-step workflows with enforcement and handoff patterns"
         topics:
@@ -83,8 +83,8 @@ domains:
         name: "Manage session state, resumption, and forking"
         topics:
           - id: f-d1-t7-01
-            name: "Named session resumption and change notification"
-            scope_ja: "--resume <session-name> による名前付きセッション再開、再開時に変更ファイルを明示して対象再分析に限定する"
+            name: "SDK and named-session resumption with change notification"
+            scope_ja: "Agent SDK の result message から session_id を取得して resume オプションへ渡す方法、Claude Code の --resume によるセッション再開、再開時に変更ファイルを明示して対象再分析に限定する"
           - id: f-d1-t7-02
             name: "fork_session and resume vs fresh start with summary"
             scope_ja: "共有ベースラインからの fork_session による分岐探索、stale なツール結果が多い場合は構造化サマリを注入した新セッションが信頼できる"
@@ -109,11 +109,11 @@ domains:
         name: "Implement structured error responses for MCP tools"
         topics:
           - id: f-d2-t2-01
-            name: "isError flag and error taxonomy with structured metadata"
-            scope_ja: "MCP の isError、transient / validation / business / permission の分類、errorCategory・isRetryable・人間可読な説明の返却、一様な \"Operation failed\" の害"
+            name: "MCP isError, error taxonomy, and actionable error content"
+            scope_ja: "MCP/Agent SDK custom tool の isError（Python は is_error）、transient / validation / business / permission の4分類、回復可能性、人間可読な失敗理由と次の行動の返却、一様な \"Operation failed\" の害。Exam Guide の errorCategory/isRetryable は設計概念であり MCP 標準フィールド名ではない"
           - id: f-d2-t2-02
-            name: "Retryable vs non-retryable and business-rule explanations"
-            scope_ja: "無駄なリトライを防ぐ retriable: false、ビジネスルール違反の顧客向け説明、アクセス失敗と正当な空結果を区別して返す、subagent 内で transient 失敗を局所回復し解決不能分のみ部分結果・試行内容付きで coordinator へ伝播。【primary 境界】ツール/subagent 側の回復と返却(局所回復を含む・何を返すか)はここ、coordinator 側の受領後の判断は f-d5-t3-02"
+            name: "Recoverable tool errors, uncaught exception conversion, and truthful empty results"
+            scope_ja: "回復可能な失敗を捕捉してisErrorと行動可能な説明を返す。in-process MCP serverは未捕捉例外もraw message付きerror resultへ変換してagent loopを継続するが、明示的catchならrequestや次の行動の文脈を付けられる。アクセス失敗と正当な空結果を区別し、subagent内で一時的失敗を局所回復して、解決不能分のみ部分結果・試行内容付きでcoordinatorへ伝播。【primary 境界】ツール/subagent側の回復と返却はここ、coordinator側の受領後の判断はf-d5-t3-02"
       - id: f-d2-t3
         name: "Distribute tools appropriately across agents and configure tool choice"
         topics:
@@ -124,8 +124,8 @@ domains:
             name: "Constrained alternatives and scoped cross-role tools"
             scope_ja: "汎用 fetch_url を検証付き load_document に置換、高頻度ニーズ向けの限定的クロスロールツール(verify_fact)と複雑ケースの coordinator 経由"
           - id: f-d2-t3-03
-            name: "tool_choice auto / any / forced"
-            scope_ja: "\"auto\"・\"any\"・{\"type\": \"tool\", \"name\": ...} の違い、特定ツールを先に強制してから後続ターンで処理、\"any\" で会話テキストではなくツール呼出しを保証。【primary 境界】エージェント/ツール配分の設計文脈はここ、構造化データ抽出の文脈は f-d4-t3-02"
+            name: "tool_choice auto / any / tool / none"
+            scope_ja: "\"auto\"・\"any\"・{\"type\": \"tool\", \"name\": ...}・\"none\" の違い。tools 指定時の既定は auto、未指定時は none。特定ツールを先に強制してから後続ターンで処理し、\"any\" で会話テキストではなくツール呼出しを保証。【primary 境界】エージェント/ツール配分の設計文脈はここ、構造化データ抽出の文脈は f-d4-t3-02"
       - id: f-d2-t4
         name: "Integrate MCP servers into Claude Code and agent workflows"
         topics:
@@ -134,7 +134,7 @@ domains:
             scope_ja: "project スコープ .mcp.json(チーム共有)vs user スコープ ~/.claude.json(個人/実験)、${GITHUB_TOKEN} 展開で秘密をコミットしない"
           - id: f-d2-t4-02
             name: "Multi-server discovery, description quality, and build vs adopt"
-            scope_ja: "接続時に全サーバーのツールが同時利用可能、built-in(Grep)より MCP ツールを選ばせる description 強化、標準統合(Jira)は community サーバー・チーム固有はカスタム"
+            scope_ja: "接続した全サーバーのツールは利用可能。定義が context window の 10% 以下なら先にロードし、超える場合は既定の tool search が定義を遅延ロードする。built-in(Grep)より MCP ツールを選ばせる description 強化、標準統合(Jira)は community サーバー・チーム固有はカスタム"
           - id: f-d2-t4-03
             name: "MCP resources for content catalogs"
             scope_ja: "issue 一覧・ドキュメント階層・DB スキーマなどをリソースとして公開し、探索的ツール呼出しを減らす"
@@ -162,8 +162,8 @@ domains:
             name: "Modularization with @import and .claude/rules/"
             scope_ja: "@import でパッケージごとに関連標準ファイルを選択的に取り込む、肥大化した CLAUDE.md を .claude/rules/ のトピック別ファイルに分割"
           - id: f-d3-t1-03
-            name: "Diagnosing loaded memory with /memory"
-            scope_ja: "どの memory ファイルが読み込まれているかの確認とセッション間で挙動が一貫しない問題の診断"
+            name: "Diagnosing loaded memory with /context"
+            scope_ja: "/context の Memory files で実際にロード済みの memory ファイルを確認し、セッション間で挙動が一貫しない問題を診断する。/memory は memory の場所の一覧・編集に使う。"
       - id: f-d3-t2
         name: "Create and configure custom slash commands and skills"
         topics:
@@ -172,7 +172,7 @@ domains:
             scope_ja: ".claude/commands/(VCS 共有)vs ~/.claude/commands/(個人)、チーム共有のためのプロジェクトスコープ"
           - id: f-d3-t2-02
             name: "SKILL.md frontmatter (context: fork, allowed-tools, argument-hint)"
-            scope_ja: "context: fork による隔離実行(冗長出力・探索的文脈の汚染防止)、allowed-tools による破壊操作の制限、argument-hint による引数プロンプト"
+            scope_ja: "context: fork による隔離実行(冗長出力・探索的文脈の汚染防止)、allowed-tools による当該 turn の事前許可（使用可能ツールの制限ではない）、disallowed-tools による利用可能プールからの除外、argument-hint による引数プロンプト。Exam Guide の restrict 表現とは現行挙動を区別する"
           - id: f-d3-t2-03
             name: "Skills vs CLAUDE.md and personal skill variants"
             scope_ja: "オンデマンド起動(skills)と常時ロード(CLAUDE.md)の使い分け、チームに影響しない ~/.claude/skills/ の別名個人変種"
@@ -267,10 +267,10 @@ domains:
         topics:
           - id: f-d4-t5-01
             name: "Message Batches API characteristics and appropriateness"
-            scope_ja: "50% コスト減・最大 24h・レイテンシ SLA なし・1 リクエスト内の多ターン tool 呼出し不可、非ブロッキング(夜間/週次)向き・pre-merge には不向き"
+            scope_ja: "50% コスト減・最大 24h の処理窓（未完了は expired）・レイテンシ SLA なし。client-side tool は処理中に呼出元が tool_result を返せないが、server tools は batch worker の agentic loop 内で実行可能。非ブロッキング(夜間/週次)向き・pre-merge には不向き"
           - id: f-d4-t5-02
-            name: "SLA-driven scheduling and failure handling by custom_id"
-            scope_ja: "SLA から逆算した提出間隔(24h 処理で 30h SLA → 4h 窓)、完了の polling、失敗分のみ custom_id で再提出(超過文書はチャンク化)、大量処理前のサンプルで prompt 調整"
+            name: "Target-driven scheduling and failure handling by custom_id"
+            scope_ja: "nominal な30h完了目標なら24h処理窓から最大6hの投入間隔を計画し、4h間隔なら投入待ちに2hの余裕を持たせる。ただしBatchesにレイテンシSLAはなくhard SLAを保証しないため、締切前のcutoffで未完了なら同期APIなどの別経路へ切り替える。完了のpolling、失敗分のみcustom_idで再提出(超過文書はチャンク化)、大量処理前のサンプルでprompt調整"
       - id: f-d4-t6
         name: "Design multi-instance and multi-pass review architectures"
         topics:

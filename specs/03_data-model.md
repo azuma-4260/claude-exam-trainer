@@ -7,7 +7,7 @@
 ```
 content/ccar-f/
   syllabus.yaml / scenarios.yaml / mock_forms.yaml / SOURCES.md
-  questions/d1-agentic.json ... d5-context.json
+  questions/*.json (例: d1-flash.json / d1-agentic.json。ローダーはファイル名非依存)
 ```
 
 ### question オブジェクト

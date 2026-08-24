@@ -1,0 +1,732 @@
+[
+  {
+    "id": "f-d3-q001",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which CLAUDE.md scopes are shared with a project, and which are personal or policy-controlled?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Project instructions (./CLAUDE.md or ./.claude/CLAUDE.md) are shared through VCS;\nuser instructions are personal, local instructions are uncommitted, and managed policy is organization-controlled.",
+    "explanation_ja": "Claude Code の memory スコープには managed policy・user・project・local がある。チームへ共有する規約は project スコープに置く。サブディレクトリの CLAUDE.md は該当ディレクトリでオンデマンドに読み込まれるため、スコープ表とは区別して理解する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q002",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "New teammates report that Claude ignores your team conventions that work fine on your machine — what is the likely cause?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The conventions live in your user-level ~/.claude/CLAUDE.md,\nwhich is not committed, so teammates never receive them.",
+    "explanation_ja": "user レベルの CLAUDE.md は VCS で共有されないため、自分の環境でだけ効く。チームに配るべき規約は project レベル(リポジトリ内)に置く必要がある。「自分だけ動く指示」はこの階層の取り違えを疑う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q003",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you give each monorepo package its own standards without loading unrelated guidance at session start?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Use path-scoped rules or directory-level CLAUDE.md files\nso guidance loads only for matching files or subdirectories.",
+    "explanation_ja": "@import は整理には有用だが、import した内容も起動時に context に入る。モノレポで無関係な規約を避けるには、paths frontmatter を持つ rules またはパッケージ配下の CLAUDE.md を用いる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q004",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Your CLAUDE.md has grown into an unreadable wall of rules — what is the recommended reorganization?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Split it into topic-specific files under .claude/rules/\nand keep CLAUDE.md as the concise core.",
+    "explanation_ja": "肥大化した CLAUDE.md はトピック別ファイルに分割して .claude/rules/ に置くと、整理と保守がしやすくなる。ただし、paths frontmatter を持たない rules は既定ですべてロードされる。必要なファイルにだけ条件付きで適用するには paths frontmatter を追加する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://docs.claude.com/en/docs/claude-code/settings"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q005",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which command shows exactly which memory files are loaded in the current session?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "/context; check the Memory files section\nto see which memory files actually loaded in the current session.",
+    "explanation_ja": "実際にロードされた memory ファイルの確認には /context の Memory files 欄を使う。/memory は memory の場所を一覧し編集するためのコマンドで、ロード済みかどうかの確認には使わない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q006",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Claude behaves differently across sessions on the same repo — outline the diagnostic first step.",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Run /context in each session and compare the Memory files section;\ndifferences there can explain inconsistent behavior.",
+    "explanation_ja": "セッションごとに /context を実行して実際にロードされた memory ファイルを比較する。/memory の一覧には存在しない候補も含まれるため、ロード状況の診断には適さない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q007",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Where should a team place a new shared /deploy capability in the current Claude Code format?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Create .claude/skills/deploy/SKILL.md and commit it;\nproject-scoped skills create shared slash-command capabilities.",
+    "explanation_ja": "custom commands は skills に統合されており、.claude/skills/<name>/SKILL.md が /<name> を提供する。従来の .claude/commands/ 形式も動作するが、追加機能を持つ skills が推奨される。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/slash-commands"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q008",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What syntax expands text supplied after a custom command name into that command's prompt?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "$ARGUMENTS; it expands to the arguments supplied\nafter the command name when the command is invoked.",
+    "explanation_ja": "カスタムコマンドでは $ARGUMENTS を使って、/command の後に利用者が入力した値をプロンプトへ展開できる。これにより、同じ手順を対象や追加指示だけ変えて再利用できる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/slash-commands",
+      "https://docs.claude.com/en/docs/claude-code/skills"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q009",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which SKILL.md frontmatter field runs the skill in an isolated context, and when is that valuable?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "context: fork isolates the skill's execution,\nkeeping verbose or exploratory output from polluting the main conversation.",
+    "explanation_ja": "context: fork を指定するとスキルは隔離された文脈で実行される。冗長な出力や探索的な作業が本体の会話を汚染しないため、大量出力を伴うスキルに適する。結果だけを本体へ返す構造になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q010",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What do the allowed-tools and argument-hint frontmatter fields control in a SKILL.md?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "allowed-tools pre-approves listed tools for that invocation;\nargument-hint documents expected arguments. Use disallowed-tools to remove tools.",
+    "explanation_ja": "allowed-tools は当該 skill 実行中の権限確認を省く事前許可であり、使用ツールの制限ではない。危険なツールを使わせないには disallowed-tools を指定する。argument-hint は呼び出し時の引数形式を案内する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q011",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When does a skill beat putting the same instructions into CLAUDE.md?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Skills load on demand at invocation;\nCLAUDE.md content is always in context, so rarely-used procedures belong in skills.",
+    "explanation_ja": "CLAUDE.md は常時ロードされ、スキルは呼び出し時にオンデマンドでロードされる。たまにしか使わない手順を CLAUDE.md に書くと毎セッションの文脈を浪費する。使用頻度と文脈コストで置き場所を決める。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills",
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q012",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "You want a personal variant of a team skill without affecting teammates — how?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Create it under ~/.claude/skills/ with a different name;\nuser-scope skills never ship to the team.",
+    "explanation_ja": "~/.claude/skills/ に別名の個人変種を置けば、チームのスキルに影響を与えず自分専用の挙動を持てる。project スコープの共有スキルを直接書き換えると全員に波及する。個人実験は user スコープで行うのが安全である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q013",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you make a convention load only when Terraform files are being edited?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A rule file in .claude/rules/ with YAML frontmatter\npaths: [\"terraform/**/*\"] scopes it to matching files.",
+    "explanation_ja": ".claude/rules/ のルールファイルに paths: [\"terraform/**/*\"] のような glob を書くと、該当ファイルの編集時だけロードされる。無関係な作業に Terraform 規約が混ざらず、トークンも節約できる。条件付きロードの基本手段である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://docs.claude.com/en/docs/claude-code/settings"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q014",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What is the main benefit of path-scoped rules over always-loaded instructions?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Conventions load only when relevant files are touched,\nreducing irrelevant context and token usage.",
+    "explanation_ja": "path-specific rules は該当パスの作業時のみロードされるため、無関係な文脈とトークン消費を削減できる。常時ロードの指示が増えるほど本来の作業文脈が圧迫される。適用条件を宣言して絞るのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q015",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A convention applies to all *.test.tsx files across many directories — glob rule or directory CLAUDE.md?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A path-specific rule with a glob like **/*.test.tsx;\ndirectory CLAUDE.md only covers its own subtree.",
+    "explanation_ja": "ディレクトリ横断のパターン(**/*.test.tsx)にはディレクトリ CLAUDE.md では対応できず、glob 指定の path-specific rule が適する。ディレクトリ CLAUDE.md は自分の配下にしか効かない。適用範囲の形で使い分ける。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q016",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When is a directory-level CLAUDE.md the better home for conventions than a glob rule?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "When the conventions belong to one subtree as a whole,\nnot to a file pattern that crosses directories.",
+    "explanation_ja": "特定サブツリー全体に属する規約(あるパッケージの設計方針など)はディレクトリ CLAUDE.md が自然である。ファイル種別に紐づく横断規約は glob rule が適する。「範囲がツリーかパターンか」で選ぶと迷わない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q017",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which kinds of tasks warrant plan mode instead of direct execution?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Large refactors, architectural decisions, tasks with multiple viable approaches,\nand changes spanning many files.",
+    "explanation_ja": "大規模変更・アーキテクチャ判断・複数の妥当な手法があるタスク・多ファイル変更は plan mode で計画を先に固めるべきである。明確な単一ファイル修正は直接実行で十分である。可逆性と選択肢の多さが判断基準になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q018",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why is \"plan first, then execute\" wasteful for a clear single-file fix?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Planning adds a round-trip without changing the outcome;\ndirect execution is faster when the change is unambiguous.",
+    "explanation_ja": "結果が一意に決まる小修正では、計画フェーズは往復を増やすだけで成果物を変えない。plan mode は選択肢の比較や影響範囲の確認に価値がある。タスクの曖昧さに応じてモードを選ぶ。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q019",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What problem does the Explore subagent solve during codebase discovery?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It isolates verbose search output in its own context\nand returns only a summary to the main conversation.",
+    "explanation_ja": "Explore subagent は冗長な探索出力を隔離文脈に閉じ込め、本体にはサマリだけを返す。多段タスクでメイン文脈が検索結果で埋まり枯渇するのを防ぐ。発見系の作業を委任する第一候補である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/sub-agents",
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q020",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When is direct exploration preferable to delegating an Explore subagent?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "When the target file and question are already narrow;\nread the known file directly instead of adding delegation overhead.",
+    "explanation_ja": "Explore は広いコードベース探索や不明な入口の調査に向く。一方、対象ファイルが特定済みの単発確認では直接 Read した方が速く、委任と要約の往復を増やさない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/sub-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q021",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A code-generation request keeps touching unrelated files — what should you make explicit before asking Claude Code to act?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The target files, desired scope, and relevant constraints or references;\nclear context lets Claude inspect the right artifacts before editing.",
+    "explanation_ja": "Claude Code には対象ファイルと変更範囲を明示し、必要なら読ませたい既存コードや規約も示す。依頼が具体的なほど無関係な変更を避け、既存の設計に沿った修正を行いやすい。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q022",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you communicate an edge-case requirement like null handling most reliably?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Show it as a concrete example pair:\nthe null-containing input and the exact expected output.",
+    "explanation_ja": "エッジケースは「この入力ならこの出力」という具体例で示すのが最も確実である。抽象的に「null を適切に処理」と書くと解釈が割れる。例示は仕様伝達の最小コストの手段である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q023",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Describe the test-driven iteration loop for refining generated code.",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Write tests covering expected behavior and edge cases,\nthen share the failing checks and iterate until they pass.",
+    "explanation_ja": "期待動作・エッジケース・性能要件を覆うテストを先に書き、失敗するテストを共有して改善を回す。合格基準がコード化されているため、反復のたびに進捗が客観的に測れる。曖昧な「良くして」より収束が速い。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q024",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Before implementing in an unfamiliar domain, how do you surface considerations you might miss?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Use the interview pattern:\nask Claude to question you first, eliciting concerns like cache invalidation and failure modes.",
+    "explanation_ja": "未知領域では実装前に Claude へ質問させ、キャッシュ無効化や障害モードのような考慮事項を引き出す interview パターンが有効である。要件の穴を実装後に発見するより大幅に安い。「まず質問して」から始めるのが定石である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q025",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "You have several review findings to fix — when do you batch them into one message versus fixing sequentially?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Batch interacting issues into a single message so they are resolved consistently;\nindependent issues can be fixed one by one.",
+    "explanation_ja": "相互作用する問題(同じ関数に関わる修正など)は 1 メッセージにまとめ、一貫した解決をさせる。独立した問題は逐次修正で十分である。分割の単位は問題間の依存関係で決める。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q026",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which CLI flag prevents Claude Code from hanging on interactive input in CI?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "-p / --print runs it non-interactively:\nit processes the prompt and exits.",
+    "explanation_ja": "CI では対話入力を待ってハングしないよう、非対話モードの -p / --print を使う。プロンプトを処理して終了する単発実行になる。パイプラインへの組込みの基本形である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/headless",
+      "https://docs.claude.com/en/docs/claude-code/cli-reference"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q027",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you get machine-readable review findings from Claude Code in CI for automated PR comments?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Run with --output-format json (optionally --json-schema for the shape),\nthen post the parsed findings as inline PR comments.",
+    "explanation_ja": "--output-format json で出力を機械可読にし、--json-schema で期待する形を固定できる。パースした所見をそのまま PR のインラインコメントとして自動投稿するのが典型構成である。テキスト出力の正規表現パースより頑健である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/headless",
+      "https://docs.claude.com/en/docs/claude-code/cli-reference",
+      "https://docs.claude.com/en/docs/claude-code/github-actions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q028",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In CI, should the instance that generated the code also review it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "No.\nUse an independent instance without the generation context for review.",
+    "explanation_ja": "生成と同じセッションは自分の推論文脈を引きずり、自らの判断を疑いにくい。CI のレビューは生成文脈を持たない独立インスタンスに行わせる。分離はレビューの検出力を上げる最も単純な手段である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/github-actions",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q029",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How should CI avoid duplicate review comments when re-running Claude after new commits?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The standard /code-review workflow skips PRs with an existing Claude comment.\nRun a custom prompt or skill without that skip, pass prior findings, and request only new or unresolved issues.",
+    "explanation_ja": "標準の /code-review workflow は、既存の Claude コメントがある PR を skip するため、そのままでは新しい commit を再レビューしない。更新ごとに検査する要件なら、標準 skill を再利用せず、既存コメントによる skip を実装しない独自 prompt または skill を実行して前回所見を渡す。新規または未対応の問題だけを報告させれば重複コメントを抑えられる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/github-actions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 2
+  },
+  {
+    "id": "f-d3-q030",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What context should CI test generation receive to avoid duplicate and low-value tests?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Existing test files for their style, framework, and assertion patterns,\nplus CLAUDE.md standards defining valuable tests and fixtures.",
+    "explanation_ja": "既存テストを文脈に含めると重複シナリオの生成を避けられる。さらに CLAUDE.md にテスト標準・価値あるテストの基準・fixture の使い方を記述しておくと低価値な出力が減る。生成品質は渡す文脈でほぼ決まる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/github-actions",
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

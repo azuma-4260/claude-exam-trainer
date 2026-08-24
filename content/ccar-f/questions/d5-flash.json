@@ -1,0 +1,561 @@
+[
+  {
+    "id": "f-d5-q001",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why do exact amounts, dates, and stated customer expectations get corrupted by conversation summarization?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Summaries compress toward gist and blur precise values;\ncritical facts need a persistent block outside the summarized text.",
+    "explanation_ja": "要約は要旨へ圧縮する過程で、金額・日付・顧客の明示した期待のような精密な値を曖昧化しやすい。取引事実は要約対象の外にある永続ブロックへ抽出して保持する。要旨と事実で保存戦略を分けるのが要点である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q002",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How does structured note-taking preserve important facts across a long agent workflow?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Store concise, task-relevant notes in external memory such as a file;\nagents can retrieve those notes without relying on the active context window.",
+    "explanation_ja": "case facts block は要約の影響を受けない構造化データ層で、金額・日付・注文番号・ステータスなどの取引事実を保持する。多論点の長セッションでも事実が劣化せず参照できる。会話本文と構造化事実の二層構成が信頼性を支える。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q003",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How should you structure a prompt containing a very long document and a question about it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Place the long document near the beginning and the question or instructions at the end;\nuse XML tags and ask Claude to ground its answer in relevant quotes.",
+    "explanation_ja": "長い文書はpromptの先頭付近に置き、文書に対する質問や指示は末尾に置く。文書・指示・例をXMLタグで区切ると、それぞれの役割を識別しやすい。回答前に関連箇所を引用させると、根拠へ注意を向けてgroundingを強められる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 2
+  },
+  {
+    "id": "f-d5-q004",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In a multi-turn workflow, why pass the complete conversation history in each request?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The API is stateless;\nanything omitted from the request simply does not exist for the model.",
+    "explanation_ja": "API はステートレスであり、リクエストに含めなかった履歴はモデルにとって存在しない。多ターンの一貫性は毎回完全な履歴を渡すことで成立する。サーバー側が覚えているという誤解は文脈欠落バグの典型原因である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q005",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A lookup tool returns 40+ fields per order but the agent needs five — what should you change?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Trim the tool output to the relevant fields\nbefore it enters the model's context.",
+    "explanation_ja": "40 超のフィールドをそのまま文脈に入れると、無関係データが文脈予算を圧迫し重要情報が薄まる。ツール出力は関連 5 フィールド程度に絞ってから渡す。ツール出力の整形は文脈管理の一部である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q006",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What output contract should upstream agents follow to protect downstream context budgets?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Return structured data (key points, quotes, relevance) with metadata,\nnot verbose free-form reasoning.",
+    "explanation_ja": "上流エージェントには、冗長な推論の垂れ流しではなく、要点・引用・関連度などの構造化データと metadata を返させる。下流の文脈予算は上流の出力契約で守られる。エージェント間の応答形式は設計して固定する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q007",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Where should an agent workflow pause to collect human feedback?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "On an explicit request for a human, a policy exception or gap,\nor an objective blocker; a maximum-iteration limit is an additional safeguard.",
+    "explanation_ja": "人間対応の明示的要求、ポリシーの例外・欠落、客観的に確認できる blocker をエスカレーション条件にする。最大反復回数は進展不能を早期に止める補助的な stopping condition である。sentiment やモデルの自己申告 confidence だけを根拠にしない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q008",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A customer explicitly asks for a human agent — should the bot first try to resolve the issue?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "No.\nHonor the explicit request immediately and hand off to a human.",
+    "explanation_ja": "人間対応の明示要求は、bot が追加の解決を試みる前に直ちに尊重する。回数や感情表現に基づく独自の待機ルールを加えず、明示された人間レビューの要求を優先する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q009",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Policy is silent on a request like competitor price matching — what should the agent do?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Escalate:\npolicy gaps are human decisions, not cases for improvisation.",
+    "explanation_ja": "ポリシーが沈黙・曖昧なケースは、エージェントが即興で判断せずエスカレーションする。競合他社価格マッチのような要求はその典型である。ポリシーの穴を埋めるのは運用者の仕事であり、判断の前例をモデルに作らせない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q010",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A lookup returns multiple matching customer records — pick the most likely one or ask?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Ask for an additional identifier;\nheuristic selection risks acting on the wrong account.",
+    "explanation_ja": "複数一致でのヒューリスティック選択は、誤アカウント操作という重大事故につながる。追加の識別子を求めて一意化してから進むのが正しい。曖昧さの解消要求は few-shot 付きの明示基準として実装すると安定する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q011",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What should a multi-agent system do when it detects that a tool is failing?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Make the failure visible to the agent so it can adapt,\nusing retry logic and periodic checkpoints rather than silently continuing.",
+    "explanation_ja": "ツール失敗を隠すと、後続エージェントは欠落を成功と誤認する。失敗をエージェントへ明示し、retry logic で回復を試み、定期 checkpoint に進捗を残せば、状況に応じて適応できる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q012",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why should a long-running multi-agent workflow use checkpoints instead of restarting from the beginning after a minor failure?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Restarts are expensive and minor failures can become costly;\ncheckpoints let the workflow resume from preserved progress and adapt locally.",
+    "explanation_ja": "最初からの再実行は高コストで、軽微な障害でも作業済みの成果を失う。checkpoint に完了済みフェーズと必要情報を保存しておけば、再開時は保存済み進捗から復帰し、失敗した部分だけに適応策を適用できる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q013",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "The coordinator receives propagated failures from some subagents — how should this shape the final synthesis?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Decide recovery per failure, distinguish access failures from legitimately empty results,\nand annotate the synthesis with covered areas versus gaps.",
+    "explanation_ja": "coordinator は伝播されたエラーごとに再委任・代替・受容を判断する。アクセス失敗と正当な空結果は意味が異なるため区別して扱う。synthesis には「裏付け十分な領域」と「ソース欠落によるギャップ」の注記を残し、欠落を成果物上で可視化する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q014",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Late in a long session, output quality regresses toward generic patterns — name the countermeasures.",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Persist key facts to a scratchpad and reference them, delegate pointed questions to subagents,\nand /compact when the context fills with stale output.",
+    "explanation_ja": "長期セッションでは「典型パターン」への退行という文脈劣化が起こる。要点を scratchpad に永続化して参照する、特定質問は subagent に委任する、冗長出力で埋まったら /compact する、が対策の三本柱である。劣化は検知して積極的に手当てする対象である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q015",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why does writing key findings to a scratchpad file beat relying on the conversation to remember them?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Files persist outside the context window and survive compaction;\nconversation content competes for limited context and decays.",
+    "explanation_ja": "ファイルに書いた要点は文脈ウィンドウの外で永続し、要約や compaction の影響を受けない。会話内の情報は限られた文脈を奪い合い、古いものから劣化する。重要な状態は文脈外ストレージに置くのが context engineering の基本である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q016",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you make a multi-phase agent workflow recoverable after a crash?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Each agent writes its state to a known location;\non restart the coordinator reads the manifest and resumes from recorded progress.",
+    "explanation_ja": "各エージェントが既知の場所に状態を書き出し、coordinator が再開時に manifest を読み込んで続きから再開する。次フェーズの subagent には前フェーズの要点を要約して初期文脈に注入する。永続化された進捗が耐障害性の基盤になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q017",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Aggregate extraction accuracy is 97% — why is that insufficient evidence to automate?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Aggregates hide low performance on specific document types or fields;\nvalidate accuracy segmented by type and field first.",
+    "explanation_ja": "集計精度は特定の文書種別やフィールドでの低性能を隠す。97% の裏で請求書の日付だけ 70% ということが起こり得る。自動化判断の前に文書種別 × フィールドで分解した精度検証を行う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q018",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you set a confidence threshold for routing extractions to human review?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Calibrate field-level confidence against a labeled set,\nthen choose thresholds from the measured error rates.",
+    "explanation_ja": "フィールド単位の confidence を labeled set で較正し、実測誤り率に基づいて閾値を決める。未較正の confidence は名目値にすぎず、閾値の根拠にならない。較正はレビュー振り分けの前提条件である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q019",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "High-confidence extractions bypass review — how do you still catch drift and new failure patterns?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Stratified random sampling of the high-confidence stream,\nmonitoring error rates and novel patterns over time.",
+    "explanation_ja": "高確信で素通りする流れからも層化ランダム抽出で監視を続け、誤り率の変動と新規パターンを検出する。レビュー能力は低確信・矛盾のある文書へ優先配分する。抜き取り監視が自動化の安全網になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q020",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In the multi-agent research-system architecture, how are citations added to the final report?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Pass the findings and source documents to a CitationAgent,\nwhich identifies the specific locations that support citations in the report.",
+    "explanation_ja": "この構成では、引用は各調査段階で手作業に付けるのでなく、synthesis 後に CitationAgent が担う。report・findings・source documents を照合し、最終レポートの主張を支える具体的な引用位置を特定する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q021",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What is a claim-source mapping, and why retain it while research findings are synthesized?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A structured link from each claim to its supporting source information;\nit preserves provenance so synthesized conclusions remain auditable.",
+    "explanation_ja": "claim-source mapping は主張とその根拠を対応付ける中間形式である。調査結果を統合するときも根拠との対応を保てば、後から出典確認や矛盾の調査ができる。CitationAgent による引用位置の特定とは役割を分けて理解する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q022",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Two credible sources give conflicting figures — how should the analysis and the coordinator handle it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The analysis reports both values with sources (completing, not stalling);\nthe coordinator reconciles before synthesis, distinguishing established facts from disputed ones.",
+    "explanation_ja": "信頼できるソース間の矛盾は、恣意的に一方を選ばず出典付きで併記し、文書分析は矛盾値を含めて完了させる。調停は coordinator が synthesis 前に行い、確立済みと係争中を区分する。ソースの元の表現と方法論的文脈も保持して判断材料にする。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q023",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t6-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you prevent time-lagged data from being misread as a contradiction, and how should mixed content types be rendered?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Require publication or collection dates in structured output,\nand render financials as tables, news as prose, and technical findings as structured lists.",
+    "explanation_ja": "公開・収集日付を構造化出力の必須項目にすると、時点の異なる値を矛盾と誤認しなくなる。描画はコンテンツ型に合わせ、財務は表・ニュースは散文・技術所見は構造化リストとし、一様な形式に潰さない。時間軸と型の保持が synthesis の品質を決める。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]
