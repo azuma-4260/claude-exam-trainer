@@ -1,0 +1,3 @@
+state: merged
+evidence: "T-queue との paired 納品(commit d704c8f)を merge ed2beb6 で main 取り込み。DoD(T-queue green)を main の npm test(324 件)で 2026-08-24 に確認"
+recorded: 2026-08-24

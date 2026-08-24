@@ -1,0 +1,3 @@
+state: merged
+evidence: "paired 納品(commit d704c8f + a7813c2)を merge ed2beb6 で main 取り込み。Codex レビュー 3 回(P1 1 件修正済み・最終 P1 なし)、main で npm test(324 件)green を 2026-08-24 に確認"
+recorded: 2026-08-24
