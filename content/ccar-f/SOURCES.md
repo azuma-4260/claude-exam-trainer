@@ -137,6 +137,9 @@ You are building a structured data extraction system using Claude. The system ex
 - Routing all subagent communication through the coordinator for observability, consistent error handling, and controlled information flow
 
 #### Task Statement 1.3: Configure subagent invocation, context passing, and spawning
+
+> **2026-08-24 現行名称注記:** 以下は Exam Guide v1.0 の原文どおり `Task` と記す。Claude Code v2.1.63 で実行ツール名は `Agent` に変更されたため、学習カードは現行 `Agent` を正答とし、`Task` は旧称として扱う。
+
 **Knowledge of:**
 - The Task tool as the mechanism for spawning subagents, and the requirement that allowedTools must include "Task" for a coordinator to invoke subagents
 - That subagent context must be explicitly provided in the prompt—subagents do not automatically inherit parent context or share memory between invocations
@@ -183,6 +186,9 @@ You are building a structured data extraction system using Claude. The system ex
 - Decomposing open-ended tasks (e.g., "add comprehensive tests to a legacy codebase") by first mapping structure, identifying high-impact areas, then creating a prioritized plan that adapts as dependencies are discovered
 
 #### Task Statement 1.7: Manage session state, resumption, and forking
+
+> **2026-08-24 実装注記:** Exam Guide の名前付き `--resume` に加え、現行 Agent SDK は result message の `session_id` を後続 query の `resume` オプションへ渡して再開する。カードでは対象を CLI と SDK で明示する。
+
 **Knowledge of:**
 - Named session resumption using --resume <session-name> to continue a specific prior conversation
 - fork_session for creating independent branches from a shared analysis baseline to explore divergent approaches
@@ -211,6 +217,9 @@ You are building a structured data extraction system using Claude. The system ex
 - Reviewing system prompts for keyword-sensitive instructions that might override well-written tool descriptions
 
 #### Task Statement 2.2: Implement structured error responses for MCP tools
+
+> **2026-08-24 現行実装注記:** 以下の `errorCategory` / `isRetryable` は Exam Guide v1.0 の記載を保持した設計概念であり、MCP の標準結果フィールド名としては扱わない。現行 Agent SDK custom tool の失敗結果は TypeScript では `isError`、Python では `is_error` を用いる。in-process MCP server は handler の未捕捉例外も raw message を含む error result に変換するため agent loop は継続し、明示的に catch する利点は行動可能な文脈を付けられる点にある。
+
 **Knowledge of:**
 - The MCP isError flag pattern for communicating tool failures back to the agent
 - The distinction between transient errors (timeouts, service unavailability), validation errors (invalid input), business errors (policy violations), and permission errors
@@ -238,6 +247,9 @@ You are building a structured data extraction system using Claude. The system ex
 - Setting tool_choice: "any" to guarantee the model calls a tool rather than returning conversational text
 
 #### Task Statement 2.4: Integrate MCP servers into Claude Code and agent workflows
+
+> **2026-08-24 現行ロード注記:** 接続した MCP tools は利用可能だが、現行 Claude Code は tool definitions が context window の 10% を超えると既定の tool search を有効にし、定義を必要時まで遅延ロードする。10% 以下では定義を先にロードするため、「全定義が常に遅延される」とは扱わない。
+
 **Knowledge of:**
 - MCP server scoping: project-level (.mcp.json) for shared team tooling vs user-level (~/.claude.json) for personal/experimental servers
 - Environment variable expansion in .mcp.json (e.g., ${GITHUB_TOKEN}) for credential management without committing secrets
@@ -268,6 +280,9 @@ You are building a structured data extraction system using Claude. The system ex
 ### Domain 3: Claude Code Configuration & Workflows
 
 #### Task Statement 3.1: Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization
+
+> **2026-08-24 現行診断注記:** 以下は Exam Guide v1.0 の原文どおり `/memory` と記す。現行 Claude Code で実際にロード済みの memory files を診断するには `/context` の Memory files セクションを確認し、`/memory` は memory files の一覧・編集に用いる。
+
 **Knowledge of:**
 - The CLAUDE.md configuration hierarchy: user-level (~/.claude/CLAUDE.md), project-level (.claude/CLAUDE.md or root CLAUDE.md), and directory-level (subdirectory CLAUDE.md files)
 - That user-level settings apply only to that user—instructions in ~/.claude/CLAUDE.md are not shared with teammates via version control
@@ -281,6 +296,9 @@ You are building a structured data extraction system using Claude. The system ex
 - Using the /memory command to verify which memory files are loaded and diagnose inconsistent behavior across sessions
 
 #### Task Statement 3.2: Create and configure custom slash commands and skills
+
+> **2026-08-24 現行権限注記:** Exam Guide v1.0 の `allowed-tools` による「restrict tool access」は現行 Claude Code と意味が異なる。現行 skill frontmatter の `allowed-tools` は、その turn で確認なしに使えるツールを事前許可する grant であり、利用可能プールから除外するには `disallowed-tools` を使う。カードは現行挙動を正答とし、Guide の旧表現も区別して学ぶ。
+
 **Knowledge of:**
 - Project-scoped commands in .claude/commands/ (shared via version control) vs user-scoped commands in ~/.claude/commands/ (personal)
 - Skills in .claude/skills/ with SKILL.md files that support frontmatter configuration including context: fork, allowed-tools, and argument-hint
@@ -333,6 +351,9 @@ You are building a structured data extraction system using Claude. The system ex
 - Addressing multiple interacting issues in a single detailed message when fixes interact, versus sequential iteration for independent issues
 
 #### Task Statement 3.6: Integrate Claude Code into CI/CD pipelines
+
+> **2026-08-24 現行workflow注記:** 現行ドキュメントの標準 `/code-review` workflow は、既存の Claude コメントがある PR を skip する。新しい commit ごとに必ず再レビューする要件では、標準 skill を再利用せず、既存コメントによる skip を実装しない独自 prompt / skill を更新トリガーで実行する。
+
 **Knowledge of:**
 - The -p (or --print) flag for running Claude Code in non-interactive mode in automated pipelines
 - --output-format json and --json-schema CLI flags for enforcing structured output in CI contexts
@@ -402,6 +423,9 @@ You are building a structured data extraction system using Claude. The system ex
 - Designing self-correction validation flows: extracting "calculated_total" alongside "stated_total" to flag discrepancies, adding "conflict_detected" booleans for inconsistent source data
 
 #### Task Statement 4.5: Design efficient batch processing strategies
+
+> **2026-08-24 現行機能注記:** Exam Guide v1.0 の「single request 内で multi-turn tool calling 非対応」は、呼出元が途中で `tool_result` を返す client-side tool 往復として学ぶ。現行 Message Batches API は server tools をサポートし、batch worker 内で server-side agentic loop を実行する。24 時間は完了保証ではなく処理期限で、未完了リクエストは `expired` になり得る。
+
 **Knowledge of:**
 - The Message Batches API: 50% cost savings, up to 24-hour processing window, no guaranteed latency SLA
 - Batch processing is appropriate for non-blocking, latency-tolerant workloads (overnight reports, weekly audits, nightly test generation) and inappropriate for blocking workflows (pre-merge checks)
@@ -513,6 +537,8 @@ You are building a structured data extraction system using Claude. The system ex
 ## 4. 出題範囲の明示(§17 Appendix 転記)
 
 ### 4.1 Technologies and Concepts("might appear on the exam")
+
+> **2026-08-24 原文保持注記:** 以下の Appendix は Exam Guide v1.0 の転記を変更せず保持する。現行製品との差分は各 Task Statement 直前の dated 注記を正とする。
 
 - Claude Agent SDK — agent definitions, agentic loops, stop_reason handling, hooks (PostToolUse, tool call interception), subagent spawning via Task tool, allowedTools configuration
 - Model Context Protocol (MCP) — MCP servers, MCP tools, MCP resources, isError flag, tool descriptions, tool distribution, .mcp.json configuration, environment variable expansion
@@ -715,3 +741,47 @@ You are building a structured data extraction system using Claude. The system ex
 | 日付 | 内容 |
 |---|---|
 | 2026-08-23 | 初版(C0)。Exam Guide v1.0 を転記 |
+
+## 10. refs ソース台帳(C2・2026-08-24)
+
+カードの `refs` は本台帳の「ref URL」列の URL **のみ**を使用する(`07` Step 2 / C2 プラン)。全 URL は 2026-08-24 に curl で HTTP 200 と本文のトピック整合(タイトル・キーワード)を確認済み。旧 #4(modelcontextprotocol.io/docs/concepts/tools)は許可ソース(Exam Guide / docs.claude.com / Anthropic Academy / Anthropic 公式ブログ)に該当しないため Step 4 レビューで削除し、参照カードは許可ソースへ差し替えた(2026-08-24)。#35〜38 は Step 4 で追加(curl で 200・タイトル整合を確認済み)。docs.claude.com の Claude Code / Agent SDK 系は code.claude.com へ、Platform 系は platform.claude.com へ、MCP 概説は modelcontextprotocol.io へ 301 リダイレクトされる(いずれも公式ドキュメント。「正規 URL」列が最終到達先)。ページ改訂は Step 6 で扱う。
+
+| # | ref URL | 正規 URL(最終到達先) | 主な対応タスクステートメント |
+|---|---|---|---|
+| 1 | https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview | platform.claude.com/docs/en/agents-and-tools/tool-use/overview | 1.1, 2.3, 4.3 |
+| 2 | https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use | platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools | 2.1, 4.3 |
+| 3 | https://docs.claude.com/en/docs/agents-and-tools/mcp | modelcontextprotocol.io/docs/2026-07-28/getting-started/intro | 2.4 |
+| 5 | https://docs.claude.com/en/docs/claude-code/memory | code.claude.com/docs/en/memory | 3.1, 3.3 |
+| 6 | https://docs.claude.com/en/docs/claude-code/skills | code.claude.com/docs/en/skills | 3.2 |
+| 7 | https://docs.claude.com/en/docs/claude-code/slash-commands | code.claude.com/docs/en/slash-commands | 3.2 |
+| 8 | https://docs.claude.com/en/docs/claude-code/mcp | code.claude.com/docs/en/mcp | 2.4 |
+| 9 | https://docs.claude.com/en/docs/claude-code/common-workflows | code.claude.com/docs/en/common-workflows | 3.4, 2.5 |
+| 10 | https://docs.claude.com/en/docs/claude-code/github-actions | code.claude.com/docs/en/github-actions | 3.6 |
+| 11 | https://docs.claude.com/en/docs/claude-code/settings | code.claude.com/docs/en/settings | 3.1, 3.3 |
+| 12 | https://docs.claude.com/en/docs/claude-code/cli-reference | code.claude.com/docs/en/cli-reference | 3.6 |
+| 13 | https://docs.claude.com/en/docs/claude-code/headless | code.claude.com/docs/en/headless | 3.6 |
+| 14 | https://docs.claude.com/en/docs/claude-code/hooks | code.claude.com/docs/en/hooks | 1.5(Claude Code 側 hooks) |
+| 15 | https://docs.claude.com/en/docs/claude-code/sub-agents | code.claude.com/docs/en/sub-agents | 1.3, 3.4 |
+| 16 | https://docs.claude.com/en/api/agent-sdk/overview | code.claude.com/docs/en/agent-sdk/overview | 1.1, 1.6 |
+| 17 | https://docs.claude.com/en/api/agent-sdk/subagents | code.claude.com/docs/en/agent-sdk/subagents | 1.2, 1.3 |
+| 18 | https://docs.claude.com/en/api/agent-sdk/sessions | code.claude.com/docs/en/agent-sdk/sessions | 1.7 |
+| 19 | https://docs.claude.com/en/api/agent-sdk/custom-tools | code.claude.com/docs/en/agent-sdk/custom-tools | 2.1, 2.2 (`isError` / `is_error` と未捕捉例外の挙動) |
+| 20 | https://docs.claude.com/en/api/agent-sdk/hooks | code.claude.com/docs/en/agent-sdk/hooks | 1.5 |
+| 21 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview | platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview | 4.1 |
+| 22 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#use-examples-effectively | 4.2 |
+| 23 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#be-clear-and-direct | 4.1 |
+| 24 | https://docs.claude.com/en/docs/build-with-claude/batch-processing | platform.claude.com/docs/en/build-with-claude/batch-processing | 4.5(50% / 24h expiry / custom_id / server tools loop を本文確認) |
+| 25 | https://docs.claude.com/en/docs/build-with-claude/context-windows | platform.claude.com/docs/en/build-with-claude/context-windows | 5.1 |
+| 26 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#long-context-prompting | 5.1 |
+| 27 | https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations | platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations | 4.4, 5.6 |
+| 28 | https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency | platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/increase-consistency | 4.2, 4.4 |
+| 29 | https://docs.claude.com/en/docs/test-and-evaluate/define-success | platform.claude.com/docs/en/test-and-evaluate/develop-tests | 5.5 |
+| 30 | https://www.anthropic.com/engineering/building-effective-agents | (直接) | 1.1, 1.4, 1.6, 5.2 |
+| 31 | https://www.anthropic.com/engineering/built-multi-agent-research-system | (直接) | 1.2, 1.3, 5.3, 5.4, 5.6 |
+| 32 | https://www.anthropic.com/engineering/claude-code-best-practices | code.claude.com/docs/en/best-practices | 3.5, 2.5, 4.6 |
+| 33 | https://www.anthropic.com/engineering/writing-tools-for-agents | (直接) | 2.1, 2.2, 2.3 |
+| 34 | https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents | (直接) | 5.1, 5.4 |
+| 35 | https://docs.claude.com/en/docs/build-with-claude/handling-stop-reasons | platform.claude.com/docs/en/build-with-claude/handling-stop-reasons | 1.1(stop_reason 一覧) |
+| 36 | https://docs.claude.com/en/docs/agents-and-tools/tool-use/handle-tool-calls | platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls | 2.2(tool_result / is_error) |
+| 37 | https://docs.claude.com/en/docs/agents-and-tools/tool-use/strict-tool-use | platform.claude.com/docs/en/agents-and-tools/tool-use/strict-tool-use | 2.1, 4.3(strict: true) |
+| 38 | https://docs.claude.com/en/docs/build-with-claude/structured-outputs | platform.claude.com/docs/en/build-with-claude/structured-outputs | 4.3(スキーマ準拠出力) |

@@ -115,6 +115,16 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
 
 各 state の必須フィールド: `implementing` = `id`、`awaiting-approval` = `id, head, hash`、`committed` = `id, head`、`stopped` = `id, reason`。`task:report` はこれを検証し、列挙外の state・必須欠落・worktree ID と `id` の不一致は `session: null` + `warnings[]` にする。
 
+### 計画的複数セッション引継ぎ(`implementing` + `next`)
+
+spec が工程の別セッション実施を要求するタスク(`07` Step 4 のセルフレビュー等)は、`state: "implementing"` に `next: "<次工程>"` を付けたままセッションを終了してよい(`stopped/dod-unmet` は reason 解消まで再開不可のため、計画的な工程分割には使わない)。resume は `next` を読んで新鮮なセッションがその工程から継続する(既存の resume 規則「implementing → 手順 1 から」と互換)。
+
+```jsonc
+{ "id": "C2", "state": "implementing", "next": "step4-review" }
+```
+
+`next` の許可値は当面 `"step4-review"` のみ。許可値以外の `next`、および `implementing` 以外の state に付いた `next` は `task:report` が `warnings[]` に載せ、返却する session から `next` だけを除く(session 自体は有効のまま)。
+
 ### 承認ハッシュ
 
 `hash` = 以下を順に連結した sha256(hex):

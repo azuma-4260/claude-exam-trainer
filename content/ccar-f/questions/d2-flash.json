@@ -1,0 +1,658 @@
+[
+  {
+    "id": "f-d2-q001",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What is the primary mechanism an LLM uses to decide which tool to call?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The tool's description.\nIt is the main signal for selection, so it must be clear and specific.",
+    "explanation_ja": "LLM のツール選択は主に description の照合で行われる。したがって description の質がルーティング精度を直接決める。パラメータ名やツール名も手がかりになるが、選択の主手段は description である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use",
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q002",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What should a high-quality tool description include beyond a one-line summary?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Input format, usage examples, edge cases,\nand explicit boundaries against similar tools.",
+    "explanation_ja": "良い description は入力形式・使用例・エッジケース・類似ツールとの境界説明を含む。最小限の一行説明は、似たツールが並ぶと選択が不安定になる。新しいチームメンバーに渡す説明書と同じ水準で書くのが目安である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q003",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why is a minimal tool description risky even before similar tools are added?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "With tool_choice auto, Claude may still answer without the tool or misunderstand its inputs.\nSimilar tools make the vague boundaries an additional routing problem.",
+    "explanation_ja": "ツールが1つでも tool_choice が auto なら会話テキストを選べるため、description が曖昧だと呼ぶべき場面を判断できない。入力方法やエッジケースの説明不足も誤った引数につながる。類似ツールが加わると、境界の曖昧さが選択候補間の誤ルーティングとしてさらに顕在化する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 2
+  },
+  {
+    "id": "f-d2-q004",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Tools named analyze_content and analyze_document keep getting confused — what are the standard fixes?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Rename them to reflect their specific purpose,\nor split/consolidate so their contracts no longer overlap.",
+    "explanation_ja": "近似した description・名前は誤ルーティングの典型原因である。用途特化の名前へのリネーム、目的別の分割、あるいは重複するなら統合が標準的な解決策になる。どれを選ぶかは入出力契約が本当に別物かどうかで判断する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q005",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What is a useful way to reduce tool-selection confusion when several tools overlap?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Consolidate related operations around the agent's real workflow\nand keep the total number of tools focused.",
+    "explanation_ja": "ツール数を増やせばよいわけではない。個別のAPI操作をそのまま露出せず、実際のワークフローに沿って統合し、モデルが選ぶ候補を絞る。目的が重なるツールを整理すると、誤選択を減らせる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q006",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How can a system prompt influence whether Claude uses tools?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "An explicit instruction such as \"Always call a tool first\"\ncan steer Claude toward tool use.",
+    "explanation_ja": "system prompt はツール使用の方針を明示して、モデルの行動を誘導できる。ただし個々のツールの用途はdescriptionでも明確にし、両者を整合させる必要がある。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q007",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When should a system prompt use a strong instruction about tool use?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "When the product requires a consistent tool-use behavior;\notherwise leave the model discretion with auto selection.",
+    "explanation_ja": "公式ドキュメントは system prompt の明示指示でツール使用を誘導できることを示す。常にルーティングを劣化させるという断定はしない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q008",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How should an in-process Agent SDK custom tool report a recoverable execution failure?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Return actionable error content with isError: true in TypeScript\n(or is_error: true in Python).",
+    "explanation_ja": "Agent SDK の in-process custom tool は MCP tool として公開される。回復可能な失敗は TypeScript なら isError: true、Python なら is_error: true と、原因・修正方法が分かる content を返す。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/custom-tools"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q009",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What should a tool error response state so an agent can recover?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The specific failure and an actionable next step\nfor correcting or working around it.",
+    "explanation_ja": "エラー応答は、何が失敗したかと、修正または回避のための次の行動を具体的に返す。実行可能な手掛かりがあれば、エージェントは入力を直すか別の手段を選べる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q010",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which error categories should replace a uniform \"Operation failed\" tool response?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Classify failures as transient, validation, business, or permission errors,\nand state retryability plus an actionable explanation.",
+    "explanation_ja": "Exam Guide は失敗を transient・validation・business・permission に分類し、分類別の回復可能性を返す設計を求める。一様なメッセージでは無駄なリトライや早すぎる断念が起きる。分類名は設計上のメタデータであり、errorCategory や isRetryable を MCP の標準フィールド名とは扱わない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 2
+  },
+  {
+    "id": "f-d2-q011",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why should an Agent SDK custom tool catch a recoverable exception and return an error result?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Catching it lets you return actionable context instead of only the raw exception message.\nUncaught handler exceptions are converted to error results, so the agent loop still continues.",
+    "explanation_ja": "in-process MCP server はcustom tool handlerの未捕捉例外もraw message付きのerror resultへ変換するため、agent loopは継続する。明示的にcatchしてisError（Pythonではis_error）の結果を返せば、失敗したrequestや次に試す行動など、raw例外にない文脈をClaudeへ渡せる。したがってcatchの目的は停止回避ではなく、回復判断に使える説明の構成である。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/custom-tools"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 2
+  },
+  {
+    "id": "f-d2-q012",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How should an agent system combine model-driven recovery with safeguards for tool failures?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Tell the agent about tool failures so it can adapt,\nwhile using deterministic safeguards such as retry logic and checkpoints.",
+    "explanation_ja": "ツール失敗を隠すと、エージェントは空の結果を成功と誤認する。失敗を明示して状況に適応させる一方、リトライやチェックポイントのような決定的な安全策も併用する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q013",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why does giving one agent 18 tools instead of the 4-5 it needs degrade reliability?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "More candidates make description matching harder,\nlowering tool-selection accuracy and inviting misuse of out-of-role tools.",
+    "explanation_ja": "ツール数が過剰になると選択肢間の照合が難しくなり、選択信頼性が下がる。さらに synthesis 担当が web search を使うような専門外ツールの誤用も起きる。各エージェントには役割に必要なツールだけを付与する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q014",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What is the guiding principle for distributing tools across agents in a multi-agent system?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Scope tool access per agent role:\neach agent gets only the tools its role requires.",
+    "explanation_ja": "ツールは役割単位でスコープする。検索担当には検索系、統合担当には出力系だけを渡し、全員に全ツールを渡さない。選択精度・安全性・デバッグ容易性のすべてが改善する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q015",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why should a tool be designed around an agent's workflow rather than as a thin API wrapper?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Workflow-oriented tools give the agent a clearer, higher-level action\nand reduce unnecessary tool-selection complexity.",
+    "explanation_ja": "個別APIの薄いラッパーを大量に渡すのではなく、エージェントが実際に達成するワークフローに合わせてツールを設計する。関連操作を目的単位にまとめると、選択肢が減り、ツールの使い分けが明確になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q016",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why should each tool have a clear, distinct purpose?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Clear purpose and descriptions help the agent select the right tool\nand avoid confusion from overlapping choices.",
+    "explanation_ja": "ツールには明確な目的と説明を与え、重複する選択肢による混乱を避ける。複数の役割が使う共通機能でも、用途と入出力が一意に理解できる契約にする。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q017",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What are the four tool_choice options and what does each do?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "auto lets the model decide; any requires a tool call; tool forces a named tool;\nnone prohibits tool use.",
+    "explanation_ja": "tool_choice は auto、any、特定 tool、none の4方式である。tools を指定した場合の既定は auto、tools を指定しない場合の既定は none。none を明示すると、利用可能なツールがあっても使用を禁止する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q018",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you force a specific tool to run first and then let the model continue normally?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "First request: tool_choice {\"type\": \"tool\", \"name\": ...} to force it;\nfollowing turns: switch back to \"auto\".",
+    "explanation_ja": "最初のリクエストで特定ツールを強制し、その結果を得た後続ターンで \"auto\" に戻すのが定石である。強制を続けると通常の推論・応答ができなくなる。フェーズごとに tool_choice を切り替える発想が重要である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q019",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which MCP server scope shares the configuration with your team via version control?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Project scope (.mcp.json at the repo root) is committed and shared;\nuser scope (~/.claude.json) stays personal.",
+    "explanation_ja": "project スコープの .mcp.json はリポジトリにコミットされチームで共有される。user スコープは個人環境や実験向けで VCS に載らない。チーム全員が同じサーバー構成を使うべき場合は project スコープを選ぶ。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q020",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you reference a secret like a GitHub token in a shared .mcp.json without committing the secret?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Use environment variable expansion such as ${GITHUB_TOKEN};\nthe value is resolved from each user's environment.",
+    "explanation_ja": "共有される .mcp.json には ${GITHUB_TOKEN} のような環境変数展開を書き、実値は各ユーザーの環境から解決させる。秘密情報そのものをコミットしてはならない。共有設定と個人秘密の分離が原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q021",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "After connecting multiple MCP servers, which of their tools become available to the agent?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "All connected tools remain available; when their definitions exceed 10% of the context window,\ndefault tool search defers those definitions and loads matching tools on demand.",
+    "explanation_ja": "接続済み MCP server のツールは利用可能だが、定義のロード方式は規模で変わる。ツール定義が context window の 10% 以下なら先にロードされ、10% を超えると既定の tool search が定義を遅延ロードする。したがって、少数の MCP tool まで常に遅延されるわけではない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q022",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "For a standard integration like Jira versus a team-specific internal system, when do you build a custom MCP server?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Adopt community servers for standard integrations;\nbuild custom only for team-specific systems and workflows.",
+    "explanation_ja": "Jira のような標準統合は既存の community サーバーを採用し、チーム固有の内部システムにはカスタムサーバーを作る。標準品を再実装するのは保守コストの無駄である。build vs adopt は固有性で判断する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q023",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How can Claude Code reference an MCP resource such as an issue, schema, or document directly?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Use an @server:resource-uri reference;\nClaude Code fetches the resource and includes it as an attachment.",
+    "explanation_ja": "MCP resources は @github:issue://123 のような参照で指定できる。Claude Codeは参照されたresourceを取得し、会話の添付コンテンツとして利用する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q024",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Match the built-in tools Grep, Glob, Read/Write, Edit, and Bash to their primary use cases.",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Grep = content search, Glob = path patterns, Read/Write = whole files,\nEdit = partial change via unique text match, Bash = running commands (tests, builds).",
+    "explanation_ja": "Grep は内容検索、Glob はパスパターン照合、Read/Write はファイル全体の読み書き、Edit は一意テキスト一致による部分修正、Bash はテストやビルドなどのコマンド実行に使う。用途に合わないツール選択は無駄なトークンと誤編集の原因になる。この対応関係が組込みツール活用の基礎である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q025",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When an Edit fails because the target text is not unique in the file, what is the standard fallback?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Read the file and Write the updated whole content,\nor make the match unique with more surrounding context.",
+    "explanation_ja": "Edit は一意に一致するテキストを前提とするため、一致が複数あると失敗する。周辺文脈を増やして一意化するか、Read + Write でファイル全体を書き換えるのが標準の代替である。失敗時の代替経路まで含めてツール選択と考える。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q026",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What is the token-efficient way to understand a large codebase instead of reading every file upfront?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Grep for entry points first,\nthen Read files selectively, following imports incrementally.",
+    "explanation_ja": "全ファイルの先読みは文脈を浪費する。Grep でエントリポイントを見つけ、Read で import を辿る段階的理解が効率的である。必要になった範囲だけを読み進めるのが原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices",
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q027",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you trace how a function is used when calls go through a wrapper module?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "List the wrapper's exported names first,\nthen search for each name to find the real call sites.",
+    "explanation_ja": "wrapper 経由の利用は元の関数名で検索しても見つからない。まず wrapper モジュールの export 名を列挙し、各名を個別に検索して実際の呼出し箇所を追う。間接参照を一段ずつ解決する手順が確実である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

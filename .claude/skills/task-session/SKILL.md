@@ -88,9 +88,13 @@ printf '{"id":"%s","state":"awaiting-approval","head":"%s","hash":"%s"}\n' "<ID>
 4. `tasks/README.md` の「完了の記録」2〜7 をそのまま実行する: 共有 checkout が clean な `main` であることを確認 → `git pull --ff-only` → `git merge --no-ff task/<ID>` → `npm test` → `tasks/status/<ID>.yaml` を `state: merged`(paired は T-x と D-y の両方)→ push → `git worktree remove .claude/worktrees/<ID>` → `git branch -d task/<ID>` → CI 緑(D0-3 完了前は `npm test && npm run build` を evidence にしてよい)を確認して **独立 commit** で `state: done` + `evidence`
 5. 手順 4 の途中で共有 checkout が使えなくなった(`main` でない / dirty)場合はその時点で停止し、「commit 済み(state: committed)・未マージ。共有 checkout が空いたら `/task-session approved` を再実行」と報告。再実行時は `committed` の `head` が `task/<ID>` の先端と一致することを確認してから手順 4 を続ける
 
+### 計画的複数セッション引継ぎ(`implementing` + `next`、specs/10 §4)
+
+spec が工程の別セッション実施を要求するタスク(07 Step 4 のセルフレビュー等)は、`.task-session-state` を `{"id":"<ID>","state":"implementing","next":"<次工程>"}` として**停止せずに**セッションを終了してよい(`stopped/dod-unmet` は reason 解消まで再開不可のため使わない)。`next` の許可値は specs/10 §4(当面 `"step4-review"` のみ)。次セッションは `/task-session resume <ID>` で `next` の工程から継続する。
+
 ### `resume <ID>`
 
-`task:report` で `<ID>` が IN_PROGRESS、かつ `git rev-parse --show-toplevel` が `.claude/worktrees/<ID>` であるときだけ、`.task-session-state` の `state` に応じて再開する(`implementing` → 手順 1 から、`awaiting-approval` → 承認を待つだけ、`committed` → `/task-session approved` で完了記録を再開、`stopped` → `reason` が解消されたか確認し、`.task-session-state` を `{"id":"<ID>","state":"implementing"}` に戻してから手順 1 から)。worktree が無く ref だけなら「`git worktree add .claude/worktrees/<ID> task/<ID>` で再接続するかはオーナー判断(手動 worktree add は規約で禁止のため自動化しない)」と報告して停止
+`task:report` で `<ID>` が IN_PROGRESS、かつ `git rev-parse --show-toplevel` が `.claude/worktrees/<ID>` であるときだけ、`.task-session-state` の `state` に応じて再開する(`implementing` → 手順 1 から(`next` があればその工程から継続)、`awaiting-approval` → 承認を待つだけ、`committed` → `/task-session approved` で完了記録を再開、`stopped` → `reason` が解消されたか確認し、`.task-session-state` を `{"id":"<ID>","state":"implementing"}` に戻してから手順 1 から)。worktree が無く ref だけなら「`git worktree add .claude/worktrees/<ID> task/<ID>` で再接続するかはオーナー判断(手動 worktree add は規約で禁止のため自動化しない)」と報告して停止
 
 ## 報告テンプレート(最終メッセージはこの形式)
 

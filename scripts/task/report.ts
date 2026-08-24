@@ -25,7 +25,7 @@ export interface NodeInfo {
 }
 export interface Candidate { id: string; rank: number; scheduled: string | null; reason: string }
 export interface Bottleneck { id: string; blockedBy: { id: string; status: Status }[]; ownerAction: string }
-export interface SessionState { id?: string; state?: string; reason?: string; head?: string; hash?: string }
+export interface SessionState { id?: string; state?: string; reason?: string; head?: string; hash?: string; next?: string }
 export interface WorktreeInfo {
   id: string;
   path: string;
@@ -195,14 +195,29 @@ const SESSION_REQUIRED: Record<string, (keyof SessionState)[]> = {
   stopped: ["id", "reason"],
 };
 
-/** specs/10 §4 の形状検証。列挙外・必須欠落・ID 不一致は null + warning */
-export function parseSessionState(text: string, expectId: string): SessionState {
+/** 計画的複数セッション引継ぎ(specs/10 §4)の `next` 許可値 */
+export const SESSION_NEXT_ALLOWED: readonly string[] = ["step4-review"];
+
+/**
+ * specs/10 §4 の形状検証。列挙外・必須欠落・ID 不一致は throw(呼び出し側で null + warning)。
+ * `next` は soft 検証: implementing 以外に付く・許可値以外は warnings に積み、next だけ除いて session は有効のまま返す。
+ */
+export function parseSessionState(text: string, expectId: string, warnings: string[] = []): SessionState {
   const j = JSON.parse(text) as Record<string, unknown>;
   if (typeof j !== "object" || j === null || typeof j.state !== "string") throw new Error("state が無い");
   const req = SESSION_REQUIRED[j.state];
   if (!req) throw new Error(`未知の state ${j.state}`);
   for (const k of req) if (typeof j[k] !== "string" || j[k] === "") throw new Error(`${j.state} に ${k} が無い`);
   if (j.id !== expectId) throw new Error(`id ${String(j.id)} が worktree の ${expectId} と一致しない`);
+  if (j.next !== undefined) {
+    if (j.state !== "implementing") {
+      warnings.push(`state ${j.state} に next は付けられない(specs/10 §4)`);
+      delete j.next;
+    } else if (typeof j.next !== "string" || !SESSION_NEXT_ALLOWED.includes(j.next)) {
+      warnings.push(`next ${String(j.next)} は許可値(${SESSION_NEXT_ALLOWED.join(", ")})にない(specs/10 §4)`);
+      delete j.next;
+    }
+  }
   return j as SessionState;
 }
 
@@ -210,7 +225,10 @@ function readSessionState(wtPath: string, expectId: string, warnings: string[]):
   const f = path.join(wtPath, ".task-session-state");
   if (!existsSync(f)) return null;
   try {
-    return parseSessionState(readFileSync(f, "utf8"), expectId);
+    const local: string[] = [];
+    const s = parseSessionState(readFileSync(f, "utf8"), expectId, local);
+    for (const w of local) warnings.push(`${f}: ${w}`);
+    return s;
   } catch (e) {
     warnings.push(`${f}: 解釈できない(${(e as Error).message})`);
     return null;

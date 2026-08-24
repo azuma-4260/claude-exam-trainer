@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "typecheck": "next typegen && tsc --noEmit",
     "validate-bank": "tsx scripts/validate-bank.ts",
+    "audit:flash": "tsx scripts/audit-flash.ts --status active",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:check": "tsx scripts/db-check.ts",
