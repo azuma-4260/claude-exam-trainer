@@ -1,0 +1,3 @@
+state: merged
+evidence: "merge 8ef98e6 で main 取り込み。main の npm test 394 件 green を確認"
+recorded: 2026-08-27
