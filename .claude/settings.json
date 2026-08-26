@@ -7,9 +7,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -c 'if ((.tool_input.subagent_type // \"\") == \"fork\") or (((.tool_input.model // \"\") != \"\") and ((.tool_input.effort // \"\") != \"\")) then empty else {hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:\"Agent 呼び出しには model と effort の両方を明示する(無指定はセッションの Fable/high を継承して上限を浪費)。目安: 機械的作業 = haiku/low、標準ファンアウト = sonnet/medium、最終ゲート = sonnet/high。Fable は判断集約タスクのみ。\"}} end'",
+            "command": "jq -c 'if ((.tool_input.subagent_type // \"\") == \"fork\") or ((.tool_input.model // \"\") != \"\") then empty else {hookSpecificOutput:{hookEventName:\"PreToolUse\",permissionDecision:\"deny\",permissionDecisionReason:\"Agent 呼び出しには model を明示する(無指定はセッションの Fable/high を継承して上限を浪費)。目安: 機械的作業 = haiku、標準ファンアウト・最終ゲート = sonnet。Fable は判断集約タスクのみ。\"}} end'",
             "timeout": 10,
-            "statusMessage": "Agent model/effort 指定チェック"
+            "statusMessage": "Agent model 指定チェック"
           }
         ]
       }
