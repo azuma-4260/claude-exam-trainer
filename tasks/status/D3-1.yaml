@@ -1,0 +1,3 @@
+state: merged
+evidence: "merge e62563a で main 取り込み(T-mock と paired 納品)。main の npm test 455 件 green を確認"
+recorded: 2026-08-27
