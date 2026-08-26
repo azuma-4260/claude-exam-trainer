@@ -1,0 +1,3 @@
+state: done
+evidence: "オーナーが 2026-08-27 に本番 https://claude-exam-trainer.vercel.app で DoD を確認: 本番 attempt 1 件保存 → 再読込で復元 → 翌日 due に出現。これをもって data-protection cutover 発動(以後 migration は追加のみ、本番データの破壊的操作禁止)。依存タスク(O-4 / D1-1〜D1-6 / C2)は全て done 記録済み"
+recorded: 2026-08-27
