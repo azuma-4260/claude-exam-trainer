@@ -2,11 +2,16 @@
 id: B-T-queue-1
 origin: T-queue
 created: 2026-08-24
-status: open
+status: absorbed-by D1-5
 related_tasks: [D1-5]
 related_specs: ["04#日次キュー45-分時間予算方式", "05#s-1-home"]
 related_paths: [src/lib/queue/build.ts]
 stop_condition: none
+decisions:
+  - at: 2026-08-27
+    by: D1-5
+    action: absorb
+    note: 導出規則をオーナー決定(2026-08-25)で確定し specs/04 に追記。spentTodaySec = 当日 drill/practice attempt 全件の Σ EST_SEC(回答回数ぶん)、introducedTodayCount = applied_rating 非 null の最初の attempt が当日の distinct 数。src/lib/queue/consumption.ts + load.ts で実装し buildDailyQueue に結線
 ---
 # 同日内キュー再構築の消費シグナル導出規則を D1-5 で確定する
 

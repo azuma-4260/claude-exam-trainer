@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, gte, inArray, isNotNull, lt } from "drizzle-orm";
 import type { Db } from "@/db/client";
 import { attempt, srsState } from "@/db/schema";
 import type { SrsStateUpsert } from "@/lib/srs/card-row";
@@ -32,4 +32,36 @@ export async function loadQueueSignals(db: Db): Promise<QueueSignals> {
     }),
     correctQuestionIds: new Set(corrects.map((c) => c.questionId)),
   };
+}
+
+/**
+ * 消費シグナル用の当日 attempt(specs/04 §同日内リビルドの消費シグナル導出)。
+ * 当日(>= todayStart)の drill / practice attempt を全件読む(mock は除外)。
+ */
+export function buildTodayLearnAttemptsSelect(db: Db, todayStart: Date) {
+  return db
+    .select({ questionId: attempt.questionId, appliedRating: attempt.appliedRating, mode: attempt.mode })
+    .from(attempt)
+    .where(and(inArray(attempt.mode, ["drill", "practice"]), gte(attempt.answeredAt, todayStart)));
+}
+
+/** 当日より前に applied_rating 非 null の attempt を持つ question_id(= 当日より前に FSRS 導入済み) */
+export function buildIntroducedBeforeSelect(db: Db, todayStart: Date) {
+  return db
+    .selectDistinct({ questionId: attempt.questionId })
+    .from(attempt)
+    .where(and(isNotNull(attempt.appliedRating), lt(attempt.answeredAt, todayStart)));
+}
+
+export type ConsumptionRows = {
+  todayRows: { questionId: string; appliedRating: number | null; mode: string }[];
+  introducedBefore: Set<string>;
+};
+
+export async function loadConsumptionRows(db: Db, todayStart: Date): Promise<ConsumptionRows> {
+  const [todayRows, before] = await Promise.all([
+    buildTodayLearnAttemptsSelect(db, todayStart),
+    buildIntroducedBeforeSelect(db, todayStart),
+  ]);
+  return { todayRows, introducedBefore: new Set(before.map((r) => r.questionId)) };
 }
