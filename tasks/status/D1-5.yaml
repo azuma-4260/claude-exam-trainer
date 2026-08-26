@@ -1,3 +1,3 @@
-state: merged
-evidence: "merge 8ef98e6 で main 取り込み。main の npm test 394 件 green を確認"
+state: done
+evidence: "merge 8ef98e6、main の npm test 394 件 green。実機 DoD(2026-08-27、スマホ実機 + ローカル HTTPS + フィクスチャ専用バンク): 回答→保存 ACK→再読込で復元、機内モードで「保存に失敗しました / Retry」→復帰後 Retry 成功。CI 緑: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/32991693318(ci / deploy とも success)"
 recorded: 2026-08-27
