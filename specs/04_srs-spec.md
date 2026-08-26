@@ -74,6 +74,25 @@ reserved_new_sec  = min(NEW_RESERVED_SEC, sum(EST_SEC(new_candidates)))
 
 新規の priority: `priority(topic) = domain_weight × (1 - proficiency(topic))`
 
+### 同日内リビルドの消費シグナル導出(v1.2.3 確定、B-T-queue-1 解消)
+
+予算 2700 秒/日と new_per_day は 1 日(00:00 JST リセット)の量なので、同日内にキューを再構築する
+ときは当日の消化分を差し引く。両シグナルは attempt ログから次の規則で導出する(オーナー決定 2026-08-25):
+
+```
+当日 = answered_at >= 当日 00:00 JST
+対象 mode = drill / practice のみ(mock は提出時一括生成で answered_at が回答時刻でないため除外)
+
+spent_today_sec       = Σ EST_SEC(question)  … 当日対象 attempt の全件(回答回数ぶん加算。
+                        同一問題の同日内再回答(learning steps による再 due)も 1 回ずつ数える。
+                        時間予算 = 実際に使った学習時間、の意味に合わせる)
+introduced_today_count = distinct question 数 … 「applied_rating IS NOT NULL の最初の attempt が当日」
+                        (srs_state に created_at が無いため attempt から導出。
+                        練習で applied_rating=null だった過去回答は「導入」に数えない)
+```
+
+- バンクに存在しない question_id の attempt(retired 済み等)は spent の加算対象外(EST_SEC 不明のため 0)
+
 ## 習熟度(proficiency)
 
 primary_topic_id のみで集計。

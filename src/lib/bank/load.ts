@@ -16,7 +16,13 @@ export interface Bank {
   byId: ReadonlyMap<string, Question>;
 }
 
+/**
+ * development 限定の検証支援: BANK_DIR が指すディレクトリをバンクとして使う
+ * (フィクスチャ専用バンクでの手動検証・実機 DoD 用)。production では必ず無視する。
+ */
 export function bankDir(exam = "ccar-f"): string {
+  const override = process.env.BANK_DIR;
+  if (override && process.env.NODE_ENV !== "production") return path.resolve(override);
   return path.join(process.cwd(), "content", exam);
 }
 

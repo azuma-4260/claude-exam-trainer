@@ -12,6 +12,11 @@ export function jstCalendarDate(at: Date): string {
   return new Date(at.getTime() + JST_OFFSET_MS).toISOString().slice(0, 10);
 }
 
+/** at が属する JST 暦日の 00:00 JST を指す時刻(= UTC では前日 15:00)。日次リセット境界 */
+export function jstStartOfDay(at: Date): Date {
+  return new Date(Date.parse(jstCalendarDate(at)) - JST_OFFSET_MS);
+}
+
 /** JST 暦日 2 つの差(to - from、日数)。形式不正は fail closed */
 export function daysBetweenJstDates(from: string, to: string): number {
   for (const d of [from, to]) {
