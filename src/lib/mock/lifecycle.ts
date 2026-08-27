@@ -1,5 +1,7 @@
 import type { ExamSessionAnswerRow, ExamSessionRow, SessionKind, SubmissionReason } from "@/db/schema";
 import type { Exam, MockForm, Question } from "@/lib/bank/schema";
+import { formAvailability, type OpenFlag, type PoolSession } from "@/lib/bank/pool";
+import { buildMockFormOptions } from "./availability";
 
 /**
  * 模試ライフサイクル(specs/03 §exam_session, §Mock の attempt 生成、01 FR-5、05 S-5)。
@@ -76,11 +78,21 @@ export type StartInput = {
   domainId: string | null;
   questionIds: readonly string[];
   durationMin: number;
+  /**
+   * availability 検証の結果(01 FR-5)。指定時は「① 進行中セッションの解決 → ② 全 questionId の
+   * 存在確認(欠落は 404)→ ③ blocked で 409 form_blocked → ④ notNext で 409 form_not_next」の
+   * 順で評価する(② が ③④ に優先)
+   */
+  blocked?: { openFlagCount: number; inactiveCount: number };
+  /** 未実施フォームは自動選択(次の有効な未実施フォーム)以外を開始不可(01 FR-5) */
+  notNext?: { recommendedFormId: string };
 };
 
 export type StartResult =
   | { status: 201; session: ExamSessionRow; answers: ExamSessionAnswerRow[] }
   | { status: 409; error: "session_in_progress"; session: ExamSessionRow }
+  | { status: 409; error: "form_blocked"; openFlagCount: number; inactiveCount: number }
+  | { status: 409; error: "form_not_next"; recommendedFormId: string }
   | { status: 404; error: "unknown_form" | "unknown_question"; questionId?: string };
 
 export type SaveResult =
@@ -174,6 +186,14 @@ export async function startSession(input: StartInput, deps: MockDeps): Promise<S
     if (!q) return { status: 404, error: "unknown_question", questionId: id };
     revs.set(id, q.rev);
   }
+  // ③ availability block(開始済みセッションには影響しない: 問題集合は開始時に固定済み)
+  if (input.blocked) {
+    return { status: 409, error: "form_blocked", openFlagCount: input.blocked.openFlagCount, inactiveCount: input.blocked.inactiveCount };
+  }
+  // ④ 自動選択外の未実施フォーム
+  if (input.notNext) {
+    return { status: 409, error: "form_not_next", recommendedFormId: input.notNext.recommendedFormId };
+  }
   const now = deps.now;
   const session: ExamSessionRow = {
     id: deps.newSessionId(),
@@ -209,12 +229,36 @@ export async function startSession(input: StartInput, deps: MockDeps): Promise<S
   return { status: 201, session, answers };
 }
 
-/** full 開始(05 S-5)。form_id 明示指定。availability 検証・自動選択は D3-2 がここに差し込む */
-export async function startFullMock(formId: string, forms: readonly MockForm[], deps: MockDeps): Promise<StartResult> {
+/**
+ * full 開始(05 S-5、01 FR-5)。form_id 明示指定だが、要求された form を再検証して
+ * 別フォームへの代替差し込みをしない:
+ * - status≠active / 現行 rev 未解決フラグを含む form は 409 form_blocked
+ * - 未実施フォームは自動選択(次の有効な未実施フォーム = buildMockFormOptions の推奨)以外
+ *   409 form_not_next。提出済みフォームの再受験(rehearsal)は対象外
+ * - missingCount のみの不整合は blocked にせず、startSession の存在確認(404)に委ねる
+ */
+export async function startFullMock(
+  formId: string,
+  forms: readonly MockForm[],
+  sessions: readonly PoolSession[],
+  flags: readonly OpenFlag[],
+  deps: MockDeps,
+): Promise<StartResult> {
   const form = forms.find((f) => f.id === formId);
   if (!form) return { status: 404, error: "unknown_form" };
+  const { options, recommendedFormId } = buildMockFormOptions(forms, sessions, flags, deps.findQuestion);
+  const option = options.find((o) => o.formId === formId);
+  const availability = option?.availability ?? formAvailability(form.question_ids.map(deps.findQuestion), flags);
+  const blocked =
+    availability.openFlagCount + availability.inactiveCount > 0
+      ? { openFlagCount: availability.openFlagCount, inactiveCount: availability.inactiveCount }
+      : undefined;
+  const notNext =
+    !blocked && option && !option.submitted && recommendedFormId !== null && recommendedFormId !== formId
+      ? { recommendedFormId }
+      : undefined;
   return startSession(
-    { exam: form.exam, kind: "full", formId: form.id, domainId: null, questionIds: form.question_ids, durationMin: FULL_DURATION_MIN },
+    { exam: form.exam, kind: "full", formId: form.id, domainId: null, questionIds: form.question_ids, durationMin: FULL_DURATION_MIN, blocked, notNext },
     deps,
   );
 }

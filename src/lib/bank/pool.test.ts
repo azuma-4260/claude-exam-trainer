@@ -3,6 +3,7 @@ import { mockFormSchema, questionSchema, type MockForm, type Question } from "./
 import {
   evaluatePool,
   filterPool,
+  formAvailability,
   holdoutFormOf,
   unsubmittedFormIds,
   type OpenFlag,
@@ -138,6 +139,68 @@ describe("unsubmittedFormIds / holdoutFormOf", () => {
     expect(holdoutFormOf(formBIds[0], [formA, formB])).toBe("form-b");
     expect(holdoutFormOf("f-d2-q001", [formA, formB])).toBeNull();
     expect(holdoutFormOf(formAIds[0], [])).toBeNull();
+  });
+});
+
+describe("formAvailability: フォーム開始時の availability 検証(D3-2, 01 FR-5)", () => {
+  const questionsA = formAIds.map((id) => formQuestion(id));
+
+  it("全問 active・フラグ無しなら available", () => {
+    expect(formAvailability(questionsA, [])).toEqual({
+      available: true,
+      openFlagCount: 0,
+      inactiveCount: 0,
+      missingCount: 0,
+    });
+  });
+
+  it("1 問でも status≠active なら不可(inactiveCount に計上)", () => {
+    for (const status of ["flagged", "retired"] as const) {
+      const qs = [formQuestion(formAIds[0], { status }), ...questionsA.slice(1)];
+      expect(formAvailability(qs, []), status).toEqual({
+        available: false,
+        openFlagCount: 0,
+        inactiveCount: 1,
+        missingCount: 0,
+      });
+    }
+  });
+
+  it("1 問でも現行 rev の未解決フラグがあれば不可(openFlagCount に計上)", () => {
+    const flags = [flag({ questionId: formAIds[0], questionRev: 1 })];
+    expect(formAvailability(questionsA, flags)).toEqual({
+      available: false,
+      openFlagCount: 1,
+      inactiveCount: 0,
+      missingCount: 0,
+    });
+  });
+
+  it("旧 rev のフラグは superseded として無視する", () => {
+    const qs = [formQuestion(formAIds[0], { rev: 2 }), ...questionsA.slice(1)];
+    const flags = [flag({ questionId: formAIds[0], questionRev: 1 })];
+    expect(formAvailability(qs, flags).available).toBe(true);
+  });
+
+  it("バンク不整合(null)は missingCount に独立計上して不可(availability 理由には混ぜない)", () => {
+    const qs = [null, ...questionsA.slice(1)];
+    expect(formAvailability(qs, [])).toEqual({
+      available: false,
+      openFlagCount: 0,
+      inactiveCount: 0,
+      missingCount: 1,
+    });
+  });
+
+  it("status NG とフラグ NG が同一問題なら inactive を優先して二重計上しない", () => {
+    const qs = [formQuestion(formAIds[0], { status: "flagged" }), ...questionsA.slice(1)];
+    const flags = [flag({ questionId: formAIds[0], questionRev: 1 })];
+    expect(formAvailability(qs, flags)).toEqual({
+      available: false,
+      openFlagCount: 0,
+      inactiveCount: 1,
+      missingCount: 0,
+    });
   });
 });
 
