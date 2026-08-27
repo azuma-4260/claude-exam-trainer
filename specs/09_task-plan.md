@@ -11,7 +11,7 @@
 3. **CI とデプロイの直列化**: GitHub Actions で `validate-bank → npm test → npm run build` を 1 ワークフローで実行し、**Vercel の Git 自動 deploy は無効化**。deploy は CI 成功後の後続 job(Vercel CLI + token)からのみ実行する(`06` §バンク静的検証)。CI 失敗の動作確認は**一時ブランチ**で行い、main では行わない
 4. **共通リリースゲート G**: 各タスク完了 → `/codex:review`(P1 は修正)→ オーナー承認 → commit → push → CI 成功 → deploy。DoD に「deploy」「本番反映」とあるタスクは G を経由する。G は全タスクの depends に暗黙に含め、表には書かない
 5. **holdout ゲートは最初の出題プール実装に含める**: 9/5 に form A がバンクに入った瞬間に Practice へ漏れないよう、`03` §1 の 5 段判定は D1-2 で完全形で実装する(フォーム未存在でも fixture でテスト)
-6. **コンテンツの DoD は `07` Step 4 の全工程**: refs 突合 → 曖昧の flagged → 重複統合 → 修正 + 再レビュー 2 周 → active → **オーナー抜き取り(各ドメイン 5 問)** → deploy。C2 / C3a / C5 / C3b-* すべてに適用する。抜き取り時間は各期限の内側に置く
+6. **コンテンツの DoD は `07` Step 4 の全工程**: refs 突合 → 曖昧の flagged → 重複統合 → 修正 + 再レビュー 2 周 → active → **オーナー抜き取り(各ドメイン 5 問)** → deploy。C2 / C3a / C5 / C3b-* すべてに適用する。抜き取り時間は各期限の内側に置く。総収録数がドメイン数×5 に満たないタスクは、対象ドメインを 5 ドメインすべてとし各ドメイン **min(5, 当該ドメイン収録数)** を抜き取る(2026-08-24, C3a)。C3a は全 5 ドメインを各 2 問以上収録すること
 7. **Dev と Content は同じ Claude Code を奪い合う**: §6 の日別配分に従う。Content の C0〜C1 は Dev に依存しないが、deploy は D0-3 に依存する
 8. **commit はオーナー承認を経る**(G)。各タスクの DoD は「検証済み差分」までとし、commit 自体は DoD に含めない
 

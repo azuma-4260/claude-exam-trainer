@@ -1,0 +1,133 @@
+[
+  {
+    "id": "f-d5-q101",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-billing-support-agent",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In long, multi-issue support sessions the agent summarizes older turns to stay within the context window. Afterward it sometimes offers credits for the wrong amount or forgets the date the subscriber said they were charged. How should the team preserve these details?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Stop summarizing and always send the full conversation, truncating from the beginning when the window fills up."
+      },
+      {
+        "label": "B",
+        "text_en": "Extract transaction facts (amounts, dates, invoice numbers, statuses) into a structured block that is kept outside the summarized history and always passed intact."
+      },
+      {
+        "label": "C",
+        "text_en": "Summarize more aggressively so that more of the original conversation fits in the window."
+      },
+      {
+        "label": "D",
+        "text_en": "Have the agent ask the subscriber to repeat the amount and date whenever it is unsure."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "要約は数値・日付・顧客が明示した期待のような精密な事実を曖昧化しやすい。取引事実を要約対象の外にある永続的な構造化ブロックへ抽出し、常に原文のまま渡すのが正解。A の先頭からの切り捨ては、最初に述べられた事実(請求日など)をそのまま失う。C は圧縮を強めるほど事実の劣化が悪化し、逆方向の打ち手。D は毎回の聞き直しで顧客体験を壊し、コンテキスト設計の欠陥を顧客に転嫁している。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q102",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-billing-support-agent",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A subscriber writes: \"Stop. I want to talk to a human being now.\" The agent has a promising fix that it has not yet proposed. What should it do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Offer the promising fix first, and escalate only if the subscriber declines it."
+      },
+      {
+        "label": "B",
+        "text_en": "Run sentiment analysis and escalate only if the frustration score exceeds a threshold."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask the subscriber a few clarifying questions to confirm they really want a human."
+      },
+      {
+        "label": "D",
+        "text_en": "Escalate immediately via escalate_to_human, honoring the explicit request."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "人間対応の明示的な要求は、追加の調査や提案を挟まず即座に尊重してエスカレーションするのが正しい(公式 Exam Guide Task Statement 5.2 が明示要求の即時エスカレーションと sentiment ベース判定の不適切さを明記している)。「不満の表明のみ」であれば解決策を提示し、再度要求されたら移譲する——が、本問は明示要求なので提案を挟む A は要求の無視にあたる。B の sentiment スコアは不満検知の補助にはなっても、明示要求という確定的なトリガーに重ねる判定としては不適切(閾値未満なら無視することになる)。C の確認質問は引き延ばしであり、不信を拡大するだけ。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q103",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-ci-code-review",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "During a long Claude Code session exploring the monorepo before a large refactor, responses degrade: the model starts describing a \"typical project structure\" instead of the actual files it read an hour ago. Which combination addresses this?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Restart the session and re-read every file from scratch each time degradation appears."
+      },
+      {
+        "label": "B",
+        "text_en": "Paste the entire codebase into the first message so nothing needs to be read later."
+      },
+      {
+        "label": "C",
+        "text_en": "Persist key findings to a scratchpad file as they are discovered, delegate narrow questions to subagents, and run /compact when the context fills with stale output."
+      },
+      {
+        "label": "D",
+        "text_en": "Add \"remember the actual files accurately\" to the beginning of the session."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "長期セッションでは実際に読んだ内容から「典型パターン」への退行が起きる。対策は 3 点セット——要点を scratchpad に永続化して参照可能にする、特定の質問は subagent に委任してメイン文脈を守る、古いツール出力で埋まったら /compact する。A の全面やり直しは高コストで、同じ長さに達すればまた劣化する。B の全文貼付は context rot(トークン数の増加に伴う想起精度の劣化)とトークン予算の問題を最初から抱え込む。D の指示は劣化の機構(文脈の希釈)に対して効果がない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/claude-code/costs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

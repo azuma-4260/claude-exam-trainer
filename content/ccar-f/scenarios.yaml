@@ -1,0 +1,30 @@
+# scenarios.yaml — Practice 専用シナリオ(C3a, 2026-08-24)
+# 形式: specs/03 §1(id / title_en / context_en / refs のみ。strict)
+# 文脈は SOURCES.md §2 の公式 6 シナリオに準拠した自作(転記なし)
+scenarios:
+  - id: sc-billing-support-agent
+    title_en: "Subscription Billing Support Agent"
+    context_en: |
+      Norvia, a subscription software company, is building a customer support
+      resolution agent on the Claude Agent SDK. The agent handles ambiguous
+      billing requests — duplicate charges, refund claims, plan-change disputes,
+      and cancellations — through custom MCP tools: lookup_subscriber,
+      get_invoice, issue_credit, and escalate_to_human. The team targets 80%+
+      first-contact resolution, but any credit above policy thresholds and every
+      policy exception must reach a human reviewer with enough context to act.
+    refs:
+      - https://www.anthropic.com/engineering/building-effective-agents
+      - https://docs.claude.com/en/api/agent-sdk/overview
+  - id: sc-ci-code-review
+    title_en: "Claude Code Rollout with CI Review"
+    context_en: |
+      A platform team is rolling out Claude Code across a large monorepo.
+      Shared configuration lives in the repository: a project CLAUDE.md, custom
+      slash commands, and path-scoped rules. The team is also wiring Claude Code
+      into the CI pipeline so every pull request receives an automated review
+      whose findings are posted through an internal API. Early feedback reports
+      noisy review comments, inconsistent behavior between engineers' machines,
+      and a CI job that sometimes hangs.
+    refs:
+      - https://www.anthropic.com/engineering/claude-code-best-practices
+      - https://docs.claude.com/en/docs/claude-code/github-actions

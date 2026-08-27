@@ -1,0 +1,177 @@
+[
+  {
+    "id": "f-d3-q101",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-ci-code-review",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An engineer configured naming conventions and testing standards for the monorepo, but a new teammate's Claude Code sessions ignore all of them. The conventions turn out to live in the original engineer's ~/.claude/CLAUDE.md. What went wrong?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "User-level memory is not shared through version control; team conventions belong in a project-level CLAUDE.md committed to the repository."
+      },
+      {
+        "label": "B",
+        "text_en": "The file exceeds the size limit for memory files, so it is silently skipped."
+      },
+      {
+        "label": "C",
+        "text_en": "~/.claude/CLAUDE.md is only loaded when Claude Code runs in plan mode."
+      },
+      {
+        "label": "D",
+        "text_en": "The new teammate must run /memory once on their machine to activate memory files."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "~/.claude/CLAUDE.md は user レベルの memory で、その個人のマシンにしか存在せず VCS で共有されない。チーム規約はリポジトリにコミットされる project レベルの CLAUDE.md に置くのが正しい。B について、CLAUDE.md には 4 MiB を超えるとスキップされる上限が実在するが、通常の個人設定ファイルが達する規模ではなく、本問の原因はスコープの取り違えである。C の plan mode 限定ロードは存在しない(memory はモードに関係なくロードされる)。D の /memory はメモリファイルの場所を一覧・編集するコマンドで有効化コマンドではない(実際にロードされたファイルの確認は /context の役割)。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q102",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-ci-code-review",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An engineer created a /release-notes command that works on their machine. Teammates pulled the latest main, but the command does not appear for any of them. The engineer insists every change was committed and pushed. What is the most likely cause and fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Custom commands are disabled by default; each teammate must enable them in /config."
+      },
+      {
+        "label": "B",
+        "text_en": "The command must be registered by name in the project CLAUDE.md before Claude Code will load it."
+      },
+      {
+        "label": "C",
+        "text_en": "/release-notes collides with a built-in command name, so the custom version is shadowed; rename it."
+      },
+      {
+        "label": "D",
+        "text_en": "The command file lives in ~/.claude/commands/ on the engineer's machine, outside the repository; move it into the repository's .claude/commands/ directory so it ships with clone and pull."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "user スコープ(~/.claude/ 配下)の定義はその個人のマシンにしか存在せず、いくら commit しても(リポジトリ外なので)チームに配布されない。リポジトリ内の .claude/ に移せば clone / pull で全員に行き渡る。これがプロジェクトスコープと user スコープの使い分けの核心。A のような既定無効 + 個別有効化の仕組みは存在しない。B の CLAUDE.md は常時ロードされる指示ファイルであり、コマンドの登録簿ではない。C の名前衝突は本問の症状(全員に出ない・本人には出る)と合わない。なお現行ドキュメントではスラッシュコマンドはスキル(.claude/skills/)に統合されており、.claude/commands/ は後方互換として引き続き動作する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/slash-commands"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q103",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t3-01",
+    "secondary_topic_ids": [
+      "f-d3-t1-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-ci-code-review",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "The monorepo's Terraform conventions only matter when editing files under infra/, but they currently sit in the root CLAUDE.md and consume context in every session. What is the recommended restructuring?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Duplicate the root CLAUDE.md into every subdirectory under infra/."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep them in the root CLAUDE.md but wrap them in a note asking Claude to ignore them unless relevant."
+      },
+      {
+        "label": "C",
+        "text_en": "Move them into a rule file under .claude/rules/ with paths: [\"infra/**/*\"] in its frontmatter, so they load only when matching files are edited."
+      },
+      {
+        "label": "D",
+        "text_en": "Move them to ~/.claude/CLAUDE.md to keep the project file small."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "特定パスの編集時だけ必要な規約は、.claude/rules/ のルールファイルに YAML frontmatter の paths glob を付けて条件ロードするのが正解。無関係なセッションの文脈とトークンを削減できる。A の重複配置は同期が壊れやすくメンテ不能になる。B は結局全文が常時ロードされ、トークン削減にならない(「無視して」という指示自体も文脈を消費する)。D は user レベルに移すことでチーム共有が壊れる、本問と別の問題を作る改悪。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q104",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-ci-code-review",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A nightly CI job already runs claude -p \"Review this diff\" successfully, and a script scrapes the plain-text answer with regular expressions to feed a findings dashboard. The parser breaks whenever the response wording shifts. What is the right fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Tighten the prompt: \"Always use exactly the same wording and section order in your answer.\""
+      },
+      {
+        "label": "B",
+        "text_en": "Request structured output with --output-format json, adding --json-schema so the findings always arrive in a fixed, validated structure."
+      },
+      {
+        "label": "C",
+        "text_en": "Switch to the --emit machine flag to enable the CLI's machine-readable mode."
+      },
+      {
+        "label": "D",
+        "text_en": "Add a second claude -p call that converts the first answer into JSON."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "自然言語出力を正規表現で削るのは、言い回しが変わるたびに壊れる根本的に脆い設計。--output-format json で構造化された結果を受け取り、--json-schema で所見の構造を固定・検証すれば、文言の揺れと無関係に安定してパースできる。A のプロンプト指示は確率的で、文言の完全固定は保証できない。C の --emit という CLI フラグは実在しない。D は呼出しコストを倍にしたうえ、変換自体が確率的でスキーマ検証もないため「壊れにくさ」が本質的に改善しない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/cli-reference",
+      "https://docs.claude.com/en/docs/claude-code/headless"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

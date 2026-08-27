@@ -1,0 +1,134 @@
+[
+  {
+    "id": "f-d2-q101",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-billing-support-agent",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "escalate_to_human's description is a single line: \"Escalates the case to a human agent.\" Logs show the agent escalates routine balance questions it could have answered itself from lookup_subscriber and get_invoice. What is the best first step?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Remove escalate_to_human from the tool list and restore it only for conversations a human has flagged."
+      },
+      {
+        "label": "B",
+        "text_en": "Rewrite the description so the agent can tell a genuine escalation from a routine question: name the triggers that warrant it, the cases the data tools should handle instead, and the context a handoff must carry."
+      },
+      {
+        "label": "C",
+        "text_en": "Put a classifier model in front of the agent that decides for each request whether escalation is permitted."
+      },
+      {
+        "label": "D",
+        "text_en": "Add \"Avoid escalating whenever possible\" to the system prompt."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "description は LLM がツールを使うかどうかを判断する主要な手がかりであり、一行だけの説明では「いつ使い・いつ使わないか」の境界が伝わらない。使う条件・使わない条件・ハンドオフに含める情報を明記する拡充が最小・最初の一手。A はツール自体を奪うため、明示要求やポリシー例外という正当なエスカレーションまで不能にする過剰対応。C の前段分類器は説明改善を試す前に導入する設備としては過剰設計。D の漠然とした抑制指示は境界を教えず、正当なエスカレーションまで確率的に抑え込む副作用がある。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q102",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-billing-support-agent",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When issue_credit fails, the MCP server returns { isError: true, content: [{ type: \"text\", text: \"Operation failed\" }] } for every failure — expired refund windows, network timeouts, and permission errors alike. The agent responds by retrying three times and then giving up. How should the error response be redesigned?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Return numeric error codes only, since the model can learn what each number means."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep the generic message but raise the retry limit to ten for robustness."
+      },
+      {
+        "label": "C",
+        "text_en": "Return isError: false with an empty result so the agent moves on instead of retrying."
+      },
+      {
+        "label": "D",
+        "text_en": "Return a structured error with a category (transient / validation / business / permission), an isRetryable flag, and a human-readable explanation."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "一様な \"Operation failed\" では、再試行すべきか(transient)・入力を直すべきか(validation)・顧客に説明すべきか(business)の判断ができない。エラー分類 + isRetryable + 人間可読な説明を構造化して返すのが正解で、返金期限切れのようなビジネスルール違反への無駄なリトライも防げる。A の数値コードだけでは意味情報が運ばれず、モデルに暗記を期待する設計は脆い。B はビジネスルール違反に対する無駄な再試行を増やすだけ。C は失敗の黙殺(silent success)で、正当な空結果とアクセス失敗の区別を壊すアンチパターン。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/handle-tool-calls",
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q103",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-billing-support-agent",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Policy requires the agent to load the subscriber's record before answering any billing question, but with tool_choice: \"auto\" the model sometimes answers from conversation memory without calling lookup_subscriber. How can the team guarantee the lookup happens first?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Set tool_choice: \"any\" for the entire conversation so the model always calls some tool."
+      },
+      {
+        "label": "B",
+        "text_en": "Add \"You MUST call lookup_subscriber first\" to the system prompt and keep \"auto\"."
+      },
+      {
+        "label": "C",
+        "text_en": "Force the first call with tool_choice: { \"type\": \"tool\", \"name\": \"lookup_subscriber\" }, then switch to \"auto\" for subsequent turns."
+      },
+      {
+        "label": "D",
+        "text_en": "Remove all other tools so lookup_subscriber is the only one available."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "特定ツールの実行を保証するのは forced tool choice({\"type\": \"tool\", \"name\": ...})で、最初のターンで強制した後に \"auto\" へ切り替えて通常処理を続けるのが定石。A の \"any\" は「何かしらのツール呼出し」しか保証せず、get_invoice が選ばれるかもしれない。B のプロンプト指示は確率的で、本問の症状(memory からの回答)がまさにその失敗例。D は issue_credit や escalate_to_human まで奪い、エージェントの業務自体を不能にする過剰対応。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

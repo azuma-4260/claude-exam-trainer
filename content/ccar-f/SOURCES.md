@@ -785,3 +785,4 @@ You are building a structured data extraction system using Claude. The system ex
 | 36 | https://docs.claude.com/en/docs/agents-and-tools/tool-use/handle-tool-calls | platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls | 2.2(tool_result / is_error) |
 | 37 | https://docs.claude.com/en/docs/agents-and-tools/tool-use/strict-tool-use | platform.claude.com/docs/en/agents-and-tools/tool-use/strict-tool-use | 2.1, 4.3(strict: true) |
 | 38 | https://docs.claude.com/en/docs/build-with-claude/structured-outputs | platform.claude.com/docs/en/build-with-claude/structured-outputs | 4.3(スキーマ準拠出力) |
+| 39 | https://docs.claude.com/en/docs/claude-code/costs | code.claude.com/docs/en/costs | 5.4(/compact・subagent 委任、2026-08-27 確認) |

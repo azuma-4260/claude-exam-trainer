@@ -1,0 +1,183 @@
+[
+  {
+    "id": "f-d4-q101",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-01",
+    "secondary_topic_ids": [
+      "f-d4-t1-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-ci-code-review",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Engineers complain that the CI reviewer floods pull requests with style nitpicks and speculative concerns. The prompt already says \"Be conservative and only report high-confidence issues.\" What change will actually improve precision?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Strengthen the wording to \"Be EXTREMELY conservative\" and add \"only report issues you are 100% sure about\"."
+      },
+      {
+        "label": "B",
+        "text_en": "Run the review twice and only post findings that appear in both runs."
+      },
+      {
+        "label": "C",
+        "text_en": "Truncate the diff so the model sees less code and therefore reports fewer issues."
+      },
+      {
+        "label": "D",
+        "text_en": "Enumerate explicit categories to report (bugs, security flaws) and not to report (style, naming preferences), with a concrete code example for each severity level."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "「保守的に」「高確信のみ」のような曖昧な形容は精度改善に効かない。報告する / しないカテゴリを明示し、各重大度に具体的なコード例を付けるのが正しい打ち手。A は同じ曖昧指示を強調しただけで効果がない。B の多数決はコストを倍にしながら、系統的な誤検知(2 回とも同じ nitpick を出す)を除去できない。C は見える情報を削るだけで、誤検知率ではなくカバレッジを壊す。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q102",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-01",
+    "secondary_topic_ids": [
+      "f-d4-t2-02"
+    ],
+    "type": "mcq_multi",
+    "scenario_id": "sc-ci-code-review",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "The reviewer's findings vary wildly in format, and it keeps flagging the team's accepted logging pattern as an error. Select TWO changes that few-shot examples can contribute here.",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Include an example finding that demonstrates the exact output fields: location, issue, severity, and suggested fix."
+      },
+      {
+        "label": "B",
+        "text_en": "Ask the model to generate its own illustrative examples before starting each review."
+      },
+      {
+        "label": "C",
+        "text_en": "Include a paired example showing the accepted logging pattern labeled as acceptable, next to a genuinely problematic variant labeled as an issue."
+      },
+      {
+        "label": "D",
+        "text_en": "Increase max_tokens so the model has more room to explain its formatting choices."
+      }
+    ],
+    "answer": [
+      "A",
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "few-shot 例の 2 大効用がそのまま答え。A は出力形式(location・issue・severity・fix)を実演して形式の一貫性を作る。C は許容パターン vs 真の問題を対で示し、誤検知(容認済みロギングパターンへのフラグ)を減らす。B はモデル自身に例を作らせても基準が固定されずドリフトを助長する。特に「チームが容認しているロギングパターン」はモデルが知り得ない暗黙知であり、自己生成では注入できない(人間が用意した例をモデルに拡張させる公式 Tip とは前提が異なる)。D の max_tokens は出力の長さ上限であり、形式の一貫性にも誤検知にも関係しない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q103",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-ci-code-review",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Review findings are posted to an internal API that rejects malformed JSON. Asking the model to \"respond only with valid JSON\" still occasionally produces prose around the JSON block. What is the most reliable way to guarantee parseable structured output?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Ask the model to wrap the JSON in triple backticks and strip them in post-processing."
+      },
+      {
+        "label": "B",
+        "text_en": "Retry the request in a loop until the output parses as JSON."
+      },
+      {
+        "label": "C",
+        "text_en": "Define a report_findings tool with strict: true whose input schema matches the API payload, force the call with tool_choice, and extract the arguments from the model's tool_use block."
+      },
+      {
+        "label": "D",
+        "text_en": "Set temperature to zero so the model stops adding surrounding prose."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "保証は 2 段構え: strict: true が呼ばれたツールの引数のスキーマ準拠を保証し、tool_choice の強制(\"any\" または特定ツール指定)が呼出しの発生自体を保証する。両方を組み合わせて初めて「必ずパース可能な構造化出力」になる(strict なし・tool_choice: \"auto\" のままでは、引数の逸脱や散文のみの応答が残り得る。テキスト出力で保証が要る場合の代替は Structured Outputs)。A のマーカーは前後の散文の発生自体を防げない。B の再試行は非決定的でコストが読めず、「保証」にならない。D は temperature 0 でも散文の付加は起こり得るため解決策ではない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/strict-tool-use",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q104",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-ci-code-review",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "To double-check its own review, the pipeline currently sends \"Now re-review your findings and remove any mistakes\" to the same session that produced them. The re-review almost never removes anything. What should the pipeline do instead?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Send the diff and the findings to a fresh instance that has no access to the first session's reasoning, and let it judge each finding independently."
+      },
+      {
+        "label": "B",
+        "text_en": "Enable extended thinking in the self-review step so the model reasons more deeply about its findings."
+      },
+      {
+        "label": "C",
+        "text_en": "Append \"Be honest about your own mistakes\" to the re-review prompt."
+      },
+      {
+        "label": "D",
+        "text_en": "Have the same session re-review three times and drop any finding it removes at least once."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "生成時の推論文脈を持つ同一セッションは、自分の結論を導いた前提ごと再評価することになり、自分の判断を疑いにくい。文脈を持たない独立した第二インスタンスに所見を個別判定させるのが正解。B の extended thinking は同一文脈内のバイアスを解消しない(より深く同じ前提を辿るだけ)。C の誠実さの指示は自己レビューの構造的限界に効かない。D は同じバイアスの反復であり、回数を増やしても独立性は生まれない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]
