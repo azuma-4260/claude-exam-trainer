@@ -21,6 +21,8 @@ vi.mock("@/lib/mock/server", async (importOriginal) => {
       forms: [],
       scenarios: [{ id: "sc-a", title_en: "Title A", context_en: "Context A" }],
     }),
+    // 開始 API は DB から submitted セッションと open フラグを読むが、route テストでは DB に触れない
+    loadStartPool: async () => ({ forms: [], sessions: [], flags: [] }),
   };
 });
 
@@ -87,6 +89,18 @@ describe("POST /api/mock/sessions", () => {
     const res = await post(JSON.stringify({ form_id: "form-b" }));
     expect(res.status).toBe(409);
     expect(await res.json()).toMatchObject({ error: "session_in_progress", session: { id: session.id } });
+  });
+  it("409(availability NG)は理由の件数を返す(D3-2, 01 FR-5)", async () => {
+    startFullMock.mockResolvedValue({ status: 409, error: "form_blocked", openFlagCount: 2, inactiveCount: 1 });
+    const res = await post(JSON.stringify({ form_id: "form-a" }));
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ error: "form_blocked", open_flag_count: 2, inactive_count: 1 });
+  });
+  it("409(自動選択外の未実施フォーム)は推奨フォームを返す(D3-2, 01 FR-5)", async () => {
+    startFullMock.mockResolvedValue({ status: 409, error: "form_not_next", recommendedFormId: "form-a" });
+    const res = await post(JSON.stringify({ form_id: "form-b" }));
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ error: "form_not_next", recommended_form_id: "form-a" });
   });
   it("未知フォームは 404、例外は 500", async () => {
     startFullMock.mockResolvedValue({ status: 404, error: "unknown_form" });

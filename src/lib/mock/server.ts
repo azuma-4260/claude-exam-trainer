@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import { getDb } from "@/db/client";
 import { bankDir, loadBank } from "@/lib/bank/load";
 import { loadScenarios } from "@/lib/bank/syllabus";
+import { loadPoolContext } from "@/lib/answer/store";
+import type { PoolContext } from "@/lib/bank/pool";
 import type { ExamSessionAnswerRow, ExamSessionRow } from "@/db/schema";
 import type { MockForm, Scenario } from "@/lib/bank/schema";
 import { scenarioIdsInOrder, toAnswerDtos, toQuestionDtos, toScenarioDtos, toSessionDto } from "./dto";
@@ -35,6 +37,14 @@ export function mockServerContext(): MockServerContext {
     forms: bank.forms,
     scenarios: loadScenariosCached(),
   };
+}
+
+/**
+ * 開始 API の availability・自動選択検証用に submitted セッションと open フラグを読む
+ * (mockServerContext は同期・軽量のまま保つ)
+ */
+export async function loadStartPool(forms: MockServerContext["forms"]): Promise<PoolContext> {
+  return loadPoolContext(getDb(), forms);
 }
 
 /** 開始・復元が返すセッション一式(出題 DTO のみ。正解・解説は含めない)。バンク不整合は null */
