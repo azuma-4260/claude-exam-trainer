@@ -8,7 +8,7 @@ description: >
   「コミットして」「スマートコミット」「変更をコミットして」「git commitして」
   「変更を保存して」等に反応する。
 allowed-tools: ["Bash", "Read", "Grep", "Glob"]
-model: claude-haiku-4-5-20251001
+model: haiku
 ---
 
 # smart-commit スキル
