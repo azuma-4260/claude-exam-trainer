@@ -267,10 +267,18 @@ export type Syllabus = z.infer<typeof syllabusFileSchema>;
 export type SyllabusDomain = Syllabus["domains"][number];
 
 /**
- * scenarios.yaml(specs/03 §1)。本文の項目は spec 未定義(C3a で確定)のため、
- * ここでは validator が参照する id だけを固定し、他キーは passthrough で許容する。
+ * scenarios.yaml(specs/03 §1)。形式は 2026-08-24, C3a で確定:
+ * id / title_en / context_en / refs の 4 フィールドのみ。未知キーは strict で拒否。
+ * シナリオ→ドメイン対応は独立フィールドとして持たない(参照する question の domain_id から導出)。
  */
-export const scenarioSchema = z.object({ id: scenarioIdSchema }).passthrough();
+export const scenarioSchema = z
+  .object({
+    id: scenarioIdSchema,
+    title_en: z.string().trim().min(1),
+    context_en: z.string().trim().min(1),
+    refs: z.array(z.string().url()).min(1),
+  })
+  .strict();
 export type Scenario = z.infer<typeof scenarioSchema>;
 
 export const scenariosFileSchema = z

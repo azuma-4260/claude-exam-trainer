@@ -288,15 +288,39 @@ describe("mockFormsFileSchema", () => {
 });
 
 describe("scenariosFileSchema", () => {
-  it("id のみ必須、他キーは passthrough", () => {
-    const r = scenariosFileSchema.safeParse({ scenarios: [{ id: "sc-1", title_en: "x" }] });
+  /** specs/03 §1 scenarios.yaml(2026-08-24, C3a 確定): id / title_en / context_en / refs のみ */
+  const makeScenario = (over: Record<string, unknown> = {}) => ({
+    id: "sc-1",
+    title_en: "Customer Support Resolution Agent",
+    context_en: "TechCorp is building an automated support agent.",
+    refs: ["https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"],
+    ...over,
+  });
+  it("4 フィールドすべて揃った scenario は valid", () => {
+    const r = scenariosFileSchema.safeParse({ scenarios: [makeScenario()] });
     expect(r.success).toBe(true);
   });
+  it.each([
+    ["title_en 欠落", { title_en: undefined }],
+    ["context_en 欠落", { context_en: undefined }],
+    ["refs 欠落", { refs: undefined }],
+    ["title_en 空文字", { title_en: "" }],
+    ["context_en 空文字", { context_en: "" }],
+    ["title_en 空白のみ", { title_en: "   " }],
+    ["context_en 空白のみ(改行含む)", { context_en: " \n  \n" }],
+    ["refs 空配列", { refs: [] }],
+    ["refs に URL でない文字列", { refs: ["not-a-url"] }],
+  ])("%s を拒否", (_label, over) => {
+    expect(scenariosFileSchema.safeParse({ scenarios: [makeScenario(over)] }).success).toBe(false);
+  });
+  it("未知キーを strict で拒否", () => {
+    expect(scenariosFileSchema.safeParse({ scenarios: [makeScenario({ domain_ids: ["f-d1"] })] }).success).toBe(false);
+  });
   it("id 重複を拒否", () => {
-    const r = scenariosFileSchema.safeParse({ scenarios: [{ id: "sc-1" }, { id: "sc-1" }] });
+    const r = scenariosFileSchema.safeParse({ scenarios: [makeScenario(), makeScenario()] });
     expect(r.success).toBe(false);
   });
   it("id 形式違反を拒否", () => {
-    expect(scenariosFileSchema.safeParse({ scenarios: [{ id: "scenario1" }] }).success).toBe(false);
+    expect(scenariosFileSchema.safeParse({ scenarios: [makeScenario({ id: "scenario1" })] }).success).toBe(false);
   });
 });

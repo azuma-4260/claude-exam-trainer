@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { stringify as toYaml } from "yaml";
-import { MOCK_FORM_SIZE, type MockForm, type Question, type Syllabus } from "../src/lib/bank/schema";
+import { MOCK_FORM_SIZE, type MockForm, type Question, type Scenario, type Syllabus } from "../src/lib/bank/schema";
 import { loadBankForValidation, runValidateBank, validateBank, type BankInput } from "./validate-bank";
 
 // specs/06 §バンク静的検証 / specs/03 §mock_forms の各条件を 1 つずつ写す。
@@ -66,6 +66,16 @@ function makeQuestion(domain: string, n: number, over: Partial<Question> = {}): 
   } as Question;
 }
 
+/** specs/03 §1 scenarios.yaml(2026-08-24, C3a 確定形式)を満たす Scenario フィクスチャ */
+function makeScenario(id: string): Scenario {
+  return {
+    id,
+    title_en: `Scenario ${id}`,
+    context_en: `Context for ${id}.`,
+    refs: ["https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"],
+  };
+}
+
 /** form 収載問題 60 問(配分 16-11-12-12-9、scenario sc-1..sc-4 を巡回)+ 非収載 5 問 */
 function makeBank(): BankInput {
   const questions: Question[] = [];
@@ -89,7 +99,7 @@ function makeBank(): BankInput {
     syllabus: makeSyllabus(),
     questions,
     forms: [form],
-    scenarios: scen.map((id) => ({ id })),
+    scenarios: scen.map(makeScenario),
   };
 }
 
@@ -126,8 +136,8 @@ describe("validateBank(純粋関数)", () => {
     ["form 収載問題が questions に無い", (b) => { b.questions = b.questions.filter((q) => q.id !== "f-d1-q001"); }, /form-a: f-d1-q001 が questions に無い/],
     ["form 収載問題に mock が無い", (b) => { (b.questions[0] as { eligible_modes: string[] }).eligible_modes = ["practice"]; }, /eligible_modes に mock が無い/],
     ["form 収載問題の scenario_id が null", (b) => { (b.questions[0] as { scenario_id: string | null }).scenario_id = null; }, /scenario_id が null/],
-    ["scenario_id が form.scenario_ids に無い", (b) => { b.scenarios = [...b.scenarios!, { id: "sc-9" }]; (b.questions[0] as { scenario_id: string }).scenario_id = "sc-9"; }, /scenario_id sc-9 が form\.scenario_ids に無い/],
-    ["form.scenario_ids に未使用シナリオ", (b) => { b.scenarios = [...b.scenarios!, { id: "sc-9" }]; b.forms = [{ ...b.forms[0], scenario_ids: [...b.forms[0].scenario_ids, "sc-9"] }]; }, /sc-9 を使う問題が無い/],
+    ["scenario_id が form.scenario_ids に無い", (b) => { b.scenarios = [...b.scenarios!, makeScenario("sc-9")]; (b.questions[0] as { scenario_id: string }).scenario_id = "sc-9"; }, /scenario_id sc-9 が form\.scenario_ids に無い/],
+    ["form.scenario_ids に未使用シナリオ", (b) => { b.scenarios = [...b.scenarios!, makeScenario("sc-9")]; b.forms = [{ ...b.forms[0], scenario_ids: [...b.forms[0].scenario_ids, "sc-9"] }]; }, /sc-9 を使う問題が無い/],
     ["ドメイン配分が syllabus と不一致", (b) => {
       // f-d1 の 1 問を f-d5 の非収載問題と入れ替える(60 問は維持、配分は 15/…/10)
       const ids = [...b.forms[0].question_ids];

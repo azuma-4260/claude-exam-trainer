@@ -1,0 +1,179 @@
+[
+  {
+    "id": "f-d1-q101",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-billing-support-agent",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "The support agent's loop treats any assistant response that contains text as the end of the task. In production, the agent often stops right after saying \"Let me check that invoice for you\" without ever calling get_invoice. What is the correct fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Instruct the model in the system prompt to always end with the phrase \"TASK COMPLETE\" and parse responses for that string."
+      },
+      {
+        "label": "B",
+        "text_en": "Set a fixed limit of five iterations so the loop always runs long enough for the tools to be called."
+      },
+      {
+        "label": "C",
+        "text_en": "Check stop_reason after each response: continue the loop while it is \"tool_use\", treat \"end_turn\" as completion, and handle each of the other stop reasons individually."
+      },
+      {
+        "label": "D",
+        "text_en": "Treat any response containing a text block as an error and retry the request until it contains only tool calls."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ループの終了判定は stop_reason で行うのが正しい制御フロー。\"tool_use\" ならツールを実行して結果を返し継続、\"end_turn\" なら正常完了。\"max_tokens\" 等の他の stop_reason でもループは抜けるが、これらは完了ではなく本ループの想定外ケースとして個別に検知・ハンドリングする。テキストブロックと tool_use ブロックは同一応答に共存できるため、テキストの有無を完了判定にすると本問のように途中停止する。A のような自然言語シグナルの解析はモデルがフレーズを忘れたり早期に出したりして壊れるアンチパターン。B の恣意的な反復上限は主停止条件として不適切(タスクの長さは可変)で、根本原因(判定基準の誤り)も直らない。D はテキスト併記が正常な応答形式である以上、無限リトライを招くだけで無意味。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+      "https://docs.claude.com/en/docs/build-with-claude/handling-stop-reasons",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q102",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t4-01",
+    "secondary_topic_ids": [
+      "f-d1-t5-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-billing-support-agent",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Policy caps automatic credits at $50; anything higher must go through a human reviewer. The system prompt states the cap clearly, yet audit logs show the agent occasionally calls issue_credit for larger amounts. What most reliably enforces the cap?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Restate the cap in bold capitals at both the top and the bottom of the system prompt."
+      },
+      {
+        "label": "B",
+        "text_en": "Intercept issue_credit calls in the tool layer: reject any amount above $50 and route the case to escalate_to_human instead."
+      },
+      {
+        "label": "C",
+        "text_en": "Instruct the agent to re-read the policy and double-check the amount before every issue_credit call."
+      },
+      {
+        "label": "D",
+        "text_en": "Run a nightly audit job that flags over-cap credits for manual clawback the next day."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ポリシー上限のような決定論的な業務ルールは、プロンプトではなくツール呼出しの遮断(hook / ツール層のガード)で強制するのが正しい。上限超過の issue_credit を拒否し escalate_to_human へ振り替えれば、違反は構造的に起こり得なくなる(公式 Exam Guide も「ポリシー違反のツール呼出しを hook で遮断し人間エスカレーションへ迂回させる」パターンを明記)。A・C はプロンプト指示の強調・自己確認であり確率的遵守のまま、失敗率をゼロにできない。D は事後検知であって防止ではなく、顧客への過剰付与という損害が発生した後の回収は体験も信頼も損なう。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/api/agent-sdk/hooks"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q103",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-billing-support-agent",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "The agent's MCP tools come from two backend teams: lookup_subscriber returns timestamps as Unix epoch integers, while get_invoice returns ISO 8601 strings. The model occasionally mixes the two up when comparing dates. Where should this inconsistency be resolved?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "In the system prompt, with a reference table explaining each tool's timestamp format."
+      },
+      {
+        "label": "B",
+        "text_en": "By retrying the request whenever the model's date comparison looks wrong."
+      },
+      {
+        "label": "C",
+        "text_en": "By asking the subscriber to confirm every date the agent mentions."
+      },
+      {
+        "label": "D",
+        "text_en": "In a PostToolUse hook that normalizes every timestamp to a single format before the model sees the tool results."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "異種ツールの出力形式差は、モデルが処理する前に PostToolUse hook で決定論的に正規化するのが正解(hook の updatedToolOutput でモデルに渡る前のツール結果を置換できる)。データ正規化はモデルの推論に委ねる問題ではない。A のプロンプト表は確率的にしか守られず、毎回コンテキストも消費する。B は「比較が間違っていそう」の検知自体が困難で、根本原因を放置した対症療法。C は UX を壊すだけで、システム内部の形式不整合という根本原因に触れていない。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/hooks"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q104",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-billing-support-agent",
+    "eligible_modes": [
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When the agent escalates a billing dispute, the human reviewer sees only the ticket ID — reviewers have no access to the agent's conversation log. What should the escalate_to_human payload contain?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A structured summary: subscriber ID, the disputed amount, the root cause identified so far, actions already taken, and a recommended next step."
+      },
+      {
+        "label": "B",
+        "text_en": "The full raw conversation transcript so the reviewer can re-read everything themselves."
+      },
+      {
+        "label": "C",
+        "text_en": "Only the subscriber ID, so the reviewer starts fresh without being biased by the agent's analysis."
+      },
+      {
+        "label": "D",
+        "text_en": "The model's internal chain-of-thought reasoning behind its refund decision."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "会話ログにアクセスできない人間へのハンドオフでは、行動に足る構造化サマリ(顧客 ID・金額・根本原因・実施済み対応・推奨アクション)を渡すのが正しい設計。B は生ログ全文で要点が埋没し、そもそも本問の前提(ログ非共有)と両立しない。C は調査のやり直しを強いて first-contact resolution の目標に反し、レビュアーの時間も浪費する。D の内部推論は検証可能な事実(金額・実施済み操作)の代替にならず、レビュアーが必要とする情報でもない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

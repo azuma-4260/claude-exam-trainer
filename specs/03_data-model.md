@@ -45,6 +45,22 @@ domain mini は上記に加え、full-form 収載問題を常に候補から除�
 - 同一 ID + rev++ は editorial fix のみ。正解・選択肢の意味・前提・問う概念の変更は新 ID + 旧 ID retired
 - retired でも DB 履歴行は削除しない
 
+### scenarios.yaml(形式は 2026-08-24, C3a で確定)
+
+```yaml
+scenarios:
+  - id: sc-support-triage          # ^sc-[a-z0-9-]+$
+    title_en: "Customer Support Resolution Agent"
+    context_en: |
+      TechCorp is building an automated support agent ...(S-4 で折りたたみ表示する英語本文。複数段落可)
+    refs:
+      - https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview
+```
+
+- フィールドは `id` / `title_en`(非空)/ `context_en`(非空)/ `refs`(URL 1 件以上)の 4 つのみ。未知キーは Zod strict で拒否する
+- シナリオ→ドメイン対応は独立フィールドとして持たない(当該 `scenario_id` を参照する question の `domain_id` から導出する)
+- `title_en` / `context_en` は英語(問題文と同じ言語ポリシー)。一次ソースに準拠した自作とし、Exam Guide 本文の転記はしない(`07` の一次ソース主義)
+
 ### mock_forms.yaml と validator 条件
 
 ```yaml
