@@ -74,6 +74,42 @@ function hasOpenFlagForCurrentRev(q: Question, flags: readonly OpenFlag[]): bool
   return flags.some((f) => f.questionId === q.id && f.questionRev === q.rev && f.resolvedAt === null);
 }
 
+export interface FormAvailability {
+  available: boolean;
+  /** 現行 rev の未解決フラグを持つ問題数 */
+  openFlagCount: number;
+  /** status≠active の問題数 */
+  inactiveCount: number;
+  /** バンクに存在しない収載問題数(availability 理由とは独立のバンク不整合) */
+  missingCount: number;
+}
+
+/**
+ * フォーム開始時の availability 検証(01 FR-5、05 S-5)。
+ * 1 問でも status≠active または現行 rev の未解決フラグがあればそのフォームは開始不可
+ * (実行時の代替差し込み禁止)。同一問題が status NG かつフラグ有りの場合は inactive として数える。
+ * バンク不整合(null)は missingCount に独立集計し、開始 API では 404(unknown_question)側で扱う。
+ */
+export function formAvailability(
+  questions: readonly (Question | null)[],
+  flags: readonly OpenFlag[],
+): FormAvailability {
+  let openFlagCount = 0;
+  let inactiveCount = 0;
+  let missingCount = 0;
+  for (const q of questions) {
+    if (!q) missingCount += 1;
+    else if (q.status !== "active") inactiveCount += 1;
+    else if (hasOpenFlagForCurrentRev(q, flags)) openFlagCount += 1;
+  }
+  return {
+    available: openFlagCount === 0 && inactiveCount === 0 && missingCount === 0,
+    openFlagCount,
+    inactiveCount,
+    missingCount,
+  };
+}
+
 function requiresSrs(query: PoolQuery): boolean {
   return query.mode === "drill" || (query.mode === "practice" && query.srs === true);
 }
