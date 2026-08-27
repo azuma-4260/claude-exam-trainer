@@ -1,0 +1,3 @@
+state: done
+evidence: "オーナーが 2026-08-27 に本番 https://claude-exam-trainer.vercel.app の Practice で 1 問回答(DoD: attempt mode=practice の本番保存)。別読込セッションで保存を確認: Home の本日時間予算が 3/45 min 消費済み(attempt 由来のサーバー側集計)、Practice の出題ローテーションが本番 active 18 問中 17 問(回答済み 1 問が除外)。依存 M1 / D2-1 / C3a は全て done 記録済み"
+recorded: 2026-08-27
