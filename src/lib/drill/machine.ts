@@ -1,5 +1,10 @@
+import type { RejectReason, SaveState } from "@/lib/answer/ack";
 import type { AnswerRequest } from "@/lib/answer/schema";
 import type { DrillItem } from "@/lib/queue/serve";
+
+// ACK 分類は Drill / Practice 共通(src/lib/answer/ack.ts)。既存の import 先を保つため再エクスポート
+export { classifyAnswerResponse } from "@/lib/answer/ack";
+export type { RejectReason, SaveState } from "@/lib/answer/ack";
 
 /**
  * S-3 Quick Drill の ACK 状態機械(specs/05 S-3、03 §学習回答の書込プロトコル)。
@@ -17,16 +22,6 @@ export type FlashRating = 1 | 2 | 3 | 4;
 export type LocalGrade =
   | { kind: "flash"; rating: FlashRating }
   | { kind: "mcq"; chosen: string[]; isCorrect: boolean };
-
-export type SaveState = "saving" | "saved" | "failed";
-
-export type RejectReason =
-  | "bad_request"
-  | "unauthorized"
-  | "unknown_question"
-  | "stale_question_rev"
-  | "attempt_payload_mismatch"
-  | "not_eligible";
 
 export type ItemStep =
   | { step: "front" }
@@ -209,26 +204,6 @@ export function toAnswerRequest(item: DrillItem, step: Extract<ItemStep, { step:
   return step.local.kind === "flash"
     ? { ...common, kind: "flash", rating: step.local.rating }
     : { ...common, kind: "mcq", chosen: step.local.chosen };
-}
-
-/**
- * HTTP 応答 → イベント(全ステータス網羅)。
- * 200 → 成功(replayed 含む)/ 409 は body.error で振り分け / その他 4xx は安全側の恒久拒否 /
- * 5xx・ネットワーク例外は SAVE_FAIL(Retry 可能)。
- */
-export function classifyAnswerResponse(status: number, body: unknown): DrillEvent {
-  if (status === 200) return { type: "SAVE_OK" };
-  if (status === 401) return { type: "SAVE_REJECTED", reason: "unauthorized" };
-  if (status === 404) return { type: "SAVE_REJECTED", reason: "unknown_question" };
-  if (status === 409) {
-    const error = typeof body === "object" && body !== null ? (body as { error?: string }).error : undefined;
-    if (error === "stale_question_rev" || error === "attempt_payload_mismatch" || error === "not_eligible") {
-      return { type: "SAVE_REJECTED", reason: error };
-    }
-    return { type: "SAVE_REJECTED", reason: "bad_request" };
-  }
-  if (status >= 400 && status < 500) return { type: "SAVE_REJECTED", reason: "bad_request" };
-  return { type: "SAVE_FAIL", message: `HTTP ${status}` };
 }
 
 export type DrillSummary = {
