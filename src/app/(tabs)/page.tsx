@@ -89,10 +89,14 @@ export default async function HomePage() {
           ) : null}
 
           {view.deferredPracticeCount > 0 ? (
-            <p className="flex items-center gap-2 text-xs text-muted-foreground">
+            // CTA 1 ボタン(S-1)は維持し、シナリオ課題への導線は補助リンクとして添える(D2-1)
+            <Link
+              href="/practice"
+              className="flex items-center gap-2 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+            >
               <CircleAlert className="size-3.5 shrink-0" aria-hidden />
-              シナリオ演習 {view.deferredPracticeCount} 問は Practice 画面(準備中)で実施します
-            </p>
+              シナリオ演習 {view.deferredPracticeCount} 問は Practice 画面で実施する
+            </Link>
           ) : null}
 
           {/* CTA は 1 ボタンのみ(specs/05 S-1) */}

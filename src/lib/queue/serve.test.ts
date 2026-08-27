@@ -144,6 +144,10 @@ describe("assembleQueueView", () => {
     expect(v.drillTotal).toBe(5);
     if (v.session.kind !== "ok") throw new Error(v.session.kind);
     expect(v.session.items.every((i) => i.questionId !== "f-d1-q010")).toBe(true);
+    // D2-1: practice 分の実体(キュー順)と当日キュー全 id を Practice 画面向けに公開する
+    expect(v.practiceItems).toEqual([{ questionId: "f-d1-q010", source: "due", estSec: 120, mode: "practice" }]);
+    expect(v.queueQuestionIds).toHaveLength(6);
+    expect(v.queueQuestionIds).toContain("f-d1-q010");
   });
 
   it("spentTodaySec が予算から差し引かれ、キューが縮む", () => {

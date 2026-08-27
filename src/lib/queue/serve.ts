@@ -7,7 +7,7 @@ import { loadSyllabus } from "@/lib/bank/syllabus";
 import { jstStartOfDay } from "@/lib/srs/jst";
 import type { SrsStateUpsert } from "@/lib/srs/card-row";
 import { CCAR_F_EXAM_DATE_JST, daysUntilExam } from "@/lib/srs/scheduler";
-import { buildDailyQueue, queueModeFor, type QueueSource } from "./build";
+import { buildDailyQueue, queueModeFor, type QueueItem, type QueueSource } from "./build";
 import { deriveConsumption, type Consumption } from "./consumption";
 import { DAILY_QUEUE_BUDGET_SEC, estSec } from "./estimate";
 import { loadConsumptionRows, loadQueueSignals } from "./load";
@@ -56,8 +56,12 @@ export type QueueView = {
   pace: NewPace | null;
   totalEstSec: number;
   dueBacklogCount: number;
-  /** キュー内の practice-mode item(シナリオ MCQ 等)。S-3 では出さず D2-1 の Practice 画面で消化する */
+  /** キュー内の practice-mode item(シナリオ MCQ 等)。S-3 では出さず Practice 画面(S-4)で消化する */
   deferredPracticeCount: number;
+  /** deferredPracticeCount の実体(キュー順)。Practice 画面が最優先で提示する(D2-1) */
+  practiceItems: QueueItem[];
+  /** 当日キューの全 question id(drill / practice 両 mode)。Practice の追補プールから除外するために公開する */
+  queueQuestionIds: string[];
   /** 残 drill 件数(セッション分割前) */
   drillTotal: number;
   session: SessionPlan;
@@ -110,6 +114,8 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
       totalEstSec: 0,
       dueBacklogCount: 0,
       deferredPracticeCount: 0,
+      practiceItems: [],
+      queueQuestionIds: [],
       drillTotal: 0,
       session: { kind: "none" },
     };
@@ -128,10 +134,10 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
   });
 
   const drillItems: DrillItem[] = [];
-  let deferredPracticeCount = 0;
+  const practiceItems: QueueItem[] = [];
   for (const item of queue.items) {
     if (item.mode !== "drill") {
-      deferredPracticeCount += 1;
+      practiceItems.push(item);
       continue;
     }
     const q = inputs.bank.byId.get(item.questionId);
@@ -157,7 +163,9 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
     pace: queue.pace,
     totalEstSec: queue.totalEstSec,
     dueBacklogCount: queue.dueBacklogCount,
-    deferredPracticeCount,
+    deferredPracticeCount: practiceItems.length,
+    practiceItems,
+    queueQuestionIds: queue.items.map((i) => i.questionId),
     drillTotal: drillItems.length,
     session: planSession(drillItems, inputs.startedToday),
   };
