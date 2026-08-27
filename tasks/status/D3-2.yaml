@@ -1,1 +1,3 @@
-state: merged
+state: done
+evidence: "CI 緑(deploy job 含む): https://github.com/azuma-4260/claude-exam-trainer/actions/runs/33029666199(commit b70d22f)。DoD テスト(フラグ付き form 選択不可 / 全 block で開始拒否)は lifecycle.test.ts『availability 検証(D3-2, 01 FR-5)』で CI 内実行"
+recorded: 2026-08-27
