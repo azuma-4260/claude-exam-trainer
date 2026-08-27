@@ -1,2 +1,3 @@
-state: merged
+state: done
+evidence: "merge 18631ff、main の npm test 478 件 green。統合テスト(DoD): src/lib/practice/serve.test.ts で提出済み session + 解放問題 → applied_rating=null を出題組み立て→保存経路で貫通検証。実機 DoD(2026-08-27、dev + フィクスチャ専用バンク + dev DB 固定 id session、375px): シナリオ折りたたみ / 明示 Answer(単一選択でも自動送信なし)/ 全選択肢解説 + refs / 保存失敗 Retry + Next disabled / 模試出題済みバッジ / Home 導線 / 回答済みローテーション。dev DB 実測で解放問題のみ applied_rating=null(他は 3)、fixture データは ID 限定 delete で復元済み。CI 緑: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/33029666199(ci / deploy とも success、D2-1 merge 18631ff を含む push)"
 recorded: 2026-08-27
