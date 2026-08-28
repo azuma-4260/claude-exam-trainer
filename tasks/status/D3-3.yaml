@@ -1,2 +1,3 @@
-state: merged
+state: done
+evidence: "CI 緑(deploy job 含む): https://github.com/azuma-4260/claude-exam-trainer/actions/runs/33130247255(commit d5d72f4)。DoD(提出直後にレポート遷移 = exam-screen の submitted phase から /mock/report へ router.replace、再受験で rehearsal 表示 = report.test.ts『isRehearsal』/『rehearsal 判定と timeout をレポートに載せる』)は CI 内の Vitest 538 件で実行"
 recorded: 2026-08-28
