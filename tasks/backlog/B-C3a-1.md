@@ -8,6 +8,8 @@ related_specs: ["07#step-3a-practice-専用シナリオ-mcq828-までフォー�
 related_paths: [content/ccar-f/questions, scripts]
 related_backlog: [B-D0-3-2]
 stop_condition: none
+decisions:
+  - { at: 2026-08-27, by: C3b-A, action: absorb, note: "フォーム収載 MCQ の固有不変条件は scripts/audit-form-mcq.ts + npm run audit:form で恒久化(固定値・status・refs 台帳を fail closed 検査)。C3a の Practice 専用 MCQ 固有条件(件数 15〜20 / practice 固定等)の恒久化は C5 へ defer 継続(status は open のまま)" }
 ---
 # C3a 固有不変条件の監査がアドホック(恒久スクリプト化を defer)
 
