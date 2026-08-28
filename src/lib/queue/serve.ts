@@ -36,8 +36,10 @@ export type DrillItem = {
   answerEn: string | null;
   explanationJa: string;
   refs: string[];
-  source: QueueSource;
+  source: QueueSource | "mistake";
   estSec: number;
+  /** Practice シナリオ問題を Quick Drill 形式で周回するときの本文参照。通常 Drill では null。 */
+  scenarioId?: string | null;
 };
 
 export type SessionPlan =
@@ -154,6 +156,7 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
       refs: [...q.refs],
       source: item.source,
       estSec: item.estSec,
+      scenarioId: q.scenario_id,
     });
   }
 
