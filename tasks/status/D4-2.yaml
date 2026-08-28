@@ -1,2 +1,3 @@
-state: merged
+state: done
+evidence: "CI 緑(deploy job 含む): https://github.com/azuma-4260/claude-exam-trainer/actions/runs/33176849006(commit c2ba8d0)。DoD(誤答→掲載、3 連続正解→消滅、再誤答→復帰、未提出 form 問題を除外、総ざらいを practice mode で保存、20 問超の後続バッチ遷移)は CI 内の Vitest 549 件で実行"
 recorded: 2026-08-28
