@@ -1,4 +1,4 @@
-# scenarios.yaml — Practice 専用シナリオ(C3a, 2026-08-24)
+# scenarios.yaml — Practice 専用シナリオ(C3a, 2026-08-24)+ form A 用シナリオ(C3b-A, 2026-08-27)
 # 形式: specs/03 §1(id / title_en / context_en / refs のみ。strict)
 # 文脈は SOURCES.md §2 の公式 6 シナリオに準拠した自作(転記なし)
 scenarios:
@@ -28,3 +28,59 @@ scenarios:
     refs:
       - https://www.anthropic.com/engineering/claude-code-best-practices
       - https://docs.claude.com/en/docs/claude-code/github-actions
+  # ---- form A 用(C3b-A, 2026-08-27。公式 Scenario 1 / 2 / 3 / 6 の傾向に準拠した自作)----
+  - id: sc-outdoor-returns-agent
+    title_en: "Outdoor Gear Returns & Support Agent"
+    context_en: |
+      TrailNorth, an outdoor-gear retailer, is building a customer support
+      resolution agent on the Claude Agent SDK. The agent handles high-ambiguity
+      requests — damaged-item claims, returns, refunds, and order mix-ups —
+      through custom MCP tools: get_customer, lookup_order, create_return,
+      refund_payment, and escalate_to_human. The team targets a high
+      first-contact resolution rate, but every refund must follow the return
+      workflow and policy exceptions must reach a human with enough context to
+      act. Support sessions are often long and cover several orders at once.
+    refs:
+      - https://www.anthropic.com/engineering/building-effective-agents
+      - https://docs.claude.com/en/api/agent-sdk/overview
+  - id: sc-payments-monorepo-codegen
+    title_en: "Code Generation Workflow in a Payments Monorepo"
+    context_en: |
+      Ledgerline's engineering team uses Claude Code across a payments monorepo
+      with packages for payments, risk, and web. Engineers rely on it for code
+      generation, refactoring, debugging, and documentation. Shared
+      configuration lives in the repository — a project CLAUDE.md, custom slash
+      commands and skills, path-scoped rules — and several MCP servers are
+      connected for issue tracking and internal APIs. A CI job re-reviews pull
+      requests whenever new commits arrive. The team is tuning this setup so
+      that guidance loads only where it applies and workflows stay predictable.
+    refs:
+      - https://www.anthropic.com/engineering/claude-code-best-practices
+      - https://docs.claude.com/en/docs/claude-code/memory
+  - id: sc-industry-research-agents
+    title_en: "Multi-Agent Industry Research System"
+    context_en: |
+      Corven Analytics is building a multi-agent research system on the Claude
+      Agent SDK. A coordinator delegates to specialized subagents — web search,
+      document analysis, synthesis, and report generation — to produce
+      comprehensive, cited industry reports. Runs can last hours, sources
+      frequently disagree, and clients expect every claim in the final report
+      to be traceable to its origin. The team is iterating on how the
+      coordinator assigns work, passes context, and recovers from failures.
+    refs:
+      - https://www.anthropic.com/engineering/built-multi-agent-research-system
+      - https://docs.claude.com/en/api/agent-sdk/subagents
+  - id: sc-invoice-extraction
+    title_en: "Vendor Invoice Extraction Pipeline"
+    context_en: |
+      Baywick Logistics processes thousands of vendor documents nightly —
+      invoices, scanned receipts, and service contracts — with a structured
+      data extraction system built on Claude. Extracted records are validated
+      against JSON schemas before entering the accounting system, and documents
+      the pipeline is unsure about are routed to a small human review team.
+      Document layouts vary wildly, some fields are genuinely absent from some
+      documents, and month-end batches are large. The team must keep accuracy
+      high while controlling cost and reviewer load.
+    refs:
+      - https://docs.claude.com/en/docs/build-with-claude/structured-outputs
+      - https://docs.claude.com/en/docs/build-with-claude/batch-processing

@@ -1,0 +1,717 @@
+[
+  {
+    "id": "f-d1-q207",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "In the current design, the web-search subagent hands its findings directly to the document-analysis subagent, which passes results straight to synthesis. When the search subagent fails, the failure vanishes: synthesis runs on partial inputs and nobody detects the missing coverage. Which architectural change addresses this?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add retry logic inside each subagent so failures become rare enough to ignore."
+      },
+      {
+        "label": "B",
+        "text_en": "Restructure to hub-and-spoke: the coordinator mediates all communication, routing information between subagents and handling errors centrally."
+      },
+      {
+        "label": "C",
+        "text_en": "Have each subagent write its output to a shared file that all other subagents poll."
+      },
+      {
+        "label": "D",
+        "text_en": "Merge all four subagents into one large agent so there is no inter-agent communication to lose."
+      }
+    ],
+    "answer": ["B"],
+    "answer_en": null,
+    "explanation_ja": "マルチエージェント構成の標準は hub-and-spoke: 通信・エラー処理・情報ルーティングを coordinator に一元化する。subagent 同士の直接連携(パイプライン直結)では、失敗が中央で観測されず本問のように黙って握り潰される。coordinator が仲介すれば、失敗の検知・再委任・カバレッジ欠落の記録がすべて 1 箇所で行える。A のリトライは一時的失敗を減らすが「失敗が観測されない」という構造問題は残る(リトライ超過時にまた消える)。C の共有ファイル + ポーリングは調停者のいない暗黙の通信路で、順序・失敗検知・整合性の問題をむしろ増やす。D の単一巨大エージェント化は文脈分離と並列性という subagent の利点を捨てる過剰な後退で、エラー処理の集中化だけならアーキテクチャ変更で足りる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/api/agent-sdk/subagents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q208",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "Every incoming request — including \"what is Vantor Corp's headquarters city?\" — runs the full pipeline: web search, document analysis, synthesis, and report generation. Simple lookups take minutes and cost as much as full reports. How should the coordinator be redesigned?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Cache previous reports and serve fragments of them for any query that shares keywords."
+      },
+      {
+        "label": "B",
+        "text_en": "Remove the synthesis stage, since it contributes the most latency."
+      },
+      {
+        "label": "C",
+        "text_en": "Run the full pipeline but with a shorter time limit for queries under ten words."
+      },
+      {
+        "label": "D",
+        "text_en": "Have the coordinator assess query complexity first and invoke only the subagents the query needs — a single search call for a simple lookup, the full pipeline for a full report."
+      }
+    ],
+    "answer": ["D"],
+    "answer_en": null,
+    "explanation_ja": "coordinator は常に全パイプラインを通すのではなく、クエリの複雑さに応じて起動する subagent を動的に選択すべき。単純な事実照会は検索 1 回で足り、包括的レポートには全段が要る — この判断こそ coordinator の役割で、コストとレイテンシがクエリの実態に比例するようになる。A のキーワード一致でのキャッシュ流用は、文脈の異なる過去レポートの断片を返す誤答製造機になりやすい。B は単純クエリのために複雑なレポート生成の品質を犠牲にする本末転倒(必要なケースでは synthesis は不可欠)。C は「短いクエリ = 単純」という粗い近似で全段を走らせ続けるため、コスト構造は変わらず、時間切れによる中途半端な結果も生む。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q209",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "For a market study, the coordinator spawns two search subagents with the prompts \"research the EV battery market\" and \"find information about EV batteries.\" They return heavily overlapping sources, and both miss regulatory filings entirely. What is the core fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Give each subagent an explicit, non-overlapping scope — for example by subtopic (supply chain vs demand forecasts) or source type (news vs regulatory filings) — while keeping each scope broad enough to be productive."
+      },
+      {
+        "label": "B",
+        "text_en": "Spawn ten subagents instead of two so overlaps matter less."
+      },
+      {
+        "label": "C",
+        "text_en": "Run the two subagents sequentially so the second can avoid the first's sources."
+      },
+      {
+        "label": "D",
+        "text_en": "Add a deduplication pass after both subagents finish."
+      }
+    ],
+    "answer": ["A"],
+    "answer_en": null,
+    "explanation_ja": "重複の根本原因は 2 つの割当てがほぼ同義で、担当境界が定義されていないこと。サブトピック別・ソース種別などの明示的で重ならないスコープ分割が正解で、これは「取りこぼし(regulatory filings)」も同時に解決する — 分割時に必要な領域を列挙するから欠落が見える。ただし分割が狭すぎると各 subagent が成果を出せないため、生産的な広さを保つ。B は重複した割当てを増やすだけでコストが跳ね上がり、欠落領域は依然誰の担当でもない。C の逐次化は並列性を捨てる上、後続が先行の結果を見て「避ける」こと自体、境界を定義しない場当たり対応。D の重複除去は無駄な取得コストを払った後の後処理で、欠落問題には全く効かない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q210",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "The first synthesis of an industry report is missing regional data for two markets and cites nothing after 2024 for one segment. The deadline allows more research time. What should the coordinator do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Ship the report with a limitations section listing the gaps."
+      },
+      {
+        "label": "B",
+        "text_en": "Re-run all subagents from scratch with the same assignments, hoping coverage improves."
+      },
+      {
+        "label": "C",
+        "text_en": "Evaluate the synthesis for gaps, re-delegate narrowly targeted assignments (the two regions, the stale segment), then re-synthesize — repeating until coverage is sufficient."
+      },
+      {
+        "label": "D",
+        "text_en": "Have the synthesis subagent fill the gaps from its general knowledge rather than spawning more research."
+      }
+    ],
+    "answer": ["C"],
+    "answer_en": null,
+    "explanation_ja": "反復精緻化ループの定石: coordinator が synthesis 出力のギャップを評価し、そのギャップに絞った再委任を行い、再 synthesis する — カバレッジが十分になるまでこの反復を回す。ギャップは特定済みなので、追加調査は狭く安く済む。A は時間が許すのに未完成品を納品する選択で、反復ループを設計に持たないシステムの症状そのもの。B の全再実行は同じ割当てで同じ欠落を再生産しがちで、コストも最大。D は引用可能なソースに基づくという本システムの要件(claim の出典追跡)を破り、ハルシネーションを報告書に混入させる最悪の選択肢。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q211",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "A rebuilt coordinator defines its subagents correctly (description, system prompt, tool restrictions), but in production it never spawns any of them — it just answers research questions directly, and no subagent invocation errors appear anywhere. What is the most likely configuration problem?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The subagents' system prompts are too long, so spawning times out silently."
+      },
+      {
+        "label": "B",
+        "text_en": "The coordinator's allowedTools does not include \"Agent\", so the tool that spawns subagents is never auto-approved for it."
+      },
+      {
+        "label": "C",
+        "text_en": "The subagent definitions are missing a priority field, so the coordinator cannot rank them."
+      },
+      {
+        "label": "D",
+        "text_en": "Subagents must be spawned from a separate process, not from the coordinator's own loop."
+      }
+    ],
+    "answer": ["B"],
+    "answer_en": null,
+    "explanation_ja": "subagent の起動は Agent tool(Exam Guide の旧称 Task)を coordinator が呼ぶことで行われるため、coordinator の allowedTools に \"Agent\" が含まれていなければ委任は成立しない。定義がいくら正しくても起動手段が許可されていないので、モデルは自力で回答する方向に流れる — エラーも出ないという症状に合致する。A の「プロンプト長でサイレントタイムアウト」という挙動は存在せず、起動が試行されていれば痕跡が残る。C の priority フィールドは AgentDefinition の必須要素ではなく(必須は description と prompt)、選択はモデルが description を読んで行う。D は事実誤認で、subagent は coordinator のループ内から Agent tool 呼出しで起動するのが標準の仕組み。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://docs.claude.com/en/docs/claude-code/sub-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q212",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "The document-analysis subagent is invoked with the prompt \"analyze the sources found in the previous step.\" It responds that it has no sources to analyze. The search subagent did find twelve sources. Which TWO changes fix the delegation? (Select TWO)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Include the search subagent's complete findings directly in the analysis subagent's prompt, since subagents inherit neither conversation history nor each other's memory."
+      },
+      {
+        "label": "B",
+        "text_en": "Enable the SDK's shared-memory flag so all subagents read the same conversation automatically."
+      },
+      {
+        "label": "C",
+        "text_en": "Structure the passed findings so content and metadata (URL, document title, page) stay separated per source, preserving attribution through the pipeline."
+      },
+      {
+        "label": "D",
+        "text_en": "Have the analysis subagent message the search subagent directly to request the sources mid-run."
+      },
+      {
+        "label": "E",
+        "text_en": "Raise the analysis subagent's max_tokens so it has room to recall the sources."
+      }
+    ],
+    "answer": ["A", "C"],
+    "answer_en": null,
+    "explanation_ja": "subagent は親の会話履歴を継承せず、呼出し間でメモリも共有しない。したがって「前段で見つかったソース」への参照は成立せず、先行 subagent の完全な所見を委任プロンプトに直接含める必要がある(A)。さらに content と metadata(URL・文書名・ページ)を構造化して分離して渡せば、後段の synthesis まで出典の帰属が保持され、引用付きレポートという要件を満たせる(C)。B の共有メモリフラグはそのような機能は存在せず、文脈分離は意図された設計。D の subagent 間の直接通信は hub-and-spoke に反し、実行モデル上も subagent が別の subagent に問い合わせる仕組みはない。E は max_tokens が出力長の上限であり、そもそも渡されていない情報を「思い出す」こととは無関係。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q213",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "A report requires three independent source sweeps: news coverage, regulatory filings, and analyst commentary. The coordinator currently launches them one at a time, waiting for each to finish, tripling wall-clock time. How are the sweeps parallelized?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Start three separate coordinator processes, one per sweep, and merge their outputs by hand."
+      },
+      {
+        "label": "B",
+        "text_en": "Ask each subagent to work faster by adding a deadline to its prompt."
+      },
+      {
+        "label": "C",
+        "text_en": "Parallelism is not possible — subagent invocations are inherently sequential in the Agent SDK."
+      },
+      {
+        "label": "D",
+        "text_en": "Have the coordinator issue all three Agent tool invocations in a single response; independent subagents then run concurrently."
+      }
+    ],
+    "answer": ["D"],
+    "answer_en": null,
+    "explanation_ja": "coordinator が 1 応答内で複数の Agent tool 呼出し(Exam Guide では旧称 Task)を発行すれば、それらの subagent は並列に起動・実行される。3 本のスイープは互いに独立なので、これで wall-clock はほぼ最長の 1 本分に縮む。並列化の判断基準は依存関係の有無で、本問は「独立」と明示されているため適用条件を満たす。A はプロセスを分けるとエラー処理・結果統合という coordinator の役割が手作業に落ち、hub-and-spoke の利点を自ら壊す。B のプロンプト上の締切は生成の速度を変えず(効くのは並列化)、品質を落とす方向にだけ働き得る。C は事実誤認で、SDK は 1 応答内の複数呼出しによる並列実行をサポートする。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q214",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "Corven runs two workloads: (1) a nightly compliance digest that always follows the same steps — fetch new filings, extract obligations, format the digest; (2) open-ended research where mid-run discoveries (an unexpected acquisition, a new competitor) should redirect the investigation. Which decomposition strategy fits each workload?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A fixed sequential pipeline (prompt chaining) for the predictable digest; dynamic decomposition driven by intermediate findings for the open-ended research."
+      },
+      {
+        "label": "B",
+        "text_en": "Dynamic decomposition for both — flexibility never hurts."
+      },
+      {
+        "label": "C",
+        "text_en": "A fixed pipeline for both — determinism makes costs predictable."
+      },
+      {
+        "label": "D",
+        "text_en": "Dynamic decomposition for the digest and a fixed pipeline for the research, since research needs the most structure."
+      }
+    ],
+    "answer": ["A"],
+    "answer_en": null,
+    "explanation_ja": "分解戦略はワークロードの予測可能性で選ぶ。手順が固定で分岐しない compliance digest には prompt chaining(固定シーケンシャルパイプライン)が適し、決定論的で検証もしやすい。中間所見によって次の調査対象が変わるオープンエンドな research には、発見に応じてタスクを組み替える動的分解が必要 — 固定パイプラインでは想定外の手がかり(買収・新規競合)を追えない。B は予測可能なタスクにまで動的分解の複雑さとコスト・非決定性を持ち込む過剰設計。C は research 側で本問の要件(発見に応じた方向転換)を構造的に満たせない。D は 2 つのワークロードへの割当てが逆で、「構造が必要 = 固定」という誤解に基づく。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/api/agent-sdk/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q215",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t7-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "A two-hour research run crashed during report generation. All research phases had completed successfully. The team currently restarts the entire run from zero, repeating every search and analysis. What does the Agent SDK provide to avoid this?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Nothing — SDK sessions are ephemeral by design, so external checkpointing is the only option."
+      },
+      {
+        "label": "B",
+        "text_en": "Automatic crash recovery: the SDK transparently resumes any interrupted session on the next request."
+      },
+      {
+        "label": "C",
+        "text_en": "Capture the session_id from the result messages during the run, then restart with the resume option pointing at that session to continue from the completed state."
+      },
+      {
+        "label": "D",
+        "text_en": "Increase max_tokens so report generation cannot be interrupted mid-way."
+      }
+    ],
+    "answer": ["C"],
+    "answer_en": null,
+    "explanation_ja": "Agent SDK のセッションは再開可能で、実行中に result message から session_id を取得しておき、resume オプションにその ID を渡して再起動すれば、完了済みの状態(全リサーチフェーズの結果を含む会話)から継続できる。2 時間分の検索・分析をやり直す必要はなくなる。A は誤りで、セッション再開は SDK が提供する標準機能。B のような「透過的な自動復旧」は存在せず、session_id を保存して明示的に resume するのはアプリケーション側の責務。D の max_tokens はクラッシュ(プロセス落ち・障害)とは無関係な出力長の設定で、中断を防ぐ効果はない。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/sessions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q216",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t7-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "Research for a completed baseline session is fresh, and an analyst now wants two differently-angled reports from it — one for investors, one for policy teams — without either report's drafting contaminating the other. Separately, a colleague wants to build on a three-week-old session whose tool results are largely stale. What is the right mechanism for each?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Resume the old session for both jobs — resumption always preserves the most value."
+      },
+      {
+        "label": "B",
+        "text_en": "Fork the fresh baseline session twice (fork_session), one branch per report; for the stale session, start a new session seeded with a structured summary instead of resuming."
+      },
+      {
+        "label": "C",
+        "text_en": "Start blank new sessions for all three jobs, re-running research each time."
+      },
+      {
+        "label": "D",
+        "text_en": "Fork the stale session and resume the fresh one — forking is what refreshes outdated tool results."
+      }
+    ],
+    "answer": ["B"],
+    "answer_en": null,
+    "explanation_ja": "fork_session は共有ベースラインから分岐して複数の方向を独立に探索するための機能で、投資家向けとポリシー向けの 2 レポートを互いに汚染せず作る要件に一致する(単純 resume を 2 回すると同一セッション上で 2 つの作業が混ざる)。一方、stale なツール結果が大量に残る古いセッションは、resume するとモデルが古い事実を信頼して推論を進める危険があるため、要点の構造化サマリを注入した新セッションの方が信頼できる。A は stale セッション側で古い結果を引き継ぐ問題をそのまま抱える。C は新鮮なベースラインの研究成果まで捨てて再実行する無駄。D は関係が逆: fork は分岐探索の道具であって、古いツール結果を更新する機能ではない。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/sessions"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q207",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "The search_web tool's description is the single line \"Searches the web.\" Subagents call it to look up content inside client-provided PDFs, to re-check facts already present in their prompt, and skip it when fresh news is actually needed. What should the improved description contain?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Nothing — tool selection is driven by the tool's name, and search_web is already self-explanatory."
+      },
+      {
+        "label": "B",
+        "text_en": "A shorter description, since verbose descriptions consume context that subagents need for research."
+      },
+      {
+        "label": "C",
+        "text_en": "A marketing-style summary of the search backend's technical architecture."
+      },
+      {
+        "label": "D",
+        "text_en": "What the tool does and returns, its input format with an example query, and explicit boundaries — public web content only, not client documents, and when NOT to use it (facts already provided)."
+      }
+    ],
+    "answer": ["D"],
+    "answer_en": null,
+    "explanation_ja": "description は LLM がツールを選択する主要な手がかりであり、高品質な description には機能と返り値、入力形式と例、エッジケース、そして適用境界(何に使い、何に使わないか)を含める。本問の誤用 3 パターン(PDF 内検索・既知事実の再検索・必要時の不使用)はすべて境界情報の欠如が原因で、「公開 Web のみ・提供済み文書は対象外・プロンプト内の事実には不要」と明記すれば選択が安定する。A は誤りで、名前だけに頼る最小限の記述は類似ツールが増えると特に不安定になる。B は方向が逆: 問題は冗長さではなく情報不足で、境界の明記に使うトークンは誤用によるループの浪費よりはるかに安い。C はアーキテクチャ自慢であり、モデルの選択判断に必要な情報を何も足さない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q208",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "After someone added \"Always verify every claim against live sources before writing\" to the document-analysis subagent's system prompt, the subagent began calling search_web for facts stated verbatim in the documents it was given — even though search_web's description clearly says it is not for provided documents. Reviews of what should be checked first?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The system prompt: keyword-heavy instructions like \"verify against live sources\" create tool associations that override well-written descriptions, so the instruction should be scoped or removed."
+      },
+      {
+        "label": "B",
+        "text_en": "The search_web description: it should be rewritten to be more assertive than the system prompt."
+      },
+      {
+        "label": "C",
+        "text_en": "The model version: newer models weight descriptions more heavily, so upgrading fixes the conflict."
+      },
+      {
+        "label": "D",
+        "text_en": "The tool list order: moving search_web to the end prevents it from being chosen."
+      }
+    ],
+    "answer": ["A"],
+    "answer_en": null,
+    "explanation_ja": "症状の時系列(指示追加の直後から誤用開始)が示すとおり、原因は system prompt のキーワード依存の指示が良質な description を上書きし、意図しないツール連想(「verify」「live sources」→ search_web)を生んでいること。レビューすべきは system prompt 側で、指示の適用範囲を絞る(例: 文書外の主張のみ検証)か削除するのが正しい。B は description と system prompt の「主張の強さ比べ」に持ち込む発想自体が誤りで、両者が綱引きする構成はどちらに転んでも不安定。C はバージョン変更で挙動の偶発的変化を期待するだけで、矛盾した指示という根本原因が残る。D のツール一覧の順序は選択を防ぐ信頼できる制御手段ではない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q209",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "All fourteen tools — web search, document loaders, database access, citation formatting, file output — are attached to every subagent. The report-generation subagent, which only needs the formatting and file tools, sometimes searches the web mid-report and appends uncited late findings. What is the correct remedy?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a system prompt instruction telling the report subagent not to search."
+      },
+      {
+        "label": "B",
+        "text_en": "Sort the fourteen tools so the formatting tools appear first for the report subagent."
+      },
+      {
+        "label": "C",
+        "text_en": "Give each subagent only the tools its role requires — the report subagent gets formatting and file output, not search or database access."
+      },
+      {
+        "label": "D",
+        "text_en": "Reduce the report subagent's max_tokens so it has no budget left for searching."
+      }
+    ],
+    "answer": ["C"],
+    "answer_en": null,
+    "explanation_ja": "ツール配分の原則は役割ベースの最小付与。専門外のツール(report 担当にとっての web search)は誤用の入口になり、ツール数の過多自体も選択の信頼性を下げる。役割に必要な数個だけを渡せば、「レポート生成中に検索して未引用の情報を足す」という誤動作は構造的に不可能になる。A のプロンプト禁止は確率的で、渡した以上は使われ得る — 使わせない保証は渡さないことでしか得られない。B のツール順序は選択バイアスへの期待にすぎず、制御手段として信頼できない。D の max_tokens は出力長の制約であって、ツール呼出しの可否とは無関係(むしろレポート本文が切り詰められる実害が出る)。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q210",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "Subagents currently pull sources with a generic fetch_url tool that returns raw HTML; parsing failures and paywalled junk pages are common. Occasionally, non-search subagents also need to double-check a single fact. How should the tool surface be redesigned?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep fetch_url but ask subagents to write more careful parsing code in their reasoning."
+      },
+      {
+        "label": "B",
+        "text_en": "Replace fetch_url with a workflow-shaped load_document tool that validates, extracts, and returns clean content; add a narrowly scoped verify_fact tool for the high-frequency cross-role need, routing complex research through the coordinator."
+      },
+      {
+        "label": "C",
+        "text_en": "Give every subagent the full search toolset so no capability gap can ever appear."
+      },
+      {
+        "label": "D",
+        "text_en": "Remove all fetching tools and have the coordinator paste page contents into prompts manually."
+      }
+    ],
+    "answer": ["B"],
+    "answer_en": null,
+    "explanation_ja": "汎用の薄い API ラッパー(fetch_url)をエージェントのワークフローに合わせた制約付きツール(load_document: 検証・抽出済みのクリーンな内容を返す)に置き換えるのが定石で、パース失敗やジャンクページの問題はツール側で吸収される。加えて「単発の事実確認」という高頻度・低リスクのクロスロールなニーズには、範囲を絞った verify_fact を渡し、それを超える複雑な調査は coordinator 経由に戻す — 能力の谷を最小のツール追加で埋める設計。A はツールの欠陥をモデルの推論で毎回補わせる発想で、コストと失敗率が高止まりする。C は全員に全ツールを渡す配分で、選択信頼性の低下と専門外ツールの誤用を招く(役割ベース配分の放棄)。D は自動化の撤廃で、coordinator が手動ボトルネックになる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q211",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "A triage subagent must always respond by calling its single classify_topic tool so the pipeline can parse the result — but a few times a day it replies with conversational text instead, crashing the parser. The request currently sets no tool_choice. Which configuration guarantees the required behavior?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "tool_choice: \"auto\", which prefers tools whenever any are defined."
+      },
+      {
+        "label": "B",
+        "text_en": "tool_choice: \"none\", which reserves tools for when the model deems them essential."
+      },
+      {
+        "label": "C",
+        "text_en": "tool_choice: {\"type\": \"tool\", \"name\": \"classify_topic\"}, which forces that specific tool to be called."
+      },
+      {
+        "label": "D",
+        "text_en": "A system prompt line: \"You must always call classify_topic — never reply in plain text.\""
+      }
+    ],
+    "answer": ["C"],
+    "answer_en": null,
+    "explanation_ja": "特定のツール呼出しを保証するのは tool_choice の forced 指定 {\"type\": \"tool\", \"name\": ...}。これでモデルは classify_topic を必ず呼び、会話テキストで返す余地がなくなる(ツールが 1 つでも、\"any\" より対象を明示する forced が意図を正確に表す)。A の \"auto\" は既定値であり「テキストで答えてもよい」を許す — まさに本問の現状で、日に数回の逸脱はその仕様どおりの挙動。B の \"none\" はツール呼出しを禁止する設定で完全に逆方向。D のプロンプト指示は遵守率を上げるが保証にはならず、「必ずパースできる」という要件には API レベルの強制(tool_choice)が必要。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q205",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "When the web-search subagent hits rate limits or dead ends, it reports back exactly \"search unavailable.\" The coordinator cannot tell whether to retry in a minute, reroute the work to the document-analysis subagent, or drop the section. What should the subagent's failure report contain instead?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Structured context: the failure type (rate limit vs no results), the queries attempted, any partial results retrieved, and suggested alternatives."
+      },
+      {
+        "label": "B",
+        "text_en": "Nothing — failed subagents should return empty results so synthesis proceeds smoothly."
+      },
+      {
+        "label": "C",
+        "text_en": "A single boolean success flag, keeping the protocol simple."
+      },
+      {
+        "label": "D",
+        "text_en": "The full raw stack trace of the underlying HTTP client."
+      }
+    ],
+    "answer": ["A"],
+    "answer_en": null,
+    "explanation_ja": "エラー伝播の設計原則: 下流の判断者(coordinator)が回復行動を選べるだけの構造化された文脈を渡す。失敗種別(レート制限なら待って再試行、結果ゼロなら別ソースへ)、試行済みクエリ(重複試行の回避)、部分結果(得られた分は活用)、代替案(ルーティング候補)が揃ってはじめて、retry / reroute / drop の判断が可能になる。\"search unavailable\" のような一般的ステータスはこの判断材料を全部欠く。B は黙殺(空結果を成功扱い)というアンチパターンで、カバレッジ欠落が検知不能になる。C の boolean も種別と文脈を欠き、\"search unavailable\" と情報量が変わらない。D の生スタックトレースは低レベルすぎて判断に使えず、文脈を浪費するだけ(要約された失敗種別への変換がツール側の責務)。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q206",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "Research runs proceed in phases — collection, analysis, synthesis — and take hours. When the process dies mid-analysis, the team restarts from zero because nothing records what was already done. Which design makes runs recoverable?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Wrap the whole run in one retry loop that re-executes all phases on any failure."
+      },
+      {
+        "label": "B",
+        "text_en": "Have each agent write its outputs and completion state to a known location, and have the coordinator read that manifest on restart to resume from the last completed phase — injecting prior phase summaries into the next phase's context."
+      },
+      {
+        "label": "C",
+        "text_en": "Log every event to stdout so an engineer can reconstruct progress manually after a crash."
+      },
+      {
+        "label": "D",
+        "text_en": "Shorten the phases so that losing a run costs less."
+      }
+    ],
+    "answer": ["B"],
+    "answer_en": null,
+    "explanation_ja": "クラッシュ回復の定石は、各エージェントが既知の場所に成果物と完了状態を書き出し(manifest)、coordinator が再開時にそれを読んで最後の完了フェーズから続行する設計。加えて次フェーズの subagent 起動時に前フェーズの要点サマリを初期文脈に注入すれば、状態と文脈の両方が復元される。数時間分の作業の損失は「未完了フェーズ 1 つ分」まで縮む。A のラン全体リトライはまさに現状の「ゼロから再実行」を自動化しただけで、回復ではない。C の stdout ログは人間の事後解析には役立っても、システムが自動で再開する仕組みにならない(手作業の復元は時間がかかり誤りも混じる)。D は損失の縮小であって回復の設計ではなく、フェーズ分割を不自然に細かくする副作用もある。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q207",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-industry-research-agents",
+    "eligible_modes": ["mock", "practice"],
+    "srs_eligible": false,
+    "stem_en": "Two credible sources disagree on a market's size — an industry association says $4.2B, a research firm says $2.9B with a different methodology. The synthesis subagent currently picks whichever figure appears in more documents and reports it as fact. How should the pipeline handle such conflicts?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Report the average of the two figures to avoid taking sides."
+      },
+      {
+        "label": "B",
+        "text_en": "Always prefer the more recent source and discard the other."
+      },
+      {
+        "label": "C",
+        "text_en": "Drop the metric from the report entirely whenever sources disagree."
+      },
+      {
+        "label": "D",
+        "text_en": "Have analysis annotate the conflict with both figures, their sources, and methodological context; the coordinator adjudicates before synthesis, and the report distinguishes established findings from contested ones."
+      }
+    ],
+    "answer": ["D"],
+    "answer_en": null,
+    "explanation_ja": "信頼できるソース間の矛盾は、恣意的に一方を選ぶのではなく出典付きで注記して保持するのが正しい扱い。分析段階は両方の値・出典・方法論的文脈(集計範囲の違い等)を含めて「完了」とし、調停は synthesis 前に coordinator が判断する。最終レポートでも確立済み(established)と係争中(contested)を区別して提示すれば、読者は主張の確度を正しく受け取れる。多数決(現状)は同一ソースの転載が多いだけで勝つため信頼性の指標にならない。A の平均はどちらのソースも主張していない捏造値を生む。B の「新しい方を採る」は方法論の違いという本質を無視した恣意的規則。C の削除は矛盾という重要な情報(市場規模の推計が割れている事実)ごと読者から隠す。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]

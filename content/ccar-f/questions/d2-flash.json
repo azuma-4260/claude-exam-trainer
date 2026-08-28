@@ -504,7 +504,7 @@
       "https://docs.claude.com/en/docs/agents-and-tools/mcp"
     ],
     "difficulty": 1,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -652,6 +652,30 @@
       "https://www.anthropic.com/engineering/claude-code-best-practices"
     ],
     "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q028",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "By default, how does Claude Code load the tool definitions of connected MCP servers?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "All connected servers' tools are available, but their definitions are deferred by default —\ntool search discovers and loads them on demand.\nThe opt-in auto threshold mode preloads them while definitions stay under 10% of context.",
+    "explanation_ja": "接続済み MCP サーバーのツールはすべて利用可能だが、既定では tool search が有効で、定義は遅延ロード(必要時に発見・読込)される。ENABLE_TOOL_SEARCH=auto の閾値モードにした場合のみ、定義合計が context window の 10% 未満なら先読みされ、10% に達すると遅延に切り替わる。auto:N でカスタム閾値、false で全定義の先読みも選べる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 1,
     "status": "active",
     "rev": 1
   }

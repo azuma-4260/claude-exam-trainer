@@ -1,0 +1,635 @@
+[
+  {
+    "id": "f-d4-q201",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The pipeline flags questionable invoices for the review team. Its prompt says \"flag anything suspicious, but be conservative and only flag when highly confident.\" Reviewers still receive dozens of speculative flags daily — rounding differences, unfamiliar vendor names, minor formatting quirks. How should the prompt be fixed?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Strengthen the wording: \"only flag when you are extremely confident there is a genuine problem.\""
+      },
+      {
+        "label": "B",
+        "text_en": "Replace the vague instruction with explicit categories to flag (duplicate invoice numbers, totals disagreeing with line items, missing tax IDs) and categories NOT to flag (rounding under one cent, formatting variations), with a concrete example of each."
+      },
+      {
+        "label": "C",
+        "text_en": "Add \"think carefully before flagging\" to invoke more deliberate reasoning."
+      },
+      {
+        "label": "D",
+        "text_en": "Cap the model at three flags per day so reviewers are never overwhelmed."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "「保守的に」「高確信のみ」のような程度の指示は精度改善に効かない — モデルには「何が flag に値するか」の判定基準が渡っていないからで、強度の副詞を足しても曖昧さは残る。正しい修正は、報告するカテゴリと報告しないカテゴリを明示し、各カテゴリに具体例を付けること。これで「疑わしい」の定義自体がプロンプトに含まれ、投機的なフラグ(丸め差・表記ゆれ)は明示的に除外される。A・C は同じ曖昧な指示の言い換え・増強であり、既に「be conservative」で失敗している経路の繰り返し。D は件数の人為的な上限で、真の問題が 4 件目以降なら見逃し、閑散日には投機的フラグが通る — 精度の問題を流量の問題にすり替えている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q202",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Of the pipeline's flag categories, duplicate-invoice detection produces mostly false positives, while tax-mismatch flags are almost always correct. Reviewers have started skimming past ALL flags, and a genuine tax mismatch slipped through last week. What is the pragmatic response?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep everything as is — some false positives are the unavoidable price of catching real issues."
+      },
+      {
+        "label": "B",
+        "text_en": "Retrain reviewers to evaluate each flag on its merits regardless of past noise."
+      },
+      {
+        "label": "C",
+        "text_en": "Temporarily disable the duplicate-invoice category until its precision is fixed, so the trustworthy categories regain the reviewers' attention."
+      },
+      {
+        "label": "D",
+        "text_en": "Route all flags to a second model that re-scores them before reviewers see anything."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "高誤検知カテゴリの実害は、そのカテゴリ単体にとどまらず、正確なカテゴリへの信頼まで巻き込んで壊すこと(本問: tax-mismatch の見逃しは duplicate ノイズによる「全部読み飛ばし」の結果)。実務的な対応は、問題カテゴリを改善が済むまで一時的に無効化し、システム全体の信頼を回復すること — 検出面の穴は開くが、「全カテゴリが無視される」現状より確実に良い。A はレビュー行動の劣化という実害を無視した現状追認。B は人間の注意力の問題にすり替えており、ノイズ源を残したままでは同じ行動に戻る(信頼は指示でなく実績で決まる)。D は二段目のモデルという複雑さを足す割に、根本の precision 問題を duplicate カテゴリに対して解決しておらず、遅延と新たな誤りも持ち込む。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q203",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Vendor-name extraction is inconsistent: for the same supplier the pipeline sometimes returns the parent company (\"Halvern Group\"), sometimes the subsidiary on the letterhead (\"Halvern Freight LLC\"), sometimes the trade name (\"HFX\"). Detailed prose instructions have not stabilized it. What should be added to the prompt?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Two to four worked examples of ambiguous documents, each showing the correct choice (the legal entity on the letterhead) and briefly why that entity was chosen over the alternatives."
+      },
+      {
+        "label": "B",
+        "text_en": "A longer glossary defining \"parent company,\" \"subsidiary,\" and \"trade name.\""
+      },
+      {
+        "label": "C",
+        "text_en": "An instruction to return all three name variants and let downstream systems pick."
+      },
+      {
+        "label": "D",
+        "text_en": "A rule to always return the shortest name, since it is the least likely to contain errors."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "詳細な指示だけで出力が安定しない曖昧な判断タスクは、few-shot の適用場面。2〜4 個の実例で「この文書ではこれが正解」を実演し、なぜその選択なのか(レターヘッドの法人名を親会社名や通称より優先する理由)を短く添えると、モデルは例から判断基準を一般化して新規パターンにも適用できる。B の用語定義は概念の説明であって選択規則の実演ではなく、既に散文指示で失敗している経路の延長。C は曖昧さの解決を下流に丸投げする設計で、下流は文書を見ていないぶん判断材料がさらに少なく、正規化の責務も果たせていない。D の「最短名」は HFX(通称)を選ぶ規則であり、本問の要件(法人名)と真っ向から矛盾する恣意的ヒューリスティック。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q204",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "On unusual layouts — scanned receipts with handwritten totals, contracts with multi-column fee tables — the pipeline returns empty fields for data that is present, and occasionally hallucinates values that are not. Which TWO additions to the few-shot example set address these failures? (Select TWO)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Examples spanning diverse document structures — a clean invoice, a handwritten receipt, a multi-column contract — each with its correct extraction."
+      },
+      {
+        "label": "B",
+        "text_en": "More examples of the common clean-invoice layout, since mastering the majority case transfers to the rest."
+      },
+      {
+        "label": "C",
+        "text_en": "Examples where a field is genuinely absent and the correct output shows null — demonstrating the difference between \"absent\" and \"present but hard to find.\""
+      },
+      {
+        "label": "D",
+        "text_en": "Examples with deliberately wrong extractions labeled \"do not do this\" as the primary teaching signal."
+      },
+      {
+        "label": "E",
+        "text_en": "A single mega-example concatenating all document types into one document."
+      }
+    ],
+    "answer": [
+      "A",
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "空抽出とハルシネーションという 2 つの失敗は、few-shot 例の多様性不足が原因。多様な文書構造の例(A)は「珍しいレイアウトでもデータはここにある」を実演して空抽出を減らし、真に欠落しているケースで null を返す例(C)は「無いものは無いと答える」を実演して捏造を減らす — 存在するが見つけにくいデータと本当に存在しないデータの区別こそ、この 2 症状の分岐点。B は既にできている多数派ケースを増やすだけで、失敗している珍レイアウトへの汎化は例がなければ起きない。D の負例中心は「何をすべきか」の実演がなく、few-shot の主信号は正例に置くのが原則(負例は補助的にのみ有効)。E は現実に存在しない混成文書 1 例に潰す構成で、実際の各レイアウトの正解パターンを個別に示せない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q205",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The pipeline prompts Claude to \"respond with valid JSON only, no other text.\" Most responses parse, but every week a few arrive wrapped in markdown fences or prefixed with \"Here is the extracted data:\", crashing the ingestion job. What eliminates this failure class?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a post-processing step that strips markdown fences and leading prose before parsing."
+      },
+      {
+        "label": "B",
+        "text_en": "Repeat the JSON-only instruction at both the start and end of the prompt."
+      },
+      {
+        "label": "C",
+        "text_en": "Retry any unparseable response up to five times."
+      },
+      {
+        "label": "D",
+        "text_en": "Define an extraction tool whose input schema is the desired record structure with strict enforcement, force the call with tool_choice so a tool response is guaranteed, and read the data from the tool_use block instead of parsing free text."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "構造保証は tool use の 2 つの強制の組合せで成立する: strict 指定は「ツールが呼ばれた場合」の入力がスキーマに準拠することを保証し、tool_choice の強制(抽出ツールが 1 つなら forced 指定、複数候補なら \"any\")がツール呼出しそのものを保証して散文の前置きや markdown フェンスの応答を構造的に排除する。既定の tool_choice: auto ではモデルはテキストで答えることも許されるため、strict だけでは本問の失敗クラスは消えない — 両方を指定してはじめて、テキスト応答のパースという経路自体がなくなる。A の後処理は既知の逸脱パターンだけに効くもぐら叩きで、新しい逸脱(コメント混入等)のたびに壊れる。B のプロンプト反復は遵守率を上げても保証にせず、「毎週数件」が「毎月数件」になる程度の改善にとどまる。C のリトライは同じ確率的経路の再試行で、コストを増やしながら失敗をゼロにできない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/strict-tool-use",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q206",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Incoming documents may be an invoice, a receipt, or a contract, and the pipeline defines one extraction tool per type. Documents arrive unlabeled. With the default tool_choice, the model occasionally answers in prose describing the document instead of extracting it. Which setting fits this stage?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "tool_choice: {\"type\": \"tool\", \"name\": \"extract_invoice\"}, forcing the most common document type's tool."
+      },
+      {
+        "label": "B",
+        "text_en": "tool_choice: \"any\", which guarantees the model calls one of the three tools — it still chooses the appropriate schema, but prose answers become impossible."
+      },
+      {
+        "label": "C",
+        "text_en": "tool_choice: \"auto\" with a firmer instruction to extract rather than describe."
+      },
+      {
+        "label": "D",
+        "text_en": "tool_choice: \"none\", letting a downstream classifier decide the type first."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "文書種別が不明で複数の抽出スキーマがあり得る段では tool_choice \"any\" が適切: 「いずれかのツールを必ず呼ぶ」ことを API レベルで保証しつつ、どのスキーマ(invoice / receipt / contract)を使うかの判定はモデルに残せる。散文応答という失敗はこれで構造的に不可能になる。A の forced 指定は種別判定まで奪い、receipt や contract を invoice スキーマで抽出する誤りを全件に強制する(forced が適するのは「必ずこのツールを先に」という単一ツールの前段強制)。C の \"auto\" は本問の現状で、テキスト応答があり得る仕様のまま指示を強めても保証にならない。D の \"none\" はツール呼出しを禁止する設定で、抽出段の目的と正反対。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q207",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Some service contracts have no purchase-order number, yet the schema marks po_number as a required string — and the model fabricates plausible-looking PO numbers for those documents. Payment terms also arrive in many phrasings that the schema's fixed enum (\"net_30\", \"net_60\") cannot cover. How should the schema be redesigned?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Make po_number nullable with instructions to return null when absent, and extend the enum with an \"other\" value paired with a free-text detail field."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep po_number required — required fields force the model to look harder for the value."
+      },
+      {
+        "label": "C",
+        "text_en": "Remove the schema entirely for these documents and extract into free text."
+      },
+      {
+        "label": "D",
+        "text_en": "Add every payment phrasing ever observed to the enum and reject documents containing new ones."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "スキーマ設計の要点 2 つ。第一に、文書に存在しないことがあるフィールドを required にすると、スキーマを満たすためにモデルが値を捏造する圧力になる — nullable / optional にして「無ければ null」を指示するのが捏造防止の定石。第二に、現実の表現多様性を固定 enum で覆い切れないときは \"other\"(または \"unclear\")+ 詳細フィールドの組合せで受け止め、後段で分析・正規化できるようにする。B は因果が逆で、「探す努力」ではなく「埋める捏造」を強制しているのが本問の症状。C はスキーマ検証という品質保証層ごと捨てる過剰反応。D の enum 無限拡張は保守不能で、新表現のたびに正当な文書が却下される運用は月末バッチで破綻する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q208",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The retry loop resends failed extractions with the original document, the failed output, and the specific validation error. It fixes most format problems (wrong date format, swapped fields) in one retry. But documents failing with \"missing due_date\" retry three times and still fail — inspection shows those documents genuinely contain no due date. What should change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Before retrying, distinguish the failure class: retry only format/structure errors; for information genuinely absent from the document, accept null (or route to review) instead of retrying."
+      },
+      {
+        "label": "B",
+        "text_en": "Raise the retry limit to ten — more attempts eventually find the value."
+      },
+      {
+        "label": "C",
+        "text_en": "Add \"due_date is mandatory\" to the retry prompt so the model tries harder."
+      },
+      {
+        "label": "D",
+        "text_en": "Remove validation feedback from retries, since it is biasing the model toward the same failure."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "検証エラー付きリトライが有効なのは形式・構造の誤り(日付形式、フィールド取り違え)まで — 元文書にその情報が存在しない場合、リトライは何回やっても成功し得ない(情報は生成できない、してはならない)。失敗クラスを分岐し、欠落系は null 受理または人間レビューへのルーティングに切り替えるのが正しい設計で、無駄な API コストと「最終的に捏造で埋まる」リスクの両方が消える。B は不可能な試行の回数を増やすだけで、コストが 3 倍強になる以外の変化がない。C の「必須」強調は、存在しない値を求める圧力であり、捏造(それらしい日付の発明)を誘発する最悪の方向。D は逆で、具体的な検証エラーのフィードバックこそ形式エラーの修正を成功させている主要因 — 外せば直せていたケースまで失敗する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q209",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The team wants the extraction schema to give the validation loop what it needs to flag two situations: line items that do not sum to the invoice's stated total, and paired documents (a contract and its invoice) that disagree about a fee. Which TWO fields should the extraction schema add? (Select TWO)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "retry_count, recording how many attempts the extraction took"
+      },
+      {
+        "label": "B",
+        "text_en": "calculated_total, computed by summing the extracted line items, returned alongside stated_total so validation can compare them"
+      },
+      {
+        "label": "C",
+        "text_en": "model_confidence_narrative, a paragraph where the model describes how it feels about the extraction"
+      },
+      {
+        "label": "D",
+        "text_en": "formatted_markdown, a rendered table of the invoice for human display"
+      },
+      {
+        "label": "E",
+        "text_en": "conflict_detected, indicating a disagreement between related source documents and which values conflict"
+      }
+    ],
+    "answer": [
+      "B",
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "フィードバックループ用フィールドの設計問題(公式ガイドの self-correction validation flow)。合計の突合には calculated_total を stated_total と並べて返させる(B): 検証コードがこの 2 フィールドを比較して「明細合計 ≠ 記載合計」を検知し、不一致を再試行やレビューに回せる。モデルの算術も誤り得るため、検証コード側で明細配列から独立に再集計して突合する実装を併用するとさらに堅牢になる(スキーマ準拠は意味エラーを防がない)。文書間の矛盾には conflict_detected(E): 契約書と請求書のような関連文書で値が食い違うとき、どの値が矛盾しているかを構造化して返せば、レビューへの自動ルーティングが可能になる。A の retry_count はパイプラインのメタデータであり、抽出内容の検証には寄与しない(記録するにしてもスキーマ外)。C の自由記述の自己感想は機械検証に使えず、較正もされていない。D の表示用 markdown は人間向けの整形であって、2 つの検出要件のどちらにも無関係。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q210",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Baywick has two workloads: (1) the overnight backlog — tens of thousands of documents with results needed \"sometime before the next evening\"; (2) on-demand extraction when an accountant opens a specific document and waits for the fields. Which API strategy matches the workloads?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Synchronous API for both — batches add operational complexity for no benefit."
+      },
+      {
+        "label": "B",
+        "text_en": "Batches API for both — the 50% discount applies to every request, including the accountant's."
+      },
+      {
+        "label": "C",
+        "text_en": "Message Batches API for the overnight backlog (50% cost reduction, non-blocking, up to 24 hours); synchronous API for the on-demand case, where a person is actively waiting."
+      },
+      {
+        "label": "D",
+        "text_en": "Batches API for the on-demand case and synchronous for the backlog, since big jobs need the lower-latency path."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Batches API の特性 — 50% のコスト削減、最大 24 時間の処理窓、レイテンシ SLA なし — は「翌夕方までに終わればよい」夜間バックログの性質と正確に一致する: 非ブロッキングで大量、締切が緩い。逆に、会計担当者が画面の前で待つオンデマンド抽出は秒単位の応答が要る対話的ワークロードで、処理窓が時間単位の Batches は不適 — ここは同期 API の領分。A はバックログ側で 50% の削減を捨てる選択で、数万件規模ではコスト差が大きい。B は担当者を最大 24 時間待たせ得る設計で、ユーザー体験として成立しない。D は両者の割当てが逆で、「大きいジョブ = 低レイテンシ経路」という誤解に基づく(大きさではなく締切の緩さで選ぶ)。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q211",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The month-end run — 200,000 invoices — must be fully processed within 36 hours of the files arriving, or closing is delayed. The team plans to submit everything as batches and hope. Batches have a 24-hour processing window, no latency SLA, and some requests in a batch can fail individually. What does a robust plan look like?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Submit one giant batch at hour zero; 24 hours is inside 36, so the deadline is safe by construction."
+      },
+      {
+        "label": "B",
+        "text_en": "Submit early in planned waves, poll for completion, resubmit only the failed requests identified by custom_id, and define a cutoff after which any remaining unfinished documents switch to the synchronous path."
+      },
+      {
+        "label": "C",
+        "text_en": "Split the run across many small batches purely because smaller batches are guaranteed to finish faster."
+      },
+      {
+        "label": "D",
+        "text_en": "Submit at hour zero and, if the batch has not finished by hour 35, resubmit everything as one new batch."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Batches にはレイテンシ SLA がなく、24 時間の処理窓は「未完了分が expired になり得る締切」であって完了の保証ではない — hard deadline のあるジョブは、この前提で設計する。堅牢な計画は: 早期に計画的な波で投入し(後続の再試行の余地を確保)、完了をポーリングし、失敗分だけを custom_id で特定して再提出し、締切前の cutoff 時刻を決めて未完了分は同期 API 等の別経路へ切り替える。A は「24 < 36 だから安全」という誤読で、期限内に処理される保証も、個別失敗が起きない保証もない。C は「小さいバッチ = 速い」という保証は存在せず、根拠のない分割は管理の複雑さだけ増す。D は残り 1 時間で全量(失敗分だけでなく)を SLA なしの経路に再投入する計画で、間に合う根拠が何もない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q212",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Extractions from high-value invoices pass through three checks before entering accounting: (1) the output conforms to the schema, (2) the line items sum to the stated total, (3) the extracted values faithfully match the source document. The team can afford one LLM-based verification step and wants everything else deterministic. How should the three checks be implemented?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Have the generating session run all three checks on its own output — it has the most context about the extraction."
+      },
+      {
+        "label": "B",
+        "text_en": "Spend the LLM step on schema and arithmetic checking too, since model review is strictly more capable than validation code."
+      },
+      {
+        "label": "C",
+        "text_en": "Enforce (1) with strict tool use and code validation, recompute (2) deterministically from the extracted line items in code, and spend the LLM step on (3): an independent second instance that receives the document and the extraction, but not the generator's conversation."
+      },
+      {
+        "label": "D",
+        "text_en": "Implement (1) and (2) in code and skip (3) — once schema and totals pass, the values are necessarily faithful to the document."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "検証工程は「決定論的に検証できるものはコードで、意味的な忠実性だけを LLM で」と配分する。スキーマ準拠(1)は strict tool use と検証コードで機械的に保証でき、明細合計(2)は抽出済みの明細からコードが再計算して突合すれば確実 — この 2 つに LLM を使うのは浪費なうえ、確率的な検査に置き換える分だけ劣化する(B が誤りな理由)。LLM が本当に必要なのは、値が元文書と意味的に一致しているか(3)であり、そこでは生成時の会話文脈を持たない独立した第二インスタンスに文書と抽出結果だけを渡す — 生成セッションは自分の判断を前提に再確認しがちで、自分の誤りを見直しにくいため(A が誤りな理由)。D は「スキーマ準拠 = 正しい値」という混同で、スキーマは構文を保証しても意味エラー(桁の読み違い・フィールドの取り違え)を防がない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q208",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The pipeline's aggregate extraction accuracy is 96.8%, and leadership wants to remove human review for most documents next quarter. Before agreeing, what analysis should the team run, and why?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Segment accuracy by document type and by field — an aggregate number can hide, say, handwritten receipts extracting total_amount at 78% — and gate automation per segment."
+      },
+      {
+        "label": "B",
+        "text_en": "Re-measure the aggregate on a larger sample to tighten the confidence interval around 96.8%."
+      },
+      {
+        "label": "C",
+        "text_en": "Compare the aggregate against industry benchmarks; above-median accuracy justifies automation."
+      },
+      {
+        "label": "D",
+        "text_en": "Survey the review team about which documents feel error-prone."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "自動化判断の前に必要なのは、文書種別 × フィールドで精度をセグメント分析すること。集計値 96.8% は分布の平均であり、特定セグメント(手書きレシートの total_amount など)の著しい低性能を隠している可能性がある — 一律自動化すれば、そのセグメントの誤りが無検査で会計システムに流れ込む。セグメント別に測れば、高精度セグメントだけ自動化し低精度セグメントはレビューを残す、という段階的なゲートが組める。B は同じ集計値の精密化であり、「平均が隠すもの」という問題構造に手を付けていない。C の外部ベンチマーク比較は自社の文書ミックスの弱点について何も教えない。D の主観アンケートは出発点の仮説集めにはなっても、測定の代わりにはならない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q209",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The review team can inspect about 300 documents daily out of thousands. The pipeline emits per-field confidence scores. How should review routing be designed so the limited capacity does the most good — while still catching model drift over time?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Review a uniform random 5% of all documents; equal treatment avoids systematic blind spots."
+      },
+      {
+        "label": "B",
+        "text_en": "Trust the raw confidence scores as probabilities and review only documents the model scores below 0.5."
+      },
+      {
+        "label": "C",
+        "text_en": "Review the 300 highest-value invoices by amount, since money at stake matters most."
+      },
+      {
+        "label": "D",
+        "text_en": "Calibrate the confidence scores against a labeled set to place thresholds, route low-confidence and conflicting documents to review, and stratified-sample a small slice of high-confidence documents to monitor error rates and new failure patterns."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "限られたレビュー能力の配分は 3 要素で設計する。第一に、モデルの confidence は素のままでは確率として信頼できないため、ラベル付きデータで較正して閾値を決める。第二に、低確信・矛盾検出ありの文書を優先的にレビューへ回す(誤りの密度が高いところに能力を使う)。第三に、高確信でバイパスされる文書からも層化ランダム抽出で少量を監査し、誤り率の推移と新しい失敗パターン(ドリフト)を監視する — これを欠くと、モデルが劣化しても「高確信のまま間違える」領域が検知不能になる。A の一様サンプリングは誤り密度を無視して能力の大半を正常文書に費やす。B は未較正スコアを確率と誤信するうえ、高確信領域の監視が皆無でドリフトに盲目。C は金額という単一軸で、低額帯の系統的エラーやドリフトを永久に見ない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]

@@ -1,0 +1,675 @@
+[
+  {
+    "id": "f-d3-q201",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "All conventions live in the root CLAUDE.md: web engineers get the payments package's database-migration rules loaded in every session, and the file keeps growing. Repo-wide standards (commit style, test runner) must still apply everywhere. How should the configuration be reorganized?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Move everything into each engineer's ~/.claude/CLAUDE.md so each person keeps only what they need."
+      },
+      {
+        "label": "B",
+        "text_en": "Split the root file into one CLAUDE.md per Git branch so conventions follow the code being changed."
+      },
+      {
+        "label": "C",
+        "text_en": "Keep repo-wide standards in the root CLAUDE.md and move package-specific conventions into per-package CLAUDE.md files inside payments/, risk/, and web/."
+      },
+      {
+        "label": "D",
+        "text_en": "Delete the root file and rely on code review to teach conventions."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "CLAUDE.md は user / project(ルート)/ directory の階層を持ち、ディレクトリレベルの CLAUDE.md はその配下で作業するときに読み込まれる。全員に常に効くべき規約はルートに、パッケージ固有の規約は各パッケージ配下に置くのが正しい分担で、無関係な文脈のロードとファイルの肥大化が同時に解消する。A は user レベルへ移すと VCS で共有されず、新メンバーに規約が届かなくなる(共有すべき規約の置き場として誤り)。B の「ブランチごと」という階層は存在せず、ブランチ間のマージ地獄を生むだけ。D は Claude Code に規約を伝える仕組みそのものを放棄しており、レビュー負荷を増やすだけで解決にならない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q202",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Even after the per-package split, the root CLAUDE.md is 1,200 lines: security checklist, API style guide, release procedure, and testing standards all inline. Engineers report Claude sometimes misses rules buried in the middle. What is the recommended way to restructure it?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Convert the file to a single table so every rule fits on one line."
+      },
+      {
+        "label": "B",
+        "text_en": "Break the content into topic files (security, API style, testing) under .claude/rules/, attach a paths glob to the ones tied to a specific area (e.g. security checklist) so they load only when matching files are touched, and keep only the short, always-needed standards in the root file."
+      },
+      {
+        "label": "C",
+        "text_en": "Duplicate the most important rules at both the top and bottom of the file so position effects cannot hide them."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask Claude to summarize the file at the start of each session and work from the summary."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "肥大化した CLAUDE.md の推奨リファクタリングは、トピック別ファイル(.claude/rules/ 等)への分割に加えて、特定領域に紐づく規約(security checklist 等)には paths glob を付け、該当ファイルを扱うときだけロードされるようにすること。ルートには全セッションで本当に必要な短い標準だけを残すので、中央部に埋もれて見落とされる問題が構造的に起きにくくなる。paths を持たない .claude/rules/ 配下のファイルは起動時に無条件で全部ロードされ、CLAUDE.md の @import も起動時に参照先を展開するだけなので、単純な分割や @import だけではロードされるコンテキストの総量は減らない点に注意。A の巨大な一枚テーブルは可読性を悪化させるだけで総量も変わらない。C の重複記載はファイルをさらに肥大化させ、更新時に 2 箇所の同期漏れという新しい欠陥を生む。D は毎セッション要約に文脈とトークンを費やすうえ、要約で規則の詳細(具体的な手順・例)が失われる本末転倒な案。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q203",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An engineer reports that Claude followed the team's testing conventions yesterday but ignores them today, in the same repository on the same machine. Nothing was intentionally changed. What is the correct first diagnostic step?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Run /context and check the Memory files section to see exactly which memory files are loaded in the current session."
+      },
+      {
+        "label": "B",
+        "text_en": "Reinstall Claude Code to reset any corrupted internal state."
+      },
+      {
+        "label": "C",
+        "text_en": "Rewrite the conventions in stronger language and see whether behavior improves."
+      },
+      {
+        "label": "D",
+        "text_en": "Delete all CLAUDE.md files and re-create them from scratch."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "セッション間で挙動が一貫しないときの第一の診断は、「そのセッションに実際に何がロードされているか」を確かめること。/context は context 全体をカテゴリ別に示す初期診断なので、Memory files の差とその他の差をまず切り分けられる。memory が原因と分かったら、/memory で現在ロード済みの CLAUDE.md / rules と auto-memory を詳細確認する。B・D は原因を特定しないままの破壊的リセットで、再発時に何も学べない。C はロード自体がされていない場合には全くの無駄で、診断より先に対症療法を打つ誤り。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q204",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An engineer built an experimental /scaffold-worker command that generates their preferred worker-service boilerplate. It is not ready to impose on the team, but they want it available in every repo they work in. Where should the command live?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "In .claude/commands/ on a long-lived personal branch of the monorepo."
+      },
+      {
+        "label": "B",
+        "text_en": "In .claude/commands/ on main, with a comment telling teammates to ignore it."
+      },
+      {
+        "label": "C",
+        "text_en": "In the root CLAUDE.md as an always-loaded instruction block."
+      },
+      {
+        "label": "D",
+        "text_en": "In ~/.claude/commands/, the user-scope location that is personal and available across all their projects."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "カスタムスラッシュコマンドの置き場は 2 スコープある: .claude/commands/(プロジェクトスコープ・VCS でチーム共有)と ~/.claude/commands/(ユーザースコープ・個人用・自分の全プロジェクトで有効)。「チームに配らず、自分はどのリポジトリでも使いたい」という要件は後者そのもの。A は個人ブランチに置いた時点で main を離れられず、他リポジトリでも使えず、ブランチ切替のたびに現れたり消えたりする。B は共有スコープに実験品を置いてチームの名前空間を汚す(「無視して」というコメントは共有の逆)。C はコマンドではなく常時ロードの指示になり、毎セッションのトークンを浪費し、オンデマンド起動という要件にも合わない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/slash-commands"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q205",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A team skill generates service boilerplate. Two problems: its verbose scaffolding output floods the main conversation's context, and every run stops to ask permission for the Bash and Write calls it always needs. Which TWO SKILL.md frontmatter fields address these problems? (Select TWO)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "argument-hint, to document the arguments the skill expects"
+      },
+      {
+        "label": "B",
+        "text_en": "context: fork, so the skill runs in an isolated context and only its result returns to the main conversation"
+      },
+      {
+        "label": "C",
+        "text_en": "disallowed-tools, to remove Bash and Write from the available tool pool"
+      },
+      {
+        "label": "D",
+        "text_en": "allowed-tools, to pre-approve the Bash and Write calls for the skill's turn"
+      },
+      {
+        "label": "E",
+        "text_en": "model, to route the skill to a smaller model that produces shorter output"
+      }
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "冗長な生成出力がメイン会話を汚す問題には context: fork が対応する: スキルは隔離された文脈で実行され、結果だけが呼び出し元に返るため、途中経過のスキャフォールディング出力が本会話の context を消費しない。毎回の許可プロンプトには allowed-tools が対応する: 当該 turn のツール呼出しを事前許可する(利用可能ツールを制限するフィールドではない点に注意)。A の argument-hint は引数の入力補助で、どちらの問題にも無関係。C の disallowed-tools は Bash / Write を奪う逆方向の設定で、スキルが動かなくなる。E はモデル指定であり、許可プロンプトも文脈汚染も解決しない(出力が短くなる保証もない)。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q206",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The quarterly dependency-upgrade procedure — 90 lines of steps, checks, and rollback notes — currently sits in the root CLAUDE.md. It is needed a few times a year, yet it loads into every session for every engineer. Where does this content belong?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "In a skill, invoked on demand when someone actually performs the upgrade."
+      },
+      {
+        "label": "B",
+        "text_en": "Where it is — procedures this important must always be in context."
+      },
+      {
+        "label": "C",
+        "text_en": "In a Git tag's annotation message, versioned alongside each release."
+      },
+      {
+        "label": "D",
+        "text_en": "Split across the per-package CLAUDE.md files so each package loads only its own part."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "skills と CLAUDE.md の使い分けの軸は「オンデマンド起動か、常時ロードか」。年に数回しか使わない長大な手順書は、必要なときだけ呼び出すスキルにするのが適切で、全セッションの数百トークンの無駄と、無関係な指示によるノイズが消える。CLAUDE.md に残すべきは毎セッション効くべき規約(命名・テスト標準など)。B は「重要性」と「常時必要性」の混同で、重要でも使用頻度が低いものは常駐させる理由がない。C は Claude Code が読み込む場所ではなく、発見性も最悪。D は分割しても「常時ロードされる」性質が変わらず、しかも高頻度に使う規約ではないため per-package CLAUDE.md の趣旨にも合わない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills",
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q207",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "To stop the PCI data-handling conventions from loading for everyone, the team moved them from the root CLAUDE.md into .claude/rules/pci-handling.md, assuming rules files are scoped automatically. Sessions that never touch payments/card-vault/ still load the PCI rules. What explains the behavior?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Rules files are scoped by filename; renaming the file to card-vault.md would restrict it to that directory."
+      },
+      {
+        "label": "B",
+        "text_en": "Rules files load only when @imported from CLAUDE.md, so the rules engineers keep seeing must be a leftover copy still present in the root file."
+      },
+      {
+        "label": "C",
+        "text_en": "A rules file without a paths frontmatter loads unconditionally in every session; adding paths: [\"payments/card-vault/**\"] makes it load only when matching files are involved."
+      },
+      {
+        "label": "D",
+        "text_en": ".claude/rules/ is user scope, so the rules follow the engineer rather than the repository; moving the file back to a project-scope location fixes it."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": ".claude/rules/ 配下のファイルは、paths フロントマター(glob)が無ければ起動時に無条件で全セッションにロードされる — 置き場を rules/ に変えただけでは何もスコープされない、というのが本問の症状の説明。paths: [\"payments/card-vault/**\"] を付けてはじめて、該当ファイルを扱うときだけの条件付きロードになる。A のようなファイル名によるスコープ機構は存在しない。B は前提が誤り: rules ファイルは @import なしでロードされる(だからこそ移動後も全セッションに現れている)し、「root に残骸がある」というのは確認もされていない推測。D も誤り: リポジトリ内の .claude/rules/ はプロジェクトスコープで VCS 共有される(user スコープは ~/.claude/ 側)。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://docs.claude.com/en/docs/claude-code/settings"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q208",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Storybook conventions apply to every *.stories.tsx file, and such files are scattered across dozens of component directories in all three packages. Which placement loads the conventions exactly when they are needed?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A path-scoped rule with a glob pattern like **/*.stories.tsx, matching the file type across all directories."
+      },
+      {
+        "label": "B",
+        "text_en": "A CLAUDE.md in every directory that contains at least one stories file, kept in sync by hand."
+      },
+      {
+        "label": "C",
+        "text_en": "The root CLAUDE.md, since the files appear in all packages anyway."
+      },
+      {
+        "label": "D",
+        "text_en": "A user-scope rule in each frontend engineer's home directory."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "「ディレクトリ横断で特定ファイル種別に効く規約」は glob ベースの path-scoped rule の典型的な適用場面。**/*.stories.tsx のパターン 1 つで全パッケージの該当ファイルを覆い、該当ファイルの編集時だけロードされる。ディレクトリ CLAUDE.md は「特定ディレクトリ配下の作業全般」に効かせたいときの手段であり、B のように数十ディレクトリへ複製すると同期漏れが必ず起きる。C はルート常駐に戻る案で、stories を触らないセッションにも常にロードされる(粒度が粗すぎる)。D は user スコープのため VCS で共有されず、新しいメンバーに規約が届かないという別の欠陥を持ち込む。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://docs.claude.com/en/docs/claude-code/settings"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q209",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Four tasks are queued for Claude Code this morning. Which one warrants plan mode rather than direct execution?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Fix a typo in a user-facing error message in web/checkout.ts."
+      },
+      {
+        "label": "B",
+        "text_en": "Add a unit test for an existing pure currency-rounding function."
+      },
+      {
+        "label": "C",
+        "text_en": "Migrate the payments package from callback-style database access to async/await — roughly 40 files, with at least two viable migration strategies."
+      },
+      {
+        "label": "D",
+        "text_en": "Rename a local variable flagged by the linter in a single file."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "plan mode が価値を持つのは、大規模変更・複数の妥当なアプローチ・アーキテクチャ判断・多ファイル変更が絡むタスク。C は 40 ファイル規模で戦略の選択(段階移行か一括移行か等)を伴うため、実行前に計画を確認・修正できる plan mode が手戻りを大きく減らす。A・B・D はいずれも影響範囲が明確な単一ファイルの小変更で、計画フェーズを挟む価値がなく、直接実行のほうが速い(「明確な単一ファイル修正は直接実行」の典型)。plan mode は万能の安全策ではなくコストのかかる工程なので、対象タスクの規模と分岐の多さで使い分けるのが正しい。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q210",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Before the async/await migration, an engineer asks Claude Code to survey how ledger entries flow through the payments package. The survey needs to read many files, and the engineer wants to keep the main session's context clean for the long migration work that follows. What is the right approach in Claude Code?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Read every relevant file in the main session — full visibility beats a clean context."
+      },
+      {
+        "label": "B",
+        "text_en": "Run /compact after every few file reads to keep squeezing the survey output down."
+      },
+      {
+        "label": "C",
+        "text_en": "Skip the survey and let the migration discover the flow as it goes."
+      },
+      {
+        "label": "D",
+        "text_en": "Delegate the survey to the Explore subagent, which isolates the verbose discovery output and returns only a summary to the main session."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Explore subagent は冗長な探索出力(大量のファイル読取・grep 結果)を隔離された文脈で処理し、メインセッションにはサマリだけを返す Claude Code の機能。多段のタスク(調査 → 長い移行作業)でメイン文脈の枯渇を防ぐという本問の要件に正確に一致する。A は調査だけでメイン文脈を大量消費し、続く移行作業の途中で品質劣化や /compact を強いられる。B の頻繁な /compact は要約を繰り返すことで調査で得た詳細(ファイル間の依存の具体)を失っていく後追い策。C は調査そのものの放棄で、40 ファイル規模の移行を見取り図なしに始めれば手戻りが増えるだけ。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/sub-agents",
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q211",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An engineer keeps describing a currency-formatting utility in prose — \"format like the finance team expects, you know, with proper negatives\" — and each generated version gets negative amounts or zero values wrong in a different way. What is the most reliable way to communicate the requirement?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Provide two or three concrete input/output examples, explicitly including the edge cases: formatCents(-125000) → \"($1,250.00)\", formatCents(0) → \"$0.00\"."
+      },
+      {
+        "label": "B",
+        "text_en": "Write a longer prose description with more adjectives about correctness."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask Claude to guess several formats and pick the one that looks best."
+      },
+      {
+        "label": "D",
+        "text_en": "Link the finance team's 40-page reporting standards document and ask Claude to infer the format."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "散文の説明で仕様が伝わらず出力が安定しない変換要件には、具体的な入出力例を 2〜3 個示すのが最も確実。特に間違いが起きているエッジケース(負値の括弧表記、ゼロ)を例に含めることで、曖昧さが残らない形で期待を固定できる。修正指示も同様に「この入力でこの出力」の例で示すのが速い。B は散文の増量であり、曖昧さの根本(自然言語の解釈幅)が残る。C は要件の決定権をモデルの推測に委ねるもので、finance チームの期待という外部制約がある本問では成立しない。D は 40 ページから 1 つの書式を推論させる遠回りで、文脈を大量に消費するうえ推論結果が期待とずれるリスクも残る。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q212",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The CI review job runs on every push. When an engineer pushes follow-up commits to a pull request, the job posts the same findings again as new comments, burying the discussion. How should the re-review be designed?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Re-review only on the first push, skipping all subsequent commits to the PR."
+      },
+      {
+        "label": "B",
+        "text_en": "Pass the previous review's findings into the re-review prompt and instruct the reviewer to report only new issues and previously reported ones that remain unaddressed."
+      },
+      {
+        "label": "C",
+        "text_en": "Delete all of the job's earlier comments before each run so duplicates never accumulate."
+      },
+      {
+        "label": "D",
+        "text_en": "Lower the reviewer's severity threshold so it produces fewer findings overall."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "再レビュー時の重複コメントを防ぐ設計は、前回の所見を文脈として渡し、「新規の問題と、前回指摘のうち未対応のもの」だけを報告させること。これで議論のスレッドが保たれ、対応済み指摘の再掲も消える。A は後続 commit(修正そのものや新たな問題の混入)が一切レビューされなくなり、レビューの目的を損なう。C は機械的に重複は消えるが、対応中の指摘へのスレッドや文脈も一緒に消え、指摘が「新規なのか残存なのか」の区別も付かなくなる。D は所見の総量を下げるだけで重複の構造は変わらず、必要な指摘まで抑制する副作用がある。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/github-actions",
+      "https://docs.claude.com/en/docs/claude-code/headless"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q204",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The team wants everyone to share the same Jira MCP server configuration. Last week an engineer checked a personal API token into a config file to \"make it work for everybody.\" How should the shared configuration be set up?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep the server in each engineer's ~/.claude.json so tokens never enter the repository at all."
+      },
+      {
+        "label": "B",
+        "text_en": "Commit .mcp.json with a shared service-account token, rotated monthly."
+      },
+      {
+        "label": "C",
+        "text_en": "Commit the token encrypted in .mcp.json and share the decryption key in the team chat."
+      },
+      {
+        "label": "D",
+        "text_en": "Commit a project-scope .mcp.json that references the token as ${JIRA_TOKEN}, with each engineer supplying their own value through their environment."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "チーム共有の MCP サーバー設定は project スコープの .mcp.json をリポジトリにコミットするのが正しい置き場で、秘密情報は ${VAR} の環境変数展開で参照し、値自体は各自の環境に置く。これで「設定は共有、秘密はコミットしない」が両立する。A はトークンは守れるが設定の共有という要件を満たさず、メンバーごとに手作業の複製と設定ドリフトが発生する(user スコープは個人・実験用)。B は共有トークンを平文でリポジトリに置く点で事故そのものであり、ローテーションは漏洩の被害期間を縮めるだけで防がない。C は復号鍵をチャットで配る時点で暗号化の意味がなく、リポジトリ + チャットの 2 箇所に秘密が分散する分だけ悪化している。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q205",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "After connecting six MCP servers (issue tracking, two internal APIs, docs search, CI status, database schema), an engineer worries the combined tool definitions will crowd out working context in every session. What actually happens by default, and what does it imply?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Each server's tools load only after the server is mentioned by name in the conversation."
+      },
+      {
+        "label": "B",
+        "text_en": "Definitions load upfront while they total less than about a tenth of the context window, and start being deferred beyond that — this threshold behavior is the default."
+      },
+      {
+        "label": "C",
+        "text_en": "By default the definitions are deferred: tool search discovers and loads them on demand, so adding servers does not load every definition upfront. An opt-in threshold mode instead preloads them while they stay small."
+      },
+      {
+        "label": "D",
+        "text_en": "All definitions always load in full at session start; the only mitigation is disconnecting servers."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "現行 Claude Code は tool search が既定で有効で、MCP ツール定義は既定で遅延ロードされる: 定義は必要になったときに tool search が発見・読込するため、サーバーを増やしても全定義が毎セッション先頭から context を占有することはない。B は ENABLE_TOOL_SEARCH=auto を明示した閾値モードの挙動(定義合計が context window の 10% 未満なら先読み、到達で遅延。auto:N でカスタム閾値)であり、既定ではない — 既定と閾値モードの区別が本問の核心。A のような「サーバー名への言及でロード」という仕組みは存在せず、ロードは必要性に基づく。D は誤りで、全定義の先読みは false を明示した場合の挙動にすぎず、切断だけが緩和策というのも誤り。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q206",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-payments-monorepo-codegen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A new hire asks Claude Code to read the entire 900-file monorepo \"for background\" before fixing a settlement-report bug. The session burns most of its context before any debugging starts. What is the token-efficient way to build the needed understanding?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Start from the symptom: Grep for the report name and related identifiers to find entry points, Read those files, and follow their imports outward only as far as the bug requires."
+      },
+      {
+        "label": "B",
+        "text_en": "Read every file once but in alphabetical order, so the context at least fills up predictably."
+      },
+      {
+        "label": "C",
+        "text_en": "Paste the repository's directory listing into the prompt as a substitute for reading files."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask Claude to summarize each of the 900 files into one line before starting."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "大規模コードベースの理解は「全ファイル先読み」ではなく段階的な絞り込みで行う: Grep で症状に関係する識別子からエントリポイントを特定し、Read で該当ファイルを読み、import を辿って必要な範囲だけ広げる。バグ修正に必要な理解は通常コードベースのごく一部で足りるため、これが最も文脈効率が良い。B は読み順を変えただけで全量読込の浪費は同じ。C のディレクトリ一覧はファイル名しか伝えず、settlement レポートのロジックを理解する材料にならない。D は 900 ファイルの要約生成に膨大なトークンと時間を費やす上、1 行要約ではデバッグに必要な詳細が残らない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

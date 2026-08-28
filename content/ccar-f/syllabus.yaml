@@ -134,7 +134,7 @@ domains:
             scope_ja: "project スコープ .mcp.json(チーム共有)vs user スコープ ~/.claude.json(個人/実験)、${GITHUB_TOKEN} 展開で秘密をコミットしない"
           - id: f-d2-t4-02
             name: "Multi-server discovery, description quality, and build vs adopt"
-            scope_ja: "接続した全サーバーのツールは利用可能。定義が context window の 10% 以下なら先にロードし、超える場合は既定の tool search が定義を遅延ロードする。built-in(Grep)より MCP ツールを選ばせる description 強化、標準統合(Jira)は community サーバー・チーム固有はカスタム"
+            scope_ja: "接続した全サーバーのツールは利用可能。既定では tool search が有効で MCP ツール定義は遅延ロード(必要時に発見・読込)。ENABLE_TOOL_SEARCH=auto の閾値モードのみ「定義合計が context window の 10% 未満なら先読み、10% 到達で遅延」(auto:N でカスタム、false で全定義先読み)。built-in(Grep)より MCP ツールを選ばせる description 強化、標準統合(Jira)は community サーバー・チーム固有はカスタム"
           - id: f-d2-t4-03
             name: "MCP resources for content catalogs"
             scope_ja: "issue 一覧・ドキュメント階層・DB スキーマなどをリソースとして公開し、探索的ツール呼出しを減らす"
@@ -163,7 +163,7 @@ domains:
             scope_ja: "@import でパッケージごとに関連標準ファイルを選択的に取り込む、肥大化した CLAUDE.md を .claude/rules/ のトピック別ファイルに分割"
           - id: f-d3-t1-03
             name: "Diagnosing loaded memory with /context"
-            scope_ja: "/context の Memory files で実際にロード済みの memory ファイルを確認し、セッション間で挙動が一貫しない問題を診断する。/memory は memory の場所の一覧・編集に使う。"
+            scope_ja: "/context で context 全体の memory files カテゴリを含む広い初期診断を行い、/memory で現在のセッションにロード済みの CLAUDE.md / rules と auto-memory を詳細確認・編集する。セッション間の挙動差はロード一覧を比較して切り分ける。"
       - id: f-d3-t2
         name: "Create and configure custom slash commands and skills"
         topics:
