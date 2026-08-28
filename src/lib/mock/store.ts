@@ -1,6 +1,14 @@
 import { and, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
 import type { Db } from "@/db/client";
-import { examSession, examSessionAnswer, type ExamSessionAnswerRow, type ExamSessionRow, type SubmissionReason } from "@/db/schema";
+import {
+  attempt,
+  examSession,
+  examSessionAnswer,
+  type AttemptRow,
+  type ExamSessionAnswerRow,
+  type ExamSessionRow,
+  type SubmissionReason,
+} from "@/db/schema";
 import type { AnswerKeyEntry, AnswerPatch, MockStore } from "./lifecycle";
 
 /**
@@ -161,6 +169,29 @@ function isMockAttemptConflict(e: unknown): boolean {
   const code = err?.code ?? err?.sourceError?.code;
   const constraint = err?.constraint ?? err?.sourceError?.constraint;
   return code === PG_UNIQUE_VIOLATION && (constraint === undefined || constraint === "attempt_mock_session_question_uq");
+}
+
+/** S-6 レポート用: 提出時に一括生成された attempt(正誤の単一ソース)を読む */
+export async function listMockAttempts(db: Db, sessionId: string): Promise<AttemptRow[]> {
+  return db
+    .select()
+    .from(attempt)
+    .where(and(eq(attempt.sessionId, sessionId), eq(attempt.mode, "mock")));
+}
+
+/** S-6 レポート用: rehearsal 導出のため同一 (exam, form) の submitted full セッションを読む */
+export async function listSubmittedFullSessions(db: Db, exam: string, formId: string): Promise<ExamSessionRow[]> {
+  return db
+    .select()
+    .from(examSession)
+    .where(
+      and(
+        eq(examSession.exam, exam),
+        eq(examSession.formId, formId),
+        eq(examSession.kind, "full"),
+        eq(examSession.status, "submitted"),
+      ),
+    );
 }
 
 export function createMockStore(db: Db): MockStore {

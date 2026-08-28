@@ -116,6 +116,14 @@ export function MockStartScreen({ formOptions }: { formOptions: MockFormOptions 
       {current.kind === "timed_out" && (
         <section className="rounded-lg border p-4 text-sm">
           前回の模試は制限時間超過のため提出されました(素点 {current.session.score_raw} / {current.session.question_ids.length})。
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-2"
+            onClick={() => router.push(`/mock/report/${current.session.id}`)}
+          >
+            レポートを見る
+          </Button>
         </section>
       )}
 
