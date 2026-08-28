@@ -13,6 +13,7 @@ export default function StudyPage() {
         [
           { href: "/drill", icon: Zap, label: "Quick Drill", note: "今日のキューを 1 問ずつ、片手で" },
           { href: "/practice", icon: ListChecks, label: "Practice", note: "シナリオ演習を本番形式で" },
+          { href: "/mistakes", icon: NotebookPen, label: "間違いノート", note: "誤答を 3 連続正解まで復習" },
         ] as const
       ).map(({ href, icon: Icon, label, note }) => (
         <Link
@@ -33,7 +34,6 @@ export default function StudyPage() {
 
       {(
         [
-          { icon: NotebookPen, label: "間違いノート", note: "誤答の総ざらい(準備中)" },
           { icon: Map, label: "シラバスマップ", note: "トピック別の習熟度(準備中)" },
         ] as const
       ).map(({ icon: Icon, label, note }) => (

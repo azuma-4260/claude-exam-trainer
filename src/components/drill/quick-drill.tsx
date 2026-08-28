@@ -6,6 +6,7 @@ import { ArrowLeft, Check, CircleCheck, CircleX, LoaderCircle, RotateCcw, X } fr
 import { QuestionMenu } from "@/components/question-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
 import type { AnswerRequest } from "@/lib/answer/schema";
+import type { MockScenarioDto } from "@/lib/mock/dto";
 import type { DrillItem } from "@/lib/queue/serve";
 import {
   canNext,
@@ -45,10 +46,27 @@ const REJECT_MESSAGES: Record<RejectReason, string> = {
 export function QuickDrill({
   items,
   remainingAfterSession,
+  scenarios = [],
+  answerMode = "drill",
+  navigation,
 }: {
   items: DrillItem[];
   remainingAfterSession: number;
+  scenarios?: MockScenarioDto[];
+  answerMode?: "drill" | "practice";
+  navigation?: {
+    backHref: string;
+    backLabel: string;
+    nextSessionHref: string;
+    completionTitle: string;
+  };
 }) {
+  const nav = navigation ?? {
+    backHref: "/",
+    backLabel: "Home へ戻る",
+    nextSessionHref: "/drill",
+    completionTitle: "セッション完了",
+  };
   const [state, dispatch] = useReducer(drillReducer, items, initialDrillState);
   const startedAtRef = useRef(0);
   const lastRequestRef = useRef<AnswerRequest | null>(null);
@@ -59,11 +77,12 @@ export function QuickDrill({
   }, [state.index]);
 
   if (state.phase === "summary") {
-    return <DrillSummaryView results={state.results} remainingAfterSession={remainingAfterSession} />;
+    return <DrillSummaryView results={state.results} remainingAfterSession={remainingAfterSession} navigation={nav} />;
   }
 
   const item = state.items[state.index];
   const cur = state.current;
+  const scenario = item.scenarioId ? (scenarios.find((candidate) => candidate.id === item.scenarioId) ?? null) : null;
 
   async function send(req: AnswerRequest) {
     lastRequestRef.current = req;
@@ -88,7 +107,7 @@ export function QuickDrill({
       attempt_id: crypto.randomUUID(),
       question_id: item.questionId,
       question_rev: item.rev,
-      mode: "drill" as const,
+      mode: answerMode,
       elapsed_ms: elapsed !== null && elapsed <= 2_147_483_647 ? elapsed : null,
     };
   };
@@ -122,7 +141,7 @@ export function QuickDrill({
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col px-5 pb-8 pt-4">
       {/* 上部バー: 戻る / 進捗 n/N / 悪問フラグメニュー */}
       <header className="flex items-center justify-between gap-2">
-        <Link href="/" aria-label="Home へ戻る" className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}>
+        <Link href={nav.backHref} aria-label={nav.backLabel} className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}>
           <ArrowLeft aria-hidden />
         </Link>
         <p className="font-mono text-sm tabular-nums text-muted-foreground">
@@ -145,6 +164,17 @@ export function QuickDrill({
 
       {/* 問題カード */}
       <section className="mt-6 flex flex-1 flex-col gap-4">
+        {scenario ? (
+          <section className="rounded-lg border bg-muted/30 p-3 text-sm">
+            <p className="font-medium">{scenario.title_en ?? scenario.id}</p>
+            {scenario.context_en ? (
+              <details className="mt-1">
+                <summary className="cursor-pointer text-muted-foreground">シナリオ本文</summary>
+                <p className="mt-2 whitespace-pre-line">{scenario.context_en}</p>
+              </details>
+            ) : null}
+          </section>
+        ) : null}
         {item.type === "flash" ? (
           <FlashCard item={item} cur={cur} onFlip={() => dispatch({ type: "FLIP" })} onRate={onRate} />
         ) : (
@@ -370,16 +400,23 @@ function ExplanationBlock({ item }: { item: DrillItem }) {
 function DrillSummaryView({
   results,
   remainingAfterSession,
+  navigation,
 }: {
   results: readonly DrillResult[];
   remainingAfterSession: number;
+  navigation: {
+    backHref: string;
+    backLabel: string;
+    nextSessionHref: string;
+    completionTitle: string;
+  };
 }) {
   const summary = summarize(results);
   const flashTotal = (Object.values(summary.flashRatings) as number[]).reduce((a, b) => a + b, 0);
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col justify-center gap-8 px-5 py-10">
       <header className="text-center">
-        <h1 className="text-lg font-semibold">セッション完了</h1>
+        <h1 className="text-lg font-semibold">{navigation.completionTitle}</h1>
         <p className="mt-1 font-mono text-sm tabular-nums text-muted-foreground">
           {results.length} 問{summary.skipped > 0 ? `(スキップ ${summary.skipped})` : ""}
         </p>
@@ -418,15 +455,15 @@ function DrillSummaryView({
       <footer className="flex flex-col gap-2">
         {remainingAfterSession > 0 ? (
           // 通常ナビだと RSC がキャッシュされ得るため、a 要素でサーバー再構築を強制する
-          <a href="/drill" className={cn(buttonVariants({ size: "lg" }), "h-12 w-full text-base")}>
+          <a href={navigation.nextSessionHref} className={cn(buttonVariants({ size: "lg" }), "h-12 w-full text-base")}>
             残り {remainingAfterSession} 問 — 次のセッションを開始
           </a>
         ) : null}
         <Link
-          href="/"
+          href={navigation.backHref}
           className={cn(buttonVariants({ variant: remainingAfterSession > 0 ? "outline" : "default", size: "lg" }), "h-12 w-full text-base")}
         >
-          Home へ戻る
+          {navigation.backLabel}
         </Link>
       </footer>
     </main>
