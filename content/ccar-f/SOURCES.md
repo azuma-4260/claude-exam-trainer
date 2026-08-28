@@ -248,7 +248,7 @@ You are building a structured data extraction system using Claude. The system ex
 
 #### Task Statement 2.4: Integrate MCP servers into Claude Code and agent workflows
 
-> **2026-08-24 現行ロード注記:** 接続した MCP tools は利用可能だが、現行 Claude Code は tool definitions が context window の 10% を超えると既定の tool search を有効にし、定義を必要時まで遅延ロードする。10% 以下では定義を先にロードするため、「全定義が常に遅延される」とは扱わない。
+> **2026-08-27 現行ロード注記(旧 2026-08-24 注記を訂正):** 接続した MCP tools は利用可能。現行 Claude Code は **tool search が既定で有効**で、MCP ツール定義は**既定で遅延ロード**(必要時に発見・読込)される。「10% 閾値方式」は `ENABLE_TOOL_SEARCH=auto` を明示した閾値モードの挙動で、定義合計が context window の 10% 未満なら先読み、10% 到達で遅延に切り替わる(`auto:N` でカスタム閾値、`false` で全定義先読み)。旧注記は 10% 閾値を既定挙動と記述しており誤り(C3b-A の Codex レビューで検出、code.claude.com/docs/en/mcp で 2026-08-27 確認)。関連改訂: flash f-d2-q021 を retired・f-d2-q028 を新規採番(§9)。
 
 **Knowledge of:**
 - MCP server scoping: project-level (.mcp.json) for shared team tooling vs user-level (~/.claude.json) for personal/experimental servers
@@ -281,7 +281,7 @@ You are building a structured data extraction system using Claude. The system ex
 
 #### Task Statement 3.1: Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization
 
-> **2026-08-24 現行診断注記:** 以下は Exam Guide v1.0 の原文どおり `/memory` と記す。現行 Claude Code で実際にロード済みの memory files を診断するには `/context` の Memory files セクションを確認し、`/memory` は memory files の一覧・編集に用いる。
+> **2026-08-27 現行診断注記(旧 2026-08-24 注記を訂正):** `/context` は現在の context 全体をカテゴリ別に示すため、設定不具合の広い初期切り分けで最初に使う。`/memory` は現在のセッションにロードされた `CLAUDE.md` / rules と auto-memory を詳細表示し、編集導線も提供する。どちらでもロード状況は確認できるが、用途は「広い初期診断」と「memory の詳細確認」で区別する。
 
 **Knowledge of:**
 - The CLAUDE.md configuration hierarchy: user-level (~/.claude/CLAUDE.md), project-level (.claude/CLAUDE.md or root CLAUDE.md), and directory-level (subdirectory CLAUDE.md files)
@@ -741,6 +741,8 @@ You are building a structured data extraction system using Claude. The system ex
 | 日付 | 内容 |
 |---|---|
 | 2026-08-23 | 初版(C0)。Exam Guide v1.0 を転記 |
+| 2026-08-27 | C3b-A: §2.4 の現行ロード注記を訂正(MCP ツール定義は既定で遅延ロード。10% 閾値は `ENABLE_TOOL_SEARCH=auto` 時のみ)。明確な事実誤り(改訂トリガー b)として flash f-d2-q021 を retired、f-d2-q028 を新規(flagged、Step 4 で active 化)。syllabus.yaml f-d2-t4-02 scope_ja も同時修正 |
+| 2026-08-27 | C3b-A Step 4: §3.1 の現行診断注記を訂正(`/context` は広い初期診断、`/memory` はロード済み memory の詳細一覧にも使用)。複数正解化した flash f-d3-q005 を retired、f-d3-q031 を新規(flagged)。関連する f-d3-q006 / f-d3-q101 は解説の事実訂正として rev++ し flagged へ戻した |
 
 ## 10. refs ソース台帳(C2・2026-08-24)
 

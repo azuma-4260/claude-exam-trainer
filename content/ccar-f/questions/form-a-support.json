@@ -1,0 +1,582 @@
+[
+  {
+    "id": "f-d1-q201",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The agent's loop handles stop_reason \"tool_use\" and \"end_turn\", and treats every other value the same as \"end_turn\". Occasionally a response arrives with stop_reason \"max_tokens\" while the model was mid-way through drafting a create_return call, and the loop either executes a truncated tool input or silently ends the turn. What is the correct handling?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Parse the partial tool input, fill any missing parameters with sensible defaults, and execute the call so the customer is not kept waiting."
+      },
+      {
+        "label": "B",
+        "text_en": "Handle \"max_tokens\" as its own case: never execute a tool call from a truncated response, and retry the request with a higher max_tokens limit."
+      },
+      {
+        "label": "C",
+        "text_en": "Add a system prompt instruction telling the model to keep its responses short so truncation can never occur."
+      },
+      {
+        "label": "D",
+        "text_en": "Treat \"max_tokens\" as a transient network error and resend the identical request unchanged until it completes."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "stop_reason \"max_tokens\" は「トークン上限に達して応答が途中で切れた」ことを意味し、完了(\"end_turn\")ともツール実行要求(\"tool_use\")とも異なる独立のケースとして扱う必要がある。切り詰められた tool_use 入力は不完全な JSON であり、実行してはならない。標準的な対処は max_tokens を引き上げて再試行すること。A は不完全な入力をデフォルト値で補うため、誤った注文番号や金額で返品が作成される危険があり最悪の選択。C はプロンプト指示で応答長を確率的に短くするだけで、切り詰めの発生を保証付きで防げない(根本原因は上限設定にある)。D は同一リクエストの再送であり、上限を変えない限り同じ切り詰めが再発するため無限ループになる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/handling-stop-reasons",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q202",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A teammate proposes replacing the agentic loop with a hard-coded sequence — every request runs get_customer, then lookup_order, then create_return, then refund_payment — arguing it is more predictable and cheaper. Which observation best justifies keeping the model-driven loop for this workload?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A fixed sequence is always an anti-pattern; production agents should never use predefined workflows."
+      },
+      {
+        "label": "B",
+        "text_en": "The model-driven loop is cheaper per request because it usually calls fewer tools than the fixed sequence."
+      },
+      {
+        "label": "C",
+        "text_en": "Support requests are high-ambiguity: which tools are needed, and in what order, depends on what earlier tool results reveal, so the next step must be decided by the model at each iteration."
+      },
+      {
+        "label": "D",
+        "text_en": "Predefined sequences cannot call MCP tools, so the fixed pipeline would require rewriting every backend integration."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "エージェント(モデル駆動ループ)と事前定義ワークフローの使い分けの軸は、タスクの曖昧さと動的な分岐の必要性にある。返品・請求トラブル・注文取り違えのような高曖昧性の依頼は、lookup_order の結果(配送済みか、複数注文か)によって次に必要なツールが変わるため、各反復でモデルに判断させるエージェント型が適する。A は誤り: 予測可能で固定的な処理には事前定義ワークフローの方が適切であり、常にアンチパターンなのではない(使い分けの問題)。B はコストの主張として不正確で、選定理由にもならない(むしろエージェント型は反復のぶん高くつき得る)。D は事実誤認で、固定シーケンスからでも MCP ツールは呼べる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q203",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "To control cost, operations capped the loop at 3 iterations. Multi-item damage claims routinely need more tool calls than that, so the loop stops mid-workflow: a return gets created but the refund never happens, and the customer receives no explanation. How should termination be redesigned?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Raise the cap to 10 iterations; three was simply too low for this workload."
+      },
+      {
+        "label": "B",
+        "text_en": "Remove all iteration limits so the loop always runs until the model reports completion in its final text."
+      },
+      {
+        "label": "C",
+        "text_en": "Keep 3 iterations but instruct the model in the system prompt to finish every case within three tool calls."
+      },
+      {
+        "label": "D",
+        "text_en": "Let stop_reason drive termination, keep a generous iteration cap only as a safety backstop, and when the backstop fires, handle it explicitly — for example by escalating with the work done so far."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "恣意的な反復上限を主たる終了条件にするのはアンチパターン。タスクの長さは可変なので、正常終了は stop_reason(\"end_turn\")で判定し、上限は暴走防止の安全弁としてだけ残す。さらに安全弁が発動したケースを「静かに打ち切る」のではなく、途中経過付きのエスカレーション等で明示的に処理することが重要(顧客が無言で放置される本問の症状を防ぐ)。A は上限値の調整にすぎず、10 回を超えるケースで同じ問題が再発するうえ、発動時の処理も未定義のまま。B は上限の全撤廃で暴走リスクを残し、しかも「最終テキストでの完了報告」という自然言語シグナル解析に置き換えており二重にアンチパターン。C はプロンプトによる願望であり、複雑なケースが 3 回で終わる保証はどこにもない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/handling-stop-reasons"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q204",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Policy requires that refund_payment never runs unless a return created by create_return has been approved. The system prompt states this ordering clearly, yet audit logs show occasional refunds with no associated return. What is the correct fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Enforce the prerequisite programmatically: make refund_payment fail (or be unavailable) unless an approved return exists for the order, independent of what the model decides."
+      },
+      {
+        "label": "B",
+        "text_en": "Rewrite the ordering rule in capital letters at the top of the system prompt so the model cannot miss it."
+      },
+      {
+        "label": "C",
+        "text_en": "Add few-shot examples of correctly ordered return-then-refund conversations to the prompt."
+      },
+      {
+        "label": "D",
+        "text_en": "Lower the temperature so the model follows the stated ordering more deterministically."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "決定論的に守られなければならない順序制約(承認済み返品 → 返金)は、プロンプト指示ではなくコード側の prerequisite gate で強制する。プロンプトによる誘導は遵守率を上げても失敗率をゼロにはできず、監査要件のある金銭操作では「たまに破られる」こと自体が許容できない。ツール実行側で前提条件を検査すれば、モデルの判断に関係なく違反は起こり得ない。B・C はどちらもプロンプト強化であり、確率的な改善にとどまる(本問の症状は「明記済みなのに破られる」ことなので、同じ経路の強化では不十分)。D の temperature 調整も確率分布を狭めるだけで保証にはならず、順序制約の解決手段ではない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q205",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A customer writes one message asking for (1) a refund on a damaged tent, (2) the status of a separate backordered stove, and (3) an address change for future shipments. The agent processes the refund thoroughly but never addresses the other two items, and the customer has to write back twice. How should the agent handle such requests?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Answer only the first concern per message by design, and tell the customer to submit one request per message."
+      },
+      {
+        "label": "B",
+        "text_en": "Decompose the message into its distinct concerns, investigate each — in parallel where they are independent — and respond once with an integrated answer covering all three."
+      },
+      {
+        "label": "C",
+        "text_en": "Escalate any message containing more than one concern to a human, since multi-part requests exceed what an agent should attempt."
+      },
+      {
+        "label": "D",
+        "text_en": "Process the concerns strictly one per loop iteration, sending the customer a separate reply after each one completes."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "複数論点を含む依頼への正しい対応は、論点を分解し、独立なもの(返品処理・別注文の照会・住所変更)は並行して調査し、最後に統合した 1 つの回答を返すこと。これで顧客が同じ内容を書き直す往復が消え、first-contact resolution が上がる。A はエージェント側の欠陥を顧客の負担に転嫁する設計で、目標と正反対。C は分解すれば十分自動処理できる範囲を一律に人間へ送るため、エスカレーションの乱発でレビュー能力を浪費する(人間に送るべきはポリシー例外等)。D は逐次処理と返信の分割で顧客体験を損ない、独立な調査を並行させられる利点も捨てている。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q206",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A PreToolUse hook blocks refund_payment for amounts above $200. Logs show that after a block, the agent immediately retries the same refund_payment call with the same amount, over and over, until the iteration budget runs out — the customer never gets an answer. What should the hook return when it blocks a call?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Nothing — a blocked call should terminate the whole session so the model cannot retry."
+      },
+      {
+        "label": "B",
+        "text_en": "A generic \"permission denied\" string, since explaining policy details to the model risks prompt injection."
+      },
+      {
+        "label": "C",
+        "text_en": "A success response with a zero-dollar refund so the loop can continue without an error state."
+      },
+      {
+        "label": "D",
+        "text_en": "An actionable denial: the reason (policy caps automatic refunds at $200) and the expected alternative — call escalate_to_human with the case context for approval."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "hook でポリシー違反の呼出しをブロックするときは、単に拒否するのではなく「なぜ拒否されたか」と「次に取るべき行動(代替フロー)」をモデルに返すことが重要。本問の無限リトライは、モデルが拒否理由を知らされず学習材料がないために起きている。上限額と escalate_to_human への誘導を返せば、モデルは次の反復で正しくエスカレーションできる。A はセッション強制終了で顧客対応自体が失われ、正当な後続処理(エスカレーション)も不可能になる。B の一般的な拒否文言はまさに本問の症状の原因で、hook の返す文字列は自システムが生成する信頼できる内容だから注入の懸念は当たらない。C は虚偽の成功応答であり、モデルが返金完了と誤認して顧客に誤った案内をする最悪の結果を招く。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/hooks",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q201",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "lookup_order returns an empty list both when a customer genuinely has no orders and when the order database times out. During an outage, the agent confidently tells customers \"you have no orders with us.\" How should the tool be fixed?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Have the tool retry internally forever until the database responds, so an empty list always means no orders."
+      },
+      {
+        "label": "B",
+        "text_en": "Return the string \"ERROR\" inside the order list so the model notices something went wrong."
+      },
+      {
+        "label": "C",
+        "text_en": "On failure, return an error result (isError) describing the timeout as transient and retryable; reserve the empty list strictly for the genuine no-orders case."
+      },
+      {
+        "label": "D",
+        "text_en": "Return the customer's cached orders from the last successful call, since stale data is better than an empty answer."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "アクセス失敗と正当な空結果は厳密に区別して返すのがツールの返却契約の基本。失敗を空リストで偽装すると、モデルは「注文なし」という誤った事実で推論を進めてしまう(本問の症状)。タイムアウトは isError の error result として返し、transient(一時的・再試行可能)であることを行動可能な形で伝えれば、モデルは再試行や「現在確認できない」旨の正直な案内を選べる。A の無限内部リトライはエージェントループ全体をブロックし、障害時に応答不能になる。B はデータとエラーの混在で、スキーマ上は正常な結果に見えるためモデルが見落とす可能性が高く、契約としても不正。D は静黙のフォールバックで、返品直後の顧客に古い注文状態を案内するなど別種の誤りを生む(フォールバックするとしても明示が必要)。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/custom-tools",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/handle-tool-calls"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q202",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "TrailNorth added a marketplace where third-party sellers fulfill orders, backed by a new search_purchases tool; the legacy lookup_order tool only sees first-party orders. The agent keeps routing marketplace inquiries to lookup_order, finds nothing, and tells customers their order does not exist. What is the right correction?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Give each tool a description that states its exact coverage and boundary — first-party orders vs marketplace orders — including when NOT to use it, or consolidate both into a single order-lookup tool if the split serves no purpose."
+      },
+      {
+        "label": "B",
+        "text_en": "Add a system prompt rule: \"if lookup_order returns nothing, apologize and close the conversation.\""
+      },
+      {
+        "label": "C",
+        "text_en": "Remove search_purchases so there is only one lookup tool and no routing ambiguity."
+      },
+      {
+        "label": "D",
+        "text_en": "Rename both tools to tool_1 and tool_2 so the model stops guessing from the names."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "近い役割のツールが並ぶと、モデルは description(と名前)を頼りに選択するため、両者の適用範囲と境界を description に明記することが誤ルーティングの標準的な解決策。「first-party 注文はこちら、マーケットプレイス注文はあちら、こういう場合は使わない」まで書く。分割に意味がないなら 1 本に統合(consolidate)するのも正当な選択肢で、選択誤りの余地自体を消せる。B は誤動作を前提にした対症療法で、マーケットプレイス顧客への誤案内(存在しない扱い)を固定化する。C は統合ではなく機能の削除であり、マーケットプレイス注文を照会する手段がなくなる。D は選択の手がかりを意図的に破壊する逆方向の変更で、ツール選択をほぼランダムにする。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q203",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The platform team offers one shared MCP server exposing every back-office capability, including update_customer_tier, purge_account, and export_all_customers. Attaching the whole server to the support agent would be convenient. What is the correct approach, and why?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Attach everything — unused tools are harmless, and the agent might find creative uses for them."
+      },
+      {
+        "label": "B",
+        "text_en": "Expose only the tools the support role actually needs; extra tools both degrade selection reliability and create real damage paths (like purge_account) the role should never have."
+      },
+      {
+        "label": "C",
+        "text_en": "Attach everything but add a system prompt line forbidding use of the dangerous tools."
+      },
+      {
+        "label": "D",
+        "text_en": "Attach everything and rely on the model asking the customer for permission before any destructive call."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ツール配分の原則は「役割に必要なものだけを付与する」。理由は 2 つあり、第一にツール数が増えるほど選択の信頼性が下がる(似た候補が増え誤選択が起きやすい)、第二に purge_account のような破壊的ツールは、誤選択が起きた場合の被害がそのまま現実になるため、そもそも到達可能にしないことが唯一の確実な防御になる。A は「未使用ツールは無害」という前提が両方の理由に反する。C のプロンプト禁止は確率的な抑止にすぎず、破壊的操作の防御としては不十分(使わせない保証はツールを渡さないことでしか得られない)。D は顧客への確認をモデルの自発的行動に委ねる点で C と同じ確率的防御であり、そもそも顧客が承認すべき操作でもない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q201",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "TrailNorth already maintains a persistent case-facts block that is carried verbatim into every request and excluded from summarization; older turns get summarized to stay within the context window. For long sessions covering several orders, the team now debates what belongs in the block. Which content split is correct?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The entire transcript, verbatim — anything less risks losing information the agent might need later."
+      },
+      {
+        "label": "B",
+        "text_en": "Only the order currently under discussion, replacing the block's contents whenever the conversation switches topics."
+      },
+      {
+        "label": "C",
+        "text_en": "A model-written summary of each order, since summaries keep the block compact."
+      },
+      {
+        "label": "D",
+        "text_en": "Per order: order number, exact amounts, dates and deadlines, current status, and the customer's explicitly stated expectations — kept verbatim; greetings and fully resolved sub-issues can be left to normal summarization."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "永続 facts block に入れるべきは、要約で劣化すると実害が出る取引事実 — 注文番号・正確な金額・日付/期限・ステータス・顧客が明示した期待 — であり、これらを注文ごとに構造化して逐語で保持する。挨拶や解決済みの副論点は要約に任せてよく、この境界設定によって block は小さいまま「多論点セッションでどの事実がどの注文のものか」を守れる。A は全文の逐語保持で、block が肥大化して要約の意味(文脈節約)が消滅する — 保護すべきものの選別こそが設計の本体。B は現在の話題だけを残す設計で、複数注文を行き来する長いセッションでは過去の注文の事実が要約側に落ち、まさに防ぎたい混線・曖昧化が再発する。C は block の中身自体を lossy な要約にする自己矛盾で、金額や日付が block の中で曖昧化しては保持の意味がない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q202",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "get_customer returns the full 60-field profile — marketing preferences, browsing history, loyalty ledger — on every call. Long sessions exhaust the context window quickly, and the agent sometimes fixates on irrelevant profile details. What is the right fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Trim the tool's output to the handful of fields the support workflow actually uses, returning the rest only through a separate, explicitly requested detail call."
+      },
+      {
+        "label": "B",
+        "text_en": "Enable summarization earlier in the session so the oversized tool outputs get compressed sooner."
+      },
+      {
+        "label": "C",
+        "text_en": "Move to a model with a larger context window so the full profile always fits."
+      },
+      {
+        "label": "D",
+        "text_en": "Prompt the agent to ignore fields that are not relevant to the current request."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ツール出力の絞り込み(trimming)は文脈予算管理の第一手。ワークフローが実際に使う数フィールドだけを既定で返し、残りは明示的な詳細照会に分ければ、文脈消費と無関係情報への固着の両方が根本から解消する。B の早期要約は消費した後に圧縮する後追い策で、要約による事実の劣化リスク(金額・日付の曖昧化)を新たに持ち込む。C は上限を広げるだけで、無駄な 55 フィールドを毎回運ぶ構造は変わらず、コストと「無関係情報への固着」も解決しない。D はプロンプトで無視を頼んでも入力トークンは消費され続け、固着の抑制も確率的で、文脈枯渇には全く効かない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q203",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A customer writes: \"This is ridiculous — I've been waiting two weeks for my replacement poles!\" They have not asked for a human. The team debates adding automatic escalation whenever message sentiment turns negative. What should the agent do with this message?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Escalate immediately — negative sentiment is the clearest signal that a human is needed."
+      },
+      {
+        "label": "B",
+        "text_en": "Present a concrete resolution (locate the replacement, offer options); escalate if the customer explicitly asks for a human or remains dissatisfied after the attempt."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask the customer to rate their frustration from 1 to 10 and escalate on 7 or higher."
+      },
+      {
+        "label": "D",
+        "text_en": "Have the model self-assess its confidence in handling the case and escalate below a confidence threshold."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "適切なエスカレーショントリガーは「明示的な人間の要求」「ポリシー例外・欠落」「進展不能」であり、sentiment は不適。不満の表明はまだ解決を求めている状態なので、まず具体的な解決策を提示し、明示要求または解決提示後の再度の不満で人間へ移譲するのが正しい段階付け。A の sentiment 起点の自動エスカレーションは、エージェントが解決できたはずの大量のケースを人間に流し、レビュー能力を浪費する(不満と「人間を呼べ」は別物)。C は顧客に感情の数値化を要求する体験の悪い設計で、閾値にも根拠がない。D のモデル自己申告 confidence は較正されておらず、エスカレーション判定の信頼できる基準にならないことが知られている。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q204",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-outdoor-returns-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A customer requests a refund for a tent damaged while it was lent to a friend. TrailNorth's policy documents cover manufacturing defects and shipping damage, but say nothing about damage that occurred during third-party use. The agent has the tools to issue the refund. What should it do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Issue the refund — the policy does not explicitly forbid it, and customer satisfaction comes first."
+      },
+      {
+        "label": "B",
+        "text_en": "Deny the claim by analogy to the closest covered category, since consistency matters more than the gap."
+      },
+      {
+        "label": "C",
+        "text_en": "Escalate to a human: the policy is silent on this case, and policy gaps are exactly what should not be improvised by the agent."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask the customer to argue why the damage should be covered, then decide based on how convincing they are."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ポリシーが沈黙・曖昧なケースはエスカレーションの正当なトリガー。エージェントの役割は定められたポリシーの適用であり、未定義領域の判断(=事実上のポリシー策定)は人間の権限に属する。改善策としては、こうしたギャップを記録して明示基準や few-shot に還元していくのが定石。A は未定義領域でエージェントが会社の金銭的判断を勝手に下すことになり、同種の請求が来るたびに一貫性のない前例を積む。B の「類推による却下」も同じく即席のポリシー策定であり、却下方向なら安全というわけではない(正当な請求を誤って退けるリスク)。D は判断基準を顧客の弁論力に委ねるもので、公平性・一貫性のどちらも成立しない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]

@@ -34,13 +34,13 @@
       "A"
     ],
     "answer_en": null,
-    "explanation_ja": "~/.claude/CLAUDE.md は user レベルの memory で、その個人のマシンにしか存在せず VCS で共有されない。チーム規約はリポジトリにコミットされる project レベルの CLAUDE.md に置くのが正しい。B について、CLAUDE.md には 4 MiB を超えるとスキップされる上限が実在するが、通常の個人設定ファイルが達する規模ではなく、本問の原因はスコープの取り違えである。C の plan mode 限定ロードは存在しない(memory はモードに関係なくロードされる)。D の /memory はメモリファイルの場所を一覧・編集するコマンドで有効化コマンドではない(実際にロードされたファイルの確認は /context の役割)。",
+    "explanation_ja": "~/.claude/CLAUDE.md は user レベルの memory で、その個人のマシンにしか存在せず VCS で共有されない。チーム規約はリポジトリにコミットされる project レベルの CLAUDE.md に置くのが正しい。B について、CLAUDE.md には 4 MiB を超えるとスキップされる上限が実在するが、通常の個人設定ファイルが達する規模ではなく、本問の原因はスコープの取り違えである。C の plan mode 限定ロードは存在しない(memory はモードに関係なくロードされる)。D の /memory は memory ファイルを有効化するコマンドではなく、現在ロード済みの CLAUDE.md / rules の一覧・編集と auto-memory の管理に使う。広い初期診断には /context、memory の詳細確認には /memory を使い分ける。",
     "refs": [
       "https://docs.claude.com/en/docs/claude-code/memory"
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q102",

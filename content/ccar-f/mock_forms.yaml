@@ -1,0 +1,76 @@
+# mock_forms.yaml — 固定フォーム定義(specs/03 §mock_forms.yaml と validator 条件)
+# form A: C3b-A(2026-08-27)。60 問 / シナリオ 4 本 / ドメイン配分 16-11-12-12-9
+# question_ids は出題順(シナリオ単位でまとめ、シナリオ内は文脈の流れ順)
+forms:
+  - id: form-a
+    exam: ccar-f
+    scenario_ids:
+      - sc-outdoor-returns-agent
+      - sc-payments-monorepo-codegen
+      - sc-industry-research-agents
+      - sc-invoice-extraction
+    question_ids:
+      # --- sc-outdoor-returns-agent(13 問: d1×6, d2×3, d5×4)---
+      - f-d1-q201
+      - f-d1-q202
+      - f-d1-q203
+      - f-d1-q204
+      - f-d1-q205
+      - f-d1-q206
+      - f-d2-q201
+      - f-d2-q202
+      - f-d2-q203
+      - f-d5-q201
+      - f-d5-q202
+      - f-d5-q203
+      - f-d5-q204
+      # --- sc-payments-monorepo-codegen(15 問: d3×12, d2×3)---
+      - f-d3-q201
+      - f-d3-q202
+      - f-d3-q203
+      - f-d3-q204
+      - f-d3-q205
+      - f-d3-q206
+      - f-d3-q207
+      - f-d3-q208
+      - f-d3-q209
+      - f-d3-q210
+      - f-d3-q211
+      - f-d3-q212
+      - f-d2-q204
+      - f-d2-q205
+      - f-d2-q206
+      # --- sc-industry-research-agents(18 問: d1×10, d2×5, d5×3)---
+      - f-d1-q207
+      - f-d1-q208
+      - f-d1-q209
+      - f-d1-q210
+      - f-d1-q211
+      - f-d1-q212
+      - f-d1-q213
+      - f-d1-q214
+      - f-d1-q215
+      - f-d1-q216
+      - f-d2-q207
+      - f-d2-q208
+      - f-d2-q209
+      - f-d2-q210
+      - f-d2-q211
+      - f-d5-q205
+      - f-d5-q206
+      - f-d5-q207
+      # --- sc-invoice-extraction(14 問: d4×12, d5×2)---
+      - f-d4-q201
+      - f-d4-q202
+      - f-d4-q203
+      - f-d4-q204
+      - f-d4-q205
+      - f-d4-q206
+      - f-d4-q207
+      - f-d4-q208
+      - f-d4-q209
+      - f-d4-q210
+      - f-d4-q211
+      - f-d4-q212
+      - f-d5-q208
+      - f-d5-q209
