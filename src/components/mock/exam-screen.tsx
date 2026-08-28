@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import type { MockAnswerDto, MockQuestionDto, MockScenarioDto, MockSessionDto } from "@/lib/mock/dto";
 
@@ -44,6 +45,7 @@ const fmtRemaining = (ms: number): string => {
 };
 
 export function MockExamScreen() {
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
   const [data, setData] = useState<LoadedData | null>(null);
   const [answers, setAnswers] = useState<Record<string, AnswerState>>({});
@@ -163,6 +165,11 @@ export function MockExamScreen() {
     submitRef.current = submit;
   }, [submit]);
 
+  // --- 提出直後にレポートへ遷移(05 S-6)。timeout 提出の復元検知も同じ経路 ---
+  useEffect(() => {
+    if (phase.kind === "submitted") router.replace(`/mock/report/${phase.session.id}`);
+  }, [phase, router]);
+
   // --- 残り時間(毎秒再計算)と期限超過検知 ---
   const timedOutFired = useRef(false);
   useEffect(() => {
@@ -254,17 +261,15 @@ export function MockExamScreen() {
       </Centered>
     );
   if (phase.kind === "submitted") {
+    // router.replace で S-6 レポートへ遷移中。遷移が失敗したときのためリンクも出す
     const s = phase.session;
     return (
       <Centered>
         <h1 className="text-xl font-semibold">提出しました</h1>
         {s.submission_reason === "timeout" && <p className="mt-1 text-sm text-muted-foreground">制限時間超過のため自動提出されました</p>}
-        <p className="mt-4 text-3xl font-bold">
-          {s.score_raw} <span className="text-base font-normal text-muted-foreground">/ {s.question_ids.length}</span>
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">詳細レポート(ドメイン別・誤答一覧)は今後追加されます。</p>
-        <Link href="/mock" className={buttonVariants({ className: "mt-6" })}>
-          Mock 画面へ戻る
+        <p className="mt-2 text-sm text-muted-foreground">レポートへ移動しています…</p>
+        <Link href={`/mock/report/${s.id}`} className={buttonVariants({ variant: "outline", className: "mt-6" })}>
+          レポートを開く
         </Link>
       </Centered>
     );

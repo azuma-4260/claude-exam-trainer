@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { getDb } from "@/db/client";
 import { bankDir, loadBank } from "@/lib/bank/load";
-import { loadScenarios } from "@/lib/bank/syllabus";
+import { loadScenarios, loadSyllabus } from "@/lib/bank/syllabus";
 import { loadPoolContext } from "@/lib/answer/store";
 import type { PoolContext } from "@/lib/bank/pool";
 import type { ExamSessionAnswerRow, ExamSessionRow } from "@/db/schema";
-import type { MockForm, Scenario } from "@/lib/bank/schema";
+import type { MockForm, Scenario, Syllabus } from "@/lib/bank/schema";
 import { scenarioIdsInOrder, toAnswerDtos, toQuestionDtos, toScenarioDtos, toSessionDto } from "./dto";
 import type { MockDeps } from "./lifecycle";
 import { createMockStore } from "./store";
@@ -17,6 +17,14 @@ let scenariosCache: { loaded: true; value: Scenario[] | null } | null = null;
 function loadScenariosCached(): Scenario[] | null {
   scenariosCache ??= { loaded: true, value: loadScenarios(bankDir()) };
   return scenariosCache.value;
+}
+
+let syllabusCache: Syllabus | null = null;
+
+/** S-6 レポートのドメイン名・重み用(バンク同様プロセス内キャッシュ) */
+export function loadSyllabusCached(): Syllabus {
+  syllabusCache ??= loadSyllabus(bankDir());
+  return syllabusCache;
 }
 
 export interface MockServerContext {
