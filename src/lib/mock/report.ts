@@ -6,8 +6,8 @@ import type { Question, Syllabus } from "@/lib/bank/schema";
  * - 正誤の単一ソースは提出時に一括生成された attempt(mode='mock')。ここで再採点しない
  *   (attempt が欠落した問題だけ未回答=誤答として防御的に扱う)
  * - rehearsal は DB 列を持たず毎回導出する(決定事項 6: 再受験 = rehearsal)。
- *   判定: 同一 (exam, form_id) の submitted full セッションのうち、自分より先に終了した
- *   ものが 1 件でもあれば rehearsal。finished_at 同時刻は id 昇順で先行を決める(決定的)
+ *   判定: 同一 (exam, form_id) の submitted full セッションのうち、自分の開始時刻までに
+ *   提出済みのものが 1 件でもあれば rehearsal。直列受験の時間的因果で決め、UUID に依存しない。
  */
 
 export type MockAttempt = Pick<AttemptRow, "questionId" | "questionRev" | "isCorrect" | "chosen">;
@@ -23,12 +23,11 @@ const finishTime = (s: Pick<ExamSessionRow, "startedAt" | "finishedAt">): number
 
 export function isRehearsal(session: SubmittedFullSession, others: readonly SubmittedFullSession[]): boolean {
   if (session.kind !== "full" || session.formId === null) return false;
-  const mine = finishTime(session);
+  const started = session.startedAt.getTime();
   return others.some((s) => {
     if (s.id === session.id || s.kind !== "full" || s.status !== "submitted") return false;
     if (s.exam !== session.exam || s.formId !== session.formId) return false;
-    const t = finishTime(s);
-    return t < mine || (t === mine && s.id < session.id);
+    return finishTime(s) <= started;
   });
 }
 
