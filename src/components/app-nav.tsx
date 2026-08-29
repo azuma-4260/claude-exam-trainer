@@ -7,14 +7,14 @@ import { cn } from "@/lib/utils";
 
 /**
  * 全体ナビゲーション(specs/05 §全体構造)。モバイルは下部タブ、md 以上はサイドバー。
- * Mock / Stats は担当タスク(D3-x / D4-3)まで無効表示(タブ枠だけ先に確保する)。
+ * Mock / Stats は実装済みのため通常ナビゲーションとして有効化する。
  */
 
 const ITEMS = [
   { href: "/", label: "Home", icon: House, enabled: true },
   { href: "/study", label: "Study", icon: GraduationCap, enabled: true },
-  { href: "/mock", label: "Mock", icon: Timer, enabled: false },
-  { href: "/stats", label: "Stats", icon: ChartColumn, enabled: false },
+  { href: "/mock", label: "Mock", icon: Timer, enabled: true },
+  { href: "/stats", label: "Stats", icon: ChartColumn, enabled: true },
 ] as const;
 
 export function AppNav() {

@@ -75,10 +75,10 @@ describe("isRehearsal", () => {
     expect(isRehearsal(session(), [prior({ finishedAt: MIN(200) })])).toBe(false);
   });
 
-  it("finished_at 同時刻は id 昇順で先行を決める(決定的)", () => {
-    const same = prior({ id: "sess-a", finishedAt: MIN(100) });
-    expect(isRehearsal(session({ id: "sess-b" }), [same])).toBe(true);
-    expect(isRehearsal(session({ id: "sess-0" }), [same])).toBe(false);
+  it("先行受験が自分の開始時刻までに提出済みなら rehearsal(UUID に依存しない)", () => {
+    const completedAtStart = prior({ id: "sess-z", finishedAt: MIN(0) });
+    expect(isRehearsal(session({ id: "sess-a", startedAt: MIN(0) }), [completedAtStart])).toBe(true);
+    expect(isRehearsal(session({ id: "sess-a", startedAt: MIN(-250) }), [completedAtStart])).toBe(false);
   });
 
   it("formId が無い(domain_mini 等)セッションは rehearsal 対象外", () => {
