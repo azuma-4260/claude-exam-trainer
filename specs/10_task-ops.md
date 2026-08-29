@@ -102,7 +102,7 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
 
 ## 4. `/task-session` セッション状態(`.task-session-state`)
 
-スキル `.claude/skills/task-session/SKILL.md` が、自分の worktree ルートに置く JSON ファイル。`.gitignore` に登録されているので commit されず、承認ハッシュの未追跡ファイル列挙(`--exclude-standard`)にも含まれない。他セッションはこれを `task:report` 経由で読むだけ。
+スキル `.agents/skills/task-session/SKILL.md`(正本。`.claude/skills/task-session` はここへの symlink)が、自分の worktree ルートに置く JSON ファイル。`.gitignore` に登録されているので commit されず、承認ハッシュの未追跡ファイル列挙(`--exclude-standard`)にも含まれない。他セッションはこれを `task:report` 経由で読むだけ。
 
 ```jsonc
 { "id": "D1-2", "state": "implementing" }
@@ -137,9 +137,9 @@ spec が工程の別セッション実施を要求するタスク(`07` Step 4 �
 
 ## 5. スキルの承認境界
 
-- `/task-session` は `disable-model-invocation: true` のスラッシュ明示呼び出し専用
+- `/task-session` は `disable-model-invocation: true` の明示呼び出し専用(Claude Code: `/task-session`、Codex: `$task-session`)。`disable-model-invocation` が効くのは Claude Code だけなので、Codex では暗黙起動しうる。明示呼び出し以外でこの手順に入らないことをスキル本文で要求する
 - スキルは **commit・merge・push を承認前に行わない**。承認後(`approved`)の commit・merge・台帳は `tasks/README.md` の「完了の記録」をそのまま実行する(README 実装契約 6 と 09 原則 4/8 を変更しない)
-- 必須レビューはプロジェクトスキル `codex-review` で行う(`/codex:review` はユーザー起動専用)。使えなければ `stopped` で報告する
+- 必須レビューはプロジェクトスキル `codex-review` で行う(`/codex:review` はユーザー起動専用)。使えなければ `stopped` で報告する。**実装エンジンが Claude / Codex のどちらでもこの経路は変えない**(§6 の Codex CLI 直接実行に統一)。`codex-review` は Claude 固有ツール前提のため `.claude/skills/` に留め置く。Codex 実行時は同スキルがロードされないので、`.claude/skills/codex-review/SKILL.md` を読んでその手順を直接実行する
 
 ## 6. Codex CLI の直接利用
 
