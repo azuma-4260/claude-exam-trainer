@@ -32,9 +32,17 @@ Claude 認定資格(CCAR-F: 2026-09-27 / CCAR-P: F 合格後)対策の個人用�
 ネイティブに読む)。Claude Code は `.agents/skills` を読まないため、`.claude/skills/<name>` から
 正本への **symlink** を張る。実体を 2 箇所に置いて二重管理しない。
 
-- `grill-me` — 計画・設計をラウンド制の面接で詰める。Claude Code: `/grill-me`、Codex: `$grill-me`
-- `.claude/skills/` 直下の実ディレクトリ(`adversarial-review-loop` / `codex-review` /
-  `smart-commit` / `task-session`)は Claude 固有ツール前提のため Claude 専用のまま
+両対応スキル(`.agents/skills/` が正本、`.claude/skills/` は symlink)。カッコ内は Codex での呼び出し:
+
+- `grill-me` — 計画・設計をラウンド制の面接で詰める(`$grill-me`)
+- `task-session` — 09 のタスクを worktree で実装し、承認を求めて停止する定型セッション(`$task-session`)
+- `smart-commit` — 変更をカテゴリでグループ化して Conventional Commits で複数コミット(`$smart-commit`)
+
+Claude 専用(`.claude/skills/` 直下の実ディレクトリ)。Claude 固有ツール前提のため移設しない:
+
+- `adversarial-review-loop` — サブエージェントによる敵対的レビューループ
+- `codex-review` — Codex CLI による第二者レビュー。Codex 実行時は自己レビューになるため、
+  Codex 側からは `.claude/skills/codex-review/SKILL.md` を**読んで**手順を直接実行する(`specs/10` §5)
 
 新しく両対応スキルを足すときは `.agents/skills/` に本体を置き、
 `ln -s ../../.agents/skills/<name> .claude/skills/<name>` を実行してコミットする。

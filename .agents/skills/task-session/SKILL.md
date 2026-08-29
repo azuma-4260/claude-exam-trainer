@@ -5,7 +5,7 @@ description: >
   承認を求めて停止する定型セッション。並列 worktree・承認ボトルネック・バックログを
   `task:report` から読み、未解決事項を tasks/backlog に積み上げ、固定テンプレートで報告する。
   引数: `(なし)` = 自動選択 / `<ID>` / `resume <ID>` / `approved` = 承認後の完了記録。
-  スラッシュ明示呼び出し専用(自然文では発火しない)。
+  明示呼び出し専用(自然文では発火しない)。Claude Code: `/task-session`、Codex: `$task-session`。
 disable-model-invocation: true
 allowed-tools: ["Bash", "Read", "Grep", "Glob", "Edit", "Write", "Agent", "Skill"]
 ---
@@ -20,6 +20,8 @@ allowed-tools: ["Bash", "Read", "Grep", "Glob", "Edit", "Write", "Agent", "Skill
 - **読むだけのものは書かない**: 他 worktree・他ブランチ・共有 checkout は読むだけ。他セッションの起票は書き換えない
 
 ## 引数
+
+呼び出しは Claude Code が `/task-session <引数>`、Codex が `$task-session <引数>`。本書で `/task-session ...` と書いた箇所は Codex では `$task-session ...` と読み替える(`disable-model-invocation` は Claude Code のみ有効。Codex では暗黙起動しうるので、明示呼び出し以外でこの手順に入らないこと)。
 
 | 引数 | 動作 |
 |---|---|
@@ -68,7 +70,7 @@ report の `worktrees[]`(自分以外)と `backlog[]` を読み、着手前に�
 
 ### 5. レビューと承認依頼
 
-1. プロジェクトスキル **`codex-review`** を Skill ツールで呼ぶ(引数なし = 未コミット差分。`/codex:review` はユーザー起動専用なので使わない)。スキルが無い / Codex CLI が無い / 認証失敗なら `reason: "codex-unavailable"` で停止し、commit も承認依頼もしない
+1. 必須レビューは **Codex CLI** で行う(`specs/10` §5。実装エンジンが Claude / Codex のどちらでもこの経路は変えない)。Claude Code 実行時はプロジェクトスキル **`codex-review`** を Skill ツールで呼ぶ(引数なし = 未コミット差分。`/codex:review` はユーザー起動専用なので使わない)。Codex 実行時は同スキルが Codex 側にロードされない(`.claude/skills/codex-review/` は Claude 専用)ため、`.claude/skills/codex-review/SKILL.md` を読んでその手順を直接実行する。いずれも Codex CLI が無い / 認証失敗なら `reason: "codex-unavailable"` で停止し、commit も承認依頼もしない
 2. P1(Blocking)を修正し、検証コマンドを再実行
 3. **commit しない**。承認ハッシュを計算して `.task-session-state` に書く:
 
@@ -84,7 +86,7 @@ printf '{"id":"%s","state":"awaiting-approval","head":"%s","hash":"%s"}\n' "<ID>
 
 1. `.task-session-state` を読む。`state` が `committed` なら(`head` が `task/<ID>` の先端と一致することを確認して)手順 4 へ(再開)。**それ以外(`implementing` / `stopped` / ファイル無し)は承認対象が無いので拒否して停止**(「レビューと承認依頼を経ていない」と報告)。`awaiting-approval` なら `id` が worktree の ID と一致し、手順 5-3 と同じ方法で**再計算したハッシュが完全一致**することを確認。不一致なら「承認後に内容が変わった」と報告し、手順 5 からやり直す(commit しない)
 2. **commit の前に**共有 checkout が clean な `main` であることを確認する。違えば何もせず「承認済み・未 commit。共有 checkout が空いたら `/task-session approved` を再実行」と報告して停止(承認ハッシュは有効なまま)
-3. `/smart-commit` で worktree ブランチに commit(`.task-session-state` は `.gitignore` 済みなので含まれない)し、`.task-session-state` を `{"id":"<ID>","state":"committed","head":"<commit 後の HEAD>"}` に更新する
+3. `smart-commit` スキル(Claude Code: `/smart-commit`、Codex: `$smart-commit`)で worktree ブランチに commit(`.task-session-state` は `.gitignore` 済みなので含まれない)し、`.task-session-state` を `{"id":"<ID>","state":"committed","head":"<commit 後の HEAD>"}` に更新する
 4. `tasks/README.md` の「完了の記録」2〜7 をそのまま実行する: 共有 checkout が clean な `main` であることを確認 → `git pull --ff-only` → `git merge --no-ff task/<ID>` → `npm test` → `tasks/status/<ID>.yaml` を `state: merged`(paired は T-x と D-y の両方)→ push → `git worktree remove .claude/worktrees/<ID>` → `git branch -d task/<ID>` → CI 緑(D0-3 完了前は `npm test && npm run build` を evidence にしてよい)を確認して **独立 commit** で `state: done` + `evidence`
 5. 手順 4 の途中で共有 checkout が使えなくなった(`main` でない / dirty)場合はその時点で停止し、「commit 済み(state: committed)・未マージ。共有 checkout が空いたら `/task-session approved` を再実行」と報告。再実行時は `committed` の `head` が `task/<ID>` の先端と一致することを確認してから手順 4 を続ける
 
@@ -125,7 +127,7 @@ spec が工程の別セッション実施を要求するタスク(07 Step 4 の�
 
 ## 注意事項
 
-- `EnterWorktree` と手動 `git worktree add` は使わない。`task:start` 以外で worktree を作らない
+- `EnterWorktree`(Claude Code 固有)と手動 `git worktree add` は使わない。`task:start` 以外で worktree を作らない
 - 共有 checkout・他 worktree・他ブランチ・origin には読む以外の操作をしない(`approved` の完了記録を除く)
 - `.env.local` / `.vercel/project.json` の値を表示しない
 - `specs/` と実装が食い違ったら spec が正。spec を変えたければ停止条件として報告する
