@@ -26,6 +26,19 @@ Claude 認定資格(CCAR-F: 2026-09-27 / CCAR-P: F 合格後)対策の個人用�
 
 タスク ID と実行順は `specs/09_task-plan.md` が単一ソース。着手は `npm run task:check <ID>` → READY なら `npm run task:start <ID>` のみ(並行セッション運用の規約は `tasks/README.md`)。
 
+## スキル
+
+スキルの正本は `.agents/skills/<name>/SKILL.md`(Codex がリポジトリルートの `.agents/skills` を
+ネイティブに読む)。Claude Code は `.agents/skills` を読まないため、`.claude/skills/<name>` から
+正本への **symlink** を張る。実体を 2 箇所に置いて二重管理しない。
+
+- `grill-me` — 計画・設計をラウンド制の面接で詰める。Claude Code: `/grill-me`、Codex: `$grill-me`
+- `.claude/skills/` 直下の実ディレクトリ(`adversarial-review-loop` / `codex-review` /
+  `smart-commit` / `task-session`)は Claude 固有ツール前提のため Claude 専用のまま
+
+新しく両対応スキルを足すときは `.agents/skills/` に本体を置き、
+`ln -s ../../.agents/skills/<name> .claude/skills/<name>` を実行してコミットする。
+
 ## 禁止事項
 
 - `middleware.ts` を使わない。Next.js 16 では `proxy.ts` を使う(specs/06)
