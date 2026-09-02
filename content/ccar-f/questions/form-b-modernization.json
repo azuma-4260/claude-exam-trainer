@@ -1,0 +1,731 @@
+[
+  {
+    "id": "f-d1-q301",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Halden's unattended batch runner — a lower-level component the team built directly on the Messages API rather than on the Agent SDK — sends the request, sees stop_reason \"tool_use\", runs every requested tool call, appends the tool_result blocks — and then returns the collected tool outputs to the engineer as the final answer. Engineers who asked \"summarize how orders reach the pricing module\" receive pages of raw Grep output instead of a summary. What is wrong with the loop?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The system prompt should instruct the model to include its final summary in the same response as the tool calls, so no second request is needed."
+      },
+      {
+        "label": "B",
+        "text_en": "After appending the tool results, the loop must call the model again and inspect the new stop_reason each time — continuing while it is \"tool_use\", finishing on \"end_turn\", and handling other values such as \"max_tokens\" explicitly; the tool results are input to the model's next step, not the answer."
+      },
+      {
+        "label": "C",
+        "text_en": "The loop should set tool_choice to \"none\" after the first round so the model is forced to answer in text instead of requesting more tools."
+      },
+      {
+        "label": "D",
+        "text_en": "The loop should start a fresh conversation containing only the tool outputs as the new user prompt, since the original history is no longer relevant."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "エージェントループの基本形は「リクエスト送信 → stop_reason 検査 → \"tool_use\" ならツールを実行して tool_result を履歴に追加し、**再びモデルを呼ぶ** → 返ってきた stop_reason を毎回分岐処理し、\"tool_use\" の間は継続、\"end_turn\" で完了、\"max_tokens\" などはそれぞれ個別に扱う」である。本問のループはツール実行後にモデルを再度呼ばず、ツール出力そのものを回答として返しているため、要約という本来の仕事がモデルに渡っていない。A はモデルがツール結果を見る前に要約を書けという要求で、原理的に不可能。C は 1 巡目以降のツール利用を禁じる設定で、複数ステップの探索(Grep → Read → 再 Grep)を潰してしまう。D は履歴を捨てて新規会話にする案で、元の質問や先行ステップの文脈を失い、tool_use と tool_result の対応も壊れる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/handling-stop-reasons",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q302",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A refactor changed how Halden's batch runner — a lower-level component built directly on the Messages API — returns tool outputs: instead of tool_result blocks, the loop appends a new assistant message containing text such as \"Result of Grep: ...\" and then sends the next request. Since the change, every request after a tool call fails with an API validation error saying that tool_use ids were found without corresponding tool_result blocks. What is the root cause?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The Grep output is too large; truncating it to a few hundred lines will make the request valid again."
+      },
+      {
+        "label": "B",
+        "text_en": "The system prompt lacks an instruction telling the model how to read results that arrive as assistant text."
+      },
+      {
+        "label": "C",
+        "text_en": "Tool results must be returned in the user message that immediately follows the assistant's tool_use, as tool_result blocks whose tool_use_id matches each call; a fabricated assistant text message leaves the tool_use unanswered, so the API rejects the history."
+      },
+      {
+        "label": "D",
+        "text_en": "The tool_use block should be deleted from the history after execution so there is no pending call for the API to complain about."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ツール結果は「assistant の tool_use の直後の user メッセージ」に、tool_use_id で対応付けた tool_result ブロックとして返すのがプロトコル。assistant メッセージに文字列として書き足しても tool_use は未応答のままなので、API は「tool_use ids に対応する tool_result がない」という validation error で履歴を拒否する(モデルに届く前に失敗する)。A はサイズの問題ではなく構造の問題なので、切り詰めても同じエラーになる。B はプロンプトで API の検証を回避することはできない(リクエスト自体が拒否される)。D は tool_use を消せばエラーは消えるが、ツール呼出しの記録と結果の対応が履歴から失われ、モデルは何を実行したのか分からないまま同じ呼出しを繰り返すことになる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/handle-tool-calls",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q303",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t5-02",
+    "secondary_topic_ids": [
+      "f-d1-t4-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Atlas has the Bash tool. The system prompt forbids force-pushing and running the production deploy script, yet during unattended jobs it has done both twice this quarter. The team needs a guarantee, not a lower incident rate, while keeping Bash available for builds and tests. What should they implement?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Move the prohibition to the very top of the system prompt, restate it in capital letters, and add it again at the end of every user message."
+      },
+      {
+        "label": "B",
+        "text_en": "Remove the Bash tool from Atlas entirely and have engineers run builds and tests by hand."
+      },
+      {
+        "label": "C",
+        "text_en": "Add a PostToolUse hook that logs every Bash command and pages the on-call engineer whenever a forbidden command appears in the log."
+      },
+      {
+        "label": "D",
+        "text_en": "Add a PreToolUse hook that inspects each Bash command before execution, denies commands matching force-push or production-deploy patterns, and returns an explanation so the agent chooses an alternative."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "プロンプトによる禁止は確率的な遵守しか得られず、失敗率をゼロにできない。決定論的な保証が必要な場面では、ツール呼出しを実行前に横取りする PreToolUse hook でコマンドを検査し、該当パターンをブロックして理由を返す(エージェントは代替行動へ移れる)のが正解。A はプロンプト強化の域を出ず「保証」にならない。B は安全だがビルド・テストという主要用途を失う過剰制限で、要件(Bash を維持)に反する。C は PostToolUse、すなわち実行**後**に動く hook であり、force-push や本番デプロイが済んでから通知しても手遅れ。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/hooks",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q304",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t7-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Besides Atlas, Halden's engineers use Claude Code directly on the monolith. One engineer spent an hour mapping the undocumented pricing module in a Claude Code session, closed the terminal, and the next morning wants to continue exactly where they left off — same findings, same working state. What should they do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Start a new session and paste yesterday's terminal scrollback as the first message."
+      },
+      {
+        "label": "B",
+        "text_en": "Restart Claude Code with --resume (or --continue for the most recent session) to reopen the previous session with its full conversation state, then say which files changed overnight so re-analysis stays targeted."
+      },
+      {
+        "label": "C",
+        "text_en": "Run /init so Claude regenerates the project map from scratch."
+      },
+      {
+        "label": "D",
+        "text_en": "Add a summary of the findings to CLAUDE.md so every future session starts with it."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Claude Code のセッションは終了後も再開できる — `--resume` で過去のセッションを選んで、`--continue` で直近のセッションを、会話状態ごと再開する。再開時に「昨夜変わったファイル」を伝えれば再分析を差分に絞れる。A は貼り付けで状態を再現しようとする案で、トークンを浪費し、ツール結果の文脈も失われる。C は /init が CLAUDE.md の生成・改善コマンドであり、セッションの復元ではない。D は一人の一時的な調査結果を全員・全セッションに常時ロードさせる置き場所の誤り。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://docs.claude.com/en/docs/claude-code/cli-reference"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q305",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Every time Atlas runs the monolith's test suite through Bash, the runner prints about ten thousand lines — progress dots, timing tables, deprecation warnings — with the handful of failures buried in the middle. Atlas often reports \"all tests passed\" when three failed, and the raw output crowds out the rest of its context. Where should this be fixed?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "In the system prompt: instruct Atlas to read test output carefully and ignore noise."
+      },
+      {
+        "label": "B",
+        "text_en": "With a PreToolUse hook that blocks the test command unless the engineer runs it manually."
+      },
+      {
+        "label": "C",
+        "text_en": "With a PostToolUse hook on Bash that parses the runner's output before the model sees it and replaces it with a structured summary — pass/fail counts, the names of failing tests, and the first lines of each failure."
+      },
+      {
+        "label": "D",
+        "text_en": "By raising max_tokens so the model has more room to reason over the full output."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ツール出力の正規化・整形は、モデルが結果を処理する**前**に PostToolUse hook で行う。runner の生出力を「件数・失敗テスト名・各失敗の先頭行」という構造化サマリに置き換えれば、見落とし(3 件失敗を pass と誤読)もコンテキストの浪費も同時に解消する。A はプロンプトの願望で、1 万行の中の 3 行を確率的に拾わせるだけ。B は実行前の hook で、しかもテスト実行という主要用途を止めてしまう。D は出力側の上限であり、入力コンテキストを埋める生出力の問題とは無関係。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/hooks",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q306",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Atlas must assess a 400-file legacy module for extraction into a separate service. Feeding every file into one prompt exceeds the context window, and a fixed up-front plan that listed the files in alphabetical order missed cross-module dependencies discovered halfway through. How should the work be structured?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Run per-file local analysis passes, then an integration pass for cross-cutting dependencies; start from the module's structure, identify high-impact areas, and update the priority list as dependencies are discovered."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep the fixed alphabetical plan but split it into four prompts of 100 files each so it fits the context window."
+      },
+      {
+        "label": "C",
+        "text_en": "Analyze only the twenty largest files, since the important logic is concentrated there."
+      },
+      {
+        "label": "D",
+        "text_en": "Concatenate all 400 files and ask for a single assessment, relying on the model to prioritize internally."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "大規模な分析は、ファイル単位のローカルパス(各ファイルの責務・依存を記録)と、それらを横断して統合するパスに分けると注意の希釈を避けられる。加えて計画は固定ではなく適応的に — まず構造を把握し、影響の大きい領域を特定し、依存の発見に応じて優先順位を更新する。B は順序と網羅を固定したままの分割で、本問で問題になった「途中で判明した依存を計画に反映できない」欠陥が残る。C は「大きいファイルが重要」という根拠のない仮定で、小さな共有ユーティリティや設定ファイルが横断的依存の核であることは珍しくない。D はそもそもコンテキストに収まらないうえ、収まったとしても一括投入は中央部の見落とし(注意の希釈)を招く。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q307",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Atlas defines three subagents through AgentDefinition — migrator, test-writer, and doc-writer — with the descriptions \"Helps with code\", \"Helps with tests\", and \"Helps with docs\". In production the coordinator sends almost everything, including test writing, to migrator, which then edits source files it was never meant to touch. What is the most effective fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Increase the coordinator's turn limit so it has more opportunities to try the other subagents."
+      },
+      {
+        "label": "B",
+        "text_en": "Add the Agent tool to each subagent's tool list so migrator can delegate test work to test-writer itself."
+      },
+      {
+        "label": "C",
+        "text_en": "Merge the three definitions into one general-purpose subagent so routing mistakes become impossible."
+      },
+      {
+        "label": "D",
+        "text_en": "Rewrite each description to state precisely when the subagent should be chosen and what it returns, and restrict each subagent's tools to what its role needs (for example, test-writer cannot edit non-test source files)."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "AgentDefinition の description は coordinator が「どの subagent に委任するか」を判断する主要な材料であり、\"Helps with code\" のような曖昧な説明では役割の境界が伝わらない。役割・起動条件・返すものを具体的に書き、さらに tools の制限で「できること」自体を役割に合わせて絞れば、誤ルーティングと越権編集の両方を構造的に防げる。A はターン数を増やしても選択基準が曖昧なままなので改善しない。B は subagent 同士の直接委任を許す設計で、hub-and-spoke の統制を崩し、責任の所在をさらに不明瞭にする。C はルーティング問題を「役割の消去」で解消する案で、専門化(文脈の分離・ツールの最小化)の利点をすべて失う。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q301",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An Atlas automation renames the identifier OrderStatus to LegacyOrderStatus across the monolith using the Edit tool. In files where the identifier appears several times, Edit fails because the target string is not unique, and the whole job aborts. How should the edits be performed?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Give Edit enough surrounding context to make each target unique (or use its replace-all behavior when every occurrence should change), and fall back to Read followed by Write only when a file needs a wholesale rewrite."
+      },
+      {
+        "label": "B",
+        "text_en": "Switch every edit to Write, having the model regenerate each file's full content with the new name."
+      },
+      {
+        "label": "C",
+        "text_en": "Run a repository-wide sed command through Bash so the rename happens in one step without Edit's uniqueness check."
+      },
+      {
+        "label": "D",
+        "text_en": "Retry the same Edit call several times; uniqueness failures are usually transient."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Edit は「一意に特定できる文字列」を差し替える部分修正のツールで、一意でない場合は周辺行を含めて対象を特定する(全箇所を変えるなら置換対象を全件にする)のが正しい使い方。それでも全体を書き換える必要があるファイルに限り Read → Write に切り替える。B は全ファイルをモデル生成で上書きする案で、無関係な行の欠落・改変が起こりやすく差分レビューもできない。C はコメント・文字列・別クラスの部分一致まで無差別に書き換え、ツールの権限管理や差分確認を迂回する。D は失敗が決定的(同じ入力なら同じ結果)であることを見落としている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q302",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An engineer asks Atlas where applyDiscount is used. Grep for applyDiscount finds only pricing/index.ts, which re-exports the function under the name applyPromo, and Atlas reports \"no callers\". Which investigation strategy finds the real usage?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Read every file in the repository into context so no caller can be missed."
+      },
+      {
+        "label": "B",
+        "text_en": "Read the wrapper module to enumerate the names it exports, then Grep for each exported name to find the callers that reach applyDiscount indirectly."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask the model to recall the codebase structure from previous sessions instead of searching."
+      },
+      {
+        "label": "D",
+        "text_en": "Use Glob for files whose names contain \"discount\" and treat those as the callers."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ラッパーモジュール経由で利用される関数を追跡するには、Grep で見つかった再エクスポート元を Read して公開名を列挙し、その各名前を再度 Grep する段階的な探索が必要。これが built-in ツールによる増分的なコードベース理解の基本形(エントリポイント → import を辿る)。A は 900 ファイル規模でコンテキストを浪費し、しかも関連付けはモデルの読解に依存する。C はセッション間で記憶が引き継がれない以上、根拠のない推測でしかない。D はファイル名検索であり、呼出し元は関数名とは無関係なファイル名(checkout.ts など)にあるのが普通で、内容検索の代わりにはならない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q303",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "While experimenting with a personal Postgres-explorer MCP server pointed at a staging database, an engineer added it to the repository's .mcp.json and pushed. Now every teammate's Claude Code session prompts them to approve a server they have no credentials for. What should the engineer do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add each teammate's staging credentials to .mcp.json so the prompt succeeds for everyone."
+      },
+      {
+        "label": "B",
+        "text_en": "Tell teammates to decline the approval prompt; the server is harmless if never approved."
+      },
+      {
+        "label": "C",
+        "text_en": "Move the server definition into the project CLAUDE.md so it is documented but not executed."
+      },
+      {
+        "label": "D",
+        "text_en": "Remove it from .mcp.json and register it at user scope instead, keeping .mcp.json only for servers the whole team should share."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "MCP サーバーの登録スコープは用途で選ぶ。プロジェクトスコープ(.mcp.json、VCS 共有)はチーム全員に配るサーバー用、個人の実験や個人環境依存のサーバーは user スコープ(~/.claude.json)に置く。個人用の実験サーバーを .mcp.json に入れたのがスコープ誤りであり、user スコープへ移すのが正解。A は秘密情報をリポジトリにコミットする最悪の対応で、そもそも他人に不要なサーバーを配る前提が誤り。B は誤登録を放置し、全員に毎回の承認プロンプトという摩擦を残す。C は CLAUDE.md が MCP 設定を読む場所ではなく、ドキュメントとして残す意味もない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://docs.claude.com/en/docs/claude-code/settings"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q304",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Logs show Atlas calling list_services and then get_service dozens of times per session simply to learn what exists in the internal service catalog — owners, endpoints, schemas — before it can start the actual task. These exploratory calls consume turns and context. What change to the catalog MCP server addresses this best?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Paste a snapshot of the entire catalog into Atlas's system prompt so no calls are needed."
+      },
+      {
+        "label": "B",
+        "text_en": "Raise Atlas's maximum turn count so the exploratory calls no longer cut into the task budget."
+      },
+      {
+        "label": "C",
+        "text_en": "Expose the catalog — service list, ownership, endpoint schemas — as MCP resources so Atlas can read the structured content directly instead of discovering it through repeated tool calls."
+      },
+      {
+        "label": "D",
+        "text_en": "Replace the catalog server with a checked-out copy of its database and let Atlas Grep through it."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "issue 一覧・ドキュメント階層・DB スキーマ・サービス台帳のような「参照されるコンテンツのカタログ」は、ツールで探索させるより MCP resources として公開し、必要な部分を直接読めるようにする方が探索的ツール呼出しを減らせる。A はスナップショットが即座に陳腐化し、全セッションで巨大な固定コンテキストを消費する。B は無駄な呼出しを容認するだけで、コンテキスト消費という本質的なコストは減らない。D は構造化された台帳を非構造の全文検索に退化させ、所有者や schema の関係性が失われる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp",
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q305",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Over time three custom MCP tools accumulated in Atlas — search_code, find_in_files, and grep_repo — each a thin wrapper over a different search backend, alongside the built-in Grep tool. For the same question Atlas picks a different tool on different runs and gets different results. What should the team do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Consolidate the overlapping wrappers into a single clearly scoped search tool with an explicit input/output contract (or rename the survivors to distinct purposes, such as semantic search versus literal Grep), and remove the redundant ones."
+      },
+      {
+        "label": "B",
+        "text_en": "Add \"always prefer grep_repo\" to the system prompt so the choice becomes deterministic."
+      },
+      {
+        "label": "C",
+        "text_en": "Disable the built-in Grep tool so only custom tools remain."
+      },
+      {
+        "label": "D",
+        "text_en": "Keep all four tools but add usage counters to learn which one the model likes best."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "用途が重なるツールが並ぶと、description の微差でルーティングが揺れる。解決は「統合か、目的の明確な分割か」— 同じ仕事をする wrapper は 1 本に統合し、本当に異なる能力(意味検索 vs 文字列検索)だけを別ツールとして残して名前と契約で区別する。B はキーワード指示で description の役割を上書きする案で、ツール選択の不安定さの根本(重複)を放置し、別の誤選択を生む。C は built-in の Grep を失うだけで、残った 3 本の重複は解消されない。D は観測を増やすだけで設計を変えておらず、不安定さは続く。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q306",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-02",
+    "secondary_topic_ids": [
+      "f-d2-t1-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A semantic code-search MCP server was connected to Atlas, but the agent keeps using the built-in Grep tool even for requests like \"find the code that handles retry back-off\", where semantic search is far better. The MCP tool's description is the single word \"Search\". What is the first change to make?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Disable the built-in Grep tool so the MCP tool is the only option."
+      },
+      {
+        "label": "B",
+        "text_en": "Rewrite the MCP tool's description to explain what it does differently from Grep — natural-language queries, ranked semantic matches — when to prefer it, and what inputs it expects."
+      },
+      {
+        "label": "C",
+        "text_en": "Set ENABLE_TOOL_SEARCH to false so every MCP tool definition is preloaded into context."
+      },
+      {
+        "label": "D",
+        "text_en": "Rename the tool to grep2 so the model associates it with searching."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "モデルは description を基にツールを選ぶ。built-in の Grep には明確な役割説明があり、一方 MCP ツールが \"Search\" だけでは「Grep と何が違うのか・いつ使うのか」が伝わらず、馴染みのある Grep が選ばれ続ける。まず description を強化する(差別化・使いどころ・入力例)のが最小で最初の一手。A は文字列検索が適する場面(正確な識別子検索)を潰す過剰対応。C は定義の先読み設定であり、既定でも必要時に発見・ロードされるため「選ばれない」原因とは無関係。D は名前を Grep に寄せることで、むしろ意味検索という差別化を隠してしまう。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q301",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Atlas's interactive sessions compact automatically once the context fills. Engineers report that after compaction Atlas still follows the project CLAUDE.md but forgets decisions made earlier in the chat — which modules to leave untouched, the agreed naming for the new services — and starts contradicting them. Which TWO practices prevent this? (Select TWO)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Before context fills, persist the working decisions and key findings to a scratchpad file in the repository, and have Atlas re-read it after compaction."
+      },
+      {
+        "label": "B",
+        "text_en": "Disable compaction entirely so nothing is ever summarized."
+      },
+      {
+        "label": "C",
+        "text_en": "Record decisions that should hold for the rest of the project in CLAUDE.md (or a gitignored CLAUDE.local.md for personal ones), because the project-root memory file is re-read from disk after compaction while conversation-only instructions are not."
+      },
+      {
+        "label": "D",
+        "text_en": "Rely on Atlas recalling the earlier conversation on its own after compaction, without resuming a session, saving to a file, or writing to auto memory."
+      },
+      {
+        "label": "E",
+        "text_en": "Increase max_tokens so the summarizer has room to keep everything."
+      }
+    ],
+    "answer": [
+      "A",
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "compaction は会話履歴を要約するため、会話の中だけに存在する判断は曖昧化・欠落し得る。一方で project ルートの CLAUDE.md は compaction 後にディスクから再読込されて再注入される(公式 memory docs「Instructions seem lost after /compact」)。したがって(A)作業中の判断・要点は scratchpad ファイルに永続化して再読込させ、(C)プロジェクト全体で恒久的に守るべき判断は CLAUDE.md(個人のものは CLAUDE.local.md)に書いておく。B は長時間セッションで必ず context が尽きるため運用不能。D は何も永続化せずに「思い出す」ことに頼る案で、compaction で要約から落ちた内容は復元されない。Claude Code にはセッションをまたぐ auto memory があるが、任意の判断が保存される保証は無く、明示的な永続化(ファイルや CLAUDE.md)の代わりにはならない。E は出力トークン上限であり、要約で何が残るかとは無関係。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q302",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "For every task, Atlas receives a 900-line architecture document pasted whole, with the engineer's request placed at the very top before the document. Atlas reliably applies the conventions from the document's opening and closing sections but keeps ignoring the event-bus rules that sit in the middle. What should change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Send the document as three separate consecutive messages so each part is processed on its own."
+      },
+      {
+        "label": "B",
+        "text_en": "Cut the document down to its first 200 lines to keep the context short."
+      },
+      {
+        "label": "C",
+        "text_en": "Repeat the request three times throughout the prompt so it is never far from any section."
+      },
+      {
+        "label": "D",
+        "text_en": "Structure the document into explicitly labeled sections with a short key-points summary up front, and place the request after the document content rather than before it."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "長い入力では中央部の情報が見落とされやすい(lost in the middle)。対策は位置と構造の設計 — 要点サマリを先頭に置き、明示的な見出し(セクションタグ)で区切って参照しやすくし、指示・質問は長文の後に置く。A は分割しても各部分の位置的な弱点は変わらず、部分間の関連(文書全体としての規約)も失われる。B は問題の中央部(event-bus 規約)を丸ごと捨てる。C は指示の反復であって文書側の構造の問題を解決せず、コンテキストを無駄に増やす。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q303",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-legacy-modernization-agent",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Atlas's migration automation runs in phases — inventory, transform, verify — each in a fresh subagent. Today the transform phase is started with the inventory phase's entire 30,000-token transcript as its initial context, and it runs out of room before finishing. A teammate proposes passing nothing and letting transform rediscover what it needs. What should the phase handoff contain?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Nothing: each phase should be fully independent so that failures do not propagate."
+      },
+      {
+        "label": "B",
+        "text_en": "The full transcript, but with the tool outputs compressed by gzip to fit."
+      },
+      {
+        "label": "C",
+        "text_en": "A concise structured summary written at the end of the inventory phase — key findings, decisions, the list of remaining units, and pointers to the manifest where detailed results live — injected as the transform phase's initial context."
+      },
+      {
+        "label": "D",
+        "text_en": "Only the list of file paths, since the transform phase can re-read any file it needs."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "フェーズ間の引継ぎは「全部渡す」でも「何も渡さない」でもなく、前フェーズの終わりに要点(発見・判断・残作業)を要約し、詳細は既知の場所(manifest)へのポインタで参照させる。これで次フェーズの初期文脈は小さく保ちつつ、必要な判断は失われない。A は inventory の成果(どのモジュールを触るか等)を捨て、transform が同じ探索を繰り返す。B は圧縮しても言語モデルの入力トークンは減らない(バイナリは読めない)。D はファイル一覧だけでは「なぜそのファイルか」「どう変えるか」という判断が伝わらず、再探索が必要になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

@@ -113,6 +113,8 @@ You are building a structured data extraction system using Claude. The system ex
 ### Domain 1: Agentic Architecture & Orchestration
 
 #### Task Statement 1.1: Design and implement agentic loops for autonomous task execution
+
+> **2026-09-02 現行注記(C3b-B):** Exam Guide §17 が列挙する stop_reason は "tool_use" / "end_turn" のみだが、バンクでは公式 docs(handling-stop-reasons、§10 台帳 #35)に基づき "max_tokens"(出力上限による途中終了)と "pause_turn"(server tools 実行中に server-side loop が反復上限に達したときの一時停止。応答を含めて会話を送り返して継続する)も stop_reason 制御の範囲として出題する。また 1 応答に複数の tool_use ブロックが含まれる場合は全て実行し、tool_use_id ごとの tool_result を同じ次の user メッセージで返す(handle-tool-calls、#36)。
 **Knowledge of:**
 - The agentic loop lifecycle: sending requests to Claude, inspecting stop_reason ("tool_use" vs "end_turn"), executing requested tools, and returning results for the next iteration
 - How tool results are appended to conversation history so the model can reason about the next action
@@ -281,7 +283,7 @@ You are building a structured data extraction system using Claude. The system ex
 
 #### Task Statement 3.1: Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization
 
-> **2026-08-27 現行診断注記(旧 2026-08-24 注記を訂正):** `/context` は現在の context 全体をカテゴリ別に示すため、設定不具合の広い初期切り分けで最初に使う。`/memory` は現在のセッションにロードされた `CLAUDE.md` / rules と auto-memory を詳細表示し、編集導線も提供する。どちらでもロード状況は確認できるが、用途は「広い初期診断」と「memory の詳細確認」で区別する。
+> **2026-09-02 現行診断注記(旧 2026-08-27 注記を訂正):** 現在のセッションに**実際にロードされた** `CLAUDE.md` / `CLAUDE.local.md` / rules を確認するのは `/context` の **Memory files** 一覧(context 全体のカテゴリ別内訳の一部)。`/memory` は user / project スコープの memory ファイルの**場所**を一覧して編集するための画面で、まだ存在しないファイルの項目も表示し、auto memory の toggle とフォルダを開く導線を持つ — ロード状況の確認には使わない。公式 docs(code.claude.com/docs/en/memory「View and edit with /memory」)は「To check which files actually loaded into the current session, run /context」と明記する(C3b-B の Codex レビューで検出、2026-09-02 確認)。旧注記の「/memory はロード済みを詳細表示」は誤り。 同 docs で同時に確認した現行事項(C3b-B が出題に使用): (1) 発見された CLAUDE.md は上書きではなく連結され、矛盾する指示は Claude が恣意的に選び得る、(2) `@import` で取り込んだファイルも起動時に context に入りコンテキスト削減にはならない、(3) `.claude/rules/` の user-level rules(`~/.claude/rules/`)は全プロジェクトに適用され project rules より先にロードされる(project が優先)、(4) 大規模モノレポで上位ディレクトリの他チーム CLAUDE.md を除外する設定 `claudeMdExcludes`(settings の任意の層、パス / glob)、(5) project ルート CLAUDE.md は `/compact` 後にディスクから再読込されるが会話中の指示は残らない。関連改訂は §9(f-d3-q031 retired / f-d3-q032 新規、f-d3-q006 / q101 / q203 rev++)。
 
 **Knowledge of:**
 - The CLAUDE.md configuration hierarchy: user-level (~/.claude/CLAUDE.md), project-level (.claude/CLAUDE.md or root CLAUDE.md), and directory-level (subdirectory CLAUDE.md files)
@@ -743,6 +745,8 @@ You are building a structured data extraction system using Claude. The system ex
 | 2026-08-23 | 初版(C0)。Exam Guide v1.0 を転記 |
 | 2026-08-27 | C3b-A: §2.4 の現行ロード注記を訂正(MCP ツール定義は既定で遅延ロード。10% 閾値は `ENABLE_TOOL_SEARCH=auto` 時のみ)。明確な事実誤り(改訂トリガー b)として flash f-d2-q021 を retired、f-d2-q028 を新規(flagged、Step 4 で active 化)。syllabus.yaml f-d2-t4-02 scope_ja も同時修正 |
 | 2026-08-27 | C3b-A Step 4: §3.1 の現行診断注記を訂正(`/context` は広い初期診断、`/memory` はロード済み memory の詳細一覧にも使用)。複数正解化した flash f-d3-q005 を retired、f-d3-q031 を新規(flagged)。関連する f-d3-q006 / f-d3-q101 は解説の事実訂正として rev++ し flagged へ戻した |
+| 2026-09-02 | C3b-B: §3.1 の現行診断注記を再訂正(`/memory` はファイルの場所一覧と編集用、ロード済み確認は `/context` の Memory files のみ)。syllabus.yaml f-d3-t1-03 scope_ja も同時修正。旧注記に依拠した active カードを同セッションで修正(B-C3b-B-2、オーナー指示): 正解が誤りの flash f-d3-q031 を retired、f-d3-q032 を新規。解説のみ誤りの f-d3-q006 / f-d3-q101 / form A f-d3-q203 は editorial fix で rev++。いずれも 07 Step 4 の修正ループ(flagged → refs 突合 → 再レビュー 2 周 → active → 全件監査 → Codex 再レビュー)を通す |
+| 2026-09-02 | C3b-B: §3 1.1 に stop_reason "pause_turn" と複数 tool_use ブロックの現行注記を追加(syllabus f-d1-t1-01 scope_ja も拡張)。syllabus f-d1-t5-01 に hook の【primary 境界】注記を追加 |
 
 ## 10. refs ソース台帳(C2・2026-08-24)
 

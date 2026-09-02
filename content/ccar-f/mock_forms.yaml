@@ -1,5 +1,5 @@
 # mock_forms.yaml — 固定フォーム定義(specs/03 §mock_forms.yaml と validator 条件)
-# form A: C3b-A(2026-08-27)。60 問 / シナリオ 4 本 / ドメイン配分 16-11-12-12-9
+# form A: C3b-A(2026-08-27)。60 問 / シナリオ 4 本 / ドメイン配分 16-11-12-12-9。form B: C3b-B(2026-09-02)
 # question_ids は出題順(シナリオ単位でまとめ、シナリオ内は文脈の流れ順)
 forms:
   - id: form-a
@@ -74,3 +74,77 @@ forms:
       - f-d4-q212
       - f-d5-q208
       - f-d5-q209
+  # form B: C3b-B(2026-09-02)。60 問 / シナリオ 4 本(新規 2 + form A 再利用 2)/ ドメイン配分 16-11-12-12-9
+  # 再利用シナリオの問題は全て新規 ID(validator は form 間の question_id 重複を拒否する)
+  - id: form-b
+    exam: ccar-f
+    scenario_ids:
+      - sc-legacy-modernization-agent
+      - sc-org-rollout-ci-testgen
+      - sc-industry-research-agents
+      - sc-invoice-extraction
+    question_ids:
+      # --- sc-legacy-modernization-agent(16 問: d1×7, d2×6, d5×3)---
+      - f-d1-q301
+      - f-d1-q302
+      - f-d1-q303
+      - f-d1-q304
+      - f-d1-q305
+      - f-d1-q306
+      - f-d1-q307
+      - f-d2-q301
+      - f-d2-q302
+      - f-d2-q303
+      - f-d2-q304
+      - f-d2-q305
+      - f-d2-q306
+      - f-d5-q301
+      - f-d5-q302
+      - f-d5-q303
+      # --- sc-org-rollout-ci-testgen(15 問: d3×12, d4×3)---
+      - f-d3-q301
+      - f-d3-q302
+      - f-d3-q303
+      - f-d3-q304
+      - f-d3-q305
+      - f-d3-q306
+      - f-d3-q307
+      - f-d3-q308
+      - f-d3-q309
+      - f-d3-q310
+      - f-d3-q311
+      - f-d3-q312
+      - f-d4-q301
+      - f-d4-q302
+      - f-d4-q303
+      # --- sc-industry-research-agents(15 問: d1×9, d2×3, d5×3)---
+      - f-d1-q308
+      - f-d1-q309
+      - f-d1-q310
+      - f-d1-q311
+      - f-d1-q312
+      - f-d1-q313
+      - f-d1-q314
+      - f-d1-q315
+      - f-d1-q316
+      - f-d2-q307
+      - f-d2-q308
+      - f-d2-q309
+      - f-d5-q304
+      - f-d5-q305
+      - f-d5-q306
+      # --- sc-invoice-extraction(14 問: d4×9, d2×2, d5×3)---
+      - f-d4-q304
+      - f-d4-q305
+      - f-d4-q306
+      - f-d4-q307
+      - f-d4-q308
+      - f-d4-q309
+      - f-d4-q310
+      - f-d4-q311
+      - f-d4-q312
+      - f-d2-q310
+      - f-d2-q311
+      - f-d5-q307
+      - f-d5-q308
+      - f-d5-q309

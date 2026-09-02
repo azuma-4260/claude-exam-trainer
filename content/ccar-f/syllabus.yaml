@@ -21,7 +21,7 @@ domains:
         topics:
           - id: f-d1-t1-01
             name: "Agentic loop lifecycle and stop_reason control"
-            scope_ja: "リクエスト送信 → stop_reason 検査(\"tool_use\" で継続 / \"end_turn\" で終了)→ ツール実行 → 結果返却の制御フロー、stop_reason \"max_tokens\" の扱いと max_tokens 設定"
+            scope_ja: "リクエスト送信 → stop_reason 検査(\"tool_use\" で継続 / \"end_turn\" で終了)→ ツール実行 → 結果返却の制御フロー、stop_reason \"max_tokens\" の扱いと max_tokens 設定、1 応答内の複数 tool_use ブロックは全て実行して同じ次の user メッセージで返す、server tools(web search 等)実行中の反復上限で返る \"pause_turn\" は完了ではなく応答を含めて送り返して継続する(2026-09-02 追加、SOURCES.md §3 1.1 注記)"
           - id: f-d1-t1-02
             name: "Tool results in conversation history and model-driven decisions"
             scope_ja: "ツール結果を履歴に追加して次の推論に使う仕組み、モデル駆動の判断 vs 事前定義の決定木/固定シーケンス"
@@ -66,7 +66,7 @@ domains:
         topics:
           - id: f-d1-t5-01
             name: "PostToolUse hooks for data normalization"
-            scope_ja: "異種 MCP ツールの出力形式(Unix time / ISO 8601 / 数値ステータス)をモデルが処理する前に正規化する hook"
+            scope_ja: "異種 MCP ツールの出力形式(Unix time / ISO 8601 / 数値ステータス)をモデルが処理する前に正規化する hook、冗長なツール出力(テストランナー等)を構造化サマリに置き換える hook。【primary 境界】hook という仕組み(PostToolUse でモデルが見る前に変換する)を問う場合はここ、context 予算としての出力トリミング方針を問う場合は f-d5-t1-03"
           - id: f-d1-t5-02
             name: "Tool call interception hooks for policy enforcement"
             scope_ja: "閾値超過の refund などポリシー違反の呼出しをブロックし代替フロー(人間エスカレーション)へ誘導、hook の決定論的保証 vs prompt の確率的遵守"
@@ -163,7 +163,7 @@ domains:
             scope_ja: "@import でパッケージごとに関連標準ファイルを選択的に取り込む、肥大化した CLAUDE.md を .claude/rules/ のトピック別ファイルに分割"
           - id: f-d3-t1-03
             name: "Diagnosing loaded memory with /context"
-            scope_ja: "/context で context 全体の memory files カテゴリを含む広い初期診断を行い、/memory で現在のセッションにロード済みの CLAUDE.md / rules と auto-memory を詳細確認・編集する。セッション間の挙動差はロード一覧を比較して切り分ける。"
+            scope_ja: "現在のセッションに実際にロードされた CLAUDE.md / rules は /context の Memory files 一覧で確認する(context 全体のカテゴリ別内訳の一部)。/memory は memory ファイルの場所一覧と編集用で、ロード状況の証拠にはならない。セッション間の挙動差は /context のロード一覧を比較して切り分ける。"
       - id: f-d3-t2
         name: "Create and configure custom slash commands and skills"
         topics:
