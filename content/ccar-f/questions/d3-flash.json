@@ -136,13 +136,13 @@
     "choices": null,
     "answer": null,
     "answer_en": "Run /context in each session and compare the Memory files section;\ndifferences there can explain inconsistent behavior.",
-    "explanation_ja": "設定不具合の初期診断は、セッションごとに /context を実行し、Memory files カテゴリを含む context 全体の差を確認する。memory に原因を絞り込んだ後は、/memory で現在ロード済みの CLAUDE.md / rules と auto-memory を詳細比較できる。どちらもロード状況を示すが、「まず広く切り分ける」という本問の要件には /context が合う。",
+    "explanation_ja": "設定不具合の初期診断は、セッションごとに /context を実行し、Memory files 欄に実際にロードされた CLAUDE.md / rules の一覧を比較すること。ロード済みかどうかを示すのは /context だけで、/memory は memory ファイルの場所を一覧して編集するための画面(まだ存在しないファイルの項目も出る)なので、ロード状況の比較には使えない。差が見つかったら /memory で該当ファイルを開いて内容を直す。",
     "refs": [
       "https://docs.claude.com/en/docs/claude-code/memory"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 2
+    "rev": 3
   },
   {
     "id": "f-d3-q007",
@@ -746,6 +746,30 @@
     "answer": null,
     "answer_en": "/context is the broad first check for everything occupying the current context;\n/memory gives the detailed list of loaded CLAUDE.md/rules and auto-memory, with editing links.",
     "explanation_ja": "/context は system prompt・memory files・skills・MCP tools・会話履歴をカテゴリ別に示すため、設定不具合の広い初期切り分けに適する。/memory は現在のセッションにロードされた CLAUDE.md・CLAUDE.local.md・rules と auto-memory を詳細表示し、編集導線も提供する。旧カード f-d3-q005 は /context だけがロード済み一覧を確認できるとしており、現行仕様では複数正解になるため retired とした。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "retired",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q032",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do /context and /memory differ when diagnosing loaded project instructions?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "/context shows which memory files actually loaded into the current session (its Memory files list);\n/memory lists memory file locations for opening and editing and does not prove what loaded.",
+    "explanation_ja": "実際にロードされたかを示すのは /context の Memory files 欄(context 全体のカテゴリ別内訳の一部)だけ。/memory は user / project スコープの CLAUDE.md・CLAUDE.local.md・rules の場所を一覧し、選んだファイルをエディタで開く(存在しなければ作成する)ための画面で、auto memory の toggle も持つが、ロード状況の証拠にはならない。公式 docs も「実際にロードされたファイルの確認は /context」と明記する。旧カード f-d3-q031 は /memory をロード済み一覧としており誤りのため retired。",
     "refs": [
       "https://docs.claude.com/en/docs/claude-code/memory"
     ],

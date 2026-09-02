@@ -1,4 +1,4 @@
-# scenarios.yaml — Practice 専用シナリオ(C3a, 2026-08-24)+ form A 用シナリオ(C3b-A, 2026-08-27)
+# scenarios.yaml — Practice 専用シナリオ(C3a, 2026-08-24)+ form A 用シナリオ(C3b-A, 2026-08-27)+ form B 用シナリオ(C3b-B, 2026-09-02)
 # 形式: specs/03 §1(id / title_en / context_en / refs のみ。strict)
 # 文脈は SOURCES.md §2 の公式 6 シナリオに準拠した自作(転記なし)
 scenarios:
@@ -84,3 +84,35 @@ scenarios:
     refs:
       - https://docs.claude.com/en/docs/build-with-claude/structured-outputs
       - https://docs.claude.com/en/docs/build-with-claude/batch-processing
+  # ---- form B 用(C3b-B, 2026-09-02。公式 Scenario 4 / 5 の傾向に準拠した自作。form B は本 2 本 + form A の
+  #      sc-industry-research-agents / sc-invoice-extraction を再利用。プールは全体 8 本 / 固定フォーム用 6 本。上限の数え方は tasks/backlog/B-C3b-B-1.md 参照)----
+  - id: sc-legacy-modernization-agent
+    title_en: "Legacy Modernization Assistant on the Agent SDK"
+    context_en: |
+      Halden Systems runs an internal developer-productivity agent, Atlas, built
+      on the Claude Agent SDK. Engineers use it to explore a fifteen-year-old
+      order-management monolith, understand undocumented modules, generate
+      boilerplate for services being carved out of it, and automate repetitive
+      migration edits. Atlas uses the built-in tools (Read, Write, Edit, Bash,
+      Grep, Glob) and connects to MCP servers for the issue tracker, the
+      internal service catalog, and CI status. It runs both interactively and
+      as long unattended automation jobs, and the team is hardening its loop,
+      tool set, and context handling as usage grows.
+    refs:
+      - https://docs.claude.com/en/api/agent-sdk/overview
+      - https://www.anthropic.com/engineering/claude-code-best-practices
+  - id: sc-org-rollout-ci-testgen
+    title_en: "Organization-Wide Claude Code Rollout with CI Test Generation"
+    context_en: |
+      Meridian Health's platform team is standardizing Claude Code across forty
+      repositories that mix TypeScript, Python, and Go, several of which handle
+      protected health information. The team owns the shared configuration —
+      CLAUDE.md hierarchy, path-scoped rules, skills, and slash commands — and
+      runs a CI job that generates tests for changed files and reviews pull
+      requests. Early results show drifting standards between repositories,
+      misunderstood skill settings, a CI job that sometimes hangs, generated
+      tests that reviewers reject, and review findings whose severities
+      engineers have stopped trusting.
+    refs:
+      - https://docs.claude.com/en/docs/claude-code/memory
+      - https://docs.claude.com/en/docs/claude-code/github-actions

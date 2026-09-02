@@ -1,0 +1,640 @@
+[
+  {
+    "id": "f-d4-q304",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Extraction already uses a tool definition with a JSON schema, and nearly all outputs conform. Still, about one in a hundred contains a field name that is not in the schema or a numeric total emitted as a string, and the accounting system rejects the record. What eliminates these residual violations?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a post-processing step that deletes unknown fields and coerces strings to numbers."
+      },
+      {
+        "label": "B",
+        "text_en": "Enable strict tool use (JSON Schema strict mode) on the extraction tool so the output is guaranteed to conform to the declared schema."
+      },
+      {
+        "label": "C",
+        "text_en": "Add \"follow the schema exactly, with no extra fields\" to the system prompt."
+      },
+      {
+        "label": "D",
+        "text_en": "Lower the sampling temperature to zero so outputs become more predictable."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "tool_use による構造化出力は最も信頼できる手段だが、残った構文レベルの逸脱(未知フィールド・型違い)を保証付きで排除するのが strict mode。スキーマ準拠が構造的に保証されるため、構文エラーの後処理が不要になる。A は逸脱を事後に繕う案で、削除した未知フィールドに本来のデータが入っていた場合や、型変換に失敗する文字列(\"1,200.00\" など)を扱えない。C はプロンプトによる確率的な遵守で、1% を 0 にはできない。D は決定性を高めても正しさは保証せず、逸脱が再現性をもって残るだけ。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/strict-tool-use",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q305",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Before extraction, the pipeline needs a classification step — document type, language, page count — because that determines which extraction schema to apply. With tool_choice \"auto\" and all tools available, the model sometimes jumps straight to extracting with the wrong schema, and occasionally answers in plain text. How should the two steps be controlled?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Use tool_choice \"any\" on the first call so the model must call some tool."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep \"auto\" and add \"always classify the document before extracting\" to the prompt."
+      },
+      {
+        "label": "C",
+        "text_en": "Merge classification and every extraction schema into one large tool so ordering no longer matters."
+      },
+      {
+        "label": "D",
+        "text_en": "Make the first call with tool_choice {\"type\": \"tool\", \"name\": \"classify_document\"} to force classification, then make the second call with the type-specific extraction tool selected from the result."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "特定のツールを先に必ず実行させたい場合は tool_choice でそのツールを強制(forced)し、後続ターンで結果に応じた処理を行う二段構成にする。これで「分類の前に抽出」も「テキスト応答」も構造的に起きない。A の \"any\" は「何らかのツール」を保証するだけで、抽出ツールが先に選ばれる誤りは防げない。B は \"auto\" のままプロンプトに頼る確率的対策で、テキスト応答の可能性も残る。C は 1 つの巨大ツールに詰め込む案で、スキーマの焦点が失われ抽出品質が落ち、分類結果でスキーマを切り替えるという目的も達成できない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q306",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The schema types invoice_date as a string, and outputs like \"3/4/25\" pass validation but are ambiguous (March 4 or April 3?). Separately, currency amounts arrive as \"1.200,00\" from some European vendors and are then mis-parsed downstream. Which TWO changes fix this at the right layer? (Select TWO)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Change invoice_date to a number so the model must output a Unix timestamp."
+      },
+      {
+        "label": "B",
+        "text_en": "Add normalization rules to the prompt — output dates as ISO 8601 (YYYY-MM-DD), amounts as plain decimal numbers with a separate ISO currency code — and describe the expected format in each schema field's description."
+      },
+      {
+        "label": "C",
+        "text_en": "Make invoice_date optional so ambiguous dates are simply omitted."
+      },
+      {
+        "label": "D",
+        "text_en": "Have the downstream system guess the locale from the vendor's country."
+      },
+      {
+        "label": "E",
+        "text_en": "Validate in code that every extracted date parses as one unambiguous ISO 8601 date and every amount parses as a plain decimal, and route records that the normalization rules did not cover to review — the schema alone cannot tell an ambiguous string from a valid one."
+      }
+    ],
+    "answer": [
+      "B",
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "JSON Schema は「文字列であること」しか保証せず、日付や金額の**意味的な**正しさ(曖昧でない表記か)は保証しない。したがって(B)プロンプト側に正規化ルール(ISO 8601、小数点表記 + 通貨コード)を置き、フィールドの description にも形式を書いて出力を揃え、(E)それでも漏れる表記をコード側の意味検証(パース可能性の検査)で捕捉してレビューへ回す二層構えにする。A は Unix timestamp を人が読めず、文書上の日付の型変換をモデルに強いて誤りを増やす。C は情報を捨てる案で会計処理に穴が空く。D は下流での推測で、曖昧さを別の場所に移すだけ。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q307",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-01",
+    "secondary_topic_ids": [
+      "f-d4-t6-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The pipeline's \"validation\" step asks the model, in a follow-up turn, \"Is the JSON you just produced valid and complete? Answer yes or no.\" It almost always answers yes, and malformed or incomplete records keep reaching accounting. What should validation be?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Programmatic checks in code — schema validation (for example with Pydantic) plus semantic checks such as line-item sums — whose specific errors are fed back to the model with the original document and the failed output for a bounded retry."
+      },
+      {
+        "label": "B",
+        "text_en": "The same question, but asked with extended thinking enabled so the model reflects more carefully."
+      },
+      {
+        "label": "C",
+        "text_en": "A second model instance asked the same yes/no question, with two yes votes required."
+      },
+      {
+        "label": "D",
+        "text_en": "A prompt instruction telling the model to validate its output before responding."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "検証は確率的な自己申告ではなく、コードによる決定論的な検査で行う — スキーマ検証で構文を、合計一致などの意味検証で内容を確かめ、失敗したら具体的なエラー・元文書・失敗出力を添えて上限付きで再試行させる。生成直後の同じ文脈に「正しいか」と聞いても自分の出力を疑いにくい(ほぼ yes)。B は思考量を増やしても自己申告という構造は変わらない。C は yes/no の多数決で、何が間違っているかの情報が得られず、修正にもつながらない。D はプロンプトの願望で、検証の結果を機械的に使えない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q308",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Reviewers reject roughly 4% of extractions, but the team cannot tell whether the rejections share a cause — the review tool records only \"rejected\". They want to find systematic failure patterns and fix the prompt or examples accordingly. Which addition to the extraction output enables this analysis?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A free-text notes field that reviewers fill in by hand after rejecting."
+      },
+      {
+        "label": "B",
+        "text_en": "A field recording the sampling temperature used for each extraction."
+      },
+      {
+        "label": "C",
+        "text_en": "A detected_pattern field in which the model names the document pattern it encountered — multi-currency line items, handwritten totals, a missing vendor block — so rejections can be grouped and traced to specific patterns."
+      },
+      {
+        "label": "D",
+        "text_en": "The raw token log of each extraction request."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "却下されたケースを事後に分析するには、抽出時にモデルが認識した文書パターンを detected_pattern として構造化出力に含めておく。これで却下を「多通貨明細」「手書き合計」などのパターン別に集計でき、few-shot 例やプロンプトの改善対象が特定できる。A は人手の自由記述で、分類が揃わず集計に耐えない(レビュー負荷も増える)。B は温度が却下理由の説明にならない。D は生ログで、パターンの抽出をゼロから人間がやり直すことになり、分析可能な形になっていない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q309",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The overnight batch run was changed to let the model call lookup_vendor — a client-side tool that queries Baywick's internal vendor database — during extraction. Since then, batch results come back with stop_reason \"tool_use\" and the extractions never complete. What is the correct understanding?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The batch's 24-hour processing window is too short for tool calls; extend the window."
+      },
+      {
+        "label": "B",
+        "text_en": "The tool_result for lookup_vendor should be included in the batch request up front so the model can use it."
+      },
+      {
+        "label": "C",
+        "text_en": "Set tool_choice to \"any\" in the batch requests so the tool call is completed automatically."
+      },
+      {
+        "label": "D",
+        "text_en": "Client-side tools cannot be served inside a batch because the caller cannot return tool_result mid-processing; resolve the vendor data before submission and include it in the request, or move that step outside the batch (only server-side tools run within the batch worker's loop)."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Message Batches では各リクエストが呼出元と切り離されて処理されるため、モデルが client-side tool を要求しても呼出元が tool_result を返す往復ができず、そのリクエストは tool_use で終わる。対策は、必要な参照データを事前に解決してリクエストに含めるか、そのステップをバッチ外に出すこと(server tools はバッチワーカー内の loop で実行できる例外)。A は時間の問題ではなく往復経路の問題。B は tool_result はモデルの tool_use 要求への応答であり、要求の前に用意できるものではない。C は「ツールを呼ばせる」強制で、呼んだ後に結果を返せない問題を悪化させる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q310",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A 60,000-document batch finished with 800 failed requests, almost all of them oversized scanned contracts that exceeded the request limit; the remaining 59,200 succeeded. What should the pipeline do next?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Resubmit the entire 60,000-document batch to get a clean run."
+      },
+      {
+        "label": "B",
+        "text_en": "Identify the failed requests by custom_id, chunk the oversized documents into smaller pieces, and resubmit only those, keeping the 59,200 successful results."
+      },
+      {
+        "label": "C",
+        "text_en": "Discard the 800 failures; a 98.7% completion rate is acceptable for month-end."
+      },
+      {
+        "label": "D",
+        "text_en": "Resubmit the whole batch with a larger max_tokens so the big contracts fit."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "バッチの失敗処理は custom_id で失敗分だけを特定して再提出するのが基本で、サイズ超過の文書は分割してから出す。成功した 59,200 件を捨てる理由はない。A は全件再実行で、コストと時間を丸ごと二重に払う。C は 800 件の請求書を無処理で放置する案で、会計処理に穴が空く。D は max_tokens が出力側の上限であり、入力サイズ超過の失敗には無関係、しかも全件再提出の無駄も伴う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q311",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "To stabilize line_items formatting, the team appended fifty worked examples to the extraction prompt — every layout seen last quarter. Cost per document tripled, yet a new vendor's layout still comes back malformed. What does effective few-shot design look like here?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Two to four carefully chosen examples that cover the distinct ambiguous cases (a priced item, a quantity with units, a discount line, an absent field) and show the reasoning behind each choice, so the pattern generalizes to layouts not in the set."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep all fifty examples but sort them by frequency so the common layouts come first."
+      },
+      {
+        "label": "C",
+        "text_en": "Add the new vendor's layout as example fifty-one; coverage grows with every failure."
+      },
+      {
+        "label": "D",
+        "text_en": "Replace the examples with a longer prose description of the format rules."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "few-shot は量ではなく選び方 — 曖昧なケースの境界を示す 2〜4 例で、なぜその出力になるかが分かる例を選ぶと、未知のレイアウトにも一般化する。50 例はコンテキストとコストを膨らませ、例に無い形式には結局効かない(本問の症状)。B は順序を変えても肥大化と非一般化は変わらない。C は失敗のたびに例を足す運用で、レイアウトの数だけ例が増え、一般化は永久に起きない。D は「散文で不安定だから例を使う」という few-shot の動機に逆行する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q312",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The prompt says \"extract all relevant dates\". Invoices carry several — issue date, due date, service period start and end, sometimes a delivery date — and the model frequently places the wrong one in invoice_date or due_date. What is the most effective prompt change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add \"be careful with dates\" to the prompt."
+      },
+      {
+        "label": "B",
+        "text_en": "Extract every date into a list and let the accounting system decide which is which."
+      },
+      {
+        "label": "C",
+        "text_en": "Define each date field explicitly — what it means, where it typically appears, how to distinguish it from similar dates, and what to output when it is absent."
+      },
+      {
+        "label": "D",
+        "text_en": "Add a second model pass that guesses which of the extracted dates belongs in each field."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "「関連する日付」という曖昧な指示は、フィールドの意味が定義されていないため取り違えを生む。各フィールドの定義・典型的な位置・紛らわしい日付との区別・欠落時の扱いを明示する(明示的なカテゴリ基準)のが最初の一手。A は曖昧な注意喚起で、何をどう区別するかを与えていない。B は判別責任を下流に押し付けるだけで、会計システムには文書の文脈が無い。C の定義を与えずに D のような第 2 パスを足しても、同じ曖昧さで推測することになり、コストだけ増える。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q310",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A single extract_document tool with forty optional fields serves invoices, receipts, and contracts alike. Outputs increasingly mix concerns — contract-only fields populated on invoices, receipt totals landing in contract fee fields — and the tool description has grown to two pages. How should the tool interface be redesigned?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add more optional fields so every edge case has a home."
+      },
+      {
+        "label": "B",
+        "text_en": "Split it into purpose-specific tools — extract_invoice, extract_receipt, extract_contract — each with a focused schema and a clear input/output contract."
+      },
+      {
+        "label": "C",
+        "text_en": "Rename the tool to extract_any so its generality is explicit."
+      },
+      {
+        "label": "D",
+        "text_en": "Keep the single tool but expand the description to three pages with rules for which fields apply to which document type."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "汎用ツールが複数の目的を抱えると、スキーマの焦点が失われ、フィールドの取り違えと説明の肥大化が起きる。目的別に分割し(splitting)、各ツールに焦点の合ったスキーマと明確な入出力契約を持たせるのが正解で、tool_choice で文書種別に応じて選ばせることもできる。A は混乱の原因(過剰な選択肢)を増やす。C は名前を変えても構造は同じ。D は説明でスキーマの欠陥を補う案で、モデルは 40 フィールドの中から「今回使うべき」ものを長文ルールで判断し続けることになる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q311",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-02",
+    "secondary_topic_ids": [
+      "f-d2-t2-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The ocr_document tool processes contracts page by page. When two of forty pages fail to OCR, it currently returns a single error for the whole document and the extraction agent gives up. A teammate proposes the opposite: return the 38 pages as a normal success and skip the rest. What should the tool return?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The error for the whole document, but with a longer message listing which pages failed."
+      },
+      {
+        "label": "B",
+        "text_en": "The 38 successfully processed pages as the content plus an explicit, structured note of the partial failure — which pages failed and why (for example unreadable scan versus service timeout) — so the agent can extract what is available and route the gaps."
+      },
+      {
+        "label": "C",
+        "text_en": "The 38 pages as a plain success, since most of the document is usable."
+      },
+      {
+        "label": "D",
+        "text_en": "An empty result, so the document is automatically re-queued for later."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "回復可能な失敗を扱うツールの契約は、部分結果と失敗の内訳を両方返すこと — 成功したページはそのまま渡し、失敗したページ番号と原因(回復可能かどうか)を構造化して添える。これで agent は使える部分から抽出しつつ、欠落ページをレビューや再試行に回せる。A は 38 ページ分の使える内容まで捨てる all-or-nothing。C は失敗を成功に偽装する silent failure で、欠落ページの金額や条項が「無かった」ことになる。D は失敗の理由を伝えず、原因が恒久的(判読不能スキャン)なら再キューを繰り返すだけ。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/custom-tools",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/handle-tool-calls"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q307",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The pipeline routes any field with confidence below 0.8 to human review, using that single threshold for every field. Calibration data shows the model's confidence on totals is accurate (0.8 really means about 80% correct) but wildly optimistic on vendor_name (0.8 means about 55% correct). Reviewers are flooded with correct totals while wrong vendor names slip through. What should change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Set per-field thresholds derived from each field's calibration curve — a lower threshold where confidence is accurate, a much higher one (or mandatory review) where it is optimistic — instead of one global cutoff."
+      },
+      {
+        "label": "B",
+        "text_en": "Raise the global threshold to 0.95 so vendor_name errors are caught."
+      },
+      {
+        "label": "C",
+        "text_en": "Lower the global threshold to 0.6 to reduce the reviewer flood."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask the model to report confidence more conservatively for vendor_name."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "自己申告の confidence の意味はフィールドごとに異なるため、閾値もフィールド単位に較正データから決める — 較正が良いフィールドは低めの閾値で自動承認を増やし、楽観的なフィールドは高い閾値か必須レビューにする。単一のグローバル閾値は、正確なフィールドを過剰レビューしつつ楽観的なフィールドを通してしまう(本問の症状そのもの)。B は総額の過剰レビューをさらに悪化させる。C は誤った vendor_name をさらに通す。D はプロンプトで較正を要求する案で、スコアの意味は測定でしか変わらない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q308",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The extraction agent hands each record to a downstream validation agent together with its full working notes — about two pages of reasoning per document explaining how it interpreted the layout. The validator's context fills quickly and it starts missing discrepancies. What should the extraction agent return to the validator?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The reasoning notes only, since they explain the record better than the record itself."
+      },
+      {
+        "label": "B",
+        "text_en": "A one-sentence summary of the reasoning plus the record."
+      },
+      {
+        "label": "C",
+        "text_en": "The structured record, plus concise evidence per field — the supporting excerpt and page reference — and metadata such as document type and detected patterns; the free-form reasoning stays with the extraction agent."
+      },
+      {
+        "label": "D",
+        "text_en": "Nothing but the record; the validator should re-read the whole document itself."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "上流エージェントが下流に返すべきなのは、冗長な推論の散文ではなく構造化データ — 抽出結果と、フィールドごとの根拠(抜粋・ページ)や metadata。これで下流は必要な文脈だけを受け取り、context 予算を守りながら検証できる。A は検証対象(レコード)を渡さず、推論の追体験に文脈を費やす。B は根拠が失われ、どこを見れば良いか分からないため検証が再探索になる。D は全文の再読で、本問が防ぎたい文脈の浪費をそのまま下流に移す。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q309",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-invoice-extraction",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Reviewers spend most of their time hunting through 40-page contracts to find where an extracted value came from, because the record contains only the values. Review throughput is the pipeline's bottleneck. What should the extraction output add?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Provenance per field — the page number and the exact source excerpt supporting each extracted value — carried through to the review interface so reviewers can verify a value in seconds."
+      },
+      {
+        "label": "B",
+        "text_en": "A confidence score per document so reviewers can skip the confident ones."
+      },
+      {
+        "label": "C",
+        "text_en": "The full OCR text attached to every record so reviewers can search it."
+      },
+      {
+        "label": "D",
+        "text_en": "A note asking the model to \"be accurate\" so fewer records need review."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "出典の保持は報告書の引用だけの話ではない — 抽出でも、値ごとに出典(ページ・抜粋)を構造化して保持し、レビュー画面まで運ぶことで、検証が「探す作業」から「照合する作業」に変わりスループットが上がる。B は文書単位の確信度で、どこを見れば良いかという本問の課題に答えない(フィールド単位の較正はまた別の話)。C は既にレビュアーが持っている情報で、探索の負担は変わらない。D はプロンプトの願望で、検証コストの構造を変えない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  }
+]

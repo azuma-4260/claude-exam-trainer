@@ -2,7 +2,7 @@
 id: B-C3b-A-1
 origin: C3b-A
 created: 2026-08-27
-status: open
+status: absorbed-by C3b-B
 related_tasks: [C3b-B, C3b-C]
 related_specs: ["07#step-3b-固定フォーム用シナリオ-mcq最大工数", "03#mock_formsyaml-と-validator-条件"]
 related_paths: [content/ccar-f/scenarios.yaml, content/ccar-f/mock_forms.yaml]

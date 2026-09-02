@@ -1,0 +1,686 @@
+[
+  {
+    "id": "f-d3-q301",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The root CLAUDE.md says \"all new tests use Jest\". A services/legacy-billing/CLAUDE.md, written by the team that owns that package, says \"this package uses Mocha; do not introduce Jest\". When engineers edit legacy-billing code, Claude sometimes writes Jest tests and sometimes Mocha tests. What explains the behavior, and what is the fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "CLAUDE.md files are concatenated into context rather than overriding one another, so the two instructions conflict and Claude may pick either; rewrite the root rule to state the exception explicitly (or move the Jest rule out of the shared file) so no two loaded files contradict."
+      },
+      {
+        "label": "B",
+        "text_en": "The subdirectory file is ignored because only the root CLAUDE.md is loaded; move the Mocha rule into the root file."
+      },
+      {
+        "label": "C",
+        "text_en": "The subdirectory file always wins because it is more specific; the Jest results come from Claude ignoring memory entirely, so the fix is a stronger instruction."
+      },
+      {
+        "label": "D",
+        "text_en": "Claude reads only the first CLAUDE.md it finds; rename the subdirectory file so it sorts first."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "発見された CLAUDE.md は上書きではなく**連結**されて context に入る(ルートからサブディレクトリの順)。したがって「Jest を使え」と「Jest を入れるな」は両方ロードされて矛盾し、公式 docs のとおり Claude はどちらかを恣意的に選び得る。修正は矛盾そのものを無くすこと — 共有ルールに例外を明記するか、パッケージ固有の指示を該当ファイルにだけ置き、複数ファイル間の矛盾を定期的に点検する。B はサブディレクトリ CLAUDE.md が該当ファイルの読込時にロードされるという事実に反する。C は「具体的な方が勝つ」という優先順位が存在しないことを見落としており、矛盾を残したままプロンプトを強める対症療法。D はファイル名順で 1 つだけ読むという誤った仕様理解。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q302",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "To reduce token usage, the platform team split a 600-line CLAUDE.md into six topic files and replaced the content with six @import lines. /context shows the memory files consuming exactly as much of the context window as before, and engineers still get the release-procedure text in every session. Why, and what actually reduces the load?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Imports only fail silently beyond a depth of two; flatten the files back into one CLAUDE.md."
+      },
+      {
+        "label": "B",
+        "text_en": "The six files should be moved to ~/.claude/ so they load from the user scope, which does not count against the project context."
+      },
+      {
+        "label": "C",
+        "text_en": "@import expands the referenced files into context at launch, so it organizes content without reducing it; to cut the load, keep a concise core file and move file-type-specific guidance into path-scoped rules (and rarely used procedures into skills) so it loads only when relevant."
+      },
+      {
+        "label": "D",
+        "text_en": "Imports are cached after the first session, so the reduction will appear from the second session onward."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "@import は整理のための機構で、取り込んだファイルは起動時に展開されて context に入る — 公式 docs も「imports は整理には役立つがコンテキストは減らない」と明記する。負荷を減らすには、常時必要な核だけを簡潔に残し、特定ファイル種別にしか要らない規約は paths 付きの .claude/rules/ に、たまにしか使わない手順(リリース手順など)はオンデマンドの skill に移す。A は深さ制限(4 ホップ)の誤解で、しかも問題は「読み込まれすぎ」であって「読まれない」ではない。B は user スコープでも context に入る点で誤りで、しかも VCS 共有が失われる。D はキャッシュという存在しない挙動。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q303",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An engineer confirms with /context that the project CLAUDE.md is loaded, yet Claude keeps producing code that violates its rules \"format code properly\" and \"write good tests\". No other memory file contradicts these lines. What is the most likely cause and the right next step?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The file loaded but was truncated; split it into smaller files so every rule fits."
+      },
+      {
+        "label": "B",
+        "text_en": "CLAUDE.md is delivered as context that Claude tries to follow, not as enforced configuration, so vague instructions get inconsistent results; rewrite them as concrete, verifiable rules (for example \"use 2-space indentation\", \"every new function gets a test covering its error path\")."
+      },
+      {
+        "label": "C",
+        "text_en": "Memory files are only honored in plan mode; ask the engineer to start each task in plan mode."
+      },
+      {
+        "label": "D",
+        "text_en": "The rules must be repeated in every user message because CLAUDE.md is read only once at startup."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ロード確認が取れているのに従われないときの次の切り分けは、指示の**具体性**。CLAUDE.md は system prompt の後に文脈として渡されるもので強制ではなく、曖昧な指示(「きちんと整形」「良いテスト」)は一貫して守られない。公式 docs のトラブルシュートも「指示を具体的にする」「矛盾を探す」を挙げ、\"Use 2-space indentation\" のような検証可能な書き方を推奨する。A は truncation という根拠のない仮定(/context に載っている以上ロードされている)。C は plan mode 限定という誤った仕様。D は CLAUDE.md が毎ターン有効であることに反し、コンテキストを無駄に消費する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q304",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A team skill, /gen-fixtures, lists allowed-tools: Read, Write in its frontmatter. The author expected this to stop the skill from running shell commands, but in practice it still invokes Bash (prompting for permission each time). What is the correct understanding and fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "This is a bug in the installed version; reinstalling Claude Code restores the restriction."
+      },
+      {
+        "label": "B",
+        "text_en": "allowed-tools pre-approves the listed tools for that invocation rather than limiting the available set; to keep Bash out, add disallowed-tools: Bash (and consider context: fork for isolation)."
+      },
+      {
+        "label": "C",
+        "text_en": "Add the sentence \"Do not use Bash\" to the body of the skill; frontmatter cannot influence tool usage."
+      },
+      {
+        "label": "D",
+        "text_en": "Move the skill from .claude/skills/ to ~/.claude/skills/, where tool restrictions are enforced."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "SKILL.md の allowed-tools は「その turn で事前許可するツール」を指定するもので、使えるツールの集合を制限する機能ではない(Exam Guide の restrict という表現とは現行挙動を区別する)。利用可能プールから除外したいツールは disallowed-tools で指定する。A はバグではなく仕様の誤解。C はプロンプトによる確率的な抑制で、構成レベルの除外(disallowed-tools)があるのに使わない理由がない。D はスコープ(共有 vs 個人)の話で、ツール制限の意味論はどちらでも同じ。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills",
+      "https://docs.claude.com/en/docs/claude-code/settings"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q305",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-03",
+    "secondary_topic_ids": [
+      "f-d3-t2-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The team skill /pr-summary produces the pull-request summary format the whole organization standardized on. One engineer wants a personal version with a different structure for their own notes, without changing what teammates get. What should they do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Create a personal variant under ~/.claude/skills/ with a different name, such as /my-pr-summary, and leave the project skill untouched."
+      },
+      {
+        "label": "B",
+        "text_en": "Edit .claude/skills/pr-summary locally and simply never commit the change."
+      },
+      {
+        "label": "C",
+        "text_en": "Add a branch inside the team skill that switches format based on the engineer's username."
+      },
+      {
+        "label": "D",
+        "text_en": "Describe the preferred format in their ~/.claude/CLAUDE.md so every session applies it automatically."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "個人の変種は ~/.claude/skills/ に別名で置けば、チームのプロジェクトスキルに影響せず、本人だけがオンデマンドで呼び出せる。B はローカル改変を未コミットで抱える運用で、誤コミットや pull 時の衝突を招き、チームの標準との差分管理が破綻する。C はチームの共有資産に個人の分岐を持ち込む案で、保守負担が全員に及ぶ。D は「必要なときだけ使う手順」を常時ロードの CLAUDE.md に入れる置き場所の誤りで、全セッションの文脈を無駄に消費する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills",
+      "https://docs.claude.com/en/docs/claude-code/slash-commands"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q306",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [
+      "f-d3-t3-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A contractor works across twelve of Meridian's repositories and wants their personal Go habits (a preferred error-wrapping helper, table-driven test layout) applied everywhere they work — without committing anything to the repositories, and with each repository's own conventions winning whenever the two disagree. Where should these preferences live?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "In the root CLAUDE.md of each repository, marked \"personal\" so teammates know to ignore them."
+      },
+      {
+        "label": "B",
+        "text_en": "In a .claude/rules/go.md committed to each repository, since rules load only for matching files."
+      },
+      {
+        "label": "C",
+        "text_en": "In the contractor's ~/.claude/CLAUDE.md, which overrides project files because it is loaded last."
+      },
+      {
+        "label": "D",
+        "text_en": "In user-level rules under ~/.claude/rules/, which apply to every project on that machine without being committed and are loaded before project rules, so project conventions take priority on conflict."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "個人の好みを全リポジトリに効かせ、かつコミットしたくない場合の置き場所は user スコープ — ~/.claude/rules/(または ~/.claude/CLAUDE.md)。公式 docs は user-level rules を「そのマシンの全プロジェクトに適用、project rules より先にロードされるため project 側が優先」と説明しており、「リポジトリの規約が勝つ」という要件にも合う。A と B は個人の好みをチームの共有ファイルにコミットする案で要件に反し、B はさらに 12 リポジトリへの配布と同期の手間を生む。C は置き場所こそ user スコープだが「最後にロードされて上書きする」が誤り — user の内容は project より先に置かれ、上書きではなく連結される。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q307",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The forty repositories were consolidated into one monorepo. Engineers on the appointments team now find that CLAUDE.md files from other teams' parent directories — with irrelevant conventions — are loaded into their sessions, and those files are not theirs to edit. What is the recommended way to stop the noise without touching the other teams' files?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Ask the other teams to add paths frontmatter to their CLAUDE.md files so they load only for their own directories."
+      },
+      {
+        "label": "B",
+        "text_en": "Run Claude Code from the repository root so that only the root CLAUDE.md is loaded."
+      },
+      {
+        "label": "C",
+        "text_en": "Add the unwanted files to claudeMdExcludes in the team's own settings (for example .claude/settings.local.json) using path or glob patterns, so they are skipped while everything else loads normally."
+      },
+      {
+        "label": "D",
+        "text_en": "Delete the other teams' CLAUDE.md files from the monorepo; conventions belong in a single root file."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "作業ディレクトリより上位にある CLAUDE.md は起動時にすべてロードされるため、大規模モノレポでは他チームのファイルが混入する。公式 docs はこの場合の手段として claudeMdExcludes(パス / glob で除外)を用意しており、settings のどの層にも書けるので自チームのローカル設定で完結する。A は CLAUDE.md に paths frontmatter という機構が無い(paths は .claude/rules/ の機構)。B はむしろ上位の全ファイルがロードされる方向で、抑制にならない。D は他チームの資産を破壊する対応で、置き場所の方針としても誤り。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory",
+      "https://docs.claude.com/en/docs/claude-code/settings"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q308",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "For the payments-service extraction, an engineer wants Claude to survey the code, propose an approach, and get sign-off before any file changes. Today they ask Claude to \"start extracting\" directly, then revert when the approach turns out wrong; another engineer tried plan mode, approved the plan, and then opened a fresh session to \"execute it cleanly\", losing the plan. What is the intended workflow?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Run the survey in plan mode so Claude explores and proposes without editing, review and approve the plan, then leave plan mode in the same session so execution starts from the approved plan and its context."
+      },
+      {
+        "label": "B",
+        "text_en": "Skip plan mode; write the approach yourself in CLAUDE.md so every session starts with it."
+      },
+      {
+        "label": "C",
+        "text_en": "Use plan mode for the execution as well, since it prevents accidental edits."
+      },
+      {
+        "label": "D",
+        "text_en": "Run plan mode in one session, paste its output into a new session's first message, and execute there for a clean context."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "plan mode は「編集せずに探索して計画を提案する」モードで、大規模・アーキテクチャ判断を伴う変更の前段に使い、承認後に**同じセッション内で**plan mode を抜けて実行に移すのが基本の組合せ(計画 → 実行)。別セッションに移すと計画の根拠となった探索文脈が失われる(二人目の失敗)。B は計画工程を人手に置き換える案で、探索と提案を Claude にさせる目的を果たさない。C は plan mode では編集できないため実行に使えない。D は文脈の断絶で、貼り付けた計画だけでは調査で得た詳細(依存・注意点)が再現されない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q309",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An engineer asks Claude Code to implement a token-bucket rate limiter for the appointment API. The requirements are fuzzy — burst behavior, per-tenant limits, and clock skew were never written down — and the reviewer has sent the implementation back three times for missed edge cases. What approach should the engineer switch to?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Write a much longer prose specification up front and paste it into the prompt."
+      },
+      {
+        "label": "B",
+        "text_en": "Accept the current implementation and ask Claude to \"make it more robust\" in a follow-up."
+      },
+      {
+        "label": "C",
+        "text_en": "Copy an open-source rate limiter and ask Claude to adapt it to the codebase."
+      },
+      {
+        "label": "D",
+        "text_en": "Before implementing, have Claude interview them about the unknowns (burst policy, tenant isolation, clock handling), then write a test suite covering the expected behavior and edge cases first, and iterate on the implementation until the tests pass."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "未知の領域では、実装前に Claude に質問させて考慮事項(障害モード・境界条件)を引き出す interview パターンと、期待動作・エッジケース・性能要件を覆うテストを先に書いてテスト失敗を共有しながら改善する test-driven iteration が有効。本問の失敗は「要件が言語化されていない」ことに起因するため、この組合せが直接効く。A は要件を知らないまま長文を書く案で、抜けているエッジケースは長さでは埋まらない。B は「堅牢に」という曖昧指示で、どのケースが不足しているかを伝えていない。C は出発点を変えるだけで、要件の不明確さ(何をもって正しいとするか)は解消しない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices",
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q310",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A review of Claude's change surfaced six issues. Three interact: a shared DTO type must change, which affects the validation layer and the serializer. The other three are independent: a typo in a log message, an unused import, and a wrong log level. How should the engineer feed these back to Claude Code?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Describe the three interacting issues together in one message so they are resolved coherently; the three independent ones can be handled one at a time."
+      },
+      {
+        "label": "B",
+        "text_en": "Send all six issues in one message and instruct Claude to change the DTO type last, after the three cosmetic fixes, so the small items are not lost."
+      },
+      {
+        "label": "C",
+        "text_en": "Send six separate messages, one per issue, in the order they were found."
+      },
+      {
+        "label": "D",
+        "text_en": "Fix the DTO first, then the validator, then the serializer, each in its own message, before mentioning the small issues."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "相互作用する問題は 1 メッセージにまとめて指示する(DTO・検証層・シリアライザは同時に整合させないと中間状態で壊れる)。独立した問題は逐次修正でよい。B は 6 件を束ねたうえで、相互作用する DTO 変更を「最後に単独で」行わせる順序指定をしており、型変更と検証層・シリアライザの修正が別ステップに分かれて中間状態で壊れる — まとめる対象と順序の指定が相互作用と逆向き。C と D は相互作用する 3 件を分割する点で誤り — 型を変えた直後に検証層とシリアライザが不整合になり、各ステップで壊れた状態をレビューすることになる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q311",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The CI test-generation job runs claude \"Generate tests for the changed files\" and then hangs until the runner's 30-minute timeout kills it. The same command works when an engineer runs it in a terminal. What is the fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Pipe the yes command into claude so any prompt is answered automatically."
+      },
+      {
+        "label": "B",
+        "text_en": "Run Claude Code in non-interactive mode with -p (--print) so it prints the result and exits, adding --output-format json if the pipeline needs machine-readable output."
+      },
+      {
+        "label": "C",
+        "text_en": "Set the environment variable CLAUDE_NON_INTERACTIVE=1 in the job."
+      },
+      {
+        "label": "D",
+        "text_en": "Raise the runner timeout to 60 minutes so the job has time to finish."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "CI では対話入力が無いため、対話モードで起動すると入力待ちでハングする。-p / --print の非対話モードを使えば結果を出力して終了し、--output-format json(必要なら --json-schema)で後続処理向けの構造化出力も得られる。A は対話 UI に対する場当たり的な自動応答で、意図しない承認を与える危険がある。C は存在しない環境変数(具体名の誤答)。D はハングの原因を放置して待ち時間を延ばすだけ。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/headless",
+      "https://docs.claude.com/en/docs/claude-code/cli-reference"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q312",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Reviewers reject about 70% of the tests the CI job generates: many duplicate scenarios that existing tests already cover, and most of the rest exercise trivial getters. The job currently sends only the diff and the instruction \"write thorough tests\". What should change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Ask for \"more tests\" so that useful ones are more likely to be among them."
+      },
+      {
+        "label": "B",
+        "text_en": "Lower the review bar for generated tests since they are free to produce."
+      },
+      {
+        "label": "C",
+        "text_en": "Include the existing test files for the changed modules in the context, and document in CLAUDE.md the team's testing standards, what makes a test valuable, and the shared fixtures to use."
+      },
+      {
+        "label": "D",
+        "text_en": "Generate tests only for files that currently have no tests at all."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "重複は「既存テストを知らない」ことから、低価値なテストは「何が価値あるテストかの基準が無い」ことから生じる。既存テストファイルを文脈に含めて重複シナリオを避け、CLAUDE.md にテスト標準・価値の基準・fixture を記述すれば両方に効く。A は分母を増やすだけで、重複と低価値の比率は変わらない。B は品質問題を受容する案で、テストスイートを劣化させる。D は既存テストのある変更(本問の大半)を対象外にし、カバレッジの穴を放置する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/github-actions",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q301",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "On 60-file pull requests the CI reviewer contradicts itself — flagging a pattern in one file and praising it in another — and misses cross-file problems such as mismatched API contracts between a client and its server stub. Engineers have also stopped trusting posted findings, and the two reviewers who triage them can only handle a fraction of the volume. Which TWO changes to the review architecture address these failures? (Select TWO)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Send the entire pull request in one prompt with a larger context window so the model sees everything at once."
+      },
+      {
+        "label": "B",
+        "text_en": "Review each file in its own local pass, then run an integration pass that looks specifically for cross-file issues using the per-file findings."
+      },
+      {
+        "label": "C",
+        "text_en": "Post every finding as today, but prefix each one with the disclaimer \"this may be a false positive\"."
+      },
+      {
+        "label": "D",
+        "text_en": "Have every finding carry a self-reported confidence, calibrate those scores against a labeled set of past findings, and set thresholds from that data and the triage team's capacity so low-confidence findings go to human triage instead of being posted."
+      },
+      {
+        "label": "E",
+        "text_en": "Add \"be consistent across files\" to the review prompt."
+      }
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "本問には 2 つの問題がある — (1)大きな PR を一括で見せることによる注意の希釈(矛盾する所見・横断的な見落とし)、(2)信頼の低下と限られた triage 能力。(B)ファイル単位のローカルパスと、その所見を使って横断的な問題に絞る統合パスが (1) を解決し、(D)所見ごとの confidence を labeled set で較正し、その較正結果と triage 能力から閾値を決めて低確信を人間に回す振り分けが (2) を解決する。A は「大きいコンテキストで解決」という誤答パターンで、希釈の原因そのものを拡大する。C は所見の量も精度も変えず、免責文を付けるだけで信頼をさらに損なう。E はプロンプトの願望で、構造(パス分割)の問題を解決しない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q302",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The test-generation prompt includes three few-shot examples, all pytest tests from the largest Python repository. Since the job was rolled out to the Go and TypeScript repositories, it produces pytest-style tests there too — Python fixtures and assert statements inside Go files. What is the most effective fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a few-shot example set for each target language and framework (Go table-driven tests, Vitest, pytest) and select the set that matches the repository being processed, so the examples demonstrate the form the output should actually take."
+      },
+      {
+        "label": "B",
+        "text_en": "Remove all examples; prose instructions cannot be misapplied across languages."
+      },
+      {
+        "label": "C",
+        "text_en": "Keep the pytest examples and add the sentence \"adapt these to the repository's language\"."
+      },
+      {
+        "label": "D",
+        "text_en": "Increase the number of pytest examples so the model learns the general idea of a good test."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "few-shot 例はモデルが真似る「形」を強く決めるため、対象と異なる言語・フレームワークの例は形式ごと持ち込まれる(本問の症状)。例は出力させたい形式そのものを実演するものを、処理対象(言語・フレームワーク)に応じて選ぶ。B は例を捨てて散文だけに戻す案で、形式の安定性を失う。C は「翻訳して使え」という指示で、例の強い誘導を確率的に打ち消そうとするだけ。D は誤った形式の例を増やす逆効果。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/claude-code/github-actions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q303",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-02",
+    "secondary_topic_ids": [
+      "f-d4-t5-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": "sc-org-rollout-ci-testgen",
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "The first nightly batch run generated tests for every changed file across all forty repositories — about 30,000 tests overnight. In the morning, reviewers rejected most of them for the same reason: the prompt did not say which assertion library each language should use. A full night's batch cost was spent on unusable output. How should the team run large batch jobs?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Run a small, representative sample first through the synchronous API — a few files from each language and repository type — inspect the output, tune the prompt and examples, and only then submit the full batch."
+      },
+      {
+        "label": "B",
+        "text_en": "Submit the full batch every night and fix the prompt the next morning based on what reviewers reject."
+      },
+      {
+        "label": "C",
+        "text_en": "Submit the sample as its own batch first; the 50% discount makes sampling cheaper too."
+      },
+      {
+        "label": "D",
+        "text_en": "Cut the batch to the ten largest repositories so a bad night costs less."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Message Batches は非ブロッキングの大量処理向けで、一度投入した内容は完了(最大 24 時間)まで手直しできない。大量投入の前に、代表的なサンプル(言語・リポジトリ種別ごとに数件)を同期 API で処理して出力を確認し、prompt と例を調整してから本投入するのが基本手順。B は一晩分のコストを毎回無駄にする試行錯誤で、フィードバックが翌朝まで届かない。C はサンプルの目的が「素早く確認して直す」ことなのに、完了まで最大 24 時間待つバッチに載せる矛盾。D は規模を縮めるだけで、同じ prompt の欠陥は 10 リポジトリでも再現する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]
