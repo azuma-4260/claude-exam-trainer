@@ -124,13 +124,13 @@
       "A"
     ],
     "answer_en": null,
-    "explanation_ja": "セッション間で挙動が一貫しないときの第一の診断は、「そのセッションに実際に何がロードされているか」を確かめること。/context は context 全体をカテゴリ別に示す初期診断なので、Memory files の差とその他の差をまず切り分けられる。memory が原因と分かったら、/memory で現在ロード済みの CLAUDE.md / rules と auto-memory を詳細確認する。B・D は原因を特定しないままの破壊的リセットで、再発時に何も学べない。C はロード自体がされていない場合には全くの無駄で、診断より先に対症療法を打つ誤り。",
+    "explanation_ja": "セッション間で挙動が一貫しないときの第一の診断は、「そのセッションに実際に何がロードされているか」を確かめること。/context は context 全体をカテゴリ別に示し、その Memory files 欄が実際にロードされた CLAUDE.md / rules の一覧なので、memory の差とその他の差をまず切り分けられる(ロード済みかどうかを示すのは /context だけで、/memory はファイルの場所一覧と編集用)。原因のファイルが分かったら /memory で開いて修正する。B・D は原因を特定しないままの破壊的リセットで、再発時に何も学べない。C はロード自体がされていない場合には全くの無駄で、診断より先に対症療法を打つ誤り。",
     "refs": [
       "https://docs.claude.com/en/docs/claude-code/memory"
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q204",
