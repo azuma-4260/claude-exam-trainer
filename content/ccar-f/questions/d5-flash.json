@@ -557,5 +557,175 @@
     "difficulty": 2,
     "status": "active",
     "rev": 1
+  },
+  {
+    "id": "f-d5-q024",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A customer sounds angry but has not asked for a human — should sentiment trigger escalation?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "No. Offer a resolution; escalate on an explicit request, a policy gap, or inability to progress —\nnot on sentiment or self-reported confidence.",
+    "explanation_ja": "適切なエスカレーショントリガーは、人間の明示要求・ポリシー例外や欠落・進展不能の 3 つである。不満の表明には解決策を提示し、再度の要求があれば移譲する。sentiment や自己申告 confidence は誤作動が多く、トリガーに向かない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q025",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Name the three appropriate escalation triggers for a support agent.",
+    "choices": null,
+    "answer": null,
+    "answer_en": "An explicit request for a human, a policy exception or gap,\nand inability to make progress.",
+    "explanation_ja": "明示的な人間要求は調査せず即座にエスカレーションする。ポリシーが沈黙・曖昧なケースや、進展できない状況も人間へ渡す。それ以外はまず解決を試みる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q026",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "After a subagent reports that 3 of 8 sources were inaccessible, what should the final synthesis carry?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A coverage annotation: which claims are well-supported and where gaps exist\nbecause sources were missing — never silent omission.",
+    "explanation_ja": "coordinator は伝播されたエラーから回復判断を行い、埋められないギャップは synthesis に注記する。「裏付け十分」と「ソース欠落によるギャップ」を区別して示す。黙って省くと読者は網羅されていると誤解する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q027",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Before launching the subagent for the next phase, what should the coordinator inject into its initial context?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A summary of the previous phase's key findings — not the raw output —\nso the new subagent starts with what matters in a fresh context.",
+    "explanation_ja": "各フェーズの終わりに要点を要約し、次フェーズの subagent の初期文脈に注入する。生の出力を丸ごと渡すと新しい文脈がすぐに埋まる。要約と manifest への状態書き出しを組み合わせると再開も容易になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q028",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Before removing human review from a pipeline with 97% aggregate accuracy, what analysis is required?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Segment accuracy by document type × field;\naggregates hide low-performing segments.",
+    "explanation_ja": "集計精度は特定の文書種別やフィールドの低性能を隠す。自動化の前に文書種別 × フィールドで精度を検証し、弱いセグメントを特定する。弱い部分だけ人間レビューを残す判断もここから導く。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q029",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Two credible sources disagree — should the coordinator just pick the more authoritative one during synthesis?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Not silently: annotate the conflict with both values and sources,\nthen reconcile explicitly, keeping established vs disputed distinct.",
+    "explanation_ja": "信頼できるソース間の矛盾は恣意的に選ばず、出典付きで注記する。文書分析は矛盾値を含めて完了させ、調停は coordinator が synthesis 前に判断する。確立済みと係争中の区分と、元の表現・方法論的文脈を保持する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q030",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t6-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why require publication or collection dates in a synthesis schema?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "So a 2021 figure and a 2025 figure are recognized as a time series,\nnot flagged as a source conflict.",
+    "explanation_ja": "日付が無いと、時間差による値の違いを矛盾と誤認する。構造化出力で公開日・収集日を必須にすれば、時系列として扱える。同様に、財務は表・ニュースは散文・技術所見は構造化リストと型に応じて描画する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
   }
 ]

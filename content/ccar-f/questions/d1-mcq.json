@@ -1,0 +1,847 @@
+[
+  {
+    "id": "f-d1-q501",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A travel-booking agent's loop ends the run whenever stop_reason is anything other than \"tool_use\". After a max_tokens value was added for cost control, some bookings end with a half-written itinerary and no error. What should the loop do when it sees stop_reason \"max_tokens\"?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Treat it like \"end_turn\" and return the partial itinerary to the traveler."
+      },
+      {
+        "label": "B",
+        "text_en": "Parse the partial text for a tool call and execute whatever it finds."
+      },
+      {
+        "label": "C",
+        "text_en": "Add an iteration cap so the loop cannot run away."
+      },
+      {
+        "label": "D",
+        "text_en": "Treat the output as truncated: continue the response or retry with a higher max_tokens instead of accepting it as complete."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "max_tokens は「応答が上限で切れた」ことを示す stop_reason であり、完了ではない。正解は D で、続きを生成させるか max_tokens を上げて再実行し、切れた出力を完成品として扱わない。A は途中の旅程をそのまま返すので、まさに今起きている障害を仕様化してしまう。B は切れたテキストに完全な tool_use ブロックは含まれず、パースは信頼できない。C の反復上限は暴走対策であって、切り捨てられた応答の扱いとは無関係である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/handling-stop-reasons",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q502",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A logistics agent calls three shipment-lookup tools in one turn. The loop was implemented to send each tool's result back in its own user message as soon as that tool finishes. The API rejects the second message. Why?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "tool_result blocks must be sent in the assistant role, not the user role."
+      },
+      {
+        "label": "B",
+        "text_en": "Only one tool_use block per response is allowed, so the second and third calls were invalid."
+      },
+      {
+        "label": "C",
+        "text_en": "All tool_result blocks for the tool_use blocks in a single response must be returned together in the same next user message."
+      },
+      {
+        "label": "D",
+        "text_en": "Results must be returned in the reverse order of the tool_use blocks."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "1 応答に複数の tool_use が含まれる場合、それぞれの tool_result は同じ次の user メッセージにまとめて返す必要がある。最初のメッセージが 1 件分しか含まないと、残りの tool_use が未回答のまま assistant ターンに進んだ形になり、続くメッセージは拒否される。A は逆で tool_result は user メッセージに置く。B は誤りで、1 応答に複数の tool_use は正常な挙動である。D の順序制約は存在せず、対応付けは tool_use_id で行う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/handle-tool-calls",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q503",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An HR onboarding assistant runs a fixed sequence — create account, assign laptop, schedule orientation — for every request. Managers now ask for varied things such as \"reactivate a returning contractor\" or \"move someone to a new team\". Which change turns the system into an agent rather than a workflow?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Let the model decide which tools to call, and in what order, based on the tool results accumulated in the conversation."
+      },
+      {
+        "label": "B",
+        "text_en": "Add a new branch to the sequence for each request type as it appears."
+      },
+      {
+        "label": "C",
+        "text_en": "Run every tool on every request and let the model filter the outputs afterwards."
+      },
+      {
+        "label": "D",
+        "text_en": "Replace the individual tools with a single do_everything tool that takes free text."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Anthropic の整理では、ワークフローは事前定義されたコードパスでツールを動かすもの、エージェントはモデルが履歴中のツール結果を見ながら自らプロセスとツール使用を動的に決めるものである。よって A が正解。B は分岐を増やしても決定木のままで、未知の依頼には対応できない。C は不要なツール実行でコストと副作用(不要なアカウント作成など)を生む。D はツールの境界を消して選択の根拠を失わせ、エージェント化とは逆方向である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/api/agent-sdk/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q504",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A security-triage agent stops after exactly five iterations \"to avoid runaway loops\". Complex incidents need eight to ten tool calls and end unfinished, while simple ones already finish in two. Which fix is correct?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Raise the cap from five to twenty iterations."
+      },
+      {
+        "label": "B",
+        "text_en": "Stop as soon as an assistant message contains any text."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask the model to reply with the word DONE and terminate on that string."
+      },
+      {
+        "label": "D",
+        "text_en": "End when the model returns stop_reason \"end_turn\", keeping a generous cap only as a safety net rather than the primary termination condition."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ループの主停止条件はモデルが返す stop_reason(end_turn)であるべきで、反復上限は暴走時の安全弁に留める。これが D。A は数字を変えただけで、上限を主停止条件にするアンチパターンは残る。B はモデルがツール呼び出しと同時にテキストを出すことが多いため、途中で止まる。C は自然言語シグナルの解析で、言い回しの揺れに弱く信頼できない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/handling-stop-reasons"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q505",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A due-diligence system has a coordinator plus subagents for filings, news, and litigation. The litigation subagent sometimes fails on rate limits, so the team proposes that the news subagent retry the litigation queries itself because it \"already has the context\". What is wrong with the proposal?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Subagents can only call search tools, so the retry would fail anyway."
+      },
+      {
+        "label": "B",
+        "text_en": "Rate-limit errors cannot be retried; the run must be restarted."
+      },
+      {
+        "label": "C",
+        "text_en": "The coordinator should be removed entirely so subagents talk to each other with less latency."
+      },
+      {
+        "label": "D",
+        "text_en": "Subagents have isolated context, so the news subagent does not have the litigation subagent's state; retry and re-delegation decisions belong in the coordinator."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "subagent は会話履歴を自動継承せず、それぞれ独立した文脈で動く。「文脈を持っている」という前提が誤りで、失敗の扱い(再試行するか、別の subagent に再委任するか)は hub-and-spoke の中心である coordinator が判断する。よって D。A はツール制限の話ではなく、subagent は付与されたツールを使える。B は誤りで、一時的な失敗はまさに再試行の対象である。C は coordinator の一元管理を捨てる案で、エラー処理と情報ルーティングの責任者がいなくなる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/api/agent-sdk/subagents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q506",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A product-research coordinator always launches all six subagents, so a one-line question about a competitor's founding year costs as much as a full market study. Which redesign follows the recommended pattern?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Have the coordinator assess the complexity of each query and select only the subagents it needs, scaling effort to the request."
+      },
+      {
+        "label": "B",
+        "text_en": "Cache the outputs of all six subagents for a week and reuse them."
+      },
+      {
+        "label": "C",
+        "text_en": "Merge the six subagents into one large subagent to cut overhead."
+      },
+      {
+        "label": "D",
+        "text_en": "Keep all six but run them in parallel so that latency, if not cost, improves."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "推奨パターンはクエリの複雑度に応じて subagent を動的に選ぶことで、単純な質問には少数、深い調査には多数を割り当てる。よって A。B はキャッシュで一時的に費用は減るが、鮮度と質問ごとの適合性を犠牲にし、設計の問題は残る。C は役割分離と文脈の隔離という利点を失う。D は並列化で待ち時間は縮んでも、不要な subagent を全て動かす無駄はそのままである。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q507",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "After the first synthesis of a market report, the coordinator notices there is no data for two regions. Which action matches the iterative refinement loop?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Deliver the report now with a note that regional data was unavailable."
+      },
+      {
+        "label": "B",
+        "text_en": "Re-run the entire research pipeline from the beginning."
+      },
+      {
+        "label": "C",
+        "text_en": "Delegate targeted follow-up research for exactly the missing regions, then re-synthesize and re-check coverage."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask the synthesis subagent to estimate the regional figures from the global totals."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "反復的洗練ループでは、coordinator が synthesis のギャップを評価し、不足部分に絞って再委任し、再 synthesis してカバレッジが十分になるまで繰り返す。これが C。A はギャップを放置しており、締切に余裕がある前提では不適切。B は既に十分な部分まで作り直す無駄が大きい。D はデータの捏造に相当し、出典のある所見という原則に反する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q508",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A recruiting screener defines subagents resume-parser, skills-matcher, and scheduler through AgentDefinition, each with a good description and system prompt. The skills-matcher, which should only read the candidate database, was observed sending calendar invites. What is the most direct fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Rewrite the skills-matcher description to say it must never send invites."
+      },
+      {
+        "label": "B",
+        "text_en": "Set the tools field of the skills-matcher AgentDefinition to the read-only database tools so the calendar tool is not available to it."
+      },
+      {
+        "label": "C",
+        "text_en": "Delete the scheduler subagent so no invites can be sent."
+      },
+      {
+        "label": "D",
+        "text_en": "Lower the model temperature for the skills-matcher."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "AgentDefinition の tools フィールドが subagent に許可するツールを決める。指定が無ければ subagent は利用可能なツールをそのまま引き継ぐため、読み取り専用にしたいなら tools を明示して制限する。これが B。A の description は coordinator が起動先を選ぶための説明であり、実行時の権限を制限しない。C はスケジューリング機能そのものを失う。D は温度で挙動が確率的に変わるだけで、権限の境界にはならない。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q509",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team using Claude Code created a subagent in .claude/agents/doc-finder.md to look up internal documentation. It works when invoked explicitly by name, but Claude never picks it automatically for documentation questions. What most likely needs to change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The subagent's description field, which Claude uses to decide when to delegate, is missing or too generic."
+      },
+      {
+        "label": "B",
+        "text_en": "Subagents must be defined inside CLAUDE.md rather than in .claude/agents/."
+      },
+      {
+        "label": "C",
+        "text_en": "Automatic delegation only happens while plan mode is active."
+      },
+      {
+        "label": "D",
+        "text_en": "The subagent needs an explicit tools list before it can be selected."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Claude Code はサブエージェントの description をタスクの説明と照合して自動委任を判断するため、description が無い・汎用的すぎると明示呼び出ししか効かない。よって A。B は誤りで、.claude/agents/ が正しい定義場所である。C は plan mode と委任は無関係。D の tools は利用ツールの制限であり、指定が無くても選択はされる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/sub-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q510",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A coordinator passes the analysis subagent a one-line note — \"the filings subagent found nothing alarming\" — and the analysis it gets back is shallow and cites no sources. Which fix follows the documented context-passing model?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Enable a shared-memory option so subagents can read each other's history."
+      },
+      {
+        "label": "B",
+        "text_en": "Have the analysis subagent re-run the filings search itself."
+      },
+      {
+        "label": "C",
+        "text_en": "Increase the analysis subagent's max_turns so it has time to locate the results."
+      },
+      {
+        "label": "D",
+        "text_en": "Include the filings subagent's complete findings — content plus source metadata — directly in the analysis subagent's prompt."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "subagent は親の文脈を継承せず、呼び出し間でメモリも共有しないため、先行 subagent の所見は要約の一行ではなく完全な形で prompt に直接含める。content と URL・文書名などの metadata を構造化して渡すと出典も保持され、分析に深さが出る。よって D。A のような共有メモリ機構は存在せず、隔離こそが設計である。B は同じ調査の二重実行で費用と時間を浪費する。C はターン数を増やしても渡されていない情報は現れない。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q511",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A coordinator's entire prompt to a research subagent is: \"Find everything about topic X.\" The subagent returns an unfocused dump that overlaps other subagents' work and cites nothing. Which rewrite is recommended?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a fixed list of URLs the subagent must open in order."
+      },
+      {
+        "label": "B",
+        "text_en": "State the objective, the boundaries of what this subagent owns, the expected output format, and quality criteria such as citing a primary source for every figure."
+      },
+      {
+        "label": "C",
+        "text_en": "Split the request across five subagents with the same prompt."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask the subagent to keep searching until it has fifty results."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "目標・境界・出力形式・品質基準を示す goal-oriented な prompt が subagent の成果を実行可能にする。境界が無いと他の subagent と重複し、形式と基準が無いと出典の無いダンプになる。よって B。A は手順の固定で、ソースが変わると壊れる。C は同じ曖昧さを 5 倍にする。D は量の指定であり質の基準ではない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q512",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A payroll-adjustment agent must never call apply_adjustment before verify_manager_approval has succeeded for the same request. Select TWO places where the ordering can be enforced deterministically.",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Inside the apply_adjustment tool implementation, which checks for an approval record and fails otherwise."
+      },
+      {
+        "label": "B",
+        "text_en": "In the orchestration code that dispatches tool calls, which refuses to execute apply_adjustment without a recorded approval."
+      },
+      {
+        "label": "C",
+        "text_en": "In the system prompt, with strong wording about the required order."
+      },
+      {
+        "label": "D",
+        "text_en": "In a few-shot example that demonstrates the correct order of calls."
+      }
+    ],
+    "answer": [
+      "A",
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "決定論的な順序遵守はコードで保証する。ツール実装内で承認記録を確認する方法(A)と、呼び出しを実行するオーケストレーション側で拒否する方法(B)はどちらも prerequisite gate として機能する。C と D は prompt ベースの誘導で、失敗率を下げてもゼロにはならないため、給与操作のような不可逆処理の保証にはならない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/api/agent-sdk/hooks"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q513",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An IT helpdesk agent escalates an unresolved VPN outage with a structured summary: user and device identifiers, the observed error, the suspected root cause, and a recommended next action. The on-call engineer, who cannot see the chat, still repeats twenty minutes of steps the agent already ran. Which element is missing from the handoff?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The customer's sentiment score and priority level."
+      },
+      {
+        "label": "B",
+        "text_en": "The actions the agent already attempted and their outcomes."
+      },
+      {
+        "label": "C",
+        "text_en": "The complete raw transcript of the conversation."
+      },
+      {
+        "label": "D",
+        "text_en": "A link to the agent's system prompt."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "会話ログを見られない人間への引き継ぎでは、識別子・原因・推奨対応に加えて「何を試して何が起きたか」が無いと同じ作業が繰り返される。よって B。A は優先順位付けには使えても復旧作業の情報にならない。C は生ログを読み解く負担が大きく、要点が埋もれる。D はエージェントの仕様であって事案の情報ではない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q514",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A fleet-monitoring agent gets telemetry from two MCP servers: one reports speed in km/h as a number, the other in mph as a string. The model sometimes compares the two as if they were the same unit. Where should the inconsistency be resolved?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "In the system prompt, by listing which tool uses which unit."
+      },
+      {
+        "label": "B",
+        "text_en": "By asking the model to convert the units in its reasoning on every comparison."
+      },
+      {
+        "label": "C",
+        "text_en": "In a PreToolUse hook that blocks the mph tool."
+      },
+      {
+        "label": "D",
+        "text_en": "In a PostToolUse hook that normalizes both outputs to one unit and type before the model sees them."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "異種ツールの出力形式の違いは、モデルが処理する前に PostToolUse hook で正規化するのが定石である。これが D。A と B はモデルに変換を任せる方法で、比較のたびに間違える余地が残る。C は片方のデータ源を失うだけで、正規化にはならない。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/hooks",
+      "https://docs.claude.com/en/docs/claude-code/hooks"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q515",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A procurement agent may approve purchase orders up to $5,000. A PreToolUse hook now blocks approve_po above that limit, but the agent keeps retrying the same call and eventually gives up without helping the user. What should the hook's response add?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A deny reason that explains the limit and points the model to the alternate path, such as route_for_human_approval."
+      },
+      {
+        "label": "B",
+        "text_en": "A longer delay before the model is allowed to retry."
+      },
+      {
+        "label": "C",
+        "text_en": "A silent failure so the model does not notice that the call was blocked."
+      },
+      {
+        "label": "D",
+        "text_en": "A message asking the user to lower the amount below the limit."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "hook でブロックするだけでは、モデルは理由を知らずに同じ呼び出しを繰り返す。拒否理由と代替フロー(人間の承認へ回す)を返すと、モデルは次の行動を選べる。よって A。B は再試行の間隔が延びるだけで行動は変わらない。C はブロックを隠すため、モデルは成功したと誤認しかねない。D は正当な高額発注の経路を閉ざし、ユーザーに問題を押し付ける。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/hooks"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q516",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Two workloads: (1) a monthly reconciliation job with fixed stages — pull ledgers, match entries, produce the variance report — and (2) an investigation into why an integration test fails intermittently. Which decomposition matches each?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Prompt chaining for both workloads."
+      },
+      {
+        "label": "B",
+        "text_en": "Dynamic decomposition for both workloads."
+      },
+      {
+        "label": "C",
+        "text_en": "Prompt chaining for the reconciliation job; dynamic decomposition, where each next step depends on interim findings, for the investigation."
+      },
+      {
+        "label": "D",
+        "text_en": "Dynamic decomposition for the reconciliation job; prompt chaining for the investigation."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "予測可能で段階が固定された作業は prompt chaining(固定のシーケンシャルパイプライン)が最も安定し、原因不明の調査のようにオープンエンドな作業は中間所見に基づく動的分解が向く。よって C。A は調査を固定手順に押し込めて行き止まりになり、B は照合ジョブに不要な変動と費用を持ち込む。D は両者を取り違えている。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q517",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Reviewing a 300-file pull request in one prompt exceeds the context window, and a naive file-by-file split misses that two modules now disagree on a shared interface. Which structure is recommended?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Per-file passes for local issues, followed by an integration pass that receives the per-file findings and looks for cross-file inconsistencies."
+      },
+      {
+        "label": "B",
+        "text_en": "Review only the ten largest files in the pull request."
+      },
+      {
+        "label": "C",
+        "text_en": "Review a random sample of files in a single pass."
+      },
+      {
+        "label": "D",
+        "text_en": "Summarize every file first and review only the summaries."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "大規模レビューはファイル単位のローカル分析パスと、その所見を入力にした横断統合パスに分ける。ローカルパスが注意の希釈を防ぎ、統合パスがインターフェースの不一致のような横断問題を拾う。よって A。B と C は対象を減らすだけで、見落としを増やす。D は要約の段階で契約の細部が失われ、まさに検出したい不一致が消える。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q518",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t7-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An Agent SDK job analyzed a repository yesterday. Today three files changed and the team resumes the same session by session_id, but the agent re-reads the whole repository and spends most of the budget. What should the resume prompt include?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "An instruction to forget the previous analysis and start over."
+      },
+      {
+        "label": "B",
+        "text_en": "The list of files that changed since the last session, with a request to re-analyze only those and their dependents."
+      },
+      {
+        "label": "C",
+        "text_en": "A copy of the previous session's full transcript."
+      },
+      {
+        "label": "D",
+        "text_en": "A request to fork the session before doing anything."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "再開時に変更ファイルを明示し、対象をそれらと依存先に限定すれば、前回の分析を活かして再分析を絞れる。これが B。A は resume の利点を捨てる。C は既に resume で引き継がれている履歴を重複させ、文脈を圧迫する。D の fork は分岐探索のための機構であり、対象を絞る問題とは無関係である。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/sessions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q519",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t7-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "From one completed code-analysis session, an engineer wants to explore two independent refactoring approaches without either exploration contaminating the other. Which mechanism fits?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Continue in the same session and ask the model to keep the two approaches separate."
+      },
+      {
+        "label": "B",
+        "text_en": "Start two brand-new sessions with no prior context."
+      },
+      {
+        "label": "C",
+        "text_en": "Resume the session twice with fork_session enabled so each exploration branches from the shared baseline."
+      },
+      {
+        "label": "D",
+        "text_en": "Run /compact between the two explorations."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "fork_session は共有ベースラインから独立した分岐を作るための機構で、二つの探索が互いの文脈を汚さない。よって C。A は同じ文脈に両方が積み上がり、分離は保証されない。B は分析結果を捨てて一から始めることになる。D の /compact は文脈の圧縮であり、分岐を作るものではない。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/sessions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

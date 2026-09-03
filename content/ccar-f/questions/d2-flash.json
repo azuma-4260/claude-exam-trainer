@@ -678,5 +678,227 @@
     "difficulty": 1,
     "status": "active",
     "rev": 1
+  },
+  {
+    "id": "f-d2-q029",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Two tools have descriptions that differ by a single adjective — what does Claude rely on to choose between them, and what happens when that is not enough?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The description text itself; when descriptions overlap, selection becomes unstable\nand routing flips between the tools from call to call.",
+    "explanation_ja": "ツール選択の主手段は description なので、似た説明が並ぶと呼び分けが不安定になる。入力形式・例・境界(どの場合に使わないか)を書き分けて差を明確にする。名前だけ変えても説明が同じなら改善しない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q030",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How should a tool description express its boundary against a neighboring tool?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "State when to use it and when not to, naming the alternative tool\nfor the excluded cases (e.g. \"for order history use search_orders\").",
+    "explanation_ja": "境界は「いつ使うか」と「いつ使わないか」を書き、除外ケースでは代わりに使うツール名を挙げる。近接ツール同士で互いを参照し合うと誤ルーティングが減る。機能の列挙だけでは境界は伝わらない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q031",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When should overlapping tools be consolidated rather than renamed or split?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "When they are thin wrappers over steps the agent always runs together;\none workflow-shaped tool with a clear I/O contract replaces them.",
+    "explanation_ja": "常に一緒に呼ばれる薄いラッパー群は統合して 1 つのワークフロー型ツールにすると選択が安定する。用途が本当に違うならリネームで区別し、汎用すぎるなら目的別に分割する。判断基準はエージェントの実際の作業単位に合っているかである。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q032",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An MCP tool returns an empty list both when there is no data and when the backend times out — what should change?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Report the timeout as an error result (isError) with the cause and a next step;\nreserve the empty list for a genuinely empty result.",
+    "explanation_ja": "アクセス失敗と正当な空結果を区別できないと、エージェントは障害中に「データなし」と誤答する。一時的な失敗は isError 付きの結果として理由と次の行動を返す。空の成功は本当に空のときだけに限定する。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/custom-tools",
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q033",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A synthesis agent whose only job is to write the report has web search attached — why remove it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Out-of-role tools invite misuse (searching instead of synthesizing)\nand inflate the candidate set the model must choose from.",
+    "explanation_ja": "役割に不要なツールがあると、専門外の作業をしてしまう誤用が起きる。候補ツールが増えるほど description の照合も難しくなる。役割ごとに必要なツールだけを付与するのが原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q034",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How do you give many subagents a small but frequent capability such as fact verification without attaching the whole tool set?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Expose a narrowly scoped cross-role tool (e.g. verify_fact) to all of them\nand route complex cases through the coordinator.",
+    "explanation_ja": "高頻度で必要な小さな機能は、限定的なクロスロールツールとして共有する。複雑なケースまで各 subagent に任せず coordinator 経由にする。汎用ツールを全員に配るより誤用が少ない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q035",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What happens the first time Claude Code encounters a project-scoped MCP server defined in a repository's .mcp.json?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It asks you to approve the server before using it,\nso a cloned repository cannot silently run arbitrary servers.",
+    "explanation_ja": "プロジェクトスコープの .mcp.json はリポジトリ由来なので、初回は利用前に承認を求められる。クローンしただけで任意のサーバーが動くことを防ぐ安全策である。承認の記憶は claude mcp reset-project-choices でリセットできる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q036",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Claude Code keeps using the built-in Grep instead of a connected semantic code-search MCP tool — what is the usual cause?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The MCP tool's description does not say when it beats Grep;\nstrengthen it (semantic queries, natural-language intent) so the model prefers it.",
+    "explanation_ja": "組み込みツールと MCP ツールが競合するときも、選択の根拠は description である。MCP ツール側に「どんな依頼で組み込みより適切か」を書くと選ばれやすくなる。サーバーを接続しただけでは優先されない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q037",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An agent calls list_items and get_item dozens of times just to learn what exists in a catalog — which MCP feature fits better?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "MCP resources: publish the catalog (issues, docs tree, DB schema) as a resource\nthe agent reads directly instead of probing with tool calls.",
+    "explanation_ja": "一覧や階層のような「存在を知るための情報」は、探索的なツール呼び出しではなくリソースとして公開する。エージェントは @server:uri で直接参照できる。呼び出し回数と文脈の消費が減る。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
   }
 ]

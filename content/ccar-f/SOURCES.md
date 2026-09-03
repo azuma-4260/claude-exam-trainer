@@ -747,6 +747,9 @@ You are building a structured data extraction system using Claude. The system ex
 | 2026-08-27 | C3b-A Step 4: §3.1 の現行診断注記を訂正(`/context` は広い初期診断、`/memory` はロード済み memory の詳細一覧にも使用)。複数正解化した flash f-d3-q005 を retired、f-d3-q031 を新規(flagged)。関連する f-d3-q006 / f-d3-q101 は解説の事実訂正として rev++ し flagged へ戻した |
 | 2026-09-02 | C3b-B: §3.1 の現行診断注記を再訂正(`/memory` はファイルの場所一覧と編集用、ロード済み確認は `/context` の Memory files のみ)。syllabus.yaml f-d3-t1-03 scope_ja も同時修正。旧注記に依拠した active カードを同セッションで修正(B-C3b-B-2、オーナー指示): 正解が誤りの flash f-d3-q031 を retired、f-d3-q032 を新規。解説のみ誤りの f-d3-q006 / f-d3-q101 / form A f-d3-q203 は editorial fix で rev++。いずれも 07 Step 4 の修正ループ(flagged → refs 突合 → 再レビュー 2 周 → active → 全件監査 → Codex 再レビュー)を通す |
 | 2026-09-02 | C3b-B: §3 1.1 に stop_reason "pause_turn" と複数 tool_use ブロックの現行注記を追加(syllabus f-d1-t1-01 scope_ja も拡張)。syllabus f-d1-t5-01 に hook の【primary 境界】注記を追加 |
+| 2026-09-03 | C5: question id の帯割当を確定(ファイル名非依存、`scripts/audit-practice-mcq.ts` が同じ定義を使う): `q001〜q099` flash(C2/C5、ドメイン内連番・retired 含む)/ `q101〜q199` Practice 専用シナリオ MCQ(C3a)/ `q201〜q299` form A / `q301〜q399` form B / **`q401〜q499` form C(予約)** / **`q501〜q599` 独立 MCQ(C5、`eligible_modes: ["mock","practice"]`、`srs_eligible: true`、`scenario_id: null`。オーナー決定 2026-09-03)** |
+| 2026-09-03 | C5 Step 5 生成: flash +50(d1 q041〜q054 / d2 q029〜q037 / d3 q033〜q042 / d4 q031〜q040 / d5 q024〜q030、合計 200)と独立 MCQ 70(d1 q501〜q519 / d2 q501〜q513 / d3 q501〜q514 / d4 q501〜q514 / d5 q501〜q510)を flagged で追加。配分根拠は `content/ccar-f/C5-allocation.md`(export の proficiency / 正答率に基づく)。Step 4 は別セッション(step4-review)で実施 |
+| 2026-09-03 | C5 Step 4(step4-review セッション): refs 37 URL 到達確認、独立レビュー 2 周(P1 0 件)、重複統合で 42 件を別角度に書き直し(同一具体例 0)、新規 120 件を active 化。手順と件数は `content/ccar-f/C5-allocation.md` §Step 4 |
 
 ## 10. refs ソース台帳(C2・2026-08-24)
 

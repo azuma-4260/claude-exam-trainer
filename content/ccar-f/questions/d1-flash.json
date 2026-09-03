@@ -983,5 +983,349 @@
     "difficulty": 2,
     "status": "active",
     "rev": 1
+  },
+  {
+    "id": "f-d1-q041",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When one assistant response contains two tool_use blocks, how many user messages should carry the corresponding tool_result blocks?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "One: execute both tools, then return all tool_result blocks together\nin the same next user message, each matching its tool_use id.",
+    "explanation_ja": "1 応答内の複数 tool_use は全て実行し、結果は同じ次の user メッセージにまとめて返す。tool_result を別々のメッセージに分けると、未回答の tool_use が残った状態になり API に拒否される。id の対応付けで順序に依存しない突合ができる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/handle-tool-calls",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q042",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "During a server-side web search sweep the response comes back with stop_reason \"pause_turn\" — is the task finished?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "No. The server tool loop hit its iteration limit;\nsend the response content back as-is in the next request so Claude continues.",
+    "explanation_ja": "pause_turn は完了ではなく、サーバーツール実行の反復上限で一旦返ってきた状態である。応答の内容をそのまま次のリクエストに含めて送り返せば処理が続く。end_turn と同じ扱いにすると途中の結果で止まってしまう。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/handling-stop-reasons"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q043",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A coordinator lets subagents forward outputs directly to one another to save turns — what does the design lose?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Centralized routing, error handling, and the coordinator's view of overall state;\nhub-and-spoke keeps every hand-off flowing through the coordinator.",
+    "explanation_ja": "hub-and-spoke では通信・エラー処理・情報ルーティングを coordinator が一元管理する。subagent 同士を直結すると失敗の把握や再委任の判断ができなくなる。ターン数の節約より制御の一元化を優先する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/api/agent-sdk/subagents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q044",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What goes wrong when a coordinator partitions research into subtopics that are too narrow?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Subagents return fragmented, overlapping, or trivial findings\nand the coordinator spends its effort re-integrating them.",
+    "explanation_ja": "分割が狭すぎると各 subagent の成果が断片的になり、統合コストが上がる。逆に広すぎると重複調査が起きる。クエリの複雑度に応じてサブトピックやソース種別で切るのが目安である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q045",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What tool access does a subagent get when its AgentDefinition omits the tools field?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It inherits every tool available to the parent;\nlist tools explicitly to give each role least privilege.",
+    "explanation_ja": "tools を省略した subagent は親と同じツール群をそのまま使える。読み取り専用の役割に書き込み系ツールが渡るのを防ぐには、役割ごとに tools を明示する。description が選択、tools が権限という分担を覚える。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q046",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Subagents are never used — how do you tell \"not permitted\" from \"not selected\"?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "If \"Agent\" is missing from the coordinator's allowedTools nothing is ever spawned;\nif it is present but the wrong or no subagent is picked, the descriptions are the problem.",
+    "explanation_ja": "起動が一度も起きないなら allowedTools に Agent(旧称 Task)が無い権限の問題である。起動はするが選択がおかしいなら description の照合の問題である。原因の層が違うので、まずどちらかを切り分ける。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://docs.claude.com/en/api/agent-sdk/overview"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q047",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When handing a previous subagent's findings to the next one, why keep content separate from metadata such as URL and document name?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "So attribution survives synthesis: every claim stays linked to its source\nand the next subagent can cite instead of paraphrase.",
+    "explanation_ja": "subagent は親の文脈もメモリも継承しないため、先行の所見は prompt に直接含める。その際 content と URL・文書名・ページなどの metadata を構造化して分けると、出典が最後まで保持される。散文に混ぜ込むと引用元が失われる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/api/agent-sdk/subagents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q048",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When must subagent calls be issued sequentially instead of in parallel within one coordinator response?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "When one subagent needs another's output as input;\nparallel launches in one response are for independent work only.",
+    "explanation_ja": "1 応答内の複数 Agent 呼び出しは並列に走るため、依存関係のある作業を同時に起動すると後段が空の入力で動く。前段の結果が必要な場合は結果を受け取ってから次のターンで起動する。独立した作業だけを並列にする。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q049",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What does a good quality criterion in a subagent prompt look like, compared with a procedural step?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "\"Every figure must cite a primary source and its date\" is a criterion;\n\"open the first three results\" is a step that breaks when sources differ.",
+    "explanation_ja": "品質基準は成果物が満たすべき条件を述べ、手順は特定のやり方を固定する。基準で指示すればソースが変わっても subagent は自分で手順を選べる。目標・出力形式・品質基準を渡し、手順は任せるのが原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q050",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why can a PostToolUse hook not enforce a refund limit, while a PreToolUse hook can?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "PostToolUse runs after the tool executed, so the refund has already happened;\nPreToolUse intercepts the call before execution and can deny it.",
+    "explanation_ja": "PostToolUse はツール実行後に出力を扱う hook で、副作用を取り消せない。ポリシー違反の呼び出しを止めるには実行前に介入する PreToolUse を使う。出力の正規化は PostToolUse、実行の可否は PreToolUse という分担である。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/hooks",
+      "https://docs.claude.com/en/docs/claude-code/hooks"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q051",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A nightly translation job always runs detect-language → translate → format — which decomposition fits, and why not dynamic decomposition?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Prompt chaining (a fixed sequential pipeline);\ndynamic decomposition adds cost and variance to a task with no open-ended branches.",
+    "explanation_ja": "手順が予測可能な多段タスクは固定のシーケンシャルパイプラインが最も安定する。動的分解はオープンエンドな調査で中間所見に応じて次を決めるための手法である。用途を取り違えると不要なコストと変動が入る。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q052",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In a large code review, what does the integration pass add on top of the per-file passes?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Cross-file findings: inconsistent patterns, contract mismatches, and duplicated logic\nthat no single-file pass can see.",
+    "explanation_ja": "ファイル単位のパスは局所的な問題に集中でき、注意の希釈を防ぐ。横断統合パスはファイル間の矛盾や契約の不一致を拾う。両方を組み合わせて初めて大規模レビューが成立する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q053",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t7-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In Claude Code, how do --continue and --resume differ?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "--continue reopens the most recent conversation in the current directory;\n--resume lets you pick (or name by ID) a specific past session.",
+    "explanation_ja": "--continue はそのディレクトリの直近の会話を再開する。--resume は過去のセッションから選んで(または ID 指定で)再開する。Agent SDK の resume オプションに session_id を渡すのと同じ発想である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/cli-reference",
+      "https://docs.claude.com/en/api/agent-sdk/sessions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d1-q054",
+    "exam": "ccar-f",
+    "domain_id": "f-d1",
+    "primary_topic_id": "f-d1-t7-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A long session is full of stale tool results — should you resume it or start fresh?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Start fresh and inject a structured summary of what still holds;\nresuming carries the stale results into every new turn.",
+    "explanation_ja": "古いツール結果が多いセッションを resume すると、無効な情報が推論に混ざり続ける。有効な要点だけを構造化サマリとして新セッションに注入する方が信頼できる。fork_session は共有ベースラインから分岐する用途で、古い文脈の除去には向かない。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/sessions",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
   }
 ]

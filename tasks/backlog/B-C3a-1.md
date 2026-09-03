@@ -2,13 +2,14 @@
 id: B-C3a-1
 origin: C3a
 created: 2026-08-24
-status: open
+status: absorbed-by C5
 related_tasks: [C3b-A, C5]
 related_specs: ["07#step-3a-practice-専用シナリオ-mcq828-までフォーム非収載", "09#1-順序を支配する原則"]
 related_paths: [content/ccar-f/questions, scripts]
 related_backlog: [B-D0-3-2]
 stop_condition: none
 decisions:
+  - { at: 2026-09-03, by: C5, action: absorb, note: "C3a 固有条件(q101〜q199 帯: live 件数 15〜20 / distinct scenario_id=2 かつ各使用数>0 / 全 5 ドメイン各 2 問以上 / eligible_modes=[practice] / srs_eligible=true / refs 台帳照合 / 帯内連番)を scripts/audit-practice-mcq.ts + npm run audit:practice で恒久化(C5 帯 q501〜 の独立 MCQ 条件も同スクリプト)。テスト scripts/audit-practice-mcq.test.ts。現行バンク 18 問で緑" }
   - { at: 2026-08-27, by: C3b-A, action: absorb, note: "フォーム収載 MCQ の固有不変条件は scripts/audit-form-mcq.ts + npm run audit:form で恒久化(固定値・status・refs 台帳を fail closed 検査)。C3a の Practice 専用 MCQ 固有条件(件数 15〜20 / practice 固定等)の恒久化は C5 へ defer 継続(status は open のまま)" }
 ---
 # C3a 固有不変条件の監査がアドホック(恒久スクリプト化を defer)

@@ -1,0 +1,447 @@
+[
+  {
+    "id": "f-d5-q501",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A tutoring agent summarizes older turns to stay within the context window. After summarization it sometimes forgets the student's chosen exam date and target score, which were stated early in the session. How should the team preserve these details?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Summarize less often so the details survive longer."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep a persistent structured block — exam date, target score, weak topics — outside the summarized history and pass it intact on every request."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask the student to restate the exam date at the start of each session."
+      },
+      {
+        "label": "D",
+        "text_en": "Increase max_tokens so the summary can be longer."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "要約は日付や数値のような精密な事実を曖昧化する。学習者の事実は要約対象外の永続ブロックに抽出し、毎回そのまま渡す。よって B。A は劣化の時期を遅らせるだけで、いずれ失われる。C は設計の欠陥を利用者に転嫁している。D は要約の長さと事実の保持は別問題で、長い要約でも精密値は曖昧化し得る。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q502",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A compliance assistant reliably answers questions about the first and last chapters of a 12-chapter policy, but misses clauses from the middle chapters even though they are in the prompt. What is the recommended mitigation?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Split the policy into twelve separate requests and merge the answers."
+      },
+      {
+        "label": "B",
+        "text_en": "Remove the first and last chapters so the middle gets attention."
+      },
+      {
+        "label": "C",
+        "text_en": "Structure the input with explicit chapter headings, put a summary of key points up front, and ask the model to quote the relevant passages before answering."
+      },
+      {
+        "label": "D",
+        "text_en": "Increase the context window size."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "長文入力の中央部が欠落しやすい lost-in-the-middle には、明示的な見出しで構造化し、要点サマリを先頭に置き、回答前に関連箇所の引用を求める対策が効く。よって C。A は章をまたぐ条項の関係が失われる。B は必要な情報を捨てる。D は既に収まっている入力の注意配分の問題なので、窓の拡大では解決しない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q503",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An analytics agent's SQL tool returns 5,000 rows with 30 columns for the question \"who are our top customers this quarter?\", and the session's context is exhausted after two questions. What should change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Have the tool aggregate and paginate server-side, returning only the relevant columns and the top rows the question needs."
+      },
+      {
+        "label": "B",
+        "text_en": "Ask the model to ignore rows it does not need."
+      },
+      {
+        "label": "C",
+        "text_en": "Raise the tool's timeout so the full result loads."
+      },
+      {
+        "label": "D",
+        "text_en": "Return the rows as a compressed string."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ツール出力は下流の文脈予算に合わせて絞る。関連する列と行だけを返し、集計はツール側で行う。よって A。B は既に文脈に入った出力は消費済みである。C は時間の問題ではない。D は圧縮された文字列も文脈を消費し、モデルが読めなくなるだけである。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q504",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A support team proposes escalating to a human whenever the model's self-reported confidence falls below 0.6. Which statement about escalation triggers is correct?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Self-reported confidence is the most reliable trigger because the model knows its own limits."
+      },
+      {
+        "label": "B",
+        "text_en": "Escalation should be triggered by sentiment analysis of the customer's tone."
+      },
+      {
+        "label": "C",
+        "text_en": "Escalation should happen only after three failed resolution attempts."
+      },
+      {
+        "label": "D",
+        "text_en": "Appropriate triggers are an explicit request for a human, a policy exception or gap, and inability to make progress; self-reported confidence and sentiment are poor triggers."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "適切なエスカレーショントリガーは、人間の明示要求・ポリシー例外や欠落・進展不能である。自己申告 confidence や sentiment は較正されておらず誤作動が多い。よって D。A は自己申告を過信している。B は不満の表明に対しては解決策の提示が先で、感情だけで移譲しない。C は明示要求を無視して 3 回試すことになり、不適切である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q505",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A customer gives only their name, and the account lookup returns two matching records. The agent currently proceeds with the most recently updated one. What should it do instead?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Proceed with the record that has the most orders."
+      },
+      {
+        "label": "B",
+        "text_en": "Ask the customer for an additional identifier — email or order number — before taking any action."
+      },
+      {
+        "label": "C",
+        "text_en": "Merge the two records to be safe."
+      },
+      {
+        "label": "D",
+        "text_en": "Escalate to a human immediately."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "複数一致はヒューリスティックで選ばず、追加の識別子を求めて一意に絞る。よって B。A と現在の実装は根拠の無い推測で、他人のアカウントを操作する危険がある。C はデータ破壊に相当する。D は識別子を尋ねれば解決する事案で、人間の手を煩わせる必要は無い。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q506",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A pricing-research subagent returns an empty list whenever its data source fails. The synthesis step then reports \"no pricing data is available\" as a finding. Which fix is recommended?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Have the subagent retry until it succeeds, however long that takes."
+      },
+      {
+        "label": "B",
+        "text_en": "Stop the whole run whenever any subagent returns an empty result."
+      },
+      {
+        "label": "C",
+        "text_en": "Have the subagent return a structured error — failure type, queries attempted, partial results, suggested alternatives — instead of an empty success."
+      },
+      {
+        "label": "D",
+        "text_en": "Have the synthesis step omit pricing whenever the list is empty."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "失敗を空結果として返すのは黙殺のアンチパターンで、synthesis が「データなし」と誤った結論を出す。失敗種別・試行クエリ・部分結果・代替案を含む構造化エラーを返す。よって C。A は一時的失敗でない場合に終わらない。B は単一失敗で全体停止という逆のアンチパターン。D は黙殺を synthesis 側で繰り返している。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q507",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "The coordinator receives from a subagent: \"2 of 5 databases timed out; partial findings from the other 3; queries attempted are listed.\" What should the coordinator do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Decide per failure — retry the transient timeouts if time allows — and annotate the synthesis with what is well-supported and where gaps remain."
+      },
+      {
+        "label": "B",
+        "text_en": "Abort the run because the findings are incomplete."
+      },
+      {
+        "label": "C",
+        "text_en": "Treat the partial findings as complete and proceed."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask the subagent to fill the gaps from general knowledge."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "coordinator は伝播されたエラーから回復判断を行い、埋められない部分は synthesis に「裏付け十分 / ソース欠落によるギャップ」として注記する。よって A。B は得られた成果を捨てる過剰反応。C はギャップを隠して網羅性を偽る。D は捏造の要求に等しい。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q508",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Late in a six-hour Agent SDK migration run, the agent must answer \"does the orders module still call the deprecated pricing API?\" Its context is full of stale tool output from earlier phases. Which approach gives the most reliable answer?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Answer from what the agent remembers reading three hours ago."
+      },
+      {
+        "label": "B",
+        "text_en": "Run /compact and then answer from the compacted context."
+      },
+      {
+        "label": "C",
+        "text_en": "Restart the whole migration run so the context is fresh."
+      },
+      {
+        "label": "D",
+        "text_en": "Delegate the pointed question to a fresh subagent that reads the current files and returns a short answer, keeping the main context intact."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "文脈が古い出力で埋まった長期セッションでは、特定の質問を新しい subagent に委任して現在のファイルから答えさせるのが確実である。よって D。A は古い記憶に基づき、その後の変更を反映しない。B は圧縮しても古い情報が古いままである。C は積み上げた作業を捨てる過剰な対処である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/claude-code/costs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q509",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A document pipeline sends only the records the model marks as uncertain to human review and trusts every high-confidence output completely. Reviewers can handle about 200 documents a day. What is missing from this design?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Nothing; uncertainty routing is sufficient."
+      },
+      {
+        "label": "B",
+        "text_en": "Stratified random sampling of the high-confidence stream to monitor its true error rate and catch new failure patterns, with thresholds calibrated on a labeled set."
+      },
+      {
+        "label": "C",
+        "text_en": "Review every document regardless of confidence."
+      },
+      {
+        "label": "D",
+        "text_en": "Route only documents above 0.99 confidence to review, since those are the hardest."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "confidence は labeled set で較正して閾値を決め、高確信の流れも層化ランダム抽出で監視しないと誤り率の悪化や新規パターンに気付けない。限られたレビュー能力は低確信・矛盾文書に優先配分する。よって B。A は高確信出力の劣化を検知できない。C は能力を超える。D は逆で、最も確信が高い文書に能力を割いてしまう。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d5-q510",
+    "exam": "ccar-f",
+    "domain_id": "f-d5",
+    "primary_topic_id": "f-d5-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A research report contains citations, but they were added by the synthesis agent from memory and several point to documents that do not support the claim. What should change upstream?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Remove citations entirely to avoid errors."
+      },
+      {
+        "label": "B",
+        "text_en": "Ask the synthesis agent to double-check each citation."
+      },
+      {
+        "label": "C",
+        "text_en": "Have the research subagents emit claim-source mappings — URL, document name, excerpt — that are preserved through synthesis, and pass the source documents to a citation step."
+      },
+      {
+        "label": "D",
+        "text_en": "Let the synthesis agent search the web again for each claim."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "出典は要約の過程で失われやすいので、subagent の段階で claim-source mapping を出力させ、synthesis まで保持する。引用の付与は所見と原文を渡した citation 工程で行う。よって C。A は検証可能性を捨てる。B は根拠を持たない agent に確認させても改善しない。D は元の調査と別のソースに紐付け直す恐れがある。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

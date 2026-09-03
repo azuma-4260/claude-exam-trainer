@@ -733,5 +733,252 @@
     "difficulty": 2,
     "status": "active",
     "rev": 1
+  },
+  {
+    "id": "f-d4-q031",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "After temporarily disabling a review category for false positives, what has to happen before it is re-enabled?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Rewrite its criteria as explicit report/skip cases with examples\nand measure precision on labeled samples until it earns trust back.",
+    "explanation_ja": "無効化は一時的な措置であり、再有効化には明示的な基準と具体例による改善が要る。改善後は labeled サンプルで精度を測り、信頼を回復してから戻す。曖昧な指示のまま戻すと同じ不信が再発する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q032",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why must the acceptable side of a contrastive few-shot pair come from the team's own accepted code rather than a generic example?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Because team-specific tolerated patterns are tacit knowledge the model cannot infer;\nonly a real accepted example teaches it where the boundary lies.",
+    "explanation_ja": "チームが容認しているパターンはモデルが知り得ない暗黙知である。実際の容認例を「問題なし」として示して初めて境界が伝わる。汎用的な例では、そのチーム固有の誤検知は減らない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q033",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "After forcing extract_metadata with tool_choice on the first call, why should the follow-up request not keep that setting?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A forced tool_choice would force the same tool again;\nswitch back to auto or any so the model can pick the next action.",
+    "explanation_ja": "名前指定の tool_choice は毎回その 1 つのツールを強制する。先に必ず走らせたいのは最初の呼び出しだけなので、後続ターンでは auto や any に戻して次の行動を選ばせる。強制を残すと enrichment 用のツールが呼ばれない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q034",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Where do normalization rules such as \"ISO 8601 dates\" or \"amounts without currency symbols\" belong when the schema alone cannot express them?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "In the prompt as explicit normalization rules;\nthe schema constrains type and shape, the prompt defines the canonical form.",
+    "explanation_ja": "スキーマは型と構造を制約するが、日付形式や通貨表記のような正規形は prompt 側の正規化ルールで指示する。両者を組み合わせて初めて下流が安定して使える値になる。ルールが無いと同じ値が複数の表記で返る。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q035",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Schema validation passed but the document total does not equal the sum of the line items — which class of error is this, and can the schema catch it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A semantic error; schemas guarantee only syntax and types,\nso cross-field checks must run in application-side validation.",
+    "explanation_ja": "スキーマは構造と型の準拠を保証するが、値同士の意味的整合(合計不一致・フィールドの取り違え)は防げない。フィールド間の関係はアプリ側の検証ルールで確認する。構文エラーと意味エラーは対策の層が違う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q036",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why validate an extraction with code such as Pydantic instead of asking the model whether its own output is valid?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Code validation is deterministic and yields a specific error to feed back;\nthe model's self-check is unreliable and rarely finds its own mistakes.",
+    "explanation_ja": "検証は Pydantic 等のコードで決定論的に行い、具体的な検証エラーを再試行の入力にする。モデルに「妥当か」と尋ねる自己確認は信頼できず、ほとんど誤りを見つけない。エラーの具体性が再試行の効果を決める。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q037",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What is the purpose of returning calculated_total next to stated_total in an extraction schema?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "So the validation loop can detect mismatches between the line items\nand the document's declared total without re-reading the document.",
+    "explanation_ja": "抽出結果に計算値を併記させると、宣言値との不一致を検証ループが機械的に検知できる。detected_pattern は却下理由の分析、conflict_detected は矛盾ソースの提示に使う。いずれも検証とフィードバックのためのフィールド設計である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q038",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What happens to requests that are still unprocessed when a batch's 24-hour processing window ends?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "They end with the result type expired; resubmit them in a new batch\nor route them to the synchronous API.",
+    "explanation_ja": "Batches の処理窓は最大 24 時間で、未完了のリクエストは expired になる。期限内に終わる保証(SLA)は無いので、締切のある仕事は cutoff を決めて別経路へ切り替える計画が要る。expired 分は再提出する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q039",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Before submitting an 80,000-document batch, what should you do with the prompt?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Run a small sample first (synchronously or as a tiny batch) and tune the prompt on it;\nbatch results arrive too late to iterate cheaply.",
+    "explanation_ja": "大量処理の前にサンプルで prompt を調整する。Batch は結果が返るまで時間がかかるので、本番規模で試行錯誤すると時間と費用を浪費する。サンプルで形式や失敗パターンを潰してから投入する(1 バッチの上限は 100,000 リクエストまたは 256 MB)。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q040",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What does per-finding self-reported confidence enable in a multi-pass review pipeline?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Calibrated routing: high-confidence findings post automatically,\nlow-confidence ones go to a human or a second pass.",
+    "explanation_ja": "所見ごとの confidence を較正すれば、信頼できる所見だけを自動投稿し、残りを人間や追加パスに回せる。較正には labeled set での検証が要る。confidence は自己申告なので、そのまま信じず閾値を実測で決める。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
   }
 ]
