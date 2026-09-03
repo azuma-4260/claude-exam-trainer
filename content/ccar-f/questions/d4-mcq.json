@@ -1,0 +1,627 @@
+[
+  {
+    "id": "f-d4-q501",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A code-review prompt already lists explicit report/skip categories, yet it keeps missing injection vulnerabilities inside ORM query builders while reporting them correctly in raw SQL strings. What addition improves recall without adding noise?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add \"be thorough\" to the prompt."
+      },
+      {
+        "label": "B",
+        "text_en": "Raise the model's reasoning effort."
+      },
+      {
+        "label": "C",
+        "text_en": "Add a concrete code example for the security category that shows the injection pattern inside an ORM builder, alongside the raw-SQL example."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask the model to rate its confidence and lower the reporting threshold."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "明示的なカテゴリに加え、各重大度・各カテゴリに具体的なコード例を付けるのが精度改善の定石である。見逃しているパターンをそのまま例として示せば、カテゴリの解釈が広がる。よって C。A は曖昧な語の追加で効かない。B は基準が無いまま考えても検出対象は増えない。D は閾値を下げると誤検知も増える。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q502",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A log-anomaly reporter has two categories: \"latency spike\" findings are wrong about 80% of the time, while \"auth failure\" findings are almost always right. On-call engineers have started ignoring the whole report. What is the pragmatic response?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Temporarily disable the latency-spike category while its criteria are improved, so the trustworthy category keeps its credibility."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep both categories but add a disclaimer that latency findings may be wrong."
+      },
+      {
+        "label": "C",
+        "text_en": "Lower the threshold for auth failures so more of them appear and outweigh the noise."
+      },
+      {
+        "label": "D",
+        "text_en": "Merge the two categories into a single \"anomaly\" category."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "高誤検知のカテゴリは正確なカテゴリへの信頼まで損なうため、改善が済むまで無効化する運用が現実的である。よって A。B は免責文を付けても誤検知は届き続け、無視される流れは変わらない。C は正しいカテゴリの精度を落とす。D は誤検知を正確な所見に混ぜて全体を汚す。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q503",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A translation-QA prompt has detailed instructions, yet its findings vary in format from run to run and the severity assigned to the same kind of error wavers. What is the next technique to apply?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Shorten the instructions so the model has less to misread."
+      },
+      {
+        "label": "B",
+        "text_en": "Add a system prompt line saying \"be consistent\"."
+      },
+      {
+        "label": "C",
+        "text_en": "Switch to a lower temperature and hope the format stabilizes."
+      },
+      {
+        "label": "D",
+        "text_en": "Add two to four few-shot examples that demonstrate the exact output format and show why each severity was assigned."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "詳細な指示だけで出力が安定しないときは few-shot prompting の出番である。形式を実演し、判断理由(なぜその重大度か)を示す例を 2〜4 個入れる。よって D。A は必要な指示を削る。B は曖昧な指示の追加で効果が薄い。C は乱数の影響は減らせても、形式や基準の定義不足は解消しない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q504",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A resume-screening prompt flags every employment gap as a concern, including documented parental leave and sabbaticals the company explicitly accepts. Which few-shot design fixes this?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Examples that show only flagged resumes so the model learns what a concern looks like."
+      },
+      {
+        "label": "B",
+        "text_en": "Contrastive pairs: an accepted gap (documented leave) labeled acceptable next to an unexplained multi-year gap labeled as a concern."
+      },
+      {
+        "label": "C",
+        "text_en": "Examples drawn from a single job family to keep them consistent."
+      },
+      {
+        "label": "D",
+        "text_en": "A list of adjectives describing a strong candidate."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "誤検知を減らすには、許容パターンと真の問題を対比する例が効く。容認済みの休職を「問題なし」、説明の無い長期空白を「懸念」として並べて示す。よって B。A は問題側の例だけでは境界が学べない。C は多様性を欠き、他の職種に一般化しない。D は形容詞の羅列で判断基準にならない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q505",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An extraction pipeline defines a tool with a JSON Schema for its input. Which guarantee does enabling strict tool use add that the plain tool definition lacks?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The extracted values will be semantically correct."
+      },
+      {
+        "label": "B",
+        "text_en": "The tool inputs the model produces will conform to the schema — correct types, required fields, no undeclared fields — eliminating malformed calls."
+      },
+      {
+        "label": "C",
+        "text_en": "The model will always call the tool instead of answering in text."
+      },
+      {
+        "label": "D",
+        "text_en": "The tool will be executed server-side."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "strict tool use はモデルが生成するツール入力がスキーマに準拠することを保証し、構文・型の誤りを排除する。よって B。A は意味エラー(合計不一致など)はスキーマの保証範囲外である。C はツール呼び出しの有無を決めるのは tool_choice であり、strict ではない。D は実行場所と無関係である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/strict-tool-use",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q506",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A medical-claims pipeline defines three extraction tools — claim form, explanation of benefits, referral — and documents arrive unlabeled. Every document must be handled through a tool call rather than a prose answer, with the model choosing the schema that fits. Which tool_choice is appropriate?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "{\"type\": \"any\"}: at least one tool call is guaranteed, and the model selects which schema fits the document."
+      },
+      {
+        "label": "B",
+        "text_en": "{\"type\": \"auto\"}: the model decides whether to use a tool at all."
+      },
+      {
+        "label": "C",
+        "text_en": "{\"type\": \"tool\", \"name\": \"claim_form\"}: always start with the most common type."
+      },
+      {
+        "label": "D",
+        "text_en": "{\"type\": \"none\"} followed by parsing the model's text."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "文書種別が不明で複数スキーマがあるときは any を使い、ツール呼び出し(1 つ以上)を保証しつつ選択はモデルに任せる。厳密に 1 回だけに制限したい場合は disable_parallel_tool_use を併用するが、本問の要件は「散文ではなくツールで処理する」ことなので any で足りる。よって A。B の auto はテキストで答えてしまう可能性が残る。C は請求書以外の文書を無理に請求書スキーマへ押し込む。D は構造化の保証を放棄している。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q507",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An insurance-claim schema defines claim_type as an enum of five values. Unusual claims are forced into the nearest value, and reviewers later find them misclassified. What schema change is recommended?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Remove the enum and accept any string."
+      },
+      {
+        "label": "B",
+        "text_en": "Add more of the observed unusual types until the enum is exhaustive."
+      },
+      {
+        "label": "C",
+        "text_en": "Make claim_type optional so the model can skip it."
+      },
+      {
+        "label": "D",
+        "text_en": "Add an escape value such as \"other\" together with a free-text detail field, so the model can flag unusual cases explicitly."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "enum に逃げ道が無いと、当てはまらないケースが最寄りの値に押し込まれる。other や unclear + detail のような escape 値を用意し、想定外を明示的に報告させる。よって D。A は正規化の利点を捨てる。B は網羅を目指しても新しい例外は必ず現れる。C は情報自体が失われ、後工程で分類できない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q508",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An order-extraction schema validates perfectly, yet reviewers find records where the billing address was placed in the shipping_address field and vice versa. The team asks why the schema did not catch it and what will. Which answer is correct?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The schema was missing a required flag; adding it will catch the swap."
+      },
+      {
+        "label": "B",
+        "text_en": "Field swaps are a syntax error; enabling strict mode will catch them."
+      },
+      {
+        "label": "C",
+        "text_en": "Schemas only guarantee structure and types, not meaning; add application-side cross-field checks and few-shot examples that show which address goes where."
+      },
+      {
+        "label": "D",
+        "text_en": "Increase max_tokens so the model has room to place the fields correctly."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "フィールドの取り違えは値が型・構造に適合したまま意味だけが誤る意味エラーで、スキーマや strict mode では防げない。アプリ側の検証ルールと、配置を示す few-shot 例で対処する。よって C。A と B はスキーマの保証範囲を誤解している。D はトークン数の問題ではない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/strict-tool-use"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q509",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An extraction retry loop resends only the original document with the message \"Try again\" whenever validation fails. Retries rarely succeed. What should the retry request include?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The original document, the failed extraction, and the specific validation error so the model knows what to fix."
+      },
+      {
+        "label": "B",
+        "text_en": "A higher temperature so the second attempt differs from the first."
+      },
+      {
+        "label": "C",
+        "text_en": "Only the validation error, to keep the request short."
+      },
+      {
+        "label": "D",
+        "text_en": "A different document from the same batch."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "再試行が効くのは、元文書・失敗した抽出・具体的な検証エラーを併せて渡し、何を直すべきかを伝えたときである。よって A。B はランダムに変えるだけで、誤りの修正にはならない。C は文書が無ければ正しい値を再抽出できない。D は問題を別の入力にすり替えている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/increase-consistency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q510",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Some purchase orders show one total in the header and a different one on the summary page. The pipeline silently returns whichever it saw first, and reviewers cannot tell such documents apart from clean ones. Which schema addition helps the validation loop?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A confidence score for the whole document."
+      },
+      {
+        "label": "B",
+        "text_en": "A conflict_detected field that lists both values and where each appeared, so conflicting documents can be routed for review."
+      },
+      {
+        "label": "C",
+        "text_en": "A boolean is_valid field set by the model."
+      },
+      {
+        "label": "D",
+        "text_en": "A free-text notes field for the model's comments."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "矛盾するソース値を検知するには、conflict_detected のようなフィールドで両方の値と出所を返させ、検証ループが該当文書を振り分けられるようにする。よって B。A は文書全体の確信度では矛盾の有無が分からない。C はモデル自身の妥当性判断で、較正されておらず信頼できない。D は機械的に処理できない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q511",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A retailer has two jobs: (1) classify two million historical product reviews with no deadline, and (2) generate a reply suggestion while a support agent is chatting with a customer. How should the Message Batches API be used?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Use it for both jobs to halve costs."
+      },
+      {
+        "label": "B",
+        "text_en": "Use it for the live chat job only, since replies are short."
+      },
+      {
+        "label": "C",
+        "text_en": "Use it for the historical classification (50% lower cost, non-blocking) and the synchronous API for the live chat job, which cannot wait up to 24 hours."
+      },
+      {
+        "label": "D",
+        "text_en": "Avoid it entirely because batches have no latency SLA."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Batches API は 50% のコスト減と引き換えに最大 24 時間の処理窓でレイテンシ SLA が無い。締切の無い大量処理には最適で、対話中の応答生成には不向きである。よって C。A は対話が待てない。B は逆の割り当て。D は SLA が無いことは非同期処理にとって問題ではない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q512",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A 60,000-document batch — one request per document — returns results in an order unrelated to submission, and the team cannot reliably match each result to its source record. Roughly 1% of requests fail and must be re-run. What mechanism solves both problems?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Submit one request per batch so order is preserved."
+      },
+      {
+        "label": "B",
+        "text_en": "Sort results by timestamp."
+      },
+      {
+        "label": "C",
+        "text_en": "Embed the record ID in the prompt text and parse it back out."
+      },
+      {
+        "label": "D",
+        "text_en": "Assign a custom_id to each request: use it to map results to records and to resubmit only the failed requests."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "custom_id は各リクエストに付ける識別子で、結果の突合と失敗分だけの再提出の両方に使える。よって D。A は Batches の利点を失う。B はタイムスタンプで元レコードは特定できない。C は出力の文言に依存し、失敗した結果には出力自体が無い。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q513",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "To get an independent review, a pipeline appends \"Now switch roles: you are a strict reviewer. Critique the findings above.\" to the same session that produced the findings. Almost nothing gets revised. Why, and what works instead?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The persona switch does not remove the session's own reasoning context, so it still rarely doubts its conclusions; send the artifact to a separate instance without that context."
+      },
+      {
+        "label": "B",
+        "text_en": "The reviewer persona needs a longer prompt describing how strict to be."
+      },
+      {
+        "label": "C",
+        "text_en": "Extended thinking must be enabled for role switching to work."
+      },
+      {
+        "label": "D",
+        "text_en": "Reviews are unnecessary when the generator used few-shot examples."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "同じセッションはペルソナを変えても生成時の推論文脈を持ち続け、自分の判断を疑いにくい。文脈を持たない第二インスタンスに成果物だけを渡すのが有効である。よって A。B と C は同一セッションの限界を prompt や思考量で補おうとしており、根本原因が残る。D は品質保証を放棄している。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q514",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A multi-pass reviewer produces solid and shaky findings alike, and the team wants to auto-post only the reliable ones while sending the rest to a human. What should the pipeline add?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A rule that posts only the first ten findings."
+      },
+      {
+        "label": "B",
+        "text_en": "Per-finding self-reported confidence, calibrated against labeled examples, used to route findings between auto-post and human review."
+      },
+      {
+        "label": "C",
+        "text_en": "A second identical pass whose findings replace the first."
+      },
+      {
+        "label": "D",
+        "text_en": "A longer prompt asking the reviewer to be more careful."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "所見ごとの自己申告 confidence を labeled set で較正し、閾値で自動投稿と人間レビューに振り分けるのが推奨パターンである。よって B。A は件数と信頼性は無関係。C は同じ設定の再実行で信頼度の情報は増えない。D は曖昧な指示で精度は変わらない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

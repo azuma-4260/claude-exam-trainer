@@ -1,0 +1,625 @@
+[
+  {
+    "id": "f-d3-q501",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Engineers editing files under packages/api never see the conventions written in packages/web/CLAUDE.md, and one of them files a bug about it. What is the correct assessment?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "It is a bug; subdirectory CLAUDE.md files should load in every session."
+      },
+      {
+        "label": "B",
+        "text_en": "It is expected: a CLAUDE.md in a subdirectory is loaded on demand when Claude works with files in that subtree, so conventions meant for the whole repository belong in the root CLAUDE.md."
+      },
+      {
+        "label": "C",
+        "text_en": "The file must be renamed to .claude/CLAUDE.md to be picked up."
+      },
+      {
+        "label": "D",
+        "text_en": "packages/web/CLAUDE.md must be @imported from every other package."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "サブディレクトリの CLAUDE.md はそのサブツリーのファイルを扱うときにオンデマンドでロードされる。リポジトリ全体に適用したい規約はルートの CLAUDE.md(または .claude/rules/)に置く。よって B。A は階層の意図を誤解している。C は配置場所の問題ではない。D は他パッケージに無関係な規約まで取り込む設計になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q502",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A 900-line CLAUDE.md mixes frontend, backend, and infrastructure rules. Engineers say Claude increasingly ignores parts of it, and every session loads all of it. Which reorganization is recommended?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Trim it to the 100 most important lines and delete the rest."
+      },
+      {
+        "label": "B",
+        "text_en": "Move the file to the user level so it loads faster."
+      },
+      {
+        "label": "C",
+        "text_en": "Split it into topic-specific files under .claude/rules/ (path-scoped where a topic only applies to certain files), keeping CLAUDE.md as the concise core."
+      },
+      {
+        "label": "D",
+        "text_en": "Duplicate the file into every subdirectory so each area gets a copy."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "肥大化した CLAUDE.md は .claude/rules/ のトピック別ファイルに分割し、必要なものは paths で該当ファイル編集時だけロードするのが推奨構成である。よって C。A は必要な規約を失う。B はユーザーレベルに移すと共有されず、読み込み量も変わらない。D は重複管理を生み、同じ内容が何度もロードされる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q503",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Two engineers share the same repository. One, who edits Terraform files, sees the infrastructure conventions applied; the other, who only edits documentation, never does and suspects a broken setup. The conventions live in .claude/rules/infra.md with a paths frontmatter. What is the right diagnosis?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Expected behavior: a path-scoped rule loads only when a matching file is touched, which /context confirms by listing it under Memory files only in the first engineer's session."
+      },
+      {
+        "label": "B",
+        "text_en": "A bug: rules must load identically for everyone in the repository."
+      },
+      {
+        "label": "C",
+        "text_en": "The second engineer's ~/.claude/CLAUDE.md is overriding the rule."
+      },
+      {
+        "label": "D",
+        "text_en": "The rule file must be moved into the root CLAUDE.md to be shared."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "paths 付きの rule は該当ファイルを編集するセッションだけでロードされるので、ドキュメントしか触らないエンジニアに現れないのは仕様どおりである。/context の Memory files で実際のロード状況を確認できる。よって A。B は path-scoped rules の目的(無関係な文脈の削減)を否定している。C のユーザーレベル設定が project の rule を打ち消す仕組みは無い。D はロードを常時にしてしまい、削減の意図を失う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q504",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An engineer's /my-standup command pulls items from their personal calendar and applies their own Jira filter. They ask whether it should live in the repository's .claude/commands/ so that it \"stays with the project\". Which placement is correct?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Project scope, so teammates can review it in pull requests."
+      },
+      {
+        "label": "B",
+        "text_en": "Project scope, but with the personal filters removed."
+      },
+      {
+        "label": "C",
+        "text_en": "CLAUDE.md, since it runs every day."
+      },
+      {
+        "label": "D",
+        "text_en": "User scope (~/.claude/commands/), because it is personal and would not make sense for teammates."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "個人の予定や個人用フィルタに依存するコマンドはユーザースコープに置く。プロジェクトスコープはチームで共有する意味があるものの置き場所である。よって D。A と B は他人には無意味なコマンドをリポジトリに入れる。C は常時ロードの指示であり、起動して使う手順には向かない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/slash-commands",
+      "https://docs.claude.com/en/docs/claude-code/skills"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q505",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A project skill /audit-deps runs the package manager and dumps thousands of lines of output into the main conversation, leaving little context for the actual work. Which SKILL.md frontmatter change isolates that output?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "allowed-tools: Bash, which pre-approves the shell commands."
+      },
+      {
+        "label": "B",
+        "text_en": "context: fork, which runs the skill in an isolated context and returns only its result."
+      },
+      {
+        "label": "C",
+        "text_en": "argument-hint, which prompts for the package name up front."
+      },
+      {
+        "label": "D",
+        "text_en": "disallowed-tools: Read, which stops the skill from reading large files."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "context: fork はスキルを隔離された文脈で実行し、冗長な出力や探索的な文脈がメイン会話を汚染しないようにする。よって B。A の allowed-tools は当該起動でのツールの事前許可であり、出力の隔離とは無関係。C の argument-hint は引数の入力を促す設定である。D は読み取りを禁じるだけで、コマンド出力の流入は止まらない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q506",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team wants Claude Code to apply its logging conventions in every session, without anyone remembering to invoke anything. An engineer proposes packaging the conventions as a skill. What is the right placement?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A project skill, because skills are the recommended home for all conventions."
+      },
+      {
+        "label": "B",
+        "text_en": "A user-level skill on each engineer's machine."
+      },
+      {
+        "label": "C",
+        "text_en": "CLAUDE.md (or a path-scoped rule), because always-on conventions belong in memory that loads automatically; skills load only when invoked."
+      },
+      {
+        "label": "D",
+        "text_en": "A slash command that engineers run at the start of each session."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "常時適用したい規約は自動でロードされる CLAUDE.md や path-scoped rule に置く。スキルはオンデマンド起動なので、誰かが呼ばない限り効かない。よって C。A はスキルの用途(手順・稀に使う長い指示)を取り違えている。B はチーム共有にならず、しかも起動が必要。D も毎回の手動起動に依存する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills",
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q507",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A rule file .claude/rules/docs-style.md has the frontmatter paths: [\"docs/**/*.md\"]. It loads when editing docs/guide.md but not when editing the repository's top-level README.md, which should follow the same style. What is the cause and the fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The glob only matches files under docs/; add README.md (or a broader pattern such as **/*.md) to paths."
+      },
+      {
+        "label": "B",
+        "text_en": "Rules never apply to Markdown files; move the content into CLAUDE.md."
+      },
+      {
+        "label": "C",
+        "text_en": "The rule file must be renamed README.md to match the target."
+      },
+      {
+        "label": "D",
+        "text_en": "Path-specific rules only take effect inside plan mode."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "paths の glob に一致するファイルを編集するときだけ rule がロードされる。docs/**/*.md はルート直下の README.md に一致しないので、対象を paths に追加するか広いパターンにする。よって A。B は誤りで、rules はファイル種別を問わない。C はファイル名と一致条件は無関係。D は plan mode と rules は無関係である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q508",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Everything under services/billing/ — TypeScript, SQL migrations, YAML configs — must follow the billing team's conventions, and nothing outside that directory should. Which mechanism fits best?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A directory-level CLAUDE.md in services/billing/, since the conventions belong to one subtree as a whole."
+      },
+      {
+        "label": "B",
+        "text_en": "Three separate glob rules, one per file type."
+      },
+      {
+        "label": "C",
+        "text_en": "The root CLAUDE.md with a note saying \"applies to billing only\"."
+      },
+      {
+        "label": "D",
+        "text_en": "A skill that the billing team invokes before editing."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "1 つのサブツリー全体に属する規約には、そのディレクトリの CLAUDE.md が最も適している。ファイル種別横断の規約に使う glob rule とは使い分ける。よって A。B は同じ規約を 3 つに分けて管理する無駄がある。C は常時ロードされ、注記だけでは適用範囲を機械的に限定できない。D は自動適用されない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q509",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An engineer is about to migrate the application's session storage from cookies to a token service. About 40 files are affected and two designs are both plausible. A colleague suggests \"just start editing and see\". Which approach is recommended?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Start editing directly; plan mode is only for greenfield projects."
+      },
+      {
+        "label": "B",
+        "text_en": "Use plan mode first to survey the code and compare the two designs, get the plan approved, then execute it."
+      },
+      {
+        "label": "C",
+        "text_en": "Split the migration into 40 single-file tasks and run each directly."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask Claude to write the design document only and implement it by hand."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "多ファイルにまたがり、複数の妥当な設計があり、アーキテクチャ判断を含む変更は plan mode の典型的な対象である。計画を確認してから実行に移す。よって B。A は plan mode の適用条件を誤解している。C は設計判断を避けたまま作業を細切れにし、整合性が取れない。D は実装を Claude Code に任せる利点を捨てている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q510",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Before a refactor, the main Claude Code session must find every place where feature flags are evaluated across a large repository. The main context is already 60% used. How should the discovery be done?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Run Grep repeatedly in the main session until all call sites are listed."
+      },
+      {
+        "label": "B",
+        "text_en": "Read every file that mentions the word \"flag\"."
+      },
+      {
+        "label": "C",
+        "text_en": "Delegate the search to the Explore subagent, which returns a concise summary while keeping the verbose output in its own context."
+      },
+      {
+        "label": "D",
+        "text_en": "Start a new main session and redo the refactor planning there."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "冗長な探索出力は Explore subagent に隔離させ、要約だけをメイン文脈に戻すのが Claude Code の推奨である。多段タスクでメイン文脈の枯渇を防げる。よって C。A と B は探索の出力がそのままメイン文脈を消費する。D は既に積み上げた計画の文脈を捨てることになる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/sub-agents",
+      "https://docs.claude.com/en/docs/claude-code/costs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q511",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An engineer describes an SQL-escaping helper in prose — \"escape things the usual way, and handle the weird identifiers\" — and each attempt from Claude Code differs. Which technique resolves this most directly?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Provide two or three concrete input/output examples, including an identifier containing quotes and a reserved word."
+      },
+      {
+        "label": "B",
+        "text_en": "Ask Claude to try five variations and pick one."
+      },
+      {
+        "label": "C",
+        "text_en": "Lower the temperature so the output is deterministic."
+      },
+      {
+        "label": "D",
+        "text_en": "Write a longer prose description with more adjectives."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "散文で一貫しない変換要件には、2〜3 個の具体的な入出力例が最も直接的である。引用符を含む識別子や予約語のようなエッジケースも例で示す。よって A。B は要件を確定せずに当てずっぽうを増やす。C は出力のばらつきを減らしても、要件そのものは曖昧なままである。D は曖昧さの原因である散文を増やしている。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q512",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An engineer needs a webhook retry policy but is unsure about the requirements — backoff limits, idempotency, what to do after repeated failures. Which way of working with Claude Code surfaces those considerations before code is written?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Ask Claude to write the code immediately and iterate on bugs afterwards."
+      },
+      {
+        "label": "B",
+        "text_en": "Write a three-page specification alone before involving Claude."
+      },
+      {
+        "label": "C",
+        "text_en": "Lower the temperature so Claude makes fewer assumptions."
+      },
+      {
+        "label": "D",
+        "text_en": "Use the interview pattern: ask Claude to interview you about the requirements first, then implement."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "未知の領域では、実装前に Claude に質問させる interview pattern が考慮事項(バックオフ上限・冪等性・最終失敗時の扱い)を引き出す。よって D。A は暗黙の前提のまま実装し、後から手戻りが増える。B は Claude の知識を活用せず時間もかかる。C は温度と要件の洗い出しは無関係である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q513",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A nightly job already runs claude -p with --output-format json, yet the downstream dashboard still breaks: the result field is a free-form summary whose structure changes from night to night. What should the job add?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "--verbose so the output includes more detail."
+      },
+      {
+        "label": "B",
+        "text_en": "--json-schema with the required shape, so the structured result conforms to it."
+      },
+      {
+        "label": "C",
+        "text_en": "A regular expression that extracts the fields from the summary."
+      },
+      {
+        "label": "D",
+        "text_en": "A second prompt asking the model to reformat its own answer."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "--output-format json は応答全体を JSON で包むが、モデルが返す結果そのものの形状までは固定しない。形状は --json-schema で指定する。よって B。A は詳細が増えても構造は保証されない。C は文言の揺れでパーサーが壊れる、まさに現在の問題である。D は自己整形で形状の保証は得られない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/headless",
+      "https://docs.claude.com/en/docs/claude-code/cli-reference"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q514",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A CI pipeline lets Claude Code generate a fix, then starts a separate reviewer instance but feeds it the generator's full transcript \"for context\". The reviewer approves nearly everything. What should change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Give the reviewer only the diff and explicit review criteria, withholding the generator's reasoning so it is not anchored to those choices."
+      },
+      {
+        "label": "B",
+        "text_en": "Use the same session for review to save tokens."
+      },
+      {
+        "label": "C",
+        "text_en": "Feed the reviewer the transcript twice so it reads it carefully."
+      },
+      {
+        "label": "D",
+        "text_en": "Replace the reviewer with a linter."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "独立インスタンスにレビューさせる目的は、生成側の推論文脈を持たない視点を得ることにある。生成側の履歴を渡すとその判断に引きずられ、独立性が失われる。よって A。B は自己レビューの限界そのものである。C は anchoring を強めるだけ。D は静的解析で捕まらない設計上の問題を見落とす。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/github-actions",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

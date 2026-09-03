@@ -1,0 +1,583 @@
+[
+  {
+    "id": "f-d2-q501",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A personal-finance agent has get_balance, described as \"Returns balance\", and get_statement, described as \"Returns statement\". Users who ask \"what did I spend last week?\" usually receive a balance. What is the best first fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Expand both descriptions: what each returns, the input it expects with an example, and when to use one rather than the other."
+      },
+      {
+        "label": "B",
+        "text_en": "Add \"prefer get_statement for spending questions\" to the system prompt."
+      },
+      {
+        "label": "C",
+        "text_en": "Merge both into a single get_account_data tool with a type parameter."
+      },
+      {
+        "label": "D",
+        "text_en": "Set tool_choice to \"any\" so the model must call a tool."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "description は LLM がツールを選ぶ主手段であり、一語違いの最小限の説明では選択が安定しない。返すもの・入力形式・例・使い分けの境界を書くのが第一手である。よって A。B は prompt のキーワードで description を上書きする形で、他の依頼に副作用を生みやすい。C は用途の異なる操作を 1 つに畳み、パラメータの選択という新しい誤りを生む。D はツール呼び出しを強制するだけで、どちらを呼ぶかの問題は解決しない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q502",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A knowledge-base agent exposes search_kb, find_article, and lookup_doc — three thin wrappers over different backends of the same knowledge base. The model picks among them almost at random and results vary by which one it chose. Which redesign is recommended?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep all three and add few-shot examples showing which to use when."
+      },
+      {
+        "label": "B",
+        "text_en": "Rename each to include its backend's name."
+      },
+      {
+        "label": "C",
+        "text_en": "Consolidate them into one search tool with a clear input and output contract that queries the right backend internally."
+      },
+      {
+        "label": "D",
+        "text_en": "Attach a different one of the three to each subagent."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "同じ目的の薄いラッパーが並ぶと選択が不安定になる。エージェントの作業単位に合わせて 1 つのツールへ統合し、入出力契約を明確にするのが定石である。よって C。A は根本原因である重複を残したまま例で誤魔化す。B はバックエンド名がユーザーの依頼と結びつかず、選択の助けにならない。D は結果のばらつきを subagent 単位に移すだけである。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q503",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A unit-conversion assistant's system prompt begins: \"You are a research expert. Always search thoroughly before answering.\" It now calls web_search even for \"convert 5 km to miles\", although the tool description says the tool is for current events. What is going on?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The web_search description is too short to be trusted."
+      },
+      {
+        "label": "B",
+        "text_en": "The keyword-driven instruction in the system prompt overrides the tool description and creates an unintended association with searching."
+      },
+      {
+        "label": "C",
+        "text_en": "tool_choice is set to \"any\", forcing a search on every turn."
+      },
+      {
+        "label": "D",
+        "text_en": "The model cannot do arithmetic without a tool."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "system prompt の「必ず検索せよ」というキーワード依存の指示が、良質な description よりも強くツール選択を引っ張っている。こうした指示は意図しないツール連想を生むのでレビューして範囲を限定する。よって B。A は description が明確でも prompt が上書きしている状況なので的外れ。C は設定変更の事実が無く、単純な換算にも検索する理由は prompt にある。D は誤りで、モデルは簡単な換算を直接行える。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q504",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A shipping-label tool answers every failure — an expired carrier token, an address the carrier rejects, and a network timeout — with the same result { isError: true, content: \"Failed\" }. The agent retries all three the same way, including the rejected address. How should the tool's error responses be redesigned?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Return an empty result instead of an error so the agent moves on."
+      },
+      {
+        "label": "B",
+        "text_en": "Return the raw stack trace so the model can diagnose the cause."
+      },
+      {
+        "label": "C",
+        "text_en": "Return a numeric error code only, to keep responses short."
+      },
+      {
+        "label": "D",
+        "text_en": "Return isError with a category (transient, validation, business, permission), a human-readable reason, and the recommended next action."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "一様な \"Failed\" は回復可能性を伝えないため、再試行しても無駄な業務エラー(配送会社に拒否された住所)まで一時的な障害と同じように再試行される。失敗を分類し、人間可読な理由と次の行動(住所の確認を求める、トークンを更新する、少し待って再試行する)を isError 付きで返せばエージェントが適切に振る舞える。よって D。A は失敗を隠して黙殺というアンチパターンになる。B はノイズが多く、行動可能な情報にならない。C はコードの意味をモデルが知らず、結局分類も次の行動も伝わらない。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/custom-tools",
+      "https://www.anthropic.com/engineering/writing-tools-for-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q505",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An in-process MCP tool import_csv raises an uncaught exception on malformed rows. The server converts it into an error result with the raw exception message, and the agent loop continues, but the agent then guesses wildly about what went wrong. What is the better implementation?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Catch the exception in the tool and return isError with the failing row number, the parsing problem, and how to fix the input."
+      },
+      {
+        "label": "B",
+        "text_en": "Let the exception propagate so the whole run stops."
+      },
+      {
+        "label": "C",
+        "text_en": "Return an empty import result so the agent reports success."
+      },
+      {
+        "label": "D",
+        "text_en": "Retry the import automatically inside the tool up to ten times."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "未捕捉例外は raw message 付きの error result に変換されてループは続くが、文脈の無い例外文だけでは次の行動を選べない。明示的に catch して行番号・原因・修正方法を返せば、エージェントは的確に回復できる。よって A。B は agent loop を止める必要の無い失敗で全体を落とす。C は失敗を成功に見せかける黙殺である。D は入力の問題を再試行しても解決せず、無駄な処理を重ねる。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/custom-tools"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q506",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A single \"ops-assistant\" agent has 22 tools spanning deployments, rollbacks, database maintenance, and billing. It frequently picks a database tool when asked about a deployment. Which change addresses the root cause?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a longer system prompt that lists every tool and its purpose."
+      },
+      {
+        "label": "B",
+        "text_en": "Raise the model's temperature so it explores other tools."
+      },
+      {
+        "label": "C",
+        "text_en": "Split the work into role-specific agents that each receive only the four to six tools their role needs."
+      },
+      {
+        "label": "D",
+        "text_en": "Sort the tools alphabetically in the request."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ツール数が多すぎる(18 vs 4〜5 のような)状況では description の照合が難しくなり、選択の信頼性が落ちる。役割ごとに必要なツールだけを付与する分割が根本対策である。よって C。A は候補数を減らさず、prompt の肥大化で文脈も圧迫する。B はランダム性を増やすだけである。D の並び順はツール選択の根拠ではない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q507",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Research subagents fetch sources with a generic http_get tool that returns raw HTML. Parsing failures and paywalled junk are common, and one subagent occasionally fetches an internal admin URL. What is the recommended replacement?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep http_get and add \"only fetch article pages\" to each subagent's prompt."
+      },
+      {
+        "label": "B",
+        "text_en": "Replace it with a constrained load_article tool that validates the URL against an allow-list and returns cleaned text."
+      },
+      {
+        "label": "C",
+        "text_en": "Give http_get only to the coordinator and have subagents ask for pages."
+      },
+      {
+        "label": "D",
+        "text_en": "Increase the subagents' context window so raw HTML fits."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "汎用ツールは誤用と低品質な結果を招くため、検証と整形を組み込んだ制約付きツールに置き換える。URL の許可リストで内部 URL の取得も構造的に防げる。よって B。A は prompt による誘導で、誤用は確率的にしか減らない。C は coordinator をボトルネックにし、取得の質は変わらない。D は生 HTML の問題(ノイズ・ペイウォール)を解決しない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q508",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A ticket-routing step defines two tools, classify_ticket and lookup_customer. The pipeline parses the classify_ticket call on every turn, but a few times a day the model answers in prose or calls lookup_customer first. Which tool_choice setting satisfies the requirement that classify_ticket is always called on that turn?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "{\"type\": \"auto\"}, the default when tools are provided."
+      },
+      {
+        "label": "B",
+        "text_en": "{\"type\": \"any\"}, which guarantees some tool call."
+      },
+      {
+        "label": "C",
+        "text_en": "{\"type\": \"none\"}, which prevents prose."
+      },
+      {
+        "label": "D",
+        "text_en": "{\"type\": \"tool\", \"name\": \"classify_ticket\"}, which forces that specific tool."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "特定のツールを必ず呼ばせたい場合は tool_choice で名前を指定して強制する。よって D。A の auto はツールを使わない応答も許す既定値である。B の any はツール呼び出し自体は保証するが、lookup_customer が選ばれる可能性を残す。C の none はツール呼び出しを禁止する設定で、要件の逆である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/implement-tool-use"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q509",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "To share a Slack MCP server with the team, an engineer committed .mcp.json containing the bot token in plain text. Security flagged the leak. How should the shared configuration reference the token?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep the server in project scope and reference the token as ${SLACK_BOT_TOKEN}, which Claude Code expands from each engineer's environment."
+      },
+      {
+        "label": "B",
+        "text_en": "Move the server to user scope so the token stays on the engineer's machine and teammates configure their own."
+      },
+      {
+        "label": "C",
+        "text_en": "Encrypt .mcp.json and commit the key separately."
+      },
+      {
+        "label": "D",
+        "text_en": "Store the token in CLAUDE.md, which is not parsed by the MCP loader."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "プロジェクトスコープの .mcp.json はチーム共有のための置き場所で、秘密は環境変数展開で参照する。これで設定は共有しつつトークンはコミットしない。よって A。B は共有という目的を捨てる。C は運用が複雑で、鍵の管理という別の問題を生む。D は CLAUDE.md もリポジトリにコミットされるため漏洩は防げない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q510",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A platform team needs Claude Code to work with GitHub issues (a standard integration) and with an in-house deployment system that has no public API client. How should they source the two MCP servers?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Build custom servers for both to keep a uniform codebase."
+      },
+      {
+        "label": "B",
+        "text_en": "Adopt community servers for both, patching the deployment one as needed."
+      },
+      {
+        "label": "C",
+        "text_en": "Adopt a community server for GitHub and build a custom server for the in-house deployment system."
+      },
+      {
+        "label": "D",
+        "text_en": "Skip MCP and give Claude a Bash tool that calls both CLIs."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "標準的な統合はコミュニティのサーバーを採用し、チーム固有の内部システムだけをカスタム実装するのが build vs adopt の判断基準である。よって C。A は既存資産を無視した再発明。B は内部システム向けのコミュニティサーバーは存在しない。D は MCP の description・スキーマによるツール選択と制約付きインターフェースの利点を捨てる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q511",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t4-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An analytics agent calls describe_table for every one of 80 tables at the start of each session just to learn the schema, consuming most of its context before doing any work. Which MCP capability fits this need?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A PostToolUse hook that caches describe_table results."
+      },
+      {
+        "label": "B",
+        "text_en": "Expose the database schema as an MCP resource the agent can read directly, instead of discovering it through repeated tool calls."
+      },
+      {
+        "label": "C",
+        "text_en": "A system prompt that lists all 80 tables."
+      },
+      {
+        "label": "D",
+        "text_en": "A tool_choice setting that limits describe_table to once per session."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "スキーマ・ドキュメント階層・issue 一覧のような「存在を知るための情報」は MCP リソースとして公開し、探索的なツール呼び出しを減らす。よって B。A は呼び出し回数は減らず、hook は出力の整形が本来の役割である。C は prompt を肥大化させ、スキーマ変更のたびに更新が要る。D の tool_choice に回数制限の機能は無い。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q512",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Claude Code is asked to change the third occurrence of a repeated config key in a YAML file. The Edit tool fails because the target text is not unique. What is the standard way forward?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Use Glob to locate the file and retry the same Edit."
+      },
+      {
+        "label": "B",
+        "text_en": "Use Grep to count occurrences, then run Edit with replace_all."
+      },
+      {
+        "label": "C",
+        "text_en": "Use Bash with sed to replace all occurrences."
+      },
+      {
+        "label": "D",
+        "text_en": "Read the file, then either give Edit enough surrounding context to make the match unique or Write the whole updated content."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Edit は一意に一致するテキストにだけ部分修正を適用する。一致が複数ある場合は、周辺の行を含めて一意にするか、Read してから Write で全体を書き戻すのが定石である。よって D。A の Glob はパス検索でありツール選択が違う。B と C は 3 つ目だけを変えたいのに全箇所を書き換えてしまう。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q513",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Asked where the retry logic for outbound webhooks lives, Claude Code proposes running Glob for **/*.ts and reading all 400 matching files. Which approach is more token-efficient and still reliable?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Grep for a distinctive term such as retry or backoff to find the entry points, Read those files, and follow their imports incrementally."
+      },
+      {
+        "label": "B",
+        "text_en": "Read all 400 files but ask for a one-line summary of each."
+      },
+      {
+        "label": "C",
+        "text_en": "Read the files in alphabetical order until the logic turns up."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask the engineer to paste the relevant code into the prompt."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "大規模コードベースは全ファイルの先読みではなく、Grep でエントリポイントを見つけ、Read で import を辿る段階的な理解が推奨される。よって A。B は要約しても 400 ファイル分の読み込みコストは発生する。C は順序を変えただけで同じ問題を抱える。D はツールで解決できる探索を人手に戻している。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices",
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]
