@@ -2,12 +2,14 @@
 id: B-C3a-2
 origin: C3a
 created: 2026-08-27
-status: open
+status: absorbed-by C5
 related_tasks: [C5, C3b-A]
 related_specs: ["07#step-3a-practice-専用シナリオ-mcq828-までフォーム非収載", "07#step-4-セルフレビューパス必須別セッション"]
 related_paths: [content/ccar-f/questions]
 stop_condition: none
 decisions:
+  - { at: 2026-09-03, by: C5, action: absorb, note: "Step 4 で再評価: C3a MCQ 18 問と全 flash(200 枚)の正規化 Jaccard は最大 0.25(f-d3-q103↔q013)で、C3b-A/C3b-B の書き直しと C5 の重複統合後は同一具体例の転用は残っていない。知識点レベルの重複は同一トピックツリー由来の構造的なもの(モードも分離)と判断し、差し替えは行わない。C5 新規 120 件は「新規×既存 + 新規×新規」41,700 ペアを検査し、同一具体例 42 件を別角度に書き直した。以上で本項目の C5 分を完了" }
+  - { at: 2026-09-03, by: C5, action: absorb, note: "C5 の独立 MCQ 70 問・flash +50 の生成制約に「対応する flash / C3a MCQ / form A・B と同じ具体例を使わない」を適用し、Step 4(step4-review セッション)で非 retired 全件から「id 不一致かつ一方が新規」の順序なしペアを正規化 Jaccard で全比較する。高一致 12 問の差し替え要否は同セッションで判定し、差し替えまで済めば absorbed-by C5 に更新、見送り分があれば範囲を記録して open 維持" }
   - { at: 2026-08-27, by: C3b-A, action: absorb, note: "form A 60 問の生成制約に「対応 flash / C3a Practice MCQ と同じ具体例を使わない」を適用(既存 168 問の stem を生成前に照合し具体例を変えた)。flash・practice との具体例重複の機械的検査は Step 4 セッション(step4-review)の必須検査に含める。C5 での高一致 12 問の差し替え検討は open のまま" }
   - { at: 2026-08-27, by: C3b-A, action: absorb, note: "Step 4 で form A 60 問と既存 169 問の stem を正規化トークン Jaccard で全組合せ比較し、上位ペアを人手で再確認。同一の具体例・選択肢の転用は 0 件。同一トピックの flash → 異なるシナリオへの適用問題は、知識点の重複はあるが具体例重複ではないと判定。C3b-A 分の absorb を完了、C5 分のみ open 継続" }
 ---
