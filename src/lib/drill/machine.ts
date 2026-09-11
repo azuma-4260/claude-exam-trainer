@@ -11,7 +11,9 @@ export type { RejectReason, SaveState } from "@/lib/answer/ack";
  * 純関数 reducer。UUID(attemptId)と経過時間はイベント payload で注入して純粋性を保つ。
  *
  * 厳密 ACK の要点:
- * - 正誤・解説は回答直後に表示してよいが、保存 ACK(SAVE_OK)まで Next を活性化しない
+ * - 正誤・解説は回答直後に表示してよいが、保存 ACK(SAVE_OK)まで次問へ進まない
+ * - flash(D4-4): RATE はローカル保持(rated)で何度でも変更でき、Next = COMMIT で送信する。
+ *   SAVE_OK で自動的に次問へ進む(二度押し不要)。MCQ は選択 = 送信で、SAVE_OK 後の NEXT で進む
  * - 失敗(SAVE_FAIL)時は回答状態を保持し Retry(attemptId = 冪等キーを保持して同一 payload 再送)
  * - 恒久エラー(4xx)は rejected とし Retry を出さない。not_eligible のみ SKIP で先へ進める
  * - 自動巻き戻し・次問先行・outbox は実装しない
@@ -26,6 +28,8 @@ export type LocalGrade =
 export type ItemStep =
   | { step: "front" }
   | { step: "back" }
+  /** flash: 評価済み・未送信(解説を読んで評価を変更できる)。elapsedMs は初回評価時点で固定 */
+  | { step: "rated"; rating: FlashRating; elapsedMs: number | null }
   | { step: "choosing"; chosen: string[] }
   | {
       step: "answered";
@@ -33,6 +37,8 @@ export type ItemStep =
       attemptId: string;
       elapsedMs: number | null;
       save: SaveState;
+      /** true なら SAVE_OK で自動的に次問へ進む(flash の COMMIT 経路) */
+      autoAdvance: boolean;
       failMessage?: string;
     }
   | { step: "rejected"; reason: RejectReason };
@@ -49,7 +55,8 @@ export type DrillState = {
 
 export type DrillEvent =
   | { type: "FLIP" }
-  | { type: "RATE"; rating: FlashRating; attemptId: string; elapsedMs: number | null }
+  | { type: "RATE"; rating: FlashRating; elapsedMs: number | null }
+  | { type: "COMMIT"; attemptId: string }
   | { type: "CHOOSE"; label: string; attemptId: string; elapsedMs: number | null }
   | { type: "TOGGLE"; label: string }
   | { type: "SUBMIT"; attemptId: string; elapsedMs: number | null }
@@ -77,8 +84,10 @@ function mcqIsCorrect(item: DrillItem, chosen: readonly string[]): boolean {
   return answer.size === picked.size && [...picked].every((l) => answer.has(l));
 }
 
+/** Next ボタンの活性: flash は rated(押下 = COMMIT)、MCQ は saved(押下 = NEXT) */
 export function canNext(state: DrillState): boolean {
-  return state.current.step === "answered" && state.current.save === "saved";
+  const cur = state.current;
+  return cur.step === "rated" || (cur.step === "answered" && cur.save === "saved");
 }
 
 /** 現在の結果を results に積んで次問へ(最終問なら summary) */
@@ -102,16 +111,26 @@ export function drillReducer(state: DrillState, event: DrillEvent): DrillState {
       return { ...state, current: { step: "back" } };
 
     case "RATE": {
-      // flash は裏面(解答面)を見た上での自己評価がそのまま送信(S-3: 評価ボタンなしの確定操作)
-      if (item.type !== "flash" || cur.step !== "back") return state;
+      // flash は裏面(解答面)を見た上での自己評価をローカル保持し、Next(COMMIT)まで変更できる。
+      // 経過時間は最初の評価時点(思い出すまでの時間)を保持し、解説を読んだ時間は含めない
+      if (item.type !== "flash") return state;
+      if (cur.step === "back") return { ...state, current: { step: "rated", rating: event.rating, elapsedMs: event.elapsedMs } };
+      if (cur.step === "rated") return { ...state, current: { ...cur, rating: event.rating } };
+      return state;
+    }
+
+    case "COMMIT": {
+      // Next 押下で確定送信。SAVE_OK で自動的に次問へ進む
+      if (item.type !== "flash" || cur.step !== "rated") return state;
       return {
         ...state,
         current: {
           step: "answered",
-          local: { kind: "flash", rating: event.rating },
+          local: { kind: "flash", rating: cur.rating },
           attemptId: event.attemptId,
-          elapsedMs: event.elapsedMs,
+          elapsedMs: cur.elapsedMs,
           save: "saving",
+          autoAdvance: true,
         },
       };
     }
@@ -128,6 +147,7 @@ export function drillReducer(state: DrillState, event: DrillEvent): DrillState {
           attemptId: event.attemptId,
           elapsedMs: event.elapsedMs,
           save: "saving",
+          autoAdvance: false,
         },
       };
     }
@@ -151,12 +171,14 @@ export function drillReducer(state: DrillState, event: DrillEvent): DrillState {
           attemptId: event.attemptId,
           elapsedMs: event.elapsedMs,
           save: "saving",
+          autoAdvance: false,
         },
       };
     }
 
     case "SAVE_OK":
       if (cur.step !== "answered" || cur.save !== "saving") return state;
+      if (cur.autoAdvance) return advance(state, { questionId: item.questionId, ...cur.local });
       return { ...state, current: { ...cur, save: "saved", failMessage: undefined } };
 
     case "SAVE_FAIL":
@@ -182,9 +204,9 @@ export function drillReducer(state: DrillState, event: DrillEvent): DrillState {
       return advance(state, { questionId: item.questionId, kind: "skipped" });
 
     case "FLAGGED":
-      // 未回答でフラグ → open flag により保存は 409 not_eligible になるため先回りして skip 可能化。
-      // 回答保存済み・保存中は no-op(保存済み結果は巻き戻さない)
-      if (cur.step !== "front" && cur.step !== "back" && cur.step !== "choosing") return state;
+      // 未送信(front / back / rated / choosing)でフラグ → open flag により保存は 409 not_eligible になるため
+      // 先回りして skip 可能化。送信中・保存済みは no-op(送信した結果は巻き戻さない)
+      if (cur.step !== "front" && cur.step !== "back" && cur.step !== "rated" && cur.step !== "choosing") return state;
       return { ...state, current: { step: "rejected", reason: "not_eligible" } };
 
     default:

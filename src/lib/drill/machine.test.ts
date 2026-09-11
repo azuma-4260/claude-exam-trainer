@@ -14,6 +14,7 @@ import {
 } from "./machine";
 
 // S-3 の厳密 ACK 状態機械(specs/05 S-3、03 §書込プロトコル)。実装前に作成(README 常時遵守 2)
+// D4-4: flash の評価は Next(COMMIT)まで変更可。COMMIT で送信し、SAVE_OK で自動的に次問へ進む
 
 const UUID = "123e4567-e89b-42d3-a456-426614174000";
 const UUID2 = "123e4567-e89b-42d3-a456-426614174001";
@@ -69,24 +70,82 @@ describe("初期状態", () => {
   });
 });
 
-describe("flash: FLIP → RATE(評価 = 送信)", () => {
-  const s0 = initialDrillState([flashItem(1)]);
+describe("flash: FLIP → RATE(評価はローカル保持・変更可)→ COMMIT(Next で送信)", () => {
+  const s0 = initialDrillState([flashItem(1), flashItem(2)]);
 
-  it("FLIP で裏面へ。front で RATE は無効", () => {
-    expect(drillReducer(s0, { type: "RATE", rating: 3, attemptId: UUID, elapsedMs: 100 })).toBe(s0);
+  it("FLIP で裏面へ。front で RATE / COMMIT は無効", () => {
+    expect(drillReducer(s0, { type: "RATE", rating: 3, elapsedMs: 100 })).toBe(s0);
+    expect(drillReducer(s0, { type: "COMMIT", attemptId: UUID })).toBe(s0);
     const s1 = drillReducer(s0, { type: "FLIP" });
     expect(s1.current).toEqual({ step: "back" });
+    expect(drillReducer(s1, { type: "COMMIT", attemptId: UUID })).toBe(s1); // 評価前は送信できない
   });
 
-  it("RATE で answered(saving)になり、Next は不可", () => {
-    const s = dispatch(s0, { type: "FLIP" }, { type: "RATE", rating: 1, attemptId: UUID, elapsedMs: 500 });
-    expect(s.current).toMatchObject({
+  it("RATE で rated(未送信)になり Next(= COMMIT)が可能。解説閲覧後に再 RATE で評価を差し替えられる", () => {
+    const s = dispatch(s0, { type: "FLIP" }, { type: "RATE", rating: 3, elapsedMs: 500 });
+    expect(s.current).toEqual({ step: "rated", rating: 3, elapsedMs: 500 });
+    expect(canNext(s)).toBe(true);
+    const changed = drillReducer(s, { type: "RATE", rating: 1, elapsedMs: 9000 });
+    // 経過時間は最初の評価時点(思い出すまでの時間)を保持し、解説を読んだ時間は含めない
+    expect(changed.current).toEqual({ step: "rated", rating: 1, elapsedMs: 500 });
+  });
+
+  it("COMMIT で answered(saving, autoAdvance)。saving 中の RATE / COMMIT は無効", () => {
+    const s = dispatch(s0, { type: "FLIP" }, { type: "RATE", rating: 3, elapsedMs: 500 }, { type: "RATE", rating: 2, elapsedMs: 800 });
+    const committed = drillReducer(s, { type: "COMMIT", attemptId: UUID });
+    expect(committed.current).toEqual({
       step: "answered",
-      local: { kind: "flash", rating: 1 },
+      local: { kind: "flash", rating: 2 },
       attemptId: UUID,
+      elapsedMs: 500,
       save: "saving",
+      autoAdvance: true,
     });
-    expect(canNext(s)).toBe(false);
+    expect(canNext(committed)).toBe(false);
+    expect(drillReducer(committed, { type: "RATE", rating: 4, elapsedMs: 1 })).toBe(committed);
+    expect(drillReducer(committed, { type: "COMMIT", attemptId: UUID2 })).toBe(committed);
+  });
+
+  it("SAVE_OK で自動的に次問へ進み、確定後の rating を results に積む(二度押し不要)", () => {
+    const s = dispatch(
+      s0,
+      { type: "FLIP" },
+      { type: "RATE", rating: 3, elapsedMs: 500 },
+      { type: "RATE", rating: 2, elapsedMs: 800 },
+      { type: "COMMIT", attemptId: UUID },
+      { type: "SAVE_OK" },
+    );
+    expect(s.index).toBe(1);
+    expect(s.current).toEqual({ step: "front" });
+    expect(s.results).toEqual([{ questionId: "f-d1-q900001", kind: "flash", rating: 2 }]);
+  });
+
+  it("最終問の SAVE_OK で phase=summary", () => {
+    const s = dispatch(
+      initialDrillState([flashItem(1)]),
+      { type: "FLIP" },
+      { type: "RATE", rating: 4, elapsedMs: null },
+      { type: "COMMIT", attemptId: UUID },
+      { type: "SAVE_OK" },
+    );
+    expect(s.phase).toBe("summary");
+    expect(s.results).toEqual([{ questionId: "f-d1-q900001", kind: "flash", rating: 4 }]);
+  });
+
+  it("SAVE_FAIL では現在問題に留まり評価を保持。RETRY で同 attemptId のまま saving に戻り、SAVE_OK で次問へ", () => {
+    const failed = dispatch(
+      s0,
+      { type: "FLIP" },
+      { type: "RATE", rating: 1, elapsedMs: 100 },
+      { type: "COMMIT", attemptId: UUID },
+      { type: "SAVE_FAIL", message: "network" },
+    );
+    expect(failed.index).toBe(0);
+    expect(failed.current).toMatchObject({ step: "answered", save: "failed", local: { rating: 1 }, autoAdvance: true });
+    expect(canNext(failed)).toBe(false);
+    const retried = drillReducer(failed, { type: "RETRY" });
+    expect(retried.current).toMatchObject({ step: "answered", save: "saving", attemptId: UUID });
+    expect(drillReducer(retried, { type: "SAVE_OK" }).index).toBe(1);
   });
 });
 
@@ -146,22 +205,24 @@ describe("mcq_multi: TOGGLE → SUBMIT(Answer ボタン必須)", () => {
   });
 });
 
-describe("保存 ACK(厳密 ACK: SAVE_OK まで Next 不可、失敗は Retry・巻き戻しなし)", () => {
-  const answered = dispatch(
-    initialDrillState([flashItem(1), flashItem(2)]),
-    { type: "FLIP" },
-    { type: "RATE", rating: 3, attemptId: UUID, elapsedMs: 100 },
-  );
+describe("保存 ACK(MCQ: SAVE_OK まで Next 不可、失敗は Retry・巻き戻しなし。自動 advance しない)", () => {
+  const answered = dispatch(initialDrillState([singleItem(1), singleItem(2)]), {
+    type: "CHOOSE",
+    label: "B",
+    attemptId: UUID,
+    elapsedMs: 100,
+  });
 
-  it("SAVE_OK で saved になり Next 活性", () => {
+  it("SAVE_OK で saved になり Next 活性(次問へは進まない)", () => {
     const s = drillReducer(answered, { type: "SAVE_OK" });
-    expect(s.current).toMatchObject({ step: "answered", save: "saved" });
+    expect(s.index).toBe(0);
+    expect(s.current).toMatchObject({ step: "answered", save: "saved", autoAdvance: false });
     expect(canNext(s)).toBe(true);
   });
 
   it("SAVE_FAIL で failed(回答状態は保持・巻き戻さない)。RETRY で attemptId を保持したまま saving に戻る", () => {
     const failed = drillReducer(answered, { type: "SAVE_FAIL", message: "network" });
-    expect(failed.current).toMatchObject({ step: "answered", save: "failed", local: { rating: 3 } });
+    expect(failed.current).toMatchObject({ step: "answered", save: "failed", local: { chosen: ["B"] } });
     expect(canNext(failed)).toBe(false);
     const retried = drillReducer(failed, { type: "RETRY" });
     expect(retried.current).toMatchObject({ step: "answered", save: "saving", attemptId: UUID });
@@ -180,27 +241,27 @@ describe("保存 ACK(厳密 ACK: SAVE_OK まで Next 不可、失敗は Retry・
 });
 
 describe("NEXT / SKIP と summary 遷移", () => {
-  const items = [flashItem(1), singleItem(2)];
+  const items = [singleItem(1), flashItem(2)];
 
   it("NEXT は saved のみ。次 item の初期 step へ進み results に積む", () => {
     const saved = dispatch(
       initialDrillState(items),
-      { type: "FLIP" },
-      { type: "RATE", rating: 2, attemptId: UUID, elapsedMs: null },
+      { type: "CHOOSE", label: "A", attemptId: UUID, elapsedMs: null },
       { type: "SAVE_OK" },
     );
     const s = drillReducer(saved, { type: "NEXT" });
     expect(s.index).toBe(1);
-    expect(s.current).toEqual({ step: "choosing", chosen: [] });
-    expect(s.results).toEqual([{ questionId: "f-d1-q900001", kind: "flash", rating: 2 }]);
+    expect(s.current).toEqual({ step: "front" });
+    expect(s.results).toEqual([{ questionId: "f-d1-q900001", kind: "mcq", chosen: ["A"], isCorrect: false }]);
+  });
+
+  it("rated(未送信)の flash に NEXT は無効(送信は COMMIT で行う)", () => {
+    const rated = dispatch(initialDrillState([flashItem(1)]), { type: "FLIP" }, { type: "RATE", rating: 2, elapsedMs: null });
+    expect(drillReducer(rated, { type: "NEXT" })).toBe(rated);
   });
 
   it("saving / failed / rejected では NEXT 無効", () => {
-    const saving = dispatch(
-      initialDrillState(items),
-      { type: "FLIP" },
-      { type: "RATE", rating: 2, attemptId: UUID, elapsedMs: null },
-    );
+    const saving = dispatch(initialDrillState(items), { type: "CHOOSE", label: "A", attemptId: UUID, elapsedMs: null });
     expect(drillReducer(saving, { type: "NEXT" })).toBe(saving);
     const rejected = drillReducer(saving, { type: "SAVE_REJECTED", reason: "not_eligible" });
     expect(drillReducer(rejected, { type: "NEXT" })).toBe(rejected);
@@ -211,8 +272,7 @@ describe("NEXT / SKIP と summary 遷移", () => {
     expect(drillReducer(s0, { type: "SKIP" })).toBe(s0); // rejected 以外では無効
     const rejected = dispatch(
       s0,
-      { type: "FLIP" },
-      { type: "RATE", rating: 2, attemptId: UUID, elapsedMs: null },
+      { type: "CHOOSE", label: "A", attemptId: UUID, elapsedMs: null },
       { type: "SAVE_REJECTED", reason: "not_eligible" },
     );
     const s = drillReducer(rejected, { type: "SKIP" });
@@ -220,11 +280,25 @@ describe("NEXT / SKIP と summary 遷移", () => {
     expect(s.results).toEqual([{ questionId: "f-d1-q900001", kind: "skipped" }]);
   });
 
+  it("flash も COMMIT 後の SAVE_REJECTED で rejected になり SKIP で進める", () => {
+    const rejected = dispatch(
+      initialDrillState(items),
+      { type: "CHOOSE", label: "A", attemptId: UUID, elapsedMs: null },
+      { type: "SAVE_OK" },
+      { type: "NEXT" },
+      { type: "FLIP" },
+      { type: "RATE", rating: 2, elapsedMs: null },
+      { type: "COMMIT", attemptId: UUID2 },
+      { type: "SAVE_REJECTED", reason: "not_eligible" },
+    );
+    expect(rejected.current).toEqual({ step: "rejected", reason: "not_eligible" });
+    expect(drillReducer(rejected, { type: "SKIP" }).phase).toBe("summary");
+  });
+
   it("最終問の NEXT / SKIP で phase=summary", () => {
     const last = dispatch(
-      initialDrillState([flashItem(1)]),
-      { type: "FLIP" },
-      { type: "RATE", rating: 4, attemptId: UUID, elapsedMs: null },
+      initialDrillState([singleItem(1)]),
+      { type: "CHOOSE", label: "B", attemptId: UUID, elapsedMs: null },
       { type: "SAVE_OK" },
       { type: "NEXT" },
     );
@@ -239,11 +313,24 @@ describe("FLAGGED(QuestionMenu の悪問フラグ)", () => {
     expect(drillReducer(s, { type: "SKIP" }).index).toBe(1);
   });
 
-  it("回答保存済み(saved)では no-op(保存済みの結果は巻き戻さない)", () => {
-    const saved = dispatch(
-      initialDrillState([flashItem(1)]),
+  it("rated(未送信)でフラグ → rejected(not_eligible)。未保存なので巻き戻し不要", () => {
+    const rated = dispatch(initialDrillState([flashItem(1), flashItem(2)]), { type: "FLIP" }, { type: "RATE", rating: 3, elapsedMs: null });
+    const s = drillReducer(rated, { type: "FLAGGED" });
+    expect(s.current).toEqual({ step: "rejected", reason: "not_eligible" });
+    expect(drillReducer(s, { type: "SKIP" }).results).toEqual([{ questionId: "f-d1-q900001", kind: "skipped" }]);
+  });
+
+  it("送信中(saving)・保存済み(saved)では no-op(送信した結果は巻き戻さない)", () => {
+    const saving = dispatch(
+      initialDrillState([flashItem(1), flashItem(2)]),
       { type: "FLIP" },
-      { type: "RATE", rating: 3, attemptId: UUID, elapsedMs: null },
+      { type: "RATE", rating: 3, elapsedMs: null },
+      { type: "COMMIT", attemptId: UUID },
+    );
+    expect(drillReducer(saving, { type: "FLAGGED" })).toBe(saving);
+    const saved = dispatch(
+      initialDrillState([singleItem(1)]),
+      { type: "CHOOSE", label: "B", attemptId: UUID, elapsedMs: null },
       { type: "SAVE_OK" },
     );
     expect(drillReducer(saved, { type: "FLAGGED" })).toBe(saved);
@@ -251,11 +338,13 @@ describe("FLAGGED(QuestionMenu の悪問フラグ)", () => {
 });
 
 describe("toAnswerRequest(POST /api/answers の payload。schema に適合すること)", () => {
-  it("flash: kind=flash + rating、mode は常に drill", () => {
+  it("flash: kind=flash + 確定後の rating、elapsed_ms は初回評価時点、mode は常に drill", () => {
     const s = dispatch(
       initialDrillState([flashItem(1)]),
       { type: "FLIP" },
-      { type: "RATE", rating: 2, attemptId: UUID, elapsedMs: 800 },
+      { type: "RATE", rating: 3, elapsedMs: 800 },
+      { type: "RATE", rating: 2, elapsedMs: 5000 },
+      { type: "COMMIT", attemptId: UUID },
     );
     if (s.current.step !== "answered") throw new Error("unreachable");
     const req = toAnswerRequest(flashItem(1), s.current);

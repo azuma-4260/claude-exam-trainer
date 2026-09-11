@@ -24,7 +24,8 @@ import { cn } from "@/lib/utils";
 /**
  * S-3 Quick Drill(specs/05)。状態はすべて純関数 reducer(src/lib/drill/machine.ts)が持ち、
  * このコンポーネントは描画と I/O(POST /api/answers、attemptId 生成、経過時間計測)だけを担う。
- * 厳密 ACK: 保存 ACK まで Next は disabled。失敗時は同一 attempt_id で Retry(冪等キー)。
+ * 厳密 ACK: 保存 ACK まで次問へ進まない。失敗時は同一 attempt_id で Retry(冪等キー)。
+ * flash(D4-4): 評価はローカル保持で Next まで変更可。Next 押下で送信し、ACK 成功で自動的に次問へ。
  */
 
 const RATING_BUTTONS: { rating: FlashRating; label: string; className: string }[] = [
@@ -99,23 +100,32 @@ export function QuickDrill({
     }
   }
 
-  const baseRequest = () => {
+  const elapsedMs = () => {
     // 起点未設定(effect 前の操作)や int4 を超える値(タブ長期放置)は null にする。
     // 範囲外を送ると DB 制約で保存が恒久 500 になり Retry でも回復しないため(Codex P2 対応)
     const elapsed = startedAtRef.current > 0 ? Date.now() - startedAtRef.current : null;
-    return {
-      attempt_id: crypto.randomUUID(),
-      question_id: item.questionId,
-      question_rev: item.rev,
-      mode: answerMode,
-      elapsed_ms: elapsed !== null && elapsed <= 2_147_483_647 ? elapsed : null,
-    };
+    return elapsed !== null && elapsed <= 2_147_483_647 ? elapsed : null;
   };
 
+  const baseRequest = () => ({
+    attempt_id: crypto.randomUUID(),
+    question_id: item.questionId,
+    question_rev: item.rev,
+    mode: answerMode,
+    elapsed_ms: elapsedMs(),
+  });
+
   function onRate(rating: FlashRating) {
-    const common = baseRequest();
-    dispatch({ type: "RATE", rating, attemptId: common.attempt_id, elapsedMs: common.elapsed_ms });
-    void send({ ...common, kind: "flash", rating });
+    // 送信しない。経過時間は reducer が初回評価時点の値を保持する(2 回目以降の値は無視される)
+    dispatch({ type: "RATE", rating, elapsedMs: elapsedMs() });
+  }
+
+  function onCommit() {
+    if (cur.step !== "rated") return;
+    // 経過時間は初回評価時点の値(reducer 保持)で上書きする
+    const common = { ...baseRequest(), elapsed_ms: cur.elapsedMs };
+    dispatch({ type: "COMMIT", attemptId: common.attempt_id });
+    void send({ ...common, kind: "flash", rating: cur.rating });
   }
 
   function onChoose(label: string) {
@@ -187,14 +197,17 @@ export function QuickDrill({
           />
         )}
 
-        {cur.step === "answered" ? <ExplanationBlock item={item} /> : null}
+        {cur.step === "rated" || cur.step === "answered" ? <ExplanationBlock item={item} /> : null}
       </section>
 
       {/* 保存状態とナビゲーション(厳密 ACK) */}
       <footer className="sticky bottom-0 mt-6 flex flex-col gap-2 bg-background/95 pb-[env(safe-area-inset-bottom)] pt-2 backdrop-blur">
-        {cur.step === "answered" ? (
+        {cur.step === "rated" || cur.step === "answered" ? (
           <>
-            {cur.save === "failed" ? (
+            {cur.step === "rated" ? (
+              <p className="text-center text-xs text-muted-foreground">評価は Next を押すまで変更できます</p>
+            ) : null}
+            {cur.step === "answered" && cur.save === "failed" ? (
               <div className="flex items-center justify-between gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm">
                 <span className="text-red-600 dark:text-red-400">保存に失敗しました</span>
                 <Button variant="outline" size="sm" onClick={onRetry}>
@@ -207,9 +220,9 @@ export function QuickDrill({
               size="lg"
               className="h-12 w-full text-base"
               disabled={!canNext(state)}
-              onClick={() => dispatch({ type: "NEXT" })}
+              onClick={() => (cur.step === "rated" ? onCommit() : dispatch({ type: "NEXT" }))}
             >
-              {cur.save === "saving" ? (
+              {cur.step === "answered" && cur.save === "saving" ? (
                 <>
                   <LoaderCircle className="animate-spin motion-reduce:animate-none" data-icon="inline-start" aria-hidden />
                   保存中…
@@ -244,7 +257,7 @@ export function QuickDrill({
   );
 }
 
-/** flash: タップ裏返し → Again / Hard / Good / Easy(評価 = 送信) */
+/** flash: タップ裏返し → Again / Hard / Good / Easy(Next まで変更可、Next で送信) */
 function FlashCard({
   item,
   cur,
@@ -257,7 +270,8 @@ function FlashCard({
   onRate: (rating: FlashRating) => void;
 }) {
   const showBack = cur.step !== "front";
-  const rated = cur.step === "answered" && cur.local.kind === "flash" ? cur.local.rating : null;
+  const rated =
+    cur.step === "rated" ? cur.rating : cur.step === "answered" && cur.local.kind === "flash" ? cur.local.rating : null;
   return (
     <>
       {cur.step === "front" ? (
@@ -285,7 +299,8 @@ function FlashCard({
               key={rating}
               variant="ghost"
               className={cn("h-12 text-sm font-semibold", className, rated === rating && "ring-2 ring-ring")}
-              disabled={cur.step !== "back"}
+              disabled={cur.step !== "back" && cur.step !== "rated"}
+              aria-pressed={rated === rating}
               onClick={() => onRate(rating)}
             >
               {label}
@@ -373,7 +388,7 @@ function McqCard({
   );
 }
 
-/** 解説(日本語)+ refs。回答直後に表示(保存 ACK は待たない) */
+/** 解説(日本語)+ refs。回答/評価直後に表示(保存 ACK は待たない) */
 function ExplanationBlock({ item }: { item: DrillItem }) {
   return (
     <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm leading-relaxed">
