@@ -100,22 +100,24 @@ export function QuickDrill({
     }
   }
 
-  const baseRequest = () => {
+  const elapsedMs = () => {
     // 起点未設定(effect 前の操作)や int4 を超える値(タブ長期放置)は null にする。
     // 範囲外を送ると DB 制約で保存が恒久 500 になり Retry でも回復しないため(Codex P2 対応)
     const elapsed = startedAtRef.current > 0 ? Date.now() - startedAtRef.current : null;
-    return {
-      attempt_id: crypto.randomUUID(),
-      question_id: item.questionId,
-      question_rev: item.rev,
-      mode: answerMode,
-      elapsed_ms: elapsed !== null && elapsed <= 2_147_483_647 ? elapsed : null,
-    };
+    return elapsed !== null && elapsed <= 2_147_483_647 ? elapsed : null;
   };
+
+  const baseRequest = () => ({
+    attempt_id: crypto.randomUUID(),
+    question_id: item.questionId,
+    question_rev: item.rev,
+    mode: answerMode,
+    elapsed_ms: elapsedMs(),
+  });
 
   function onRate(rating: FlashRating) {
     // 送信しない。経過時間は reducer が初回評価時点の値を保持する(2 回目以降の値は無視される)
-    dispatch({ type: "RATE", rating, elapsedMs: baseRequest().elapsed_ms });
+    dispatch({ type: "RATE", rating, elapsedMs: elapsedMs() });
   }
 
   function onCommit() {

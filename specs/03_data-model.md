@@ -118,7 +118,7 @@ create unique index attempt_mock_session_question_uq
 
 durable client outbox は実装しない。クライアントは正誤・解説を即時表示してよいが、**保存 ACK 受信前に次問へ進まない**。失敗時は現在問題に留まり Retry(自動巻き戻し UI なし)。
 
-送信タイミング(v1.2.3 / D4-4): MCQ は選択(複数選択は Answer)= 送信。flash の rating は **Next 押下時に確定送信**し、それまではクライアントローカルで変更できる(サーバーには何も送らない)。commit 後の attempt は不変で、rating の変更・取り消し API は設けない(同 attempt_id の別 payload は 409 のまま)。
+送信タイミング(v1.2.3 / D4-4): MCQ は選択(複数選択は Answer)= 送信。flash の rating は **Next 押下時に確定送信**し、それまではクライアントローカルで変更できる(サーバーには何も送らない)。commit 後の attempt は不変で、rating の変更・取り消し API は設けない(同 attempt_id の別 payload は 409 のまま)。flash の `elapsed_ms` は**最初の評価タップまで**の時間(思い出すまでの時間)で、評価の変更や解説閲覧の時間は含めない。`attempt_id` は Next 押下時に生成する。
 
 サーバー処理順序:
 
