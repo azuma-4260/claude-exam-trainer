@@ -9,7 +9,7 @@
 
 | Mode | attempt | FSRS 更新 | 間違いノート |
 |---|---|---|---|
-| Drill(flash) | Yes(即時・厳密 ACK) | Yes(ユーザー 4 択評価) | No |
+| Drill(flash) | Yes(**Next 押下時**・厳密 ACK。評価は Next まで変更可) | Yes(ユーザー 4 択評価) | No |
 | Drill(短問 MCQ) | Yes(即時) | Yes(正解→Good / 不正解→Again) | No |
 | Practice | Yes(即時) | **srs_eligible=true の場合のみ**(同上の自動レーティング)。false(解放済みフォーム問題等)は applied_rating=null | Yes |
 | Mock(full / mini / half) | **提出時一括**(`03`) | No | Yes(提出時分) |
