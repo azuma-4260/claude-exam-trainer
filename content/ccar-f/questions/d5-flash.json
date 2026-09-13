@@ -206,17 +206,17 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Policy is silent on a request like competitor price matching — what should the agent do?",
+    "stem_en": "A customer-support agent's policy covers price adjustments only for the company's own site. A customer asks it to match a competitor's lower price, which the policy never mentions. Should the agent decide on its own, or escalate?",
     "choices": null,
     "answer": null,
-    "answer_en": "Escalate:\npolicy gaps are human decisions, not cases for improvisation.",
-    "explanation_ja": "ポリシーが沈黙・曖昧なケースは、エージェントが即興で判断せずエスカレーションする。競合他社価格マッチのような要求はその典型である。ポリシーの穴を埋めるのは運用者の仕事であり、判断の前例をモデルに作らせない。",
+    "answer_en": "Escalate to a human.\nWhen policy is silent or ambiguous on the request, filling the gap is a human decision, not something for the agent to improvise.",
+    "explanation_ja": "自社サイト内の価格調整しか定めていないポリシーに対し、「競合他社の安い価格に合わせてほしい」という要求はポリシーが何も言っていない(沈黙している)ケース。こうした場合、エージェントは即興で可否を判断せず人間にエスカレーションする。ポリシーの穴を埋めるのは運用者の仕事であり、モデルに判断の前例を作らせない。",
     "refs": [
       "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q010",
