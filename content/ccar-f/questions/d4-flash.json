@@ -86,7 +86,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why does one high-false-positive category damage the whole review system's value?",
+    "stem_en": "An automated Claude code review posts findings in several categories (security, performance, style, comment accuracy). Most categories are accurate, but the comment-accuracy category produces many false positives. The team argues it is only one category out of several, so the impact is limited. Why does that one noisy category hurt the value of the whole review system?",
     "choices": null,
     "answer": null,
     "answer_en": "Developers lose trust and start ignoring all findings,\nincluding the accurate categories.",
@@ -96,7 +96,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q005",

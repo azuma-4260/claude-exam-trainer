@@ -716,7 +716,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What context should CI test generation receive to avoid duplicate and low-value tests?",
+    "stem_en": "A team uses Claude Code in GitHub Actions to generate unit tests for each PR. The generated tests often duplicate scenarios already covered and use a different style than the existing suite, so reviewers reject many of them. What should the workflow provide to Claude so the generated tests match the codebase and add real value?",
     "choices": null,
     "answer": null,
     "answer_en": "Existing test files for their style, framework, and assertion patterns,\nplus CLAUDE.md standards defining valuable tests and fixtures.",
@@ -727,7 +727,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q031",
