@@ -692,7 +692,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "How should CI avoid duplicate review comments when re-running Claude after new commits?",
+    "stem_en": "A team runs Claude Code Review in GitHub Actions and wants every new push to a PR to be re-reviewed. They notice that once a Claude review comment exists on a PR, later pushes get no new review. How should they set up the workflow so new commits are reviewed without posting duplicate findings?",
     "choices": null,
     "answer": null,
     "answer_en": "The standard /code-review workflow skips PRs with an existing Claude comment.\nRun a custom prompt or skill without that skip, pass prior findings, and request only new or unresolved issues.",
@@ -702,7 +702,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 2
+    "rev": 3
   },
   {
     "id": "f-d3-q030",
