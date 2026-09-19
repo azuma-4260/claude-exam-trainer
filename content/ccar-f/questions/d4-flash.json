@@ -159,7 +159,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What makes a few-shot example set effective for ambiguous judgment tasks?",
+    "stem_en": "A prompt classifies support tickets as \"bug\" or \"feature request\", and the clear-cut cases work fine, but tickets that mix a complaint with a suggestion get labeled inconsistently from run to run. Adding a few obvious examples of each class did not help. What makes a few-shot example set effective for ambiguous judgment tasks like this?",
     "choices": null,
     "answer": null,
     "answer_en": "Examples that cover the ambiguous cases and show why each choice was made,\nso the model generalizes to new patterns.",
@@ -169,7 +169,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q008",
