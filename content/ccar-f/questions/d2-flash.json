@@ -158,7 +158,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "When should a system prompt use a strong instruction about tool use?",
+    "stem_en": "A support product requires that every customer question be answered from the knowledge base rather than from the model's own memory, but with tool_choice auto Claude sometimes answers directly without calling the search tool. The team wonders whether to add an explicit instruction in the system prompt. When should a system prompt use a strong instruction about tool use like this?",
     "choices": null,
     "answer": null,
     "answer_en": "When the product requires a consistent tool-use behavior;\notherwise leave the model discretion with auto selection.",
@@ -168,7 +168,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q008",
@@ -302,7 +302,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why does giving one agent 18 tools instead of the 4-5 it needs degrade reliability?",
+    "stem_en": "A research system has one coordinator and several specialized subagents, but for convenience every subagent is given all 18 tools in the system (web search, database, file writes, report formatting, and more), although each role only uses 4-5 of them. Tool-selection errors rise, and the synthesis agent starts running web searches instead of writing the report. Why does giving one agent 18 tools instead of the 4-5 it needs degrade reliability?",
     "choices": null,
     "answer": null,
     "answer_en": "More candidates make description matching harder,\nlowering tool-selection accuracy and inviting misuse of out-of-role tools.",
@@ -312,7 +312,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q014",
@@ -350,7 +350,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why should a tool be designed around an agent's workflow rather than as a thin API wrapper?",
+    "stem_en": "A support agent is handed one tool per backend endpoint: get_customer, get_orders, get_order_items, get_shipping_status. To answer \"where is my last order\", it has to chain four calls in the right order every time and often picks the wrong one or stops early. Why should a tool be designed around the agent's workflow rather than as a thin wrapper over each API endpoint?",
     "choices": null,
     "answer": null,
     "answer_en": "Workflow-oriented tools give the agent a clearer, higher-level action\nand reduce unnecessary tool-selection complexity.",
@@ -360,7 +360,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q016",
@@ -374,7 +374,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why should each tool have a clear, distinct purpose?",
+    "stem_en": "A multi-agent system exposes both fetch_document and get_content, which were added by different teams and do nearly the same thing. Agents pick one or the other unpredictably, and the outputs differ in format, so downstream steps sometimes break. Why should each tool have a clear, distinct purpose?",
     "choices": null,
     "answer": null,
     "answer_en": "Clear purpose and descriptions help the agent select the right tool\nand avoid confusion from overlapping choices.",
@@ -384,7 +384,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q017",

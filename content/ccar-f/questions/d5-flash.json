@@ -11,7 +11,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why do exact amounts, dates, and stated customer expectations get corrupted by conversation summarization?",
+    "stem_en": "A support agent handles a long multi-issue conversation and compacts the history with a summary once it grows. After compaction, the agent misquotes the refund amount the customer was promised and forgets the delivery date the customer said they needed. Why do exact amounts, dates, and stated customer expectations get corrupted by conversation summarization?",
     "choices": null,
     "answer": null,
     "answer_en": "Summaries compress toward gist and blur precise values;\ncritical facts need a persistent block outside the summarized text.",
@@ -22,7 +22,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q002",
@@ -36,7 +36,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "How does structured note-taking preserve important facts across a long agent workflow?",
+    "stem_en": "A support agent works through a long session in which the customer raises several issues over dozens of turns, and details such as the order number, the refund amount, and the promised ship date must stay exact until the end. Relying on the conversation itself, the agent gradually loses or distorts those values. How does structured note-taking preserve important facts like these across a long agent workflow?",
     "choices": null,
     "answer": null,
     "answer_en": "Store concise, task-relevant notes in external memory such as a file;\nagents can retrieve those notes without relying on the active context window.",
@@ -46,7 +46,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q003",
@@ -133,7 +133,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What output contract should upstream agents follow to protect downstream context budgets?",
+    "stem_en": "In a multi-agent research system, each research subagent returns pages of free-form reasoning along with its findings. By the time the coordinator collects results from five subagents, its own context is nearly full and the synthesis step degrades. What output contract should upstream agents follow to protect downstream context budgets?",
     "choices": null,
     "answer": null,
     "answer_en": "Return structured data (key points, quotes, relevance) with metadata,\nnot verbose free-form reasoning.",
@@ -144,7 +144,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q007",
@@ -425,7 +425,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "How do you set a confidence threshold for routing extractions to human review?",
+    "stem_en": "An extraction pipeline asks the model to report a confidence score for each field and wants to route low-confidence extractions to human review. The team is tempted to pick a round number like 0.8 as the cutoff. How should you set the confidence threshold for routing extractions to human review?",
     "choices": null,
     "answer": null,
     "answer_en": "Calibrate field-level confidence against a labeled set,\nthen choose thresholds from the measured error rates.",
@@ -435,7 +435,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q019",
@@ -642,7 +642,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Before launching the subagent for the next phase, what should the coordinator inject into its initial context?",
+    "stem_en": "A multi-phase research workflow runs each phase in a fresh subagent. The coordinator has been pasting the previous phase's entire raw output into the next subagent's prompt, so each new subagent starts with a context that is already mostly full. Before launching the subagent for the next phase, what should the coordinator inject into its initial context instead?",
     "choices": null,
     "answer": null,
     "answer_en": "A summary of the previous phase's key findings — not the raw output —\nso the new subagent starts with what matters in a fresh context.",
@@ -652,7 +652,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q028",

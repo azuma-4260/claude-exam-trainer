@@ -11,7 +11,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why do instructions like \"be conservative\" or \"only report high-confidence issues\" fail to improve review precision?",
+    "stem_en": "An automated code review posts too many low-value findings, so the team adds \"be conservative\" and \"only report high-confidence issues\" to the prompt. The volume of noisy findings barely changes. Why do instructions like these fail to improve review precision?",
     "choices": null,
     "answer": null,
     "answer_en": "They are vague relative to the model's calibration;\nprecision improves when you specify categories to report and to skip.",
@@ -22,7 +22,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q002",
@@ -36,7 +36,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What concrete structure should explicit review criteria take in a prompt?",
+    "stem_en": "A code review prompt tells Claude to report only real issues and to be strict about security, but reviewers still see style nits reported as high severity and genuine bugs marked as low. The team decides to replace the vague wording with explicit review criteria. What concrete structure should those explicit criteria take in the prompt?",
     "choices": null,
     "answer": null,
     "answer_en": "Report/skip category lists\nplus a concrete code example for each severity level.",
@@ -47,7 +47,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q003",
@@ -159,7 +159,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What makes a few-shot example set effective for ambiguous judgment tasks?",
+    "stem_en": "A prompt classifies support tickets as \"bug\" or \"feature request\", and the clear-cut cases work fine, but tickets that mix a complaint with a suggestion get labeled inconsistently from run to run. Adding a few obvious examples of each class did not help. What makes a few-shot example set effective for ambiguous judgment tasks like this?",
     "choices": null,
     "answer": null,
     "answer_en": "Examples that cover the ambiguous cases and show why each choice was made,\nso the model generalizes to new patterns.",
@@ -169,7 +169,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q008",
@@ -309,7 +309,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What part of a tool definition helps Claude choose the right extraction tool for a request?",
+    "stem_en": "An extraction service defines several tools, one per document type (extract_invoice, extract_receipt, extract_contract), and lets Claude choose with tool_choice auto. Claude often calls extract_invoice on receipts because the tool definitions only list their fields. What part of a tool definition helps Claude choose the right extraction tool for a request?",
     "choices": null,
     "answer": null,
     "answer_en": "A clear, detailed tool name and description that states\nwhat the tool does and when it should be used.",
@@ -320,7 +320,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q014",
@@ -431,7 +431,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Describe the standard retry loop for failed extraction validation.",
+    "stem_en": "An invoice extraction pipeline validates each result with Pydantic, and about 5% of extractions fail because the total does not match the line items or a required field is missing. Currently the pipeline simply re-sends the same document and gets the same error back. Describe the standard retry loop for a failed extraction validation.",
     "choices": null,
     "answer": null,
     "answer_en": "Re-send the original document, the failed extraction,\nand the specific validation errors, asking for a corrected extraction.",
@@ -442,7 +442,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q019",

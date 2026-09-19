@@ -285,7 +285,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why should a coordinator select subagents dynamically based on query complexity instead of always running the full pipeline?",
+    "stem_en": "A research coordinator always runs its full pipeline of six subagents (planner, three researchers, verifier, writer) on every request, even for a simple factual question like the current version of a library. Simple questions therefore cost as much time and tokens as deep investigations, with no gain in answer quality. Why should the coordinator select subagents dynamically based on query complexity instead of always running the full pipeline?",
     "choices": null,
     "answer": null,
     "answer_en": "Simple queries need only a subset of agents;\nrunning everything wastes tokens and latency without improving quality.",
@@ -295,7 +295,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q013",
@@ -309,7 +309,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What single part of a subagent assignment most directly prevents duplicated research?",
+    "stem_en": "A coordinator splits a market research task among three subagents by giving each one the same overall goal and a loose theme (\"competitors\", \"pricing\", \"trends\"). Two of them end up researching the same competitor pricing pages and return near-identical findings, doubling the token cost. Which single part of a subagent assignment most directly prevents this kind of duplicated research?",
     "choices": null,
     "answer": null,
     "answer_en": "Explicit task boundaries that state what the subagent owns\nand what is outside its scope.",
@@ -319,7 +319,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q014",
@@ -554,7 +554,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why should coordinator prompts to subagents state goals and quality criteria rather than step-by-step procedures?",
+    "stem_en": "A coordinator's prompt to a research subagent spells out an exact procedure: open the first three search results, copy the pricing table from each, then compare them. On one run the top results are login-walled and contain no pricing table, so the subagent follows the steps literally and returns an empty comparison. Why should coordinator prompts to subagents state goals and quality criteria rather than step-by-step procedures like this?",
     "choices": null,
     "answer": null,
     "answer_en": "Goal-oriented prompts let subagents adapt their approach to what they find;\nrigid scripts break on unexpected conditions.",
@@ -565,7 +565,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q024",
@@ -802,7 +802,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "When a hook blocks a policy-violating tool call, what should it do beyond returning an error?",
+    "stem_en": "A PreToolUse hook blocks a refund call that exceeds the policy limit, but it returns only a bare \"denied\" error. The agent, seeing no reason, retries the same refund several times and then gives up without helping the customer. When a hook blocks a policy-violating tool call, what should it do beyond returning an error?",
     "choices": null,
     "answer": null,
     "answer_en": "Explain why the call was denied and present\na compliant alternative action.",
@@ -812,7 +812,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q034",
@@ -899,7 +899,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What characterizes an adaptive plan for exploring a complex workflow?",
+    "stem_en": "An agent is asked to map how orders flow through a large, unfamiliar legacy codebase with dozens of services. It writes a rigid plan up front (read every service in alphabetical order), then keeps following it even after discovering that three services carry almost all of the order logic. What characterizes an adaptive plan for exploring a complex workflow like this?",
     "choices": null,
     "answer": null,
     "answer_en": "Start with structure discovery, target high-impact areas,\nand update priorities as dependencies are found.",
@@ -910,7 +910,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q038",
