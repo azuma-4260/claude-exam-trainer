@@ -16,7 +16,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Parse the partial tool input, fill any missing parameters with sensible defaults, and execute the call so the customer is not kept waiting."
+        "text_en": "Parse the partial tool input, fill any missing parameters with sensible defaults, and execute the call so that the customer is not kept waiting."
       },
       {
         "label": "B",
@@ -24,11 +24,11 @@
       },
       {
         "label": "C",
-        "text_en": "Add a system prompt instruction telling the model to keep its responses short so truncation can never occur."
+        "text_en": "Instruct the model in the system prompt to keep every response short — brief replies stay well under the token limit, so truncation cannot occur at all."
       },
       {
         "label": "D",
-        "text_en": "Treat \"max_tokens\" as a transient network error and resend the identical request unchanged until it completes."
+        "text_en": "Treat \"max_tokens\" as a transient network error and resend the identical request unchanged, since a later attempt will usually run to completion."
       }
     ],
     "answer": [
@@ -42,7 +42,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q202",
@@ -61,19 +61,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "A fixed sequence is always an anti-pattern; production agents should never use predefined workflows."
+        "text_en": "A fixed sequence is an anti-pattern in any production agent; predefined workflows belong to scripted automation, not to agent systems."
       },
       {
         "label": "B",
-        "text_en": "The model-driven loop is cheaper per request because it usually calls fewer tools than the fixed sequence."
+        "text_en": "The model-driven loop is cheaper per request, because it typically calls fewer tools than the fixed four-step sequence would call."
       },
       {
         "label": "C",
-        "text_en": "Support requests are high-ambiguity: which tools are needed, and in what order, depends on what earlier tool results reveal, so the next step must be decided by the model at each iteration."
+        "text_en": "Support requests are high-ambiguity: which tools are needed, and in what order, depends on what earlier tool results reveal."
       },
       {
         "label": "D",
-        "text_en": "Predefined sequences cannot call MCP tools, so the fixed pipeline would require rewriting every backend integration."
+        "text_en": "Predefined sequences cannot invoke MCP tools, so the fixed pipeline would require rewriting every TrailNorth backend integration."
       }
     ],
     "answer": [
@@ -86,7 +86,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q203",
@@ -105,19 +105,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Raise the cap to 10 iterations; three was simply too low for this workload."
+        "text_en": "Raise the cap to 10 iterations, a level that comfortably covers the multi-item damage claims that are now being cut off mid-workflow."
       },
       {
         "label": "B",
-        "text_en": "Remove all iteration limits so the loop always runs until the model reports completion in its final text."
+        "text_en": "Remove the iteration limit entirely, letting the loop run on until the model reports completion in its own final text response."
       },
       {
         "label": "C",
-        "text_en": "Keep 3 iterations but instruct the model in the system prompt to finish every case within three tool calls."
+        "text_en": "Keep the cap at 3 and instruct the model in the system prompt to plan each case so that it completes within three tool calls."
       },
       {
         "label": "D",
-        "text_en": "Let stop_reason drive termination, keep a generous iteration cap only as a safety backstop, and when the backstop fires, handle it explicitly — for example by escalating with the work done so far."
+        "text_en": "Let stop_reason drive termination, keep a generous cap as a safety backstop, and escalate with the work done so far when it fires."
       }
     ],
     "answer": [
@@ -131,7 +131,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q204",
@@ -150,19 +150,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Enforce the prerequisite programmatically: make refund_payment fail (or be unavailable) unless an approved return exists for the order, independent of what the model decides."
+        "text_en": "Enforce the prerequisite in code: make refund_payment fail unless an approved return exists for the order (whatever the model decides)."
       },
       {
         "label": "B",
-        "text_en": "Rewrite the ordering rule in capital letters at the top of the system prompt so the model cannot miss it."
+        "text_en": "Restate the ordering rule in capital letters at the top of the system prompt, where the model is least likely to overlook it."
       },
       {
         "label": "C",
-        "text_en": "Add few-shot examples of correctly ordered return-then-refund conversations to the prompt."
+        "text_en": "Add few-shot examples of correctly ordered return-then-refund conversations to the prompt, so the sequence is demonstrated (not merely stated)."
       },
       {
         "label": "D",
-        "text_en": "Lower the temperature so the model follows the stated ordering more deterministically."
+        "text_en": "Lower the temperature so the model follows the stated ordering more deterministically — less sampling variance, fewer deviations."
       }
     ],
     "answer": [
@@ -175,7 +175,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q205",
@@ -194,19 +194,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Answer only the first concern per message by design, and tell the customer to submit one request per message."
+        "text_en": "Answer the first concern in each message by design, and ask the customer to send any remaining requests one per message."
       },
       {
         "label": "B",
-        "text_en": "Decompose the message into its distinct concerns, investigate each — in parallel where they are independent — and respond once with an integrated answer covering all three."
+        "text_en": "Decompose the message into its distinct concerns, investigate them in parallel where independent, and respond once with an integrated answer."
       },
       {
         "label": "C",
-        "text_en": "Escalate any message containing more than one concern to a human, since multi-part requests exceed what an agent should attempt."
+        "text_en": "Escalate any message containing more than one concern to a human — multi-part requests exceed what a support agent should be attempting alone."
       },
       {
         "label": "D",
-        "text_en": "Process the concerns strictly one per loop iteration, sending the customer a separate reply after each one completes."
+        "text_en": "Process the concerns one per loop iteration, sending the customer a separate reply as soon as each of the three is completed."
       }
     ],
     "answer": [
@@ -219,7 +219,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q206",
@@ -238,19 +238,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Nothing — a blocked call should terminate the whole session so the model cannot retry."
+        "text_en": "Nothing at all — a blocked call should end the whole session, so that the model has no opportunity to retry the same refund."
       },
       {
         "label": "B",
-        "text_en": "A generic \"permission denied\" string, since explaining policy details to the model risks prompt injection."
+        "text_en": "A generic \"permission denied\" string, since spelling out policy limits (amounts, thresholds) to the model risks prompt injection."
       },
       {
         "label": "C",
-        "text_en": "A success response with a zero-dollar refund so the loop can continue without an error state."
+        "text_en": "A success response recording a zero-dollar refund, so that the loop can continue past the block without entering an error state."
       },
       {
         "label": "D",
-        "text_en": "An actionable denial: the reason (policy caps automatic refunds at $200) and the expected alternative — call escalate_to_human with the case context for approval."
+        "text_en": "An actionable denial: the reason (refunds above $200 need approval) and the alternative — call escalate_to_human with the case context."
       }
     ],
     "answer": [
@@ -264,7 +264,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q201",
@@ -283,19 +283,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Have the tool retry internally forever until the database responds, so an empty list always means no orders."
+        "text_en": "Have the tool keep retrying internally until the database responds, so that an empty list can always be read as no orders at all."
       },
       {
         "label": "B",
-        "text_en": "Return the string \"ERROR\" inside the order list so the model notices something went wrong."
+        "text_en": "Return the string \"ERROR\" as an entry inside the order list (in place of orders), so the model notices that something went wrong."
       },
       {
         "label": "C",
-        "text_en": "On failure, return an error result (isError) describing the timeout as transient and retryable; reserve the empty list strictly for the genuine no-orders case."
+        "text_en": "On failure, return an error result (isError) marking the timeout transient, and reserve the empty list for the genuine no-orders case."
       },
       {
         "label": "D",
-        "text_en": "Return the customer's cached orders from the last successful call, since stale data is better than an empty answer."
+        "text_en": "Return the customer's cached orders from the last successful call — stale order data is more useful to the customer than an empty answer here."
       }
     ],
     "answer": [
@@ -309,7 +309,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q202",
@@ -328,19 +328,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Give each tool a description that states its exact coverage and boundary — first-party orders vs marketplace orders — including when NOT to use it, or consolidate both into a single order-lookup tool if the split serves no purpose."
+        "text_en": "State each tool's exact coverage in its description — first-party vs marketplace orders — including when not to use it, or consolidate the two."
       },
       {
         "label": "B",
-        "text_en": "Add a system prompt rule: \"if lookup_order returns nothing, apologize and close the conversation.\""
+        "text_en": "Add a system prompt rule: \"if lookup_order finds nothing, apologize that the order cannot be located and close the conversation politely.\""
       },
       {
         "label": "C",
-        "text_en": "Remove search_purchases so there is only one lookup tool and no routing ambiguity."
+        "text_en": "Remove search_purchases from the agent's toolset, leaving a single lookup tool and no routing ambiguity for the model to resolve at all."
       },
       {
         "label": "D",
-        "text_en": "Rename both tools to tool_1 and tool_2 so the model stops guessing from the names."
+        "text_en": "Rename the two tools to tool_1 and tool_2, so that the model stops guessing coverage from their names and reads the descriptions."
       }
     ],
     "answer": [
@@ -354,7 +354,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q203",
@@ -373,19 +373,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Attach everything — unused tools are harmless, and the agent might find creative uses for them."
+        "text_en": "Attach the whole server — unused tools sit idle and harmless, and the agent may find useful applications for some of them later."
       },
       {
         "label": "B",
-        "text_en": "Expose only the tools the support role actually needs; extra tools both degrade selection reliability and create real damage paths (like purge_account) the role should never have."
+        "text_en": "Expose only the tools the support role needs; extra tools degrade selection reliability and create real damage paths (like purge_account)."
       },
       {
         "label": "C",
-        "text_en": "Attach everything but add a system prompt line forbidding use of the dangerous tools."
+        "text_en": "Attach the whole server, but add a system prompt line barring the agent from using the destructive tools (purge_account, export_all_customers)."
       },
       {
         "label": "D",
-        "text_en": "Attach everything and rely on the model asking the customer for permission before any destructive call."
+        "text_en": "Attach the whole server and rely on the model to ask the customer for permission before it makes any destructive call."
       }
     ],
     "answer": [
@@ -399,7 +399,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q201",
@@ -418,33 +418,33 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The entire transcript, verbatim — anything less risks losing information the agent might need later."
+        "text_en": "The entire transcript, kept verbatim, since anything less risks dropping a detail the agent turns out to need later in a long session."
       },
       {
         "label": "B",
-        "text_en": "Only the order currently under discussion, replacing the block's contents whenever the conversation switches topics."
+        "text_en": "The order currently under discussion, with the block's contents replaced in full whenever the conversation switches to another order."
       },
       {
         "label": "C",
-        "text_en": "A model-written summary of each order, since summaries keep the block compact."
+        "text_en": "A model-written summary of each order's history — compact summaries keep the block small even as the session grows long and multi-order."
       },
       {
         "label": "D",
-        "text_en": "Per order: order number, exact amounts, dates and deadlines, current status, and the customer's explicitly stated expectations — kept verbatim; greetings and fully resolved sub-issues can be left to normal summarization."
+        "text_en": "Per order, verbatim: order number, exact amounts, dates and deadlines, status, and stated expectations; greetings go to the summary."
       }
     ],
     "answer": [
       "D"
     ],
     "answer_en": null,
-    "explanation_ja": "永続 facts block に入れるべきは、要約で劣化すると実害が出る取引事実 — 注文番号・正確な金額・日付/期限・ステータス・顧客が明示した期待 — であり、これらを注文ごとに構造化して逐語で保持する。挨拶や解決済みの副論点は要約に任せてよく、この境界設定によって block は小さいまま「多論点セッションでどの事実がどの注文のものか」を守れる。A は全文の逐語保持で、block が肥大化して要約の意味(文脈節約)が消滅する — 保護すべきものの選別こそが設計の本体。B は現在の話題だけを残す設計で、複数注文を行き来する長いセッションでは過去の注文の事実が要約側に落ち、まさに防ぎたい混線・曖昧化が再発する。C は block の中身自体を lossy な要約にする自己矛盾で、金額や日付が block の中で曖昧化しては保持の意味がない。",
+    "explanation_ja": "永続 facts block に入れるべきは、要約で劣化すると実害が出る取引事実 — 注文番号・正確な金額・日付/期限・ステータス・顧客が明示した期待 — であり、これらを注文ごとに構造化して逐語で保持する。挨拶などの周辺的なやり取りは要約に任せてよく、この境界設定によって block は小さいまま「多論点セッションでどの事実がどの注文のものか」を守れる。A は全文の逐語保持で、block が肥大化して要約の意味(文脈節約)が消滅する — 保護すべきものの選別こそが設計の本体。B は現在の話題だけを残す設計で、複数注文を行き来する長いセッションでは過去の注文の事実が要約側に落ち、まさに防ぎたい混線・曖昧化が再発する。C は block の中身自体を lossy な要約にする自己矛盾で、金額や日付が block の中で曖昧化しては保持の意味がない。",
     "refs": [
       "https://docs.claude.com/en/docs/build-with-claude/context-windows",
       "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q202",
@@ -463,19 +463,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Trim the tool's output to the handful of fields the support workflow actually uses, returning the rest only through a separate, explicitly requested detail call."
+        "text_en": "Trim the tool's output to the fields the support workflow uses, returning the rest through a separate detail call when it is requested."
       },
       {
         "label": "B",
-        "text_en": "Enable summarization earlier in the session so the oversized tool outputs get compressed sooner."
+        "text_en": "Enable summarization earlier in the session, so that the oversized profile outputs are compressed before the context window runs low."
       },
       {
         "label": "C",
-        "text_en": "Move to a model with a larger context window so the full profile always fits."
+        "text_en": "Move to a model with a larger context window, so that the full 60-field profile fits comfortably in even the longest support sessions."
       },
       {
         "label": "D",
-        "text_en": "Prompt the agent to ignore fields that are not relevant to the current request."
+        "text_en": "Prompt the agent to disregard the profile fields that have no bearing on the customer request it is currently handling."
       }
     ],
     "answer": [
@@ -489,7 +489,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q203",
@@ -508,19 +508,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Escalate immediately — negative sentiment is the clearest signal that a human is needed."
+        "text_en": "Escalate immediately, since strongly negative sentiment is the clearest available signal that this case now needs a human."
       },
       {
         "label": "B",
-        "text_en": "Present a concrete resolution (locate the replacement, offer options); escalate if the customer explicitly asks for a human or remains dissatisfied after the attempt."
+        "text_en": "Present a concrete resolution (locate the poles, offer options), and escalate if the customer asks for a human or stays dissatisfied."
       },
       {
         "label": "C",
-        "text_en": "Ask the customer to rate their frustration from 1 to 10 and escalate on 7 or higher."
+        "text_en": "Ask the customer to rate their frustration from 1 to 10 (a direct measure), and escalate whenever the rating comes back at 7 or higher."
       },
       {
         "label": "D",
-        "text_en": "Have the model self-assess its confidence in handling the case and escalate below a confidence threshold."
+        "text_en": "Have the model self-assess its confidence in handling the case, and escalate whenever that self-reported score falls below a threshold."
       }
     ],
     "answer": [
@@ -533,7 +533,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q204",
@@ -552,19 +552,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Issue the refund — the policy does not explicitly forbid it, and customer satisfaction comes first."
+        "text_en": "Issue the refund — the policy does not forbid this case, and first-contact customer satisfaction comes first here."
       },
       {
         "label": "B",
-        "text_en": "Deny the claim by analogy to the closest covered category, since consistency matters more than the gap."
+        "text_en": "Deny the claim by analogy with the closest covered category, since consistent treatment matters more than the documented gap."
       },
       {
         "label": "C",
-        "text_en": "Escalate to a human: the policy is silent on this case, and policy gaps are exactly what should not be improvised by the agent."
+        "text_en": "Escalate to a human: the policy is silent here, and policy gaps are what the agent should not improvise a decision on."
       },
       {
         "label": "D",
-        "text_en": "Ask the customer to argue why the damage should be covered, then decide based on how convincing they are."
+        "text_en": "Ask the customer to explain why the damage should be covered, then decide on the basis of how convincing the explanation is."
       }
     ],
     "answer": [
@@ -577,6 +577,6 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

@@ -16,33 +16,33 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Summarize less often so the details survive longer."
+        "text_en": "Raise the turn threshold that triggers summarization — the original wording then survives many more turns of history before it is folded in."
       },
       {
         "label": "B",
-        "text_en": "Keep a persistent structured block — exam date, target score, weak topics — outside the summarized history and pass it intact on every request."
+        "text_en": "Keep a structured block — exam date, target score, weak topics — outside the summarized history and pass it intact on every request."
       },
       {
         "label": "C",
-        "text_en": "Ask the student to restate the exam date at the start of each session."
+        "text_en": "Open each session with a short intake question, so the student re-enters the exam date and target score before tutoring begins."
       },
       {
         "label": "D",
-        "text_en": "Increase max_tokens so the summary can be longer."
+        "text_en": "Raise max_tokens on the summarization call, giving the summary room to carry the exam date and target score forward each time."
       }
     ],
     "answer": [
       "B"
     ],
     "answer_en": null,
-    "explanation_ja": "要約は日付や数値のような精密な事実を曖昧化する。学習者の事実は要約対象外の永続ブロックに抽出し、毎回そのまま渡す。よって B。A は劣化の時期を遅らせるだけで、いずれ失われる。C は設計の欠陥を利用者に転嫁している。D は要約の長さと事実の保持は別問題で、長い要約でも精密値は曖昧化し得る。",
+    "explanation_ja": "要約は日付や数値のような精密な事実を曖昧化する。学習者の事実は要約対象外の永続ブロックに抽出し、毎回そのまま渡す。よって B。A は要約の頻度を下げて劣化の時期を遅らせるだけで、いずれ失われる。C は設計の欠陥を利用者に転嫁している。D は要約の長さと事実の保持は別問題で、長い要約でも精密値は曖昧化し得る。",
     "refs": [
       "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
       "https://docs.claude.com/en/docs/build-with-claude/context-windows"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q502",
@@ -61,19 +61,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Split the policy into twelve separate requests and merge the answers."
+        "text_en": "Send each chapter as its own separate request and merge the twelve answers, so that every chapter gets the model's full attention in turn."
       },
       {
         "label": "B",
-        "text_en": "Remove the first and last chapters so the middle gets attention."
+        "text_en": "Drop the first and last chapters from the prompt, leaving only the middle ones, so attention lands on the clauses being missed."
       },
       {
         "label": "C",
-        "text_en": "Structure the input with explicit chapter headings, put a summary of key points up front, and ask the model to quote the relevant passages before answering."
+        "text_en": "Add explicit chapter headings, put a summary of key points up front, and ask the model to quote relevant passages before answering."
       },
       {
         "label": "D",
-        "text_en": "Increase the context window size."
+        "text_en": "Move to a model with a larger context window, so the twelve chapters occupy a smaller share of the available input space."
       }
     ],
     "answer": [
@@ -87,7 +87,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q503",
@@ -106,19 +106,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Have the tool aggregate and paginate server-side, returning only the relevant columns and the top rows the question needs."
+        "text_en": "Have the tool aggregate and paginate server-side, returning only the columns and the top rows the question needs."
       },
       {
         "label": "B",
-        "text_en": "Ask the model to ignore rows it does not need."
+        "text_en": "Add a system-prompt rule telling the model to disregard result rows that do not bear on the question it is answering."
       },
       {
         "label": "C",
-        "text_en": "Raise the tool's timeout so the full result loads."
+        "text_en": "Raise the tool's timeout and row limit, so the full 5,000-row result loads before the model composes its answer."
       },
       {
         "label": "D",
-        "text_en": "Return the rows as a compressed string."
+        "text_en": "Serialize the 5,000 rows into a compact single-string encoding, so the same data occupies fewer characters of context."
       }
     ],
     "answer": [
@@ -132,7 +132,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q504",
@@ -151,32 +151,32 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Self-reported confidence is the most reliable trigger because the model knows its own limits."
+        "text_en": "Self-reported confidence below 0.6 is the most reliable trigger — the model can judge the limits of what it knows here."
       },
       {
         "label": "B",
-        "text_en": "Escalation should be triggered by sentiment analysis of the customer's tone."
+        "text_en": "Escalation should be driven by sentiment analysis of the customer's tone, so that frustrated customers reach a human early."
       },
       {
         "label": "C",
-        "text_en": "Escalation should happen only after three failed resolution attempts."
+        "text_en": "Escalation should happen after three failed resolution attempts, a fixed bar that keeps routine questions off the human queue."
       },
       {
         "label": "D",
-        "text_en": "Appropriate triggers are an explicit request for a human, a policy exception or gap, and inability to make progress; self-reported confidence and sentiment are poor triggers."
+        "text_en": "Appropriate triggers are an explicit request for a human, a policy exception or gap, and inability to make progress."
       }
     ],
     "answer": [
       "D"
     ],
     "answer_en": null,
-    "explanation_ja": "適切なエスカレーショントリガーは、人間の明示要求・ポリシー例外や欠落・進展不能である。自己申告 confidence や sentiment は較正されておらず誤作動が多い。よって D。A は自己申告を過信している。B は不満の表明に対しては解決策の提示が先で、感情だけで移譲しない。C は明示要求を無視して 3 回試すことになり、不適切である。",
+    "explanation_ja": "適切なエスカレーショントリガーは、人間の明示要求・ポリシー例外や欠落・進展不能である。自己申告 confidence や sentiment は較正されておらず誤作動が多い。よって D。A は自己申告を過信している。B は不満の表明に対しては解決策の提示が先で、感情だけで移譲しない。C は固定回数の閾値が明示要求を無視して 3 回試すことになり、不適切である。",
     "refs": [
       "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q505",
@@ -195,19 +195,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Proceed with the record that has the most orders."
+        "text_en": "Proceed with the record that has the most orders — the more active account is the likelier match for this customer."
       },
       {
         "label": "B",
-        "text_en": "Ask the customer for an additional identifier — email or order number — before taking any action."
+        "text_en": "Ask the customer for an additional identifier — email address or order number — before acting on either record."
       },
       {
         "label": "C",
-        "text_en": "Merge the two records to be safe."
+        "text_en": "Merge the two matching records into one, so the account history is complete whichever record the customer meant."
       },
       {
         "label": "D",
-        "text_en": "Escalate to a human immediately."
+        "text_en": "Hand the conversation to a human agent, since resolving a contested identity is not a judgment the agent should make."
       }
     ],
     "answer": [
@@ -220,7 +220,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q506",
@@ -239,19 +239,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Have the subagent retry until it succeeds, however long that takes."
+        "text_en": "Have the subagent retry the data source until it succeeds — the failure is most likely transient and will clear on its own."
       },
       {
         "label": "B",
-        "text_en": "Stop the whole run whenever any subagent returns an empty result."
+        "text_en": "Stop the whole run whenever any subagent returns an empty result, so that no report is ever built on incomplete or missing data."
       },
       {
         "label": "C",
-        "text_en": "Have the subagent return a structured error — failure type, queries attempted, partial results, suggested alternatives — instead of an empty success."
+        "text_en": "Have the subagent return a structured error — failure type, queries attempted, partial results — instead of an empty success."
       },
       {
         "label": "D",
-        "text_en": "Have the synthesis step omit pricing whenever the list is empty."
+        "text_en": "Have the synthesis step drop the pricing section whenever the list is empty, rather than stating that no data is available."
       }
     ],
     "answer": [
@@ -264,7 +264,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q507",
@@ -283,19 +283,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Decide per failure — retry the transient timeouts if time allows — and annotate the synthesis with what is well-supported and where gaps remain."
+        "text_en": "Retry the transient timeouts if time allows, and annotate the synthesis with what is well-supported and where gaps remain."
       },
       {
         "label": "B",
-        "text_en": "Abort the run because the findings are incomplete."
+        "text_en": "Abort the run and report the failure, since findings drawn from 3 of the 5 databases cannot be presented as research."
       },
       {
         "label": "C",
-        "text_en": "Treat the partial findings as complete and proceed."
+        "text_en": "Treat the findings from the three responding databases as the complete result, and proceed to synthesis on that basis."
       },
       {
         "label": "D",
-        "text_en": "Ask the subagent to fill the gaps from general knowledge."
+        "text_en": "Ask the subagent to fill the two gaps from its general knowledge of the domain, marking those sections as lower confidence."
       }
     ],
     "answer": [
@@ -308,7 +308,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q508",
@@ -327,19 +327,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Answer from what the agent remembers reading three hours ago."
+        "text_en": "Answer from the orders-module code the agent read earlier in the run, which is still present in its accumulated context."
       },
       {
         "label": "B",
-        "text_en": "Run /compact and then answer from the compacted context."
+        "text_en": "Run /compact to clear the stale tool output from earlier phases, then answer from the compacted context that remains."
       },
       {
         "label": "C",
-        "text_en": "Restart the whole migration run so the context is fresh."
+        "text_en": "Restart the migration run with a clean context, so that the answer is drawn from a session free of stale tool output."
       },
       {
         "label": "D",
-        "text_en": "Delegate the pointed question to a fresh subagent that reads the current files and returns a short answer, keeping the main context intact."
+        "text_en": "Delegate the question to a fresh subagent that reads the current files and returns a short answer, leaving the main context intact."
       }
     ],
     "answer": [
@@ -353,7 +353,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q509",
@@ -372,33 +372,33 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Nothing; uncertainty routing is sufficient."
+        "text_en": "Nothing further; routing by uncertainty already sends the review capacity to the documents most likely to be wrong."
       },
       {
         "label": "B",
-        "text_en": "Stratified random sampling of the high-confidence stream to monitor its true error rate and catch new failure patterns, with thresholds calibrated on a labeled set."
+        "text_en": "Stratified random sampling of the high-confidence stream, with thresholds calibrated on a labeled set, to track its true error rate."
       },
       {
         "label": "C",
-        "text_en": "Review every document regardless of confidence."
+        "text_en": "Human review of every document regardless of confidence, so that no extraction error reaches downstream systems unchecked."
       },
       {
         "label": "D",
-        "text_en": "Route only documents above 0.99 confidence to review, since those are the hardest."
+        "text_en": "Routing documents above 0.99 confidence to review instead, since those carry the claims the pipeline asserts most strongly."
       }
     ],
     "answer": [
       "B"
     ],
     "answer_en": null,
-    "explanation_ja": "confidence は labeled set で較正して閾値を決め、高確信の流れも層化ランダム抽出で監視しないと誤り率の悪化や新規パターンに気付けない。限られたレビュー能力は低確信・矛盾文書に優先配分する。よって B。A は高確信出力の劣化を検知できない。C は能力を超える。D は逆で、最も確信が高い文書に能力を割いてしまう。",
+    "explanation_ja": "confidence は labeled set で較正して閾値を決め、高確信の流れも層化ランダム抽出で監視しないと誤り率の悪化や新規パターンに気付けない。限られたレビュー能力は低確信・矛盾文書に優先配分する。よって B。A は高確信出力の劣化を検知できない。C は 1 日 200 件というレビュー能力を超える。D は逆で、最も確信が高い文書に能力を割いてしまう。",
     "refs": [
       "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
       "https://www.anthropic.com/engineering/built-multi-agent-research-system"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q510",
@@ -417,19 +417,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Remove citations entirely to avoid errors."
+        "text_en": "Remove citations from the report altogether, so that no claim is ever attributed to a document that fails to support it."
       },
       {
         "label": "B",
-        "text_en": "Ask the synthesis agent to double-check each citation."
+        "text_en": "Add a review pass in which the synthesis agent double-checks each citation it produced before the report is released."
       },
       {
         "label": "C",
-        "text_en": "Have the research subagents emit claim-source mappings — URL, document name, excerpt — that are preserved through synthesis, and pass the source documents to a citation step."
+        "text_en": "Have the research subagents emit claim-source mappings preserved through synthesis, and pass the sources to a citation step."
       },
       {
         "label": "D",
-        "text_en": "Let the synthesis agent search the web again for each claim."
+        "text_en": "Let the synthesis agent search the web again for each claim and attach whichever source it finds that backs the claim."
       }
     ],
     "answer": [
@@ -442,6 +442,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]
