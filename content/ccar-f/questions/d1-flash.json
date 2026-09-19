@@ -285,7 +285,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why should a coordinator select subagents dynamically based on query complexity instead of always running the full pipeline?",
+    "stem_en": "A research coordinator always runs its full pipeline of six subagents (planner, three researchers, verifier, writer) on every request, even for a simple factual question like the current version of a library. Simple questions therefore cost as much time and tokens as deep investigations, with no gain in answer quality. Why should the coordinator select subagents dynamically based on query complexity instead of always running the full pipeline?",
     "choices": null,
     "answer": null,
     "answer_en": "Simple queries need only a subset of agents;\nrunning everything wastes tokens and latency without improving quality.",
@@ -295,7 +295,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q013",
