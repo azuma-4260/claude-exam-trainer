@@ -431,7 +431,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Describe the standard retry loop for failed extraction validation.",
+    "stem_en": "An invoice extraction pipeline validates each result with Pydantic, and about 5% of extractions fail because the total does not match the line items or a required field is missing. Currently the pipeline simply re-sends the same document and gets the same error back. Describe the standard retry loop for a failed extraction validation.",
     "choices": null,
     "answer": null,
     "answer_en": "Re-send the original document, the failed extraction,\nand the specific validation errors, asking for a corrected extraction.",
@@ -442,7 +442,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q019",
