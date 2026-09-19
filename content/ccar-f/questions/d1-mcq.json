@@ -16,7 +16,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Treat it like \"end_turn\" and return the partial itinerary, since the traveler can ask a follow-up question about any missing leg."
+        "text_en": "Treat it like \"end_turn\" and return the partial itinerary immediately, so the traveler receives whatever was generated before the token limit."
       },
       {
         "label": "B",
@@ -653,7 +653,7 @@
       },
       {
         "label": "D",
-        "text_en": "A message asking the user to split or lower the amount so the purchase order falls under the $5,000 approval limit."
+        "text_en": "A message asking the user to lower the purchase amount below $5,000 so the existing automatic-approval path can accept it."
       }
     ],
     "answer": [

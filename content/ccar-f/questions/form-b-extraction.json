@@ -386,7 +386,7 @@
       },
       {
         "label": "B",
-        "text_en": "Extract every date into a list — each with the label printed beside it on the invoice — and let the accounting system decide which one belongs in which field."
+        "text_en": "Extract every date into a single list — without defining the target fields — and let the accounting system decide which value belongs in each field."
       },
       {
         "label": "C",
@@ -394,7 +394,7 @@
       },
       {
         "label": "D",
-        "text_en": "Add a second model pass that reviews the extracted dates and reassigns them to invoice_date and due_date (using the surrounding wording as evidence)."
+        "text_en": "Add a second model pass that guesses which extracted date belongs in invoice_date and due_date without changing the field definitions."
       }
     ],
     "answer": [

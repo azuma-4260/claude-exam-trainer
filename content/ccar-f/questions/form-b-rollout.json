@@ -388,7 +388,7 @@
       },
       {
         "label": "C",
-        "text_en": "Copy a well-tested open-source token-bucket limiter and ask Claude to adapt it to the appointment API, so the edge cases its authors already handled come along with the code."
+        "text_en": "Copy an open-source token-bucket limiter and ask Claude to adapt it to the appointment API instead of clarifying the missing requirements first."
       },
       {
         "label": "D",
@@ -575,7 +575,7 @@
       },
       {
         "label": "E",
-        "text_en": "Add an instruction to the review prompt telling the model to stay consistent across files and to report contract mismatches between a client and its server stub."
+        "text_en": "Add a stronger prompt instruction asking the reviewer to stay consistent across all files and to look carefully for cross-file problems."
       }
     ],
     "answer": [

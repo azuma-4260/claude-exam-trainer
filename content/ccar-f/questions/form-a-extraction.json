@@ -73,7 +73,7 @@
       },
       {
         "label": "D",
-        "text_en": "Route every flag through a second model that re-scores it (discarding the ones it judges weak) before anything reaches the reviewers' queue."
+        "text_en": "Route every flag through a second model that re-scores it before anything reaches the reviewers' queue."
       }
     ],
     "answer": [

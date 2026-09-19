@@ -100,7 +100,7 @@
       },
       {
         "label": "C",
-        "text_en": "Run the two subagents sequentially — the second receives the first one's source list — so that it can steer away from ground already covered and toward sources nobody reached."
+        "text_en": "Run the two subagents sequentially — show the second the first source list — so it avoids exact duplicates while keeping the same broad assignment."
       },
       {
         "label": "D",

@@ -17,7 +17,12 @@
 // 違反(1・2・4)は fail closed(非 0)。warning のみなら 0。
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { questionsFileSchema, type Question } from "../src/lib/bank/schema";
+import {
+  questionStatusSchema,
+  questionsFileSchema,
+  type Question,
+  type QuestionStatus,
+} from "../src/lib/bank/schema";
 
 /** 正解の文字数が最長誤答の何倍まで許容されるか */
 export const LENGTH_RATIO_MAX = 1.25;
@@ -62,7 +67,7 @@ export const TELL_WORDS: readonly string[] = [
 
 export interface ChoiceBalanceOptions {
   /** 監査対象の status */
-  status: string;
+  status: QuestionStatus;
   /** questions/ 内のファイル名(例 d1-mcq.json)。null なら全ファイル */
   file: string | null;
 }
@@ -197,12 +202,23 @@ export function runAuditChoiceBalance(dir: string, opts: ChoiceBalanceOptions): 
 
 export function parseArgs(argv: readonly string[]): { dir: string; opts: ChoiceBalanceOptions } {
   let dir = path.join(process.cwd(), "content", "ccar-f");
-  let status = "active";
+  let status: QuestionStatus = "active";
   let file: string | null = null;
+
+  const readValue = (index: number, option: string): string => {
+    const value = argv[index + 1];
+    if (value === undefined || value.startsWith("--")) throw new Error(`${option} には値が必要です`);
+    return value;
+  };
+
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === "--dir") dir = path.resolve(argv[++i]);
-    else if (argv[i] === "--status") status = argv[++i];
-    else if (argv[i] === "--file") file = argv[++i];
+    if (argv[i] === "--dir") dir = path.resolve(readValue(i++, "--dir"));
+    else if (argv[i] === "--status") {
+      const value = readValue(i++, "--status");
+      const parsed = questionStatusSchema.safeParse(value);
+      if (!parsed.success) throw new Error(`--status の値が不正です: ${value} (active / flagged / retired のいずれかを指定)`);
+      status = parsed.data;
+    } else if (argv[i] === "--file") file = readValue(i++, "--file");
     else throw new Error(`未知の引数: ${argv[i]}`);
   }
   return { dir, opts: { status, file } };

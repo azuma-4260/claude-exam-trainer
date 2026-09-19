@@ -159,4 +159,17 @@ describe("parseArgs", () => {
     expect(p.opts).toEqual({ status: "flagged", file: "d1-mcq.json" });
     expect(() => parseArgs(["--bogus"])).toThrow(/未知の引数/);
   });
+
+  it("--status の typo を拒否する", () => {
+    expect(() => parseArgs(["--status", "actve"])).toThrow(/--status の値が不正です: actve/);
+    expect(parseArgs(["--status", "retired"]).opts.status).toBe("retired");
+  });
+
+  it.each(["--dir", "--status", "--file"])("%s の値欠落を拒否する", (option) => {
+    expect(() => parseArgs([option])).toThrow(new RegExp(`${option} には値が必要です`));
+  });
+
+  it.each(["--dir", "--status", "--file"])("%s の次のオプションを値として読まない", (option) => {
+    expect(() => parseArgs([option, "--file", "d1-mcq.json"])).toThrow(new RegExp(`${option} には値が必要です`));
+  });
 });

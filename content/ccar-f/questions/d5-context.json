@@ -102,7 +102,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Restart the session and re-read the relevant files from scratch whenever the answers start drifting, so the model works from a clean and current context."
+        "text_en": "Restart the session and re-read every file in the monorepo from scratch whenever answers start drifting, repeating the full survey each time."
       },
       {
         "label": "B",

@@ -293,7 +293,7 @@
       },
       {
         "label": "C",
-        "text_en": "Make claim_type optional so the model can leave it out, and let reviewers assign a type during their later pass."
+        "text_en": "Make claim_type optional so the model can leave unusual cases blank whenever none of the five enum values fits."
       },
       {
         "label": "D",
@@ -608,7 +608,7 @@
       },
       {
         "label": "D",
-        "text_en": "A longer prompt asking the reviewer to be more careful and to hold back any finding it cannot fully support with evidence."
+        "text_en": "A longer prompt that repeats the request to be careful before posting any finding, without adding a measurable reliability signal."
       }
     ],
     "answer": [
