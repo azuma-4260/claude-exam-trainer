@@ -802,7 +802,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "When a hook blocks a policy-violating tool call, what should it do beyond returning an error?",
+    "stem_en": "A PreToolUse hook blocks a refund call that exceeds the policy limit, but it returns only a bare \"denied\" error. The agent, seeing no reason, retries the same refund several times and then gives up without helping the customer. When a hook blocks a policy-violating tool call, what should it do beyond returning an error?",
     "choices": null,
     "answer": null,
     "answer_en": "Explain why the call was denied and present\na compliant alternative action.",
@@ -812,7 +812,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q034",
