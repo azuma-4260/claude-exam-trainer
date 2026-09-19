@@ -13,19 +13,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add retry logic inside each subagent so failures become rare enough to ignore."
+        "text_en": "Add retry logic inside each subagent, with exponential backoff on search failures, so that transient errors resolve themselves before synthesis ever sees them."
       },
       {
         "label": "B",
-        "text_en": "Restructure to hub-and-spoke: the coordinator mediates all communication, routing information between subagents and handling errors centrally."
+        "text_en": "Restructure to hub-and-spoke: the coordinator mediates all communication, routing information between subagents and handling their failures centrally."
       },
       {
         "label": "C",
-        "text_en": "Have each subagent write its output to a shared file that all other subagents poll."
+        "text_en": "Have each subagent write its output to a shared file that all the others poll — a common bus, so that every agent can see what has already been produced."
       },
       {
         "label": "D",
-        "text_en": "Merge all four subagents into one large agent so there is no inter-agent communication to lose."
+        "text_en": "Merge the four subagents into one large agent, so that there is no inter-agent communication left to lose and every research step runs in a single context."
       }
     ],
     "answer": ["B"],
@@ -37,7 +37,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q208",
@@ -53,19 +53,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Cache previous reports and serve fragments of them for any query that shares keywords."
+        "text_en": "Cache previous reports and serve matching fragments for any query that shares keywords with them, so that repeat lookups return in seconds at no model cost."
       },
       {
         "label": "B",
-        "text_en": "Remove the synthesis stage, since it contributes the most latency."
+        "text_en": "Remove the synthesis stage — it contributes more latency than any other step — and let report generation consume the analysis output directly instead."
       },
       {
         "label": "C",
-        "text_en": "Run the full pipeline but with a shorter time limit for queries under ten words."
+        "text_en": "Keep the full pipeline but apply a shorter time limit to queries under ten words, so that short lookups return quickly (and longer requests still keep the full time budget)."
       },
       {
         "label": "D",
-        "text_en": "Have the coordinator assess query complexity first and invoke only the subagents the query needs — a single search call for a simple lookup, the full pipeline for a full report."
+        "text_en": "Have the coordinator assess query complexity first and invoke only the subagents a query needs — one search call for a simple lookup, the full pipeline for a report."
       }
     ],
     "answer": ["D"],
@@ -76,7 +76,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q209",
@@ -92,19 +92,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Give each subagent an explicit, non-overlapping scope — for example by subtopic (supply chain vs demand forecasts) or source type (news vs regulatory filings) — while keeping each scope broad enough to be productive."
+        "text_en": "Give each subagent an explicit, non-overlapping scope — by subtopic (supply chain vs demand forecasts) or source type (news vs regulatory filings) — kept broad enough to be productive."
       },
       {
         "label": "B",
-        "text_en": "Spawn ten subagents instead of two so overlaps matter less."
+        "text_en": "Spawn ten search subagents rather than two, so that the wider net makes any individual overlap matter less and raises the odds that regulatory filings get picked up by someone."
       },
       {
         "label": "C",
-        "text_en": "Run the two subagents sequentially so the second can avoid the first's sources."
+        "text_en": "Run the two subagents sequentially — the second receives the first one's source list — so that it can steer away from ground already covered and toward sources nobody reached."
       },
       {
         "label": "D",
-        "text_en": "Add a deduplication pass after both subagents finish."
+        "text_en": "Add a deduplication pass after both subagents finish, merging their source lists (by URL and document title) so that the analysis stage sees each source exactly once."
       }
     ],
     "answer": ["A"],
@@ -115,7 +115,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q210",
@@ -131,19 +131,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Ship the report with a limitations section listing the gaps."
+        "text_en": "Ship the report with a limitations section that lists the two uncovered regions and the stale segment, so that readers can weigh the findings against the known gaps."
       },
       {
         "label": "B",
-        "text_en": "Re-run all subagents from scratch with the same assignments, hoping coverage improves."
+        "text_en": "Re-run all subagents from scratch with the same assignments, on the assumption that a fresh pass (new searches, new documents) will turn up the coverage the first one missed."
       },
       {
         "label": "C",
-        "text_en": "Evaluate the synthesis for gaps, re-delegate narrowly targeted assignments (the two regions, the stale segment), then re-synthesize — repeating until coverage is sufficient."
+        "text_en": "Evaluate the synthesis for gaps, re-delegate narrowly targeted assignments (the two regions, the stale segment), then re-synthesize until coverage is sufficient."
       },
       {
         "label": "D",
-        "text_en": "Have the synthesis subagent fill the gaps from its general knowledge rather than spawning more research."
+        "text_en": "Have the synthesis subagent fill the two gaps from its general knowledge of the industry, which completes the report without spending the remaining time on more research."
       }
     ],
     "answer": ["C"],
@@ -154,7 +154,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q211",
@@ -170,7 +170,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The subagents' system prompts are too long, so spawning times out silently."
+        "text_en": "The subagents' system prompts are too long, so each spawn attempt times out silently before any invocation error can surface."
       },
       {
         "label": "B",
@@ -178,11 +178,11 @@
       },
       {
         "label": "C",
-        "text_en": "The subagent definitions are missing a priority field, so the coordinator cannot rank them."
+        "text_en": "The subagent definitions are missing a priority field, so the coordinator cannot rank them and falls back to answering by itself."
       },
       {
         "label": "D",
-        "text_en": "Subagents must be spawned from a separate process, not from the coordinator's own loop."
+        "text_en": "Subagents must be spawned from a separate SDK process, not from inside the coordinator's own loop, so no invocation ever starts."
       }
     ],
     "answer": ["B"],
@@ -194,7 +194,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q212",
@@ -210,23 +210,23 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Include the search subagent's complete findings directly in the analysis subagent's prompt, since subagents inherit neither conversation history nor each other's memory."
+        "text_en": "Include the search subagent's complete findings directly in the analysis prompt, since subagents inherit neither conversation history nor each other's memory."
       },
       {
         "label": "B",
-        "text_en": "Enable the SDK's shared-memory flag so all subagents read the same conversation automatically."
+        "text_en": "Enable the SDK's shared-memory flag so that all subagents read from the same conversation automatically, with no need to re-send findings in every prompt."
       },
       {
         "label": "C",
-        "text_en": "Structure the passed findings so content and metadata (URL, document title, page) stay separated per source, preserving attribution through the pipeline."
+        "text_en": "Structure the passed findings so that content and metadata (URL, document title, page) stay separated per source, preserving attribution through the pipeline."
       },
       {
         "label": "D",
-        "text_en": "Have the analysis subagent message the search subagent directly to request the sources mid-run."
+        "text_en": "Have the analysis subagent message the search subagent directly, requesting the twelve sources mid-run so that the handoff needs no coordinator involvement."
       },
       {
         "label": "E",
-        "text_en": "Raise the analysis subagent's max_tokens so it has room to recall the sources."
+        "text_en": "Raise the analysis subagent's max_tokens (and its context budget) so that it has room to recall the sources found in the previous step of the run."
       }
     ],
     "answer": ["A", "C"],
@@ -238,7 +238,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q213",
@@ -254,15 +254,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Start three separate coordinator processes, one per sweep, and merge their outputs by hand."
+        "text_en": "Start three separate coordinator processes, one per sweep, and merge their three outputs by hand once all of them have finished running."
       },
       {
         "label": "B",
-        "text_en": "Ask each subagent to work faster by adding a deadline to its prompt."
+        "text_en": "Ask each subagent to work faster by adding an explicit deadline to its prompt, so that the three sweeps finish closer to each other."
       },
       {
         "label": "C",
-        "text_en": "Parallelism is not possible — subagent invocations are inherently sequential in the Agent SDK."
+        "text_en": "Parallelism is not available here — subagent invocations run one at a time in the Agent SDK, so the three sweeps must stay sequential."
       },
       {
         "label": "D",
@@ -278,7 +278,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q214",
@@ -298,15 +298,15 @@
       },
       {
         "label": "B",
-        "text_en": "Dynamic decomposition for both — flexibility never hurts."
+        "text_en": "Dynamic decomposition for both workloads, since a coordinator that re-plans after each step (rather than following a fixed chain) adapts the nightly digest too."
       },
       {
         "label": "C",
-        "text_en": "A fixed pipeline for both — determinism makes costs predictable."
+        "text_en": "A fixed pipeline for both workloads — determinism keeps costs predictable, and the research steps can be enumerated in advance just as the digest's steps are."
       },
       {
         "label": "D",
-        "text_en": "Dynamic decomposition for the digest and a fixed pipeline for the research, since research needs the most structure."
+        "text_en": "Dynamic decomposition for the digest and a fixed pipeline (prompt chaining) for the research, since research is the workload that needs the most structure."
       }
     ],
     "answer": ["A"],
@@ -318,7 +318,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q215",
@@ -334,19 +334,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Nothing — SDK sessions are ephemeral by design, so external checkpointing is the only option."
+        "text_en": "Nothing — SDK sessions are ephemeral by design, so the team must checkpoint phase outputs externally and rebuild the context itself on every restart."
       },
       {
         "label": "B",
-        "text_en": "Automatic crash recovery: the SDK transparently resumes any interrupted session on the next request."
+        "text_en": "Automatic crash recovery: the SDK transparently resumes any interrupted session on the next request, replaying the phases that already completed from its own store."
       },
       {
         "label": "C",
-        "text_en": "Capture the session_id from the result messages during the run, then restart with the resume option pointing at that session to continue from the completed state."
+        "text_en": "Capture the session_id from the result messages during the run, then restart with the resume option set to that session to continue from the completed state."
       },
       {
         "label": "D",
-        "text_en": "Increase max_tokens so report generation cannot be interrupted mid-way."
+        "text_en": "Increase max_tokens for the report-generation step so that it has budget to finish in one pass, which keeps generation from being interrupted part-way through."
       }
     ],
     "answer": ["C"],
@@ -357,7 +357,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q216",
@@ -373,19 +373,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Resume the old session for both jobs — resumption always preserves the most value."
+        "text_en": "Resume the stored session for both jobs, since resumption preserves the most prior work and the model can re-check any figure that has aged in the meantime."
       },
       {
         "label": "B",
-        "text_en": "Fork the fresh baseline session twice (fork_session), one branch per report; for the stale session, start a new session seeded with a structured summary instead of resuming."
+        "text_en": "Fork the fresh baseline session twice (fork_session), one branch per report; for the stale session, start a new session seeded with a structured summary."
       },
       {
         "label": "C",
-        "text_en": "Start blank new sessions for all three jobs, re-running research each time."
+        "text_en": "Start blank new sessions for all three jobs (investor, policy, and the colleague's), re-running the research each time so every report rests on evidence of its own."
       },
       {
         "label": "D",
-        "text_en": "Fork the stale session and resume the fresh one — forking is what refreshes outdated tool results."
+        "text_en": "Fork the stale session and resume the fresh one — forking is the mechanism that refreshes outdated tool results, so the three-week-old run comes back current."
       }
     ],
     "answer": ["B"],
@@ -396,7 +396,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q207",
@@ -412,19 +412,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Nothing — tool selection is driven by the tool's name, and search_web is already self-explanatory."
+        "text_en": "Nothing beyond what is there — tool selection is driven mainly by the tool's name, and search_web already names its function precisely enough to be chosen well."
       },
       {
         "label": "B",
-        "text_en": "A shorter description, since verbose descriptions consume context that subagents need for research."
+        "text_en": "A shorter description, since verbose text consumes context the subagents need for research and a tight one-liner keeps the whole tool list cheap to read."
       },
       {
         "label": "C",
-        "text_en": "A marketing-style summary of the search backend's technical architecture."
+        "text_en": "A summary of the search backend's technical architecture (index size, refresh interval, ranking model), so that the model can judge how far it should trust what comes back."
       },
       {
         "label": "D",
-        "text_en": "What the tool does and returns, its input format with an example query, and explicit boundaries — public web content only, not client documents, and when NOT to use it (facts already provided)."
+        "text_en": "What the tool does and returns, its input format with an example query, and explicit boundaries — public web content only, not client documents, and when not to use it."
       }
     ],
     "answer": ["D"],
@@ -436,7 +436,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q208",
@@ -452,19 +452,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The system prompt: keyword-heavy instructions like \"verify against live sources\" create tool associations that override well-written descriptions, so the instruction should be scoped or removed."
+        "text_en": "The system prompt: keyword-heavy instructions like \"verify against live sources\" create tool associations that override the description, so scope or remove it."
       },
       {
         "label": "B",
-        "text_en": "The search_web description: it should be rewritten to be more assertive than the system prompt."
+        "text_en": "The search_web description, which should be rewritten in more assertive language (\"not for documents already provided\") so that it outweighs the system prompt line."
       },
       {
         "label": "C",
-        "text_en": "The model version: newer models weight descriptions more heavily, so upgrading fixes the conflict."
+        "text_en": "The model version, since newer models weight tool descriptions more heavily than prompt wording and an upgrade would settle the conflict on its own."
       },
       {
         "label": "D",
-        "text_en": "The tool list order: moving search_web to the end prevents it from being chosen."
+        "text_en": "The tool list order: moving search_web to the end of the list makes the model much less likely to reach for it while it is analyzing documents."
       }
     ],
     "answer": ["A"],
@@ -475,7 +475,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q209",
@@ -491,11 +491,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add a system prompt instruction telling the report subagent not to search."
+        "text_en": "Add a system prompt instruction — the report subagent must use only its formatting and file tools, leaving all research to the search subagent."
       },
       {
         "label": "B",
-        "text_en": "Sort the fourteen tools so the formatting tools appear first for the report subagent."
+        "text_en": "Sort the fourteen tools so that the formatting and file tools appear first in the report subagent's list, ahead of search and database access."
       },
       {
         "label": "C",
@@ -503,7 +503,7 @@
       },
       {
         "label": "D",
-        "text_en": "Reduce the report subagent's max_tokens so it has no budget left for searching."
+        "text_en": "Reduce the report subagent's max_tokens so that no budget is left for mid-report searches once the body of the report has been written."
       }
     ],
     "answer": ["C"],
@@ -515,7 +515,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q210",
@@ -531,19 +531,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Keep fetch_url but ask subagents to write more careful parsing code in their reasoning."
+        "text_en": "Keep fetch_url as it is and ask subagents to write more careful parsing code in their reasoning — each role then handles the HTML quirks (paywalls, broken markup) it actually meets."
       },
       {
         "label": "B",
-        "text_en": "Replace fetch_url with a workflow-shaped load_document tool that validates, extracts, and returns clean content; add a narrowly scoped verify_fact tool for the high-frequency cross-role need, routing complex research through the coordinator."
+        "text_en": "Replace fetch_url with a workflow-shaped load_document tool returning validated, extracted content; add a narrowly scoped verify_fact tool, routing complex research through the coordinator."
       },
       {
         "label": "C",
-        "text_en": "Give every subagent the full search toolset so no capability gap can ever appear."
+        "text_en": "Give every subagent the full search toolset, fetch_url and the document loaders included, so that no capability gap can appear when a role turns out to need one more source."
       },
       {
         "label": "D",
-        "text_en": "Remove all fetching tools and have the coordinator paste page contents into prompts manually."
+        "text_en": "Remove the fetching tools and have the coordinator paste page contents into each delegation prompt, so that every subagent works from text the coordinator has already vetted."
       }
     ],
     "answer": ["B"],
@@ -554,7 +554,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q211",
@@ -570,11 +570,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "tool_choice: \"auto\", which prefers tools whenever any are defined."
+        "text_en": "tool_choice: \"auto\", which prefers making a tool call whenever any tools are defined for the current request."
       },
       {
         "label": "B",
-        "text_en": "tool_choice: \"none\", which reserves tools for when the model deems them essential."
+        "text_en": "tool_choice: \"none\", which reserves tools for the turns where the model itself deems them essential."
       },
       {
         "label": "C",
@@ -582,7 +582,7 @@
       },
       {
         "label": "D",
-        "text_en": "A system prompt line: \"You must always call classify_topic — never reply in plain text.\""
+        "text_en": "A system prompt line at the top of every request: \"You must always call classify_topic — never reply in plain text.\""
       }
     ],
     "answer": ["C"],
@@ -593,7 +593,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q205",
@@ -609,19 +609,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Structured context: the failure type (rate limit vs no results), the queries attempted, any partial results retrieved, and suggested alternatives."
+        "text_en": "Structured context: the failure type (rate limit vs no results), the queries attempted, any partial results, and suggested alternatives."
       },
       {
         "label": "B",
-        "text_en": "Nothing — failed subagents should return empty results so synthesis proceeds smoothly."
+        "text_en": "Nothing beyond an empty result set, so that synthesis proceeds smoothly instead of stalling a whole run on one uncooperative source."
       },
       {
         "label": "C",
-        "text_en": "A single boolean success flag, keeping the protocol simple."
+        "text_en": "A single boolean success flag, kept deliberately minimal — one uniform field every subagent returns and the coordinator can branch on."
       },
       {
         "label": "D",
-        "text_en": "The full raw stack trace of the underlying HTTP client."
+        "text_en": "The full raw stack trace from the underlying HTTP client (status codes, headers, retry timings), so that nothing about the failure is lost."
       }
     ],
     "answer": ["A"],
@@ -632,7 +632,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q206",
@@ -648,19 +648,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Wrap the whole run in one retry loop that re-executes all phases on any failure."
+        "text_en": "Wrap the whole run in one retry loop that re-executes collection, analysis, and synthesis on any failure, so that a crashed run still ends in a complete set of results eventually."
       },
       {
         "label": "B",
-        "text_en": "Have each agent write its outputs and completion state to a known location, and have the coordinator read that manifest on restart to resume from the last completed phase — injecting prior phase summaries into the next phase's context."
+        "text_en": "Have each agent write its outputs and completion state to a known location, and have the coordinator read that manifest on restart to resume from the last completed phase."
       },
       {
         "label": "C",
-        "text_en": "Log every event to stdout so an engineer can reconstruct progress manually after a crash."
+        "text_en": "Log every event to stdout with phase markers and timestamps, so that an engineer can reconstruct how far the run got and start it again from there by hand."
       },
       {
         "label": "D",
-        "text_en": "Shorten the phases so that losing a run costs less."
+        "text_en": "Shorten the phases (smaller collection batches, per-section analysis) so that a crash costs a few minutes of work rather than the whole multi-hour run."
       }
     ],
     "answer": ["B"],
@@ -672,7 +672,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q207",
@@ -688,19 +688,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Report the average of the two figures to avoid taking sides."
+        "text_en": "Report the average of the two figures as a single midpoint estimate, so that the report stays neutral between two credible sources instead of endorsing either methodology."
       },
       {
         "label": "B",
-        "text_en": "Always prefer the more recent source and discard the other."
+        "text_en": "Always prefer the more recent of the two sources and discard the other — a newer estimate reflects the most current data the market has produced."
       },
       {
         "label": "C",
-        "text_en": "Drop the metric from the report entirely whenever sources disagree."
+        "text_en": "Drop the metric from the report whenever credible sources disagree, so that no number the pipeline cannot settle (like this one) reaches the client."
       },
       {
         "label": "D",
-        "text_en": "Have analysis annotate the conflict with both figures, their sources, and methodological context; the coordinator adjudicates before synthesis, and the report distinguishes established findings from contested ones."
+        "text_en": "Have analysis annotate the conflict with both figures, their sources, and methodology; the coordinator adjudicates before synthesis, and the report flags contested claims."
       }
     ],
     "answer": ["D"],
@@ -712,6 +712,6 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]
