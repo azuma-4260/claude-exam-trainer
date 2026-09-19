@@ -309,7 +309,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What single part of a subagent assignment most directly prevents duplicated research?",
+    "stem_en": "A coordinator splits a market research task among three subagents by giving each one the same overall goal and a loose theme (\"competitors\", \"pricing\", \"trends\"). Two of them end up researching the same competitor pricing pages and return near-identical findings, doubling the token cost. Which single part of a subagent assignment most directly prevents this kind of duplicated research?",
     "choices": null,
     "answer": null,
     "answer_en": "Explicit task boundaries that state what the subagent owns\nand what is outside its scope.",
@@ -319,7 +319,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q014",
