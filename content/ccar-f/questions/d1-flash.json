@@ -480,7 +480,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why should a coordinator include source guidance when delegating research to a subagent?",
+    "stem_en": "A coordinator delegates a subagent to research which rate-limiting library the team should adopt, giving only the objective and the expected output format. The subagent searches broadly across the public web and returns a generic comparison of popular libraries in general, ignoring the team's existing Redis-backed session store and internal API constraints that the coordinator already knew about. Why should the coordinator have also included source guidance when delegating that research?",
     "choices": null,
     "answer": null,
     "answer_en": "It constrains the investigation to the intended evidence\nand makes the findings suitable for the requested task.",
@@ -490,7 +490,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q021",
