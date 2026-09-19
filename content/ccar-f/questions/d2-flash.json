@@ -374,7 +374,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why should each tool have a clear, distinct purpose?",
+    "stem_en": "A multi-agent system exposes both fetch_document and get_content, which were added by different teams and do nearly the same thing. Agents pick one or the other unpredictably, and the outputs differ in format, so downstream steps sometimes break. Why should each tool have a clear, distinct purpose?",
     "choices": null,
     "answer": null,
     "answer_en": "Clear purpose and descriptions help the agent select the right tool\nand avoid confusion from overlapping choices.",
@@ -384,7 +384,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q017",
