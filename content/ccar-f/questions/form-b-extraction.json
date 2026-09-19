@@ -16,19 +16,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add a post-processing step that deletes unknown fields and coerces strings to numbers."
+        "text_en": "Add a post-processing step that deletes unknown fields and coerces string totals to numbers, so records are repaired into a schema-conforming shape before accounting receives them."
       },
       {
         "label": "B",
-        "text_en": "Enable strict tool use (JSON Schema strict mode) on the extraction tool so the output is guaranteed to conform to the declared schema."
+        "text_en": "Enable strict tool use (JSON Schema strict mode) on the extraction tool, so every output is structurally guaranteed to conform to the declared schema."
       },
       {
         "label": "C",
-        "text_en": "Add \"follow the schema exactly, with no extra fields\" to the system prompt."
+        "text_en": "Add \"follow the schema exactly, with no extra fields\" to the system prompt, restating the field list and its types so the constraint is in view on every request."
       },
       {
         "label": "D",
-        "text_en": "Lower the sampling temperature to zero so outputs become more predictable."
+        "text_en": "Lower the sampling temperature to zero (greedy decoding), making each extraction deterministic so the remaining one percent stops drifting into unexpected field names and types."
       }
     ],
     "answer": [
@@ -42,7 +42,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q305",
@@ -61,19 +61,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Use tool_choice \"any\" on the first call so the model must call some tool."
+        "text_en": "Use tool_choice \"any\" on the first call, so the model must call some tool and can no longer answer the classification step in plain text."
       },
       {
         "label": "B",
-        "text_en": "Keep \"auto\" and add \"always classify the document before extracting\" to the prompt."
+        "text_en": "Keep \"auto\" and add \"always classify the document before extracting\" to the prompt, restating the required order in each extraction tool's description."
       },
       {
         "label": "C",
-        "text_en": "Merge classification and every extraction schema into one large tool so ordering no longer matters."
+        "text_en": "Merge classification and every extraction schema into one large tool — a single call returning document type and fields together — so the ordering problem disappears."
       },
       {
         "label": "D",
-        "text_en": "Make the first call with tool_choice {\"type\": \"tool\", \"name\": \"classify_document\"} to force classification, then make the second call with the type-specific extraction tool selected from the result."
+        "text_en": "Make the first call with tool_choice {\"type\": \"tool\", \"name\": \"classify_document\"}, then make a second call with the extraction tool chosen from that result."
       }
     ],
     "answer": [
@@ -87,7 +87,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q306",
@@ -106,23 +106,23 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Change invoice_date to a number so the model must output a Unix timestamp."
+        "text_en": "Change invoice_date to a number — a Unix timestamp the model must compute from the printed date — so an ambiguous written date can no longer reach the accounting system."
       },
       {
         "label": "B",
-        "text_en": "Add normalization rules to the prompt — output dates as ISO 8601 (YYYY-MM-DD), amounts as plain decimal numbers with a separate ISO currency code — and describe the expected format in each schema field's description."
+        "text_en": "Add normalization rules to the prompt — ISO 8601 dates, plain decimal amounts with a separate currency code — and state the expected format in each schema field's description."
       },
       {
         "label": "C",
-        "text_en": "Make invoice_date optional so ambiguous dates are simply omitted."
+        "text_en": "Make invoice_date optional, so the model omits a date it cannot read unambiguously instead of guessing between March 4 and April 3 on the team's behalf."
       },
       {
         "label": "D",
-        "text_en": "Have the downstream system guess the locale from the vendor's country."
+        "text_en": "Have the downstream system infer each vendor's locale from its country of registration and parse amounts accordingly (comma decimals for European vendors), so \"1.200,00\" resolves."
       },
       {
         "label": "E",
-        "text_en": "Validate in code that every extracted date parses as one unambiguous ISO 8601 date and every amount parses as a plain decimal, and route records that the normalization rules did not cover to review — the schema alone cannot tell an ambiguous string from a valid one."
+        "text_en": "Validate in code that every extracted date parses as one unambiguous ISO 8601 date and every amount as a plain decimal, routing the records that fail to human review."
       }
     ],
     "answer": [
@@ -137,7 +137,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q307",
@@ -158,19 +158,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Programmatic checks in code — schema validation (for example with Pydantic) plus semantic checks such as line-item sums — whose specific errors are fed back to the model with the original document and the failed output for a bounded retry."
+        "text_en": "Programmatic checks in code — schema validation plus semantic checks such as line-item sums — whose specific errors are fed back with the original document for a bounded retry."
       },
       {
         "label": "B",
-        "text_en": "The same question, but asked with extended thinking enabled so the model reflects more carefully."
+        "text_en": "The same question, but asked with extended thinking enabled, so the model re-examines the record it produced before committing to yes or no."
       },
       {
         "label": "C",
-        "text_en": "A second model instance asked the same yes/no question, with two yes votes required."
+        "text_en": "A second model instance — given the source document and the extracted record — asked the same yes/no question, with two independent yes votes required to pass."
       },
       {
         "label": "D",
-        "text_en": "A prompt instruction telling the model to validate its output before responding."
+        "text_en": "A prompt instruction telling the model to validate its output against the schema (field names, types, required fields) and the line-item totals before it responds with the record."
       }
     ],
     "answer": [
@@ -184,7 +184,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q308",
@@ -203,19 +203,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "A free-text notes field that reviewers fill in by hand after rejecting."
+        "text_en": "A free-text notes field that reviewers fill in by hand after rejecting, describing in their own words what looked wrong in that particular document."
       },
       {
         "label": "B",
-        "text_en": "A field recording the sampling temperature used for each extraction."
+        "text_en": "A field recording the generation settings behind each extraction — sampling temperature and model version — so rejections can be correlated with the settings that produced them."
       },
       {
         "label": "C",
-        "text_en": "A detected_pattern field in which the model names the document pattern it encountered — multi-currency line items, handwritten totals, a missing vendor block — so rejections can be grouped and traced to specific patterns."
+        "text_en": "A detected_pattern field in which the model names the document pattern it encountered — multi-currency line items, handwritten totals, a missing vendor block."
       },
       {
         "label": "D",
-        "text_en": "The raw token log of each extraction request."
+        "text_en": "The raw token log of each extraction request, stored alongside the record so analysts can read back exactly what the model saw and what it produced."
       }
     ],
     "answer": [
@@ -229,7 +229,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q309",
@@ -248,19 +248,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The batch's 24-hour processing window is too short for tool calls; extend the window."
+        "text_en": "The batch's 24-hour processing window is too short for the vendor lookups to finish; extend the window so the tool calls have time to complete inside the batch."
       },
       {
         "label": "B",
-        "text_en": "The tool_result for lookup_vendor should be included in the batch request up front so the model can use it."
+        "text_en": "The tool_result for lookup_vendor should be included in the batch request up front, alongside the tool definition, so the model has the vendor record without a round trip."
       },
       {
         "label": "C",
-        "text_en": "Set tool_choice to \"any\" in the batch requests so the tool call is completed automatically."
+        "text_en": "Set tool_choice to \"any\" in the batch requests, so the batch worker resolves the vendor lookup itself instead of returning control at stop_reason \"tool_use\"."
       },
       {
         "label": "D",
-        "text_en": "Client-side tools cannot be served inside a batch because the caller cannot return tool_result mid-processing; resolve the vendor data before submission and include it in the request, or move that step outside the batch (only server-side tools run within the batch worker's loop)."
+        "text_en": "Client-side tools cannot be served inside a batch, because the caller cannot return tool_result mid-processing; resolve the vendor data before submission or move that step outside the batch."
       }
     ],
     "answer": [
@@ -274,7 +274,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q310",
@@ -293,19 +293,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Resubmit the entire 60,000-document batch to get a clean run."
+        "text_en": "Resubmit the entire 60,000-document batch with the same requests, so month-end closes from one clean run rather than a patchwork of partial results."
       },
       {
         "label": "B",
-        "text_en": "Identify the failed requests by custom_id, chunk the oversized documents into smaller pieces, and resubmit only those, keeping the 59,200 successful results."
+        "text_en": "Identify the failed requests by custom_id, chunk the oversized documents, and resubmit only those, keeping the 59,200 successful results."
       },
       {
         "label": "C",
-        "text_en": "Discard the 800 failures; a 98.7% completion rate is acceptable for month-end."
+        "text_en": "Discard the 800 failures; at a 98.7% completion rate the missing contracts are within the tolerance the team accepts for month-end."
       },
       {
         "label": "D",
-        "text_en": "Resubmit the whole batch with a larger max_tokens so the big contracts fit."
+        "text_en": "Resubmit the whole batch with a larger max_tokens, so the oversized scanned contracts fit and the same failures do not recur."
       }
     ],
     "answer": [
@@ -318,7 +318,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q311",
@@ -337,19 +337,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Two to four carefully chosen examples that cover the distinct ambiguous cases (a priced item, a quantity with units, a discount line, an absent field) and show the reasoning behind each choice, so the pattern generalizes to layouts not in the set."
+        "text_en": "Two to four carefully chosen examples covering the distinct ambiguous cases — a priced item, a quantity with units, a discount line, an absent field — with the reasoning shown."
       },
       {
         "label": "B",
-        "text_en": "Keep all fifty examples but sort them by frequency so the common layouts come first."
+        "text_en": "Keep all fifty examples but sort them by frequency — common layouts first, rare ones last — so the model matches the common cases before working through the rest."
       },
       {
         "label": "C",
-        "text_en": "Add the new vendor's layout as example fifty-one; coverage grows with every failure."
+        "text_en": "Add the new vendor's layout as example fifty-one, so coverage grows with each failure until every layout the pipeline meets is represented in the prompt."
       },
       {
         "label": "D",
-        "text_en": "Replace the examples with a longer prose description of the format rules."
+        "text_en": "Replace the examples with a longer prose description of the line_items format rules (field order, units, discount handling), which costs a fraction of the tokens."
       }
     ],
     "answer": [
@@ -363,7 +363,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q312",
@@ -382,11 +382,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add \"be careful with dates\" to the prompt."
+        "text_en": "Add \"be careful with dates\" to the prompt, and repeat the warning next to the invoice_date and due_date fields so it is seen where the mistakes happen."
       },
       {
         "label": "B",
-        "text_en": "Extract every date into a list and let the accounting system decide which is which."
+        "text_en": "Extract every date into a list — each with the label printed beside it on the invoice — and let the accounting system decide which one belongs in which field."
       },
       {
         "label": "C",
@@ -394,7 +394,7 @@
       },
       {
         "label": "D",
-        "text_en": "Add a second model pass that guesses which of the extracted dates belongs in each field."
+        "text_en": "Add a second model pass that reviews the extracted dates and reassigns them to invoice_date and due_date (using the surrounding wording as evidence)."
       }
     ],
     "answer": [
@@ -408,7 +408,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q310",
@@ -427,7 +427,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add more optional fields so every edge case has a home."
+        "text_en": "Add more optional fields to extract_document so every edge case has a home, and note in each field's description which document types it applies to."
       },
       {
         "label": "B",
@@ -435,11 +435,11 @@
       },
       {
         "label": "C",
-        "text_en": "Rename the tool to extract_any so its generality is explicit."
+        "text_en": "Rename the tool to extract_any and state in the description that it serves invoices, receipts, and contracts alike, so its generality is explicit to the model."
       },
       {
         "label": "D",
-        "text_en": "Keep the single tool but expand the description to three pages with rules for which fields apply to which document type."
+        "text_en": "Keep the single tool but expand the description to three pages of rules — which of the forty fields apply to invoices, which to receipts, and which to contracts."
       }
     ],
     "answer": [
@@ -453,7 +453,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q311",
@@ -474,19 +474,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The error for the whole document, but with a longer message listing which pages failed."
+        "text_en": "The error for the whole document — with a longer message listing which pages failed and why (unreadable scan versus service timeout) — so the agent can decide whether to retry it."
       },
       {
         "label": "B",
-        "text_en": "The 38 successfully processed pages as the content plus an explicit, structured note of the partial failure — which pages failed and why (for example unreadable scan versus service timeout) — so the agent can extract what is available and route the gaps."
+        "text_en": "The 38 processed pages as the content, plus a structured note of the partial failure — which pages failed and why (unreadable scan versus service timeout)."
       },
       {
         "label": "C",
-        "text_en": "The 38 pages as a plain success, since most of the document is usable."
+        "text_en": "The 38 pages as a plain success, since most of the document is usable and the agent can extract from it without any special-case handling."
       },
       {
         "label": "D",
-        "text_en": "An empty result, so the document is automatically re-queued for later."
+        "text_en": "An empty result, so the document is automatically re-queued and processed again later, once the OCR service has had a chance to recover."
       }
     ],
     "answer": [
@@ -500,7 +500,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q307",
@@ -519,19 +519,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Set per-field thresholds derived from each field's calibration curve — a lower threshold where confidence is accurate, a much higher one (or mandatory review) where it is optimistic — instead of one global cutoff."
+        "text_en": "Per-field thresholds derived from each field's calibration curve — lower where confidence is accurate, much higher (or mandatory review) where it is optimistic."
       },
       {
         "label": "B",
-        "text_en": "Raise the global threshold to 0.95 so vendor_name errors are caught."
+        "text_en": "Raise the global threshold to 0.95, so the optimistic vendor_name scores fall below the cutoff and every doubtful name reaches a reviewer."
       },
       {
         "label": "C",
-        "text_en": "Lower the global threshold to 0.6 to reduce the reviewer flood."
+        "text_en": "Lower the global threshold to 0.6, so correct totals stop flooding the queue and the small review team's capacity goes further."
       },
       {
         "label": "D",
-        "text_en": "Ask the model to report confidence more conservatively for vendor_name."
+        "text_en": "Ask the model to report confidence more conservatively for vendor_name — roughly halving what it would otherwise emit — so the single global cutoff (0.8) fits both fields again."
       }
     ],
     "answer": [
@@ -545,7 +545,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q308",
@@ -564,19 +564,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The reasoning notes only, since they explain the record better than the record itself."
+        "text_en": "The reasoning notes only, since they explain how each value was chosen better than the bare record does, and the values can be read off the notes."
       },
       {
         "label": "B",
-        "text_en": "A one-sentence summary of the reasoning plus the record."
+        "text_en": "A one-sentence summary of the reasoning plus the record, so the validator sees the outcome without the two pages of working notes."
       },
       {
         "label": "C",
-        "text_en": "The structured record, plus concise evidence per field — the supporting excerpt and page reference — and metadata such as document type and detected patterns; the free-form reasoning stays with the extraction agent."
+        "text_en": "The structured record, plus concise evidence per field — the supporting excerpt and page reference — and metadata such as document type and detected patterns."
       },
       {
         "label": "D",
-        "text_en": "Nothing but the record; the validator should re-read the whole document itself."
+        "text_en": "Nothing but the record; the validator re-reads the source document itself and forms an independent view of each field, which keeps the two agents from sharing a blind spot."
       }
     ],
     "answer": [
@@ -590,7 +590,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q309",
@@ -609,19 +609,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Provenance per field — the page number and the exact source excerpt supporting each extracted value — carried through to the review interface so reviewers can verify a value in seconds."
+        "text_en": "Provenance per field — the page number and the exact source excerpt behind each value — carried through to the review interface."
       },
       {
         "label": "B",
-        "text_en": "A confidence score per document so reviewers can skip the confident ones."
+        "text_en": "A confidence score per document — one number summarizing how sure the model was about the record — so reviewers can skip the confident ones and spend their hours on the rest."
       },
       {
         "label": "C",
-        "text_en": "The full OCR text attached to every record so reviewers can search it."
+        "text_en": "The full OCR text attached to every record, so reviewers can search for a value in the text instead of paging through a 40-page contract."
       },
       {
         "label": "D",
-        "text_en": "A note asking the model to \"be accurate\" so fewer records need review."
+        "text_en": "An instruction in the prompt telling the model to \"be accurate\", so fewer records are wrong and fewer of them reach the review queue at all."
       }
     ],
     "answer": [
@@ -635,6 +635,6 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]
