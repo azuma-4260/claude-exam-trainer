@@ -36,7 +36,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What concrete structure should explicit review criteria take in a prompt?",
+    "stem_en": "A code review prompt tells Claude to report only real issues and to be strict about security, but reviewers still see style nits reported as high severity and genuine bugs marked as low. The team decides to replace the vague wording with explicit review criteria. What concrete structure should those explicit criteria take in the prompt?",
     "choices": null,
     "answer": null,
     "answer_en": "Report/skip category lists\nplus a concrete code example for each severity level.",
@@ -47,7 +47,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q003",
