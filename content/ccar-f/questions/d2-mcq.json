@@ -16,19 +16,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Expand both descriptions: what each returns, the input it expects with an example, and when to use one rather than the other."
+        "text_en": "Expand both descriptions: what each returns, the input format with an example, and when to use one rather than the other."
       },
       {
         "label": "B",
-        "text_en": "Add \"prefer get_statement for spending questions\" to the system prompt."
+        "text_en": "Add a routing rule to the system prompt: spending questions go to get_statement, and balance questions go to get_balance."
       },
       {
         "label": "C",
-        "text_en": "Merge both into a single get_account_data tool with a type parameter."
+        "text_en": "Merge both into one get_account_data tool that takes a type parameter, so the model picks a field value rather than a tool."
       },
       {
         "label": "D",
-        "text_en": "Set tool_choice to \"any\" so the model must call a tool."
+        "text_en": "Set tool_choice to \"any\" so that every turn must produce a tool call instead of an answer written from memory."
       }
     ],
     "answer": [
@@ -42,7 +42,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q502",
@@ -61,19 +61,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Keep all three and add few-shot examples showing which to use when."
+        "text_en": "Keep all three and add few-shot examples to the system prompt that pair typical requests with the wrapper the team prefers."
       },
       {
         "label": "B",
-        "text_en": "Rename each to include its backend's name."
+        "text_en": "Rename each tool after the backend it wraps, so the names are distinct and the model has an unambiguous label to match on."
       },
       {
         "label": "C",
-        "text_en": "Consolidate them into one search tool with a clear input and output contract that queries the right backend internally."
+        "text_en": "Consolidate them into one search tool with a clear input and output contract, querying the right backend internally."
       },
       {
         "label": "D",
-        "text_en": "Attach a different one of the three to each subagent."
+        "text_en": "Attach one of the three to each subagent, so that no single agent ever has to choose between overlapping search tools."
       }
     ],
     "answer": [
@@ -86,7 +86,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q503",
@@ -105,19 +105,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The web_search description is too short to be trusted."
+        "text_en": "The web_search description is too short for the model to apply its stated scope, so the tool looks useful for any question."
       },
       {
         "label": "B",
-        "text_en": "The keyword-driven instruction in the system prompt overrides the tool description and creates an unintended association with searching."
+        "text_en": "The system prompt's \"always search\" instruction outweighs the tool description and creates an unintended association with searching."
       },
       {
         "label": "C",
-        "text_en": "tool_choice is set to \"any\", forcing a search on every turn."
+        "text_en": "tool_choice is set to \"any\", so every turn must produce a tool call and web_search is the only tool that is available."
       },
       {
         "label": "D",
-        "text_en": "The model cannot do arithmetic without a tool."
+        "text_en": "The model cannot perform unit arithmetic reliably on its own, so it reaches for the strongest external source it has."
       }
     ],
     "answer": [
@@ -130,7 +130,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q504",
@@ -149,19 +149,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Return an empty result instead of an error so the agent moves on."
+        "text_en": "Return an empty result (no isError) so the agent treats the failure as a normal empty response and moves on to the next step."
       },
       {
         "label": "B",
-        "text_en": "Return the raw stack trace so the model can diagnose the cause."
+        "text_en": "Return the raw stack trace and exception type, so that the model has the full technical detail needed to diagnose the cause."
       },
       {
         "label": "C",
-        "text_en": "Return a numeric error code only, to keep responses short."
+        "text_en": "Return a numeric error code per failure mode (1001, 1002, 1003) and nothing else, keeping responses short and cheap to parse."
       },
       {
         "label": "D",
-        "text_en": "Return isError with a category (transient, validation, business, permission), a human-readable reason, and the recommended next action."
+        "text_en": "Return isError with a category (transient, validation, business, permission), a human-readable reason, and the next action."
       }
     ],
     "answer": [
@@ -175,7 +175,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q505",
@@ -198,15 +198,15 @@
       },
       {
         "label": "B",
-        "text_en": "Let the exception propagate so the whole run stops."
+        "text_en": "Let the exception propagate so that the run stops immediately, leaving the malformed file untouched for an engineer to inspect."
       },
       {
         "label": "C",
-        "text_en": "Return an empty import result so the agent reports success."
+        "text_en": "Return an empty import result so the agent reports success and the run is not derailed by a handful of malformed rows."
       },
       {
         "label": "D",
-        "text_en": "Retry the import automatically inside the tool up to ten times."
+        "text_en": "Retry the import inside the tool up to ten times, since transient parser and I/O failures usually clear on a later attempt."
       }
     ],
     "answer": [
@@ -219,7 +219,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q506",
@@ -238,19 +238,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add a longer system prompt that lists every tool and its purpose."
+        "text_en": "Extend the system prompt with a catalog of all 22 tools and the purpose of each, so the model can match a request to a tool."
       },
       {
         "label": "B",
-        "text_en": "Raise the model's temperature so it explores other tools."
+        "text_en": "Raise the model's temperature so that it explores tools beyond the ones it currently favors on deployment questions."
       },
       {
         "label": "C",
-        "text_en": "Split the work into role-specific agents that each receive only the four to six tools their role needs."
+        "text_en": "Split the work into role-specific agents that each receive only the four to six tools their own role actually needs."
       },
       {
         "label": "D",
-        "text_en": "Sort the tools alphabetically in the request."
+        "text_en": "Sort the tools alphabetically in the request, grouping related names so the deployment tools appear next to each other."
       }
     ],
     "answer": [
@@ -264,7 +264,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q507",
@@ -283,7 +283,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Keep http_get and add \"only fetch article pages\" to each subagent's prompt."
+        "text_en": "Keep http_get and tell each subagent's prompt to fetch public article pages, not internal hosts or paywalled sites."
       },
       {
         "label": "B",
@@ -291,11 +291,11 @@
       },
       {
         "label": "C",
-        "text_en": "Give http_get only to the coordinator and have subagents ask for pages."
+        "text_en": "Give http_get to the coordinator alone, which fetches pages on request so that one component controls every outbound URL."
       },
       {
         "label": "D",
-        "text_en": "Increase the subagents' context window so raw HTML fits."
+        "text_en": "Increase the subagents' context budget so whole raw HTML pages fit, letting each one extract the passages it needs."
       }
     ],
     "answer": [
@@ -309,7 +309,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q508",
@@ -328,15 +328,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "{\"type\": \"auto\"}, the default when tools are provided."
+        "text_en": "{\"type\": \"auto\"}, the default, which leaves the choice to the model."
       },
       {
         "label": "B",
-        "text_en": "{\"type\": \"any\"}, which guarantees some tool call."
+        "text_en": "{\"type\": \"any\"}, which guarantees that every turn produces a tool call rather than prose."
       },
       {
         "label": "C",
-        "text_en": "{\"type\": \"none\"}, which prevents prose."
+        "text_en": "{\"type\": \"none\"}, which stops the model from answering in prose."
       },
       {
         "label": "D",
@@ -354,7 +354,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q509",
@@ -373,19 +373,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Keep the server in project scope and reference the token as ${SLACK_BOT_TOKEN}, which Claude Code expands from each engineer's environment."
+        "text_en": "Keep the server in project scope and reference the token as ${SLACK_BOT_TOKEN}, expanded from each engineer's environment."
       },
       {
         "label": "B",
-        "text_en": "Move the server to user scope so the token stays on the engineer's machine and teammates configure their own."
+        "text_en": "Move the server to user scope so the token stays on each engineer's own machine, and have teammates configure it themselves."
       },
       {
         "label": "C",
-        "text_en": "Encrypt .mcp.json and commit the key separately."
+        "text_en": "Encrypt .mcp.json and commit the decryption key in a separate file, so that the token is never readable in the repository."
       },
       {
         "label": "D",
-        "text_en": "Store the token in CLAUDE.md, which is not parsed by the MCP loader."
+        "text_en": "Store the token in CLAUDE.md and read it from there, since that file is documentation rather than MCP configuration."
       }
     ],
     "answer": [
@@ -398,7 +398,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q510",
@@ -417,19 +417,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Build custom servers for both to keep a uniform codebase."
+        "text_en": "Build custom servers for both, so that the team keeps one uniform codebase and controls every tool description itself."
       },
       {
         "label": "B",
-        "text_en": "Adopt community servers for both, patching the deployment one as needed."
+        "text_en": "Adopt community servers for both, patching a generic deployment server until it fits the in-house system."
       },
       {
         "label": "C",
-        "text_en": "Adopt a community server for GitHub and build a custom server for the in-house deployment system."
+        "text_en": "Adopt a community server for GitHub, and build a custom server for the in-house deployment system."
       },
       {
         "label": "D",
-        "text_en": "Skip MCP and give Claude a Bash tool that calls both CLIs."
+        "text_en": "Skip MCP and give Claude a Bash tool that calls both CLIs, which needs no server code on either side."
       }
     ],
     "answer": [
@@ -443,7 +443,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q511",
@@ -462,19 +462,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "A PostToolUse hook that caches describe_table results."
+        "text_en": "A PostToolUse hook that caches describe_table results, so that repeated lookups return from the cache instead of the database."
       },
       {
         "label": "B",
-        "text_en": "Expose the database schema as an MCP resource the agent can read directly, instead of discovering it through repeated tool calls."
+        "text_en": "Expose the database schema as an MCP resource the agent reads directly, instead of discovering it through repeated tool calls."
       },
       {
         "label": "C",
-        "text_en": "A system prompt that lists all 80 tables."
+        "text_en": "A system prompt that lists all 80 tables and their columns, so the whole schema is in context before the first request."
       },
       {
         "label": "D",
-        "text_en": "A tool_choice setting that limits describe_table to once per session."
+        "text_en": "A tool_choice setting that caps describe_table at one call per session, forcing the agent to learn the schema in one pass."
       }
     ],
     "answer": [
@@ -488,7 +488,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q512",
@@ -507,19 +507,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Use Glob to locate the file and retry the same Edit."
+        "text_en": "Use Glob to confirm the file's exact path, then retry the same Edit now that the target file is known to exist."
       },
       {
         "label": "B",
-        "text_en": "Use Grep to count occurrences, then run Edit with replace_all."
+        "text_en": "Use Grep to count the occurrences, then run Edit with replace_all so that every matching line is updated in a single pass."
       },
       {
         "label": "C",
-        "text_en": "Use Bash with sed to replace all occurrences."
+        "text_en": "Use Bash with sed to rewrite all occurrences in place, which side-steps the Edit tool's uniqueness requirement."
       },
       {
         "label": "D",
-        "text_en": "Read the file, then either give Edit enough surrounding context to make the match unique or Write the whole updated content."
+        "text_en": "Read the file, then either give Edit enough surrounding context to make the match unique or Write the updated content."
       }
     ],
     "answer": [
@@ -533,7 +533,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q513",
@@ -552,19 +552,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Grep for a distinctive term such as retry or backoff to find the entry points, Read those files, and follow their imports incrementally."
+        "text_en": "Grep for a distinctive term such as retry or backoff, Read the files it points to, and follow their imports incrementally."
       },
       {
         "label": "B",
-        "text_en": "Read all 400 files but ask for a one-line summary of each."
+        "text_en": "Read all 400 files, keeping a one-line summary of each, so that the whole codebase is represented compactly in context."
       },
       {
         "label": "C",
-        "text_en": "Read the files in alphabetical order until the logic turns up."
+        "text_en": "Read the files in alphabetical order and stop as soon as the retry logic turns up, leaving the remaining files unread."
       },
       {
         "label": "D",
-        "text_en": "Ask the engineer to paste the relevant code into the prompt."
+        "text_en": "Ask the engineer to paste the relevant webhook code into the prompt, since they already know where the logic lives."
       }
     ],
     "answer": [
@@ -578,6 +578,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

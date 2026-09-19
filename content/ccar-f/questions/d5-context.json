@@ -15,19 +15,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Stop summarizing and always send the full conversation, truncating from the beginning when the window fills up."
+        "text_en": "Stop summarizing and send the full conversation on every turn, truncating from the beginning once the window fills, so that the most recent turns stay verbatim."
       },
       {
         "label": "B",
-        "text_en": "Extract transaction facts (amounts, dates, invoice numbers, statuses) into a structured block that is kept outside the summarized history and always passed intact."
+        "text_en": "Extract transaction facts (amounts, dates, invoice numbers, statuses) into a structured block kept outside the summarized history and always passed intact."
       },
       {
         "label": "C",
-        "text_en": "Summarize more aggressively so that more of the original conversation fits in the window."
+        "text_en": "Summarize the older turns more aggressively (a few lines per issue), so that far more of the session's content fits inside the window."
       },
       {
         "label": "D",
-        "text_en": "Have the agent ask the subscriber to repeat the amount and date whenever it is unsure."
+        "text_en": "Have the agent ask the subscriber to confirm the amount and the charge date whenever the summarized history has left it unsure."
       }
     ],
     "answer": [
@@ -41,7 +41,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q102",
@@ -59,19 +59,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Offer the promising fix first, and escalate only if the subscriber declines it."
+        "text_en": "Offer the promising fix first, and escalate only if the subscriber still wants a human afterward."
       },
       {
         "label": "B",
-        "text_en": "Run sentiment analysis and escalate only if the frustration score exceeds a threshold."
+        "text_en": "Run sentiment analysis on the message and escalate only if the frustration score clears the threshold."
       },
       {
         "label": "C",
-        "text_en": "Ask the subscriber a few clarifying questions to confirm they really want a human."
+        "text_en": "Ask a couple of clarifying questions to confirm the subscriber really wants a human right now."
       },
       {
         "label": "D",
-        "text_en": "Escalate immediately via escalate_to_human, honoring the explicit request."
+        "text_en": "Escalate immediately via escalate_to_human, passing the context the human reviewer needs to act."
       }
     ],
     "answer": [
@@ -84,7 +84,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q103",
@@ -102,19 +102,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Restart the session and re-read every file from scratch each time degradation appears."
+        "text_en": "Restart the session and re-read the relevant files from scratch whenever the answers start drifting, so the model works from a clean and current context."
       },
       {
         "label": "B",
-        "text_en": "Paste the entire codebase into the first message so nothing needs to be read later."
+        "text_en": "Paste the entire monorepo into the first message, so that every relevant file is present from the start and nothing has to be re-read later."
       },
       {
         "label": "C",
-        "text_en": "Persist key findings to a scratchpad file as they are discovered, delegate narrow questions to subagents, and run /compact when the context fills with stale output."
+        "text_en": "Persist key findings to a scratchpad file, delegate narrow questions to subagents, and run /compact when the context fills with stale output."
       },
       {
         "label": "D",
-        "text_en": "Add \"remember the actual files accurately\" to the beginning of the session."
+        "text_en": "Add an instruction at the start of the session telling the model to report the files it actually read rather than a typical layout."
       }
     ],
     "answer": [
@@ -128,6 +128,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

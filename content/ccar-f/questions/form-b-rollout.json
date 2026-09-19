@@ -16,19 +16,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "CLAUDE.md files are concatenated into context rather than overriding one another, so the two instructions conflict and Claude may pick either; rewrite the root rule to state the exception explicitly (or move the Jest rule out of the shared file) so no two loaded files contradict."
+        "text_en": "Discovered CLAUDE.md files are concatenated into context rather than overriding one another, so both rules load and Claude may follow either; remove the contradiction by stating the legacy-billing exception in the root rule."
       },
       {
         "label": "B",
-        "text_en": "The subdirectory file is ignored because only the root CLAUDE.md is loaded; move the Mocha rule into the root file."
+        "text_en": "Only the root CLAUDE.md is loaded for a session, so the package file never reaches context at all; move the Mocha rule into the root file, where it will be read on every edit to legacy-billing."
       },
       {
         "label": "C",
-        "text_en": "The subdirectory file always wins because it is more specific; the Jest results come from Claude ignoring memory entirely, so the fix is a stronger instruction."
+        "text_en": "The subdirectory file always wins because the more specific path takes precedence, so the Jest tests mean memory was bypassed on those turns; restate the Mocha rule in stronger, more emphatic wording."
       },
       {
         "label": "D",
-        "text_en": "Claude reads only the first CLAUDE.md it finds; rename the subdirectory file so it sorts first."
+        "text_en": "Claude reads only the first CLAUDE.md it discovers, and discovery walks the tree in alphabetical order; rename the package file so that it sorts ahead of the root one and becomes the single file that a legacy-billing session reads."
       }
     ],
     "answer": [
@@ -42,7 +42,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q302",
@@ -61,19 +61,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Imports only fail silently beyond a depth of two; flatten the files back into one CLAUDE.md."
+        "text_en": "Imports fail silently beyond a depth of two hops, so the six topic files are never expanded and sessions still carry only the stale text left in the parent file; flatten everything back into a single CLAUDE.md so nothing is skipped."
       },
       {
         "label": "B",
-        "text_en": "The six files should be moved to ~/.claude/ so they load from the user scope, which does not count against the project context."
+        "text_en": "Move the six files to ~/.claude/ so they load from the user scope, which is shared across projects and therefore does not count against this project’s context window; the import lines can stay."
       },
       {
         "label": "C",
-        "text_en": "@import expands the referenced files into context at launch, so it organizes content without reducing it; to cut the load, keep a concise core file and move file-type-specific guidance into path-scoped rules (and rarely used procedures into skills) so it loads only when relevant."
+        "text_en": "@import expands the referenced files into context at launch, so it organizes content without reducing it; move file-type-specific guidance into path-scoped rules and rare procedures into skills."
       },
       {
         "label": "D",
-        "text_en": "Imports are cached after the first session, so the reduction will appear from the second session onward."
+        "text_en": "Imports are cached after the first session in a workspace, so the expanded text is counted once and the reduction will show up in /context from the second session onward."
       }
     ],
     "answer": [
@@ -87,7 +87,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q303",
@@ -106,19 +106,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The file loaded but was truncated; split it into smaller files so every rule fits."
+        "text_en": "The file was loaded but truncated partway through, so the later rules never reached the model; split it into several smaller memory files so that every rule fits the limit and is delivered intact."
       },
       {
         "label": "B",
-        "text_en": "CLAUDE.md is delivered as context that Claude tries to follow, not as enforced configuration, so vague instructions get inconsistent results; rewrite them as concrete, verifiable rules (for example \"use 2-space indentation\", \"every new function gets a test covering its error path\")."
+        "text_en": "CLAUDE.md is context Claude tries to follow, not enforced configuration, so vague rules give inconsistent results; rewrite them as verifiable instructions such as \"use 2-space indentation\"."
       },
       {
         "label": "C",
-        "text_en": "Memory files are only honored in plan mode; ask the engineer to start each task in plan mode."
+        "text_en": "Memory files are honored only while plan mode is active, which is why compliance looks random during ordinary edits; ask the engineer to start each task in plan mode so the rules apply."
       },
       {
         "label": "D",
-        "text_en": "The rules must be repeated in every user message because CLAUDE.md is read only once at startup."
+        "text_en": "CLAUDE.md is read once at startup and then drops out of the working context, so the rules have to be restated in every user message that expects the generated code to follow them."
       }
     ],
     "answer": [
@@ -132,7 +132,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q304",
@@ -151,19 +151,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "This is a bug in the installed version; reinstalling Claude Code restores the restriction."
+        "text_en": "The restriction is real but broken by a regression in the installed build, so the frontmatter is parsed and then discarded at run time; reinstalling Claude Code restores enforcement of the list."
       },
       {
         "label": "B",
-        "text_en": "allowed-tools pre-approves the listed tools for that invocation rather than limiting the available set; to keep Bash out, add disallowed-tools: Bash (and consider context: fork for isolation)."
+        "text_en": "allowed-tools pre-approves the listed tools for that invocation rather than limiting the available set; to keep Bash out of the pool, add disallowed-tools: Bash and consider context: fork."
       },
       {
         "label": "C",
-        "text_en": "Add the sentence \"Do not use Bash\" to the body of the skill; frontmatter cannot influence tool usage."
+        "text_en": "Frontmatter cannot influence which tools are chosen at run time, so state the constraint in the body of the skill — a line such as \"Do not use Bash\" — and Claude will respect it while the skill runs."
       },
       {
         "label": "D",
-        "text_en": "Move the skill from .claude/skills/ to ~/.claude/skills/, where tool restrictions are enforced."
+        "text_en": "Tool restrictions are enforced only for personal skills, so move the skill from .claude/skills/ to ~/.claude/skills/, where the allowed-tools list is applied as written to every invocation."
       }
     ],
     "answer": [
@@ -177,7 +177,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q305",
@@ -198,19 +198,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Create a personal variant under ~/.claude/skills/ with a different name, such as /my-pr-summary, and leave the project skill untouched."
+        "text_en": "Create a personal variant under ~/.claude/skills/ with a different name, such as /my-pr-summary, and leave the shared project skill untouched."
       },
       {
         "label": "B",
-        "text_en": "Edit .claude/skills/pr-summary locally and simply never commit the change."
+        "text_en": "Edit .claude/skills/pr-summary in the working copy and keep the change out of every commit, so teammates keep getting the standard format from the repository."
       },
       {
         "label": "C",
-        "text_en": "Add a branch inside the team skill that switches format based on the engineer's username."
+        "text_en": "Add a branch inside the team skill that selects the output format from the engineer’s username, so one shared skill serves both the standard and the personal structure."
       },
       {
         "label": "D",
-        "text_en": "Describe the preferred format in their ~/.claude/CLAUDE.md so every session applies it automatically."
+        "text_en": "Describe the preferred summary structure in their ~/.claude/CLAUDE.md, so every session applies it automatically without any change to the team’s shared skill."
       }
     ],
     "answer": [
@@ -224,7 +224,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q306",
@@ -245,19 +245,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "In the root CLAUDE.md of each repository, marked \"personal\" so teammates know to ignore them."
+        "text_en": "In the root CLAUDE.md of each repository, under a section marked \"personal\", so teammates can see that the habits are individual and leave them out of review comments."
       },
       {
         "label": "B",
-        "text_en": "In a .claude/rules/go.md committed to each repository, since rules load only for matching files."
+        "text_en": "In a .claude/rules/go.md committed to each repository, where paths frontmatter keeps the guidance scoped to Go files so it loads only when those files are being edited."
       },
       {
         "label": "C",
-        "text_en": "In the contractor's ~/.claude/CLAUDE.md, which overrides project files because it is loaded last."
+        "text_en": "In the contractor’s ~/.claude/CLAUDE.md, which reaches every project on the machine without being committed and is loaded last, so it overrides whatever each repository says about Go error handling and test layout."
       },
       {
         "label": "D",
-        "text_en": "In user-level rules under ~/.claude/rules/, which apply to every project on that machine without being committed and are loaded before project rules, so project conventions take priority on conflict."
+        "text_en": "In user-level rules under ~/.claude/rules/, which apply to every project on the machine without being committed and load before project rules, so repository conventions win on conflict."
       }
     ],
     "answer": [
@@ -271,7 +271,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q307",
@@ -290,19 +290,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Ask the other teams to add paths frontmatter to their CLAUDE.md files so they load only for their own directories."
+        "text_en": "Ask the other teams to add paths frontmatter to their CLAUDE.md files, so each one loads only for sessions working inside its own directory and the appointments team stops seeing conventions that do not apply to them."
       },
       {
         "label": "B",
-        "text_en": "Run Claude Code from the repository root so that only the root CLAUDE.md is loaded."
+        "text_en": "Run Claude Code from the repository root instead of the team’s directory, so the session loads the root CLAUDE.md alone and finds no parent-directory files above its working directory."
       },
       {
         "label": "C",
-        "text_en": "Add the unwanted files to claudeMdExcludes in the team's own settings (for example .claude/settings.local.json) using path or glob patterns, so they are skipped while everything else loads normally."
+        "text_en": "Add the unwanted files to claudeMdExcludes in the team’s own settings, for example .claude/settings.local.json, using path or glob patterns, so they are skipped while everything else loads."
       },
       {
         "label": "D",
-        "text_en": "Delete the other teams' CLAUDE.md files from the monorepo; conventions belong in a single root file."
+        "text_en": "Delete the other teams’ CLAUDE.md files from the monorepo and keep every convention in one root file, so there is a single shared source of truth and nothing extra to load."
       }
     ],
     "answer": [
@@ -316,7 +316,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q308",
@@ -335,19 +335,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Run the survey in plan mode so Claude explores and proposes without editing, review and approve the plan, then leave plan mode in the same session so execution starts from the approved plan and its context."
+        "text_en": "Run the survey in plan mode so Claude explores and proposes without editing, approve the plan, then leave plan mode in the same session so execution starts from that plan and its context."
       },
       {
         "label": "B",
-        "text_en": "Skip plan mode; write the approach yourself in CLAUDE.md so every session starts with it."
+        "text_en": "Skip plan mode and write the extraction approach yourself in CLAUDE.md, so that every session on payments-service starts from the agreed approach and no separate review and approval step is needed before editing."
       },
       {
         "label": "C",
-        "text_en": "Use plan mode for the execution as well, since it prevents accidental edits."
+        "text_en": "Use plan mode for the execution as well, since it prevents accidental edits and keeps each change under review before it is written into the payments-service working tree."
       },
       {
         "label": "D",
-        "text_en": "Run plan mode in one session, paste its output into a new session's first message, and execute there for a clean context."
+        "text_en": "Run plan mode in one session, paste the approved plan into the first message of a new session, and execute there so the work proceeds from a clean, uncluttered context window."
       }
     ],
     "answer": [
@@ -361,7 +361,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q309",
@@ -380,19 +380,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Write a much longer prose specification up front and paste it into the prompt."
+        "text_en": "Write a much longer prose specification up front, describing burst behavior and tenant limits in detail, and paste the whole document into the prompt so the implementation has more to work from."
       },
       {
         "label": "B",
-        "text_en": "Accept the current implementation and ask Claude to \"make it more robust\" in a follow-up."
+        "text_en": "Accept the current implementation and ask Claude in a follow-up turn to make it more robust, so the remaining edge cases get hardened without another round of requirements work."
       },
       {
         "label": "C",
-        "text_en": "Copy an open-source rate limiter and ask Claude to adapt it to the codebase."
+        "text_en": "Copy a well-tested open-source token-bucket limiter and ask Claude to adapt it to the appointment API, so the edge cases its authors already handled come along with the code."
       },
       {
         "label": "D",
-        "text_en": "Before implementing, have Claude interview them about the unknowns (burst policy, tenant isolation, clock handling), then write a test suite covering the expected behavior and edge cases first, and iterate on the implementation until the tests pass."
+        "text_en": "Have Claude interview them first about the unknowns, then write a test suite covering the expected behavior and edge cases, and iterate on the implementation until those tests pass."
       }
     ],
     "answer": [
@@ -406,7 +406,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q310",
@@ -425,19 +425,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Describe the three interacting issues together in one message so they are resolved coherently; the three independent ones can be handled one at a time."
+        "text_en": "Describe the three interacting issues together in one message so they are resolved coherently; the three independent ones can then be handled one at a time."
       },
       {
         "label": "B",
-        "text_en": "Send all six issues in one message and instruct Claude to change the DTO type last, after the three cosmetic fixes, so the small items are not lost."
+        "text_en": "Send all six issues in a single message and instruct Claude to change the shared DTO type last, after the three cosmetic fixes; that way the small items are not lost in the larger edit."
       },
       {
         "label": "C",
-        "text_en": "Send six separate messages, one per issue, in the order they were found."
+        "text_en": "Send six separate messages, one issue per message, in the order they were found; each correction then arrives as its own small, independently reviewable step."
       },
       {
         "label": "D",
-        "text_en": "Fix the DTO first, then the validator, then the serializer, each in its own message, before mentioning the small issues."
+        "text_en": "Fix the shared DTO first, then the validation layer, then the serializer, each in its own message; handle the typo, the unused import, and the log level afterwards."
       }
     ],
     "answer": [
@@ -450,7 +450,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q311",
@@ -469,19 +469,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Pipe the yes command into claude so any prompt is answered automatically."
+        "text_en": "Pipe the output of the yes command into claude, so that every interactive prompt is answered automatically and the job keeps going instead of waiting for a human at the runner."
       },
       {
         "label": "B",
-        "text_en": "Run Claude Code in non-interactive mode with -p (--print) so it prints the result and exits, adding --output-format json if the pipeline needs machine-readable output."
+        "text_en": "Run Claude Code in non-interactive mode with the -p / --print flag so it prints the result and exits, adding --output-format json when the pipeline needs machine-readable output."
       },
       {
         "label": "C",
-        "text_en": "Set the environment variable CLAUDE_NON_INTERACTIVE=1 in the job."
+        "text_en": "Set the environment variable CLAUDE_NON_INTERACTIVE=1 for the job, which puts the CLI into a mode that skips prompts and exits as soon as the response for the changed files is complete."
       },
       {
         "label": "D",
-        "text_en": "Raise the runner timeout to 60 minutes so the job has time to finish."
+        "text_en": "Raise the runner timeout to 60 minutes so the job has enough time to finish, since generating tests for every changed file takes longer on CI hardware than on an engineer’s laptop."
       }
     ],
     "answer": [
@@ -495,7 +495,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q312",
@@ -514,19 +514,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Ask for \"more tests\" so that useful ones are more likely to be among them."
+        "text_en": "Ask the job for several more tests per changed file, so that a larger pool raises the chance that valuable, non-duplicate cases appear among the ones reviewers actually look at each morning."
       },
       {
         "label": "B",
-        "text_en": "Lower the review bar for generated tests since they are free to produce."
+        "text_en": "Lower the review bar for generated tests, since producing them costs little and a larger suite still adds coverage even when individual cases are weak."
       },
       {
         "label": "C",
-        "text_en": "Include the existing test files for the changed modules in the context, and document in CLAUDE.md the team's testing standards, what makes a test valuable, and the shared fixtures to use."
+        "text_en": "Include the existing test files for the changed modules in the context, and document in CLAUDE.md the team’s testing standards, what makes a test valuable, and the shared fixtures to use."
       },
       {
         "label": "D",
-        "text_en": "Generate tests only for files that currently have no tests at all."
+        "text_en": "Generate tests only for files that currently have no tests at all, so duplication with an existing suite is impossible and reviewers stop seeing redundant scenarios."
       }
     ],
     "answer": [
@@ -540,7 +540,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q301",
@@ -559,23 +559,23 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Send the entire pull request in one prompt with a larger context window so the model sees everything at once."
+        "text_en": "Send the entire pull request to the reviewer in one prompt with a much larger context window, so the model sees all sixty files at once and can compare patterns across the whole change before it writes any of its findings."
       },
       {
         "label": "B",
-        "text_en": "Review each file in its own local pass, then run an integration pass that looks specifically for cross-file issues using the per-file findings."
+        "text_en": "Review each file in its own local pass, then run an integration pass that uses the per-file findings to look specifically for cross-file problems such as mismatched API contracts."
       },
       {
         "label": "C",
-        "text_en": "Post every finding as today, but prefix each one with the disclaimer \"this may be a false positive\"."
+        "text_en": "Post every finding exactly as today, but prefix each one with a disclaimer noting that it may be a false positive, so engineers can weigh it themselves before acting on it."
       },
       {
         "label": "D",
-        "text_en": "Have every finding carry a self-reported confidence, calibrate those scores against a labeled set of past findings, and set thresholds from that data and the triage team's capacity so low-confidence findings go to human triage instead of being posted."
+        "text_en": "Have every finding carry a self-reported confidence, calibrate those scores against a labeled set of past findings, and send low-confidence findings to human triage using thresholds set from the triage capacity."
       },
       {
         "label": "E",
-        "text_en": "Add \"be consistent across files\" to the review prompt."
+        "text_en": "Add an instruction to the review prompt telling the model to stay consistent across files and to report contract mismatches between a client and its server stub."
       }
     ],
     "answer": [
@@ -590,7 +590,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q302",
@@ -609,19 +609,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add a few-shot example set for each target language and framework (Go table-driven tests, Vitest, pytest) and select the set that matches the repository being processed, so the examples demonstrate the form the output should actually take."
+        "text_en": "Add a few-shot example set for each target language and framework, then select the set that matches the repository being processed so the examples demonstrate the form the output should take."
       },
       {
         "label": "B",
-        "text_en": "Remove all examples; prose instructions cannot be misapplied across languages."
+        "text_en": "Remove the framework examples altogether and rely on prose instructions, which describe what a good test has to cover without carrying any language-specific syntax that could be copied into the wrong repository."
       },
       {
         "label": "C",
-        "text_en": "Keep the pytest examples and add the sentence \"adapt these to the repository's language\"."
+        "text_en": "Keep the pytest examples and add a sentence telling the model to adapt them to the repository’s language, so a single example set continues to serve all three ecosystems."
       },
       {
         "label": "D",
-        "text_en": "Increase the number of pytest examples so the model learns the general idea of a good test."
+        "text_en": "Increase the number of pytest examples so the model generalizes from them to the idea of a good test rather than to the surface syntax of any one framework."
       }
     ],
     "answer": [
@@ -635,7 +635,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q303",
@@ -656,19 +656,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Run a small, representative sample first through the synchronous API — a few files from each language and repository type — inspect the output, tune the prompt and examples, and only then submit the full batch."
+        "text_en": "Run a small, representative sample of files from each language and repository type through the synchronous API first, inspect the output, tune the prompt and examples, and only then submit the full batch."
       },
       {
         "label": "B",
-        "text_en": "Submit the full batch every night and fix the prompt the next morning based on what reviewers reject."
+        "text_en": "Submit the full batch every night and tune the prompt the next morning from what the reviewers rejected, so that each run’s feedback improves the following night’s output across all forty of the repositories."
       },
       {
         "label": "C",
-        "text_en": "Submit the sample as its own batch first; the 50% discount makes sampling cheaper too."
+        "text_en": "Submit the sample as its own batch first, since the 50% batch discount makes the sampling run cheaper than sending the same representative files through the synchronous API."
       },
       {
         "label": "D",
-        "text_en": "Cut the batch to the ten largest repositories so a bad night costs less."
+        "text_en": "Cut the nightly batch to the ten largest repositories, so that a night spent on unusable output costs a fraction of what the full forty-repository run costs while the prompt settles."
       }
     ],
     "answer": [
@@ -681,6 +681,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]
