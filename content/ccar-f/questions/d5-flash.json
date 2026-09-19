@@ -133,7 +133,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What output contract should upstream agents follow to protect downstream context budgets?",
+    "stem_en": "In a multi-agent research system, each research subagent returns pages of free-form reasoning along with its findings. By the time the coordinator collects results from five subagents, its own context is nearly full and the synthesis step degrades. What output contract should upstream agents follow to protect downstream context budgets?",
     "choices": null,
     "answer": null,
     "answer_en": "Return structured data (key points, quotes, relevance) with metadata,\nnot verbose free-form reasoning.",
@@ -144,7 +144,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q007",
