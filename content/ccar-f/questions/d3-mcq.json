@@ -16,19 +16,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "It is a bug; subdirectory CLAUDE.md files should load in every session."
+        "text_en": "It is a bug: every CLAUDE.md in the repository, at any depth, is meant to load at session start, so discovery is broken here."
       },
       {
         "label": "B",
-        "text_en": "It is expected: a CLAUDE.md in a subdirectory is loaded on demand when Claude works with files in that subtree, so conventions meant for the whole repository belong in the root CLAUDE.md."
+        "text_en": "It is expected: a CLAUDE.md in a subdirectory loads on demand when Claude works in that subtree, so repository-wide conventions belong in the root CLAUDE.md."
       },
       {
         "label": "C",
-        "text_en": "The file must be renamed to .claude/CLAUDE.md to be picked up."
+        "text_en": "The file is in the wrong place, because memory is discovered only at .claude/CLAUDE.md, so moving it there (rather than the package root) makes it load."
       },
       {
         "label": "D",
-        "text_en": "packages/web/CLAUDE.md must be @imported from every other package."
+        "text_en": "Memory files never cross package boundaries, so packages/web/CLAUDE.md has to be @imported from each other package's CLAUDE.md to reach those sessions."
       }
     ],
     "answer": [
@@ -41,7 +41,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q502",
@@ -60,19 +60,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Trim it to the 100 most important lines and delete the rest."
+        "text_en": "Trim it to the 100 lines the team cites most often and delete the rest, so every session loads a short file that Claude can follow in full."
       },
       {
         "label": "B",
-        "text_en": "Move the file to the user level so it loads faster."
+        "text_en": "Move the file to the user level (~/.claude/CLAUDE.md), where memory is read once per machine, so each session starts with a lighter footprint."
       },
       {
         "label": "C",
-        "text_en": "Split it into topic-specific files under .claude/rules/ (path-scoped where a topic only applies to certain files), keeping CLAUDE.md as the concise core."
+        "text_en": "Split it into topic files under .claude/rules/, path-scoped where a topic applies to certain files only, leaving CLAUDE.md as a concise core."
       },
       {
         "label": "D",
-        "text_en": "Duplicate the file into every subdirectory so each area gets a copy."
+        "text_en": "Duplicate the file into each area's subdirectory, so frontend, backend, and infrastructure sessions each pick up their own copy on demand."
       }
     ],
     "answer": [
@@ -85,7 +85,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q503",
@@ -104,19 +104,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Expected behavior: a path-scoped rule loads only when a matching file is touched, which /context confirms by listing it under Memory files only in the first engineer's session."
+        "text_en": "Expected: a path-scoped rule loads only when a matching file is touched, and /context lists it under Memory files in the first engineer's session."
       },
       {
         "label": "B",
-        "text_en": "A bug: rules must load identically for everyone in the repository."
+        "text_en": "A bug: rules committed to the repository are shared configuration, so both sessions should list the same Memory files whatever paths are edited."
       },
       {
         "label": "C",
-        "text_en": "The second engineer's ~/.claude/CLAUDE.md is overriding the rule."
+        "text_en": "A precedence problem: the second engineer's ~/.claude/CLAUDE.md is read last and overrides the project rule, so clearing that user memory fixes it."
       },
       {
         "label": "D",
-        "text_en": "The rule file must be moved into the root CLAUDE.md to be shared."
+        "text_en": "A placement problem: only the root CLAUDE.md reaches every session, so the conventions must be moved there (dropping the paths frontmatter)."
       }
     ],
     "answer": [
@@ -129,7 +129,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q504",
@@ -148,19 +148,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Project scope, so teammates can review it in pull requests."
+        "text_en": "Project scope (.claude/commands/), so the command ships with the repository and teammates can review changes to it in pull requests."
       },
       {
         "label": "B",
-        "text_en": "Project scope, but with the personal filters removed."
+        "text_en": "Project scope, with the personal calendar and Jira filters stripped out before the command is committed to the repository."
       },
       {
         "label": "C",
-        "text_en": "CLAUDE.md, since it runs every day."
+        "text_en": "CLAUDE.md, since the routine runs every day and always-loaded memory keeps the steps available without invoking anything."
       },
       {
         "label": "D",
-        "text_en": "User scope (~/.claude/commands/), because it is personal and would not make sense for teammates."
+        "text_en": "User scope (~/.claude/commands/), because the command depends on personal data and would not make sense for teammates."
       }
     ],
     "answer": [
@@ -174,7 +174,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q505",
@@ -193,19 +193,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "allowed-tools: Bash, which pre-approves the shell commands."
+        "text_en": "allowed-tools: Bash, which pre-approves the package-manager commands so the audit runs without prompting for permission."
       },
       {
         "label": "B",
-        "text_en": "context: fork, which runs the skill in an isolated context and returns only its result."
+        "text_en": "context: fork, which runs the skill in an isolated context so that only its result returns to the main conversation."
       },
       {
         "label": "C",
-        "text_en": "argument-hint, which prompts for the package name up front."
+        "text_en": "argument-hint, which asks for a package name up front so the audit is scoped to a single dependency, keeping the run short."
       },
       {
         "label": "D",
-        "text_en": "disallowed-tools: Read, which stops the skill from reading large files."
+        "text_en": "disallowed-tools: Read, which stops the skill from reading large files, so bulky file contents stay out of the transcript."
       }
     ],
     "answer": [
@@ -218,7 +218,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q506",
@@ -237,19 +237,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "A project skill, because skills are the recommended home for all conventions."
+        "text_en": "A project skill committed to the repository, because skills are the recommended home for all shared conventions, logging included."
       },
       {
         "label": "B",
-        "text_en": "A user-level skill on each engineer's machine."
+        "text_en": "A user-level skill installed on each engineer's machine, so the logging conventions follow them into every repository they work in."
       },
       {
         "label": "C",
-        "text_en": "CLAUDE.md (or a path-scoped rule), because always-on conventions belong in memory that loads automatically; skills load only when invoked."
+        "text_en": "CLAUDE.md (or a path-scoped rule), because conventions that must always apply belong in memory that loads automatically, unlike skills."
       },
       {
         "label": "D",
-        "text_en": "A slash command that engineers run at the start of each session."
+        "text_en": "A slash command (for example /logging-rules) that engineers run at the start of each session to pull the conventions into context."
       }
     ],
     "answer": [
@@ -263,7 +263,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q507",
@@ -282,19 +282,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The glob only matches files under docs/; add README.md (or a broader pattern such as **/*.md) to paths."
+        "text_en": "The glob matches files under docs/ only; add README.md to paths, or widen the pattern to **/*.md so the root file matches too."
       },
       {
         "label": "B",
-        "text_en": "Rules never apply to Markdown files; move the content into CLAUDE.md."
+        "text_en": "Rules do not apply to Markdown at all; the style guidance has to move into CLAUDE.md, which loads for every file a session touches."
       },
       {
         "label": "C",
-        "text_en": "The rule file must be renamed README.md to match the target."
+        "text_en": "Matching is by file name, so the rule file itself must be renamed README.md (in place of docs-style.md) before it takes effect."
       },
       {
         "label": "D",
-        "text_en": "Path-specific rules only take effect inside plan mode."
+        "text_en": "Path-specific rules take effect only inside plan mode; planning the edit first would load the style rule for README.md as well."
       }
     ],
     "answer": [
@@ -307,7 +307,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q508",
@@ -326,19 +326,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "A directory-level CLAUDE.md in services/billing/, since the conventions belong to one subtree as a whole."
+        "text_en": "A directory-level CLAUDE.md in services/billing/, since the conventions cover one subtree as a whole, whatever file type is edited."
       },
       {
         "label": "B",
-        "text_en": "Three separate glob rules, one per file type."
+        "text_en": "Three glob-scoped rule files, one per file type, so TypeScript, SQL, and YAML each load only the conventions written for them."
       },
       {
         "label": "C",
-        "text_en": "The root CLAUDE.md with a note saying \"applies to billing only\"."
+        "text_en": "The root CLAUDE.md, with the section marked \"applies to services/billing only\" so Claude can tell when the conventions are in scope."
       },
       {
         "label": "D",
-        "text_en": "A skill that the billing team invokes before editing."
+        "text_en": "A project skill that the billing team invokes before editing, which keeps the conventions out of context for the rest of the monorepo."
       }
     ],
     "answer": [
@@ -351,7 +351,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q509",
@@ -370,19 +370,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Start editing directly; plan mode is only for greenfield projects."
+        "text_en": "Start editing directly: plan mode targets greenfield work, so on an existing codebase reading the files as you go is quicker."
       },
       {
         "label": "B",
-        "text_en": "Use plan mode first to survey the code and compare the two designs, get the plan approved, then execute it."
+        "text_en": "Use plan mode first to survey the affected code and compare the two designs, then execute the plan once it has been approved."
       },
       {
         "label": "C",
-        "text_en": "Split the migration into 40 single-file tasks and run each directly."
+        "text_en": "Split the migration into 40 single-file tasks and run them one at a time, so each change stays small and reviewable on its own."
       },
       {
         "label": "D",
-        "text_en": "Ask Claude to write the design document only and implement it by hand."
+        "text_en": "Ask Claude for the design document only, then implement the 40 files by hand so that every edit passes through human judgement."
       }
     ],
     "answer": [
@@ -396,7 +396,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q510",
@@ -415,11 +415,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Run Grep repeatedly in the main session until all call sites are listed."
+        "text_en": "Run Grep repeatedly in the main session until every call site is listed, so the refactor plan is built on results that stay in view."
       },
       {
         "label": "B",
-        "text_en": "Read every file that mentions the word \"flag\"."
+        "text_en": "Read every file that mentions the word \"flag\", so that no evaluation site is missed before the refactor plan is written."
       },
       {
         "label": "C",
@@ -427,7 +427,7 @@
       },
       {
         "label": "D",
-        "text_en": "Start a new main session and redo the refactor planning there."
+        "text_en": "Start a fresh main session with an empty context window, and redo the refactor planning there once the search has finished."
       }
     ],
     "answer": [
@@ -441,7 +441,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q511",
@@ -464,15 +464,15 @@
       },
       {
         "label": "B",
-        "text_en": "Ask Claude to try five variations and pick one."
+        "text_en": "Ask Claude to produce five variations of the helper, then pick the one whose behaviour matches what you had in mind."
       },
       {
         "label": "C",
-        "text_en": "Lower the temperature so the output is deterministic."
+        "text_en": "Lower the sampling temperature, so repeated runs converge on one implementation and the attempts stop diverging."
       },
       {
         "label": "D",
-        "text_en": "Write a longer prose description with more adjectives."
+        "text_en": "Expand the prose description with more precise adjectives covering the escaping rules and the unusual identifiers."
       }
     ],
     "answer": [
@@ -486,7 +486,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q512",
@@ -505,19 +505,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Ask Claude to write the code immediately and iterate on bugs afterwards."
+        "text_en": "Ask Claude to write the retry policy immediately, then iterate on the gaps as failures turn up during testing."
       },
       {
         "label": "B",
-        "text_en": "Write a three-page specification alone before involving Claude."
+        "text_en": "Write the specification alone first — backoff, idempotency, final failure — and involve Claude only afterwards."
       },
       {
         "label": "C",
-        "text_en": "Lower the temperature so Claude makes fewer assumptions."
+        "text_en": "Lower the sampling temperature, so that Claude makes fewer assumptions about the unstated parts of the policy."
       },
       {
         "label": "D",
-        "text_en": "Use the interview pattern: ask Claude to interview you about the requirements first, then implement."
+        "text_en": "Use the interview pattern: have Claude interview you about the requirements first, and implement afterwards."
       }
     ],
     "answer": [
@@ -530,7 +530,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q513",
@@ -549,19 +549,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "--verbose so the output includes more detail."
+        "text_en": "--verbose, so the job emits the full turn detail and the dashboard can read the fields it needs."
       },
       {
         "label": "B",
-        "text_en": "--json-schema with the required shape, so the structured result conforms to it."
+        "text_en": "--json-schema with the required shape, so the structured result always conforms to it."
       },
       {
         "label": "C",
-        "text_en": "A regular expression that extracts the fields from the summary."
+        "text_en": "A regular expression layer that pulls the dashboard's fields out of the summary text."
       },
       {
         "label": "D",
-        "text_en": "A second prompt asking the model to reformat its own answer."
+        "text_en": "A second prompt, run after the first, that asks the model to reformat its own answer."
       }
     ],
     "answer": [
@@ -575,7 +575,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q514",
@@ -594,19 +594,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Give the reviewer only the diff and explicit review criteria, withholding the generator's reasoning so it is not anchored to those choices."
+        "text_en": "Give the reviewer only the diff and explicit review criteria, so its judgement is not anchored to the generator's choices."
       },
       {
         "label": "B",
-        "text_en": "Use the same session for review to save tokens."
+        "text_en": "Run the review inside the generator's own session, which saves tokens and keeps every decision already in context."
       },
       {
         "label": "C",
-        "text_en": "Feed the reviewer the transcript twice so it reads it carefully."
+        "text_en": "Feed the reviewer the transcript twice, once as background and once as the review target, so it reads the reasoning closely."
       },
       {
         "label": "D",
-        "text_en": "Replace the reviewer with a linter."
+        "text_en": "Replace the reviewer instance with a linter, whose rules are deterministic and cannot be talked into approving a change."
       }
     ],
     "answer": [
@@ -620,6 +620,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

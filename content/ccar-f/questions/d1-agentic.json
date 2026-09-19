@@ -15,19 +15,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Instruct the model in the system prompt to always end with the phrase \"TASK COMPLETE\" and parse responses for that string."
+        "text_en": "Instruct the model in the system prompt to end every finished reply with the phrase \"TASK COMPLETE\", and parse responses for that string."
       },
       {
         "label": "B",
-        "text_en": "Set a fixed limit of five iterations so the loop always runs long enough for the tools to be called."
+        "text_en": "Set a fixed limit of five iterations before returning, so the loop keeps running long enough for get_invoice and the other tools to be called."
       },
       {
         "label": "C",
-        "text_en": "Check stop_reason after each response: continue the loop while it is \"tool_use\", treat \"end_turn\" as completion, and handle each of the other stop reasons individually."
+        "text_en": "Check stop_reason after each response: continue the loop while it is \"tool_use\", treat \"end_turn\" as completion, and handle the other stop reasons individually."
       },
       {
         "label": "D",
-        "text_en": "Treat any response containing a text block as an error and retry the request until it contains only tool calls."
+        "text_en": "Treat any response that contains a text block as an error and retry the request until the model replies with tool calls only: text and tool_use should not be mixed."
       }
     ],
     "answer": [
@@ -42,7 +42,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q102",
@@ -62,7 +62,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Restate the cap in bold capitals at both the top and the bottom of the system prompt."
+        "text_en": "Restate the $50 cap in bold capitals at both the top and the bottom of the system prompt, where the model attends to it most."
       },
       {
         "label": "B",
@@ -70,11 +70,11 @@
       },
       {
         "label": "C",
-        "text_en": "Instruct the agent to re-read the policy and double-check the amount before every issue_credit call."
+        "text_en": "Instruct the agent to re-read the policy and recompute the amount before every issue_credit call — a self-check on each credit."
       },
       {
         "label": "D",
-        "text_en": "Run a nightly audit job that flags over-cap credits for manual clawback the next day."
+        "text_en": "Run a nightly audit job that flags over-cap credits, so the finance team can claw back the excess the following morning."
       }
     ],
     "answer": [
@@ -88,7 +88,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q103",
@@ -106,15 +106,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "In the system prompt, with a reference table explaining each tool's timestamp format."
+        "text_en": "In the system prompt, with a reference table that gives each tool's timestamp format and how to convert between the two."
       },
       {
         "label": "B",
-        "text_en": "By retrying the request whenever the model's date comparison looks wrong."
+        "text_en": "By retrying the request whenever the model's date comparison looks wrong, so a second attempt can produce the right answer."
       },
       {
         "label": "C",
-        "text_en": "By asking the subscriber to confirm every date the agent mentions."
+        "text_en": "By asking the subscriber to confirm every date the agent mentions before any credit or refund decision is taken."
       },
       {
         "label": "D",
@@ -131,7 +131,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q104",
@@ -153,15 +153,15 @@
       },
       {
         "label": "B",
-        "text_en": "The full raw conversation transcript so the reviewer can re-read everything themselves."
+        "text_en": "The full raw conversation transcript, so the reviewer can re-read the whole exchange and judge the dispute without a summary in between."
       },
       {
         "label": "C",
-        "text_en": "Only the subscriber ID, so the reviewer starts fresh without being biased by the agent's analysis."
+        "text_en": "Only the subscriber ID: the reviewer then starts fresh on the dispute and is not biased by the agent's own analysis."
       },
       {
         "label": "D",
-        "text_en": "The model's internal chain-of-thought reasoning behind its refund decision."
+        "text_en": "The model's internal chain-of-thought reasoning behind its refund decision, so the reviewer can follow how it reached that conclusion."
       }
     ],
     "answer": [
@@ -174,6 +174,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

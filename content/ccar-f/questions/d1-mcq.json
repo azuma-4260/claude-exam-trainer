@@ -16,15 +16,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Treat it like \"end_turn\" and return the partial itinerary to the traveler."
+        "text_en": "Treat it like \"end_turn\" and return the partial itinerary, since the traveler can ask a follow-up question about any missing leg."
       },
       {
         "label": "B",
-        "text_en": "Parse the partial text for a tool call and execute whatever it finds."
+        "text_en": "Parse the partial text for a tool call and execute whatever it finds: the cut usually falls after the arguments are written out."
       },
       {
         "label": "C",
-        "text_en": "Add an iteration cap so the loop cannot run away."
+        "text_en": "Add an iteration cap to the booking loop (for example ten passes) so a run that keeps producing partial output is stopped early."
       },
       {
         "label": "D",
@@ -42,7 +42,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q502",
@@ -61,11 +61,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "tool_result blocks must be sent in the assistant role, not the user role."
+        "text_en": "tool_result blocks belong in the assistant role, not the user role, so each result has to be echoed back as part of an assistant turn."
       },
       {
         "label": "B",
-        "text_en": "Only one tool_use block per response is allowed, so the second and third calls were invalid."
+        "text_en": "Only one tool_use block per response is allowed, so the second and third shipment lookups were invalid calls from the start."
       },
       {
         "label": "C",
@@ -73,7 +73,7 @@
       },
       {
         "label": "D",
-        "text_en": "Results must be returned in the reverse order of the tool_use blocks."
+        "text_en": "Results must be returned in the reverse order of the tool_use blocks, so the second message arrived out of the expected sequence."
       }
     ],
     "answer": [
@@ -87,7 +87,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q503",
@@ -110,15 +110,15 @@
       },
       {
         "label": "B",
-        "text_en": "Add a new branch to the sequence for each request type as it appears."
+        "text_en": "Add a new branch to the fixed sequence for each request type as it appears, so coverage of manager requests grows over time."
       },
       {
         "label": "C",
-        "text_en": "Run every tool on every request and let the model filter the outputs afterwards."
+        "text_en": "Run every tool on every request and let the model filter the outputs afterwards, which keeps one code path for all request types."
       },
       {
         "label": "D",
-        "text_en": "Replace the individual tools with a single do_everything tool that takes free text."
+        "text_en": "Replace the individual tools with a single do_everything tool that takes free text, so the sequence no longer limits what can be asked."
       }
     ],
     "answer": [
@@ -132,7 +132,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q504",
@@ -151,15 +151,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Raise the cap from five to twenty iterations."
+        "text_en": "Raise the cap from five to twenty iterations, comfortably above the eight to ten tool calls that complex incidents were seen to need."
       },
       {
         "label": "B",
-        "text_en": "Stop as soon as an assistant message contains any text."
+        "text_en": "Stop as soon as an assistant message contains any text, treating the first written explanation as the finished triage result."
       },
       {
         "label": "C",
-        "text_en": "Ask the model to reply with the word DONE and terminate on that string."
+        "text_en": "Ask the model to reply with the word DONE once triage is finished, and terminate the loop as soon as that string appears."
       },
       {
         "label": "D",
@@ -177,7 +177,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q505",
@@ -196,19 +196,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Subagents can only call search tools, so the retry would fail anyway."
+        "text_en": "Subagents can only call search tools, so the news subagent's retry would fail on permissions before the litigation query is sent."
       },
       {
         "label": "B",
-        "text_en": "Rate-limit errors cannot be retried; the run must be restarted."
+        "text_en": "Rate-limit errors cannot be retried; the whole run has to be restarted from the coordinator so that the provider's quota window is given time to reset first."
       },
       {
         "label": "C",
-        "text_en": "The coordinator should be removed entirely so subagents talk to each other with less latency."
+        "text_en": "The coordinator should be removed entirely so the subagents talk to each other directly, which cuts a hop of latency from every retry."
       },
       {
         "label": "D",
-        "text_en": "Subagents have isolated context, so the news subagent does not have the litigation subagent's state; retry and re-delegation decisions belong in the coordinator."
+        "text_en": "Subagents have isolated context, so the news subagent does not hold the litigation subagent's state; retry and re-delegation belong to the coordinator."
       }
     ],
     "answer": [
@@ -222,7 +222,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q506",
@@ -245,15 +245,15 @@
       },
       {
         "label": "B",
-        "text_en": "Cache the outputs of all six subagents for a week and reuse them."
+        "text_en": "Cache the outputs of all six subagents for a week and reuse them, so a repeated question about a competitor costs almost nothing."
       },
       {
         "label": "C",
-        "text_en": "Merge the six subagents into one large subagent to cut overhead."
+        "text_en": "Merge the six subagents into one large subagent, cutting the overhead of spawning and coordinating six separate contexts."
       },
       {
         "label": "D",
-        "text_en": "Keep all six but run them in parallel so that latency, if not cost, improves."
+        "text_en": "Keep all six but run them in parallel, so that latency improves for short questions even though the cost per query does not."
       }
     ],
     "answer": [
@@ -266,7 +266,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q507",
@@ -285,11 +285,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Deliver the report now with a note that regional data was unavailable."
+        "text_en": "Deliver the report now with a note that data for the two regions was unavailable, leaving the gap visible to the reader."
       },
       {
         "label": "B",
-        "text_en": "Re-run the entire research pipeline from the beginning."
+        "text_en": "Re-run the entire research pipeline from the beginning, so the two regions are covered by exactly the same method as the rest."
       },
       {
         "label": "C",
@@ -297,7 +297,7 @@
       },
       {
         "label": "D",
-        "text_en": "Ask the synthesis subagent to estimate the regional figures from the global totals."
+        "text_en": "Ask the synthesis subagent to estimate the two regions' figures from the global totals, which closes the gap without new research."
       }
     ],
     "answer": [
@@ -310,7 +310,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q508",
@@ -329,7 +329,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Rewrite the skills-matcher description to say it must never send invites."
+        "text_en": "Rewrite the skills-matcher description so it states that the subagent must not send invites, leaving no room for interpretation."
       },
       {
         "label": "B",
@@ -337,11 +337,11 @@
       },
       {
         "label": "C",
-        "text_en": "Delete the scheduler subagent so no invites can be sent."
+        "text_en": "Delete the scheduler subagent, which removes the calendar capability from the screener so no invite can be sent from anywhere."
       },
       {
         "label": "D",
-        "text_en": "Lower the model temperature for the skills-matcher."
+        "text_en": "Lower the model temperature for the skills-matcher, making its tool selection more deterministic and keeping it on the database."
       }
     ],
     "answer": [
@@ -354,7 +354,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q509",
@@ -377,15 +377,15 @@
       },
       {
         "label": "B",
-        "text_en": "Subagents must be defined inside CLAUDE.md rather than in .claude/agents/."
+        "text_en": "Subagents must be defined inside CLAUDE.md, the file that is always loaded, rather than in .claude/agents/ where it sits today."
       },
       {
         "label": "C",
-        "text_en": "Automatic delegation only happens while plan mode is active."
+        "text_en": "Automatic delegation only happens while plan mode is active, so outside plan mode a subagent has to be named by hand."
       },
       {
         "label": "D",
-        "text_en": "The subagent needs an explicit tools list before it can be selected."
+        "text_en": "The subagent needs an explicit tools list, because a definition without one is not treated as a candidate for delegation."
       }
     ],
     "answer": [
@@ -398,7 +398,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q510",
@@ -417,15 +417,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Enable a shared-memory option so subagents can read each other's history."
+        "text_en": "Enable a shared-memory option so the subagents can read each other's history, which makes the coordinator's note unnecessary."
       },
       {
         "label": "B",
-        "text_en": "Have the analysis subagent re-run the filings search itself."
+        "text_en": "Have the analysis subagent re-run the filings search itself, so it holds the sources first-hand rather than in a one-line note."
       },
       {
         "label": "C",
-        "text_en": "Increase the analysis subagent's max_turns so it has time to locate the results."
+        "text_en": "Increase the analysis subagent's max_turns — currently quite low — so it has enough turns to locate the filings results."
       },
       {
         "label": "D",
@@ -443,7 +443,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q511",
@@ -462,19 +462,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add a fixed list of URLs the subagent must open in order."
+        "text_en": "Add a fixed list of URLs the subagent must open in the given order, so its research covers the sources the team already trusts."
       },
       {
         "label": "B",
-        "text_en": "State the objective, the boundaries of what this subagent owns, the expected output format, and quality criteria such as citing a primary source for every figure."
+        "text_en": "State the objective, the boundaries of what this subagent owns, the expected output format, and quality criteria such as a primary source for every figure."
       },
       {
         "label": "C",
-        "text_en": "Split the request across five subagents with the same prompt."
+        "text_en": "Split the request across five subagents that all receive the same prompt, so topic X is covered by five times as much searching."
       },
       {
         "label": "D",
-        "text_en": "Ask the subagent to keep searching until it has fifty results."
+        "text_en": "Ask the subagent to keep searching until it has gathered fifty results, giving the synthesis step plenty of material to work from."
       }
     ],
     "answer": [
@@ -487,7 +487,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q512",
@@ -514,11 +514,11 @@
       },
       {
         "label": "C",
-        "text_en": "In the system prompt, with strong wording about the required order."
+        "text_en": "In the system prompt, with strong wording that verify_manager_approval has to succeed before apply_adjustment may be called."
       },
       {
         "label": "D",
-        "text_en": "In a few-shot example that demonstrates the correct order of calls."
+        "text_en": "In a few-shot example that demonstrates the correct order of the two calls for a typical payroll-adjustment request."
       }
     ],
     "answer": [
@@ -533,7 +533,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q513",
@@ -552,19 +552,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The customer's sentiment score and priority level."
+        "text_en": "The customer's sentiment score and the ticket's priority level, so the on-call engineer can see how urgent this outage is."
       },
       {
         "label": "B",
-        "text_en": "The actions the agent already attempted and their outcomes."
+        "text_en": "The actions the agent already attempted and what each of them returned, so the engineer resumes where the agent stopped."
       },
       {
         "label": "C",
-        "text_en": "The complete raw transcript of the conversation."
+        "text_en": "The complete raw transcript of the conversation, so that nothing the user reported is lost on the way to the engineer."
       },
       {
         "label": "D",
-        "text_en": "A link to the agent's system prompt."
+        "text_en": "A link to the agent's system prompt, so the engineer can see what the agent was instructed to do on VPN tickets."
       }
     ],
     "answer": [
@@ -577,7 +577,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q514",
@@ -596,15 +596,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "In the system prompt, by listing which tool uses which unit."
+        "text_en": "In the system prompt, with a table listing which server reports km/h as a number and which reports mph as a string."
       },
       {
         "label": "B",
-        "text_en": "By asking the model to convert the units in its reasoning on every comparison."
+        "text_en": "By asking the model to convert the units in its reasoning each time it compares two telemetry readings."
       },
       {
         "label": "C",
-        "text_en": "In a PreToolUse hook that blocks the mph tool."
+        "text_en": "In a PreToolUse hook that blocks calls to the mph tool, so only one unit ever reaches the comparison."
       },
       {
         "label": "D",
@@ -622,7 +622,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q515",
@@ -645,15 +645,15 @@
       },
       {
         "label": "B",
-        "text_en": "A longer delay before the model is allowed to retry."
+        "text_en": "A longer delay before the model is allowed to retry approve_po, so the loop stops burning attempts on a blocked call."
       },
       {
         "label": "C",
-        "text_en": "A silent failure so the model does not notice that the call was blocked."
+        "text_en": "A silent failure that hides the block from the model, so the purchasing conversation is not interrupted by an error."
       },
       {
         "label": "D",
-        "text_en": "A message asking the user to lower the amount below the limit."
+        "text_en": "A message asking the user to split or lower the amount so the purchase order falls under the $5,000 approval limit."
       }
     ],
     "answer": [
@@ -666,7 +666,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q516",
@@ -685,11 +685,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Prompt chaining for both workloads."
+        "text_en": "Prompt chaining for both workloads, since the reconciliation stages and the debugging steps can each be written as a fixed sequence."
       },
       {
         "label": "B",
-        "text_en": "Dynamic decomposition for both workloads."
+        "text_en": "Dynamic decomposition for both workloads, letting the model choose every next step from whatever the previous step returned."
       },
       {
         "label": "C",
@@ -697,7 +697,7 @@
       },
       {
         "label": "D",
-        "text_en": "Dynamic decomposition for the reconciliation job; prompt chaining for the investigation."
+        "text_en": "Dynamic decomposition for the reconciliation job; prompt chaining for the investigation, whose steps follow the usual debugging order."
       }
     ],
     "answer": [
@@ -710,7 +710,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q517",
@@ -733,15 +733,15 @@
       },
       {
         "label": "B",
-        "text_en": "Review only the ten largest files in the pull request."
+        "text_en": "Review only the ten largest files in the pull request, on the assumption that the biggest files carry most of the changed logic and most of the risk."
       },
       {
         "label": "C",
-        "text_en": "Review a random sample of files in a single pass."
+        "text_en": "Review a random sample of the files in a single pass, which keeps the whole review inside one context window and one prompt."
       },
       {
         "label": "D",
-        "text_en": "Summarize every file first and review only the summaries."
+        "text_en": "Summarize every file first and review those summaries together, so all 300 files fit into a single review prompt."
       }
     ],
     "answer": [
@@ -754,7 +754,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q518",
@@ -773,7 +773,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "An instruction to forget the previous analysis and start over."
+        "text_en": "An instruction to set the previous analysis aside and start the repository review over from the first file."
       },
       {
         "label": "B",
@@ -781,11 +781,11 @@
       },
       {
         "label": "C",
-        "text_en": "A copy of the previous session's full transcript."
+        "text_en": "A copy of the previous session's full transcript, so the earlier findings are certain to be in context again."
       },
       {
         "label": "D",
-        "text_en": "A request to fork the session before doing anything."
+        "text_en": "A request to fork the session before anything else, so that today's run does not overwrite yesterday's analysis."
       }
     ],
     "answer": [
@@ -798,7 +798,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q519",
@@ -817,11 +817,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Continue in the same session and ask the model to keep the two approaches separate."
+        "text_en": "Continue in the same session and ask the model to keep the two refactoring approaches clearly separate."
       },
       {
         "label": "B",
-        "text_en": "Start two brand-new sessions with no prior context."
+        "text_en": "Start two brand-new sessions with no prior context, so neither exploration can be influenced by the other."
       },
       {
         "label": "C",
@@ -829,7 +829,7 @@
       },
       {
         "label": "D",
-        "text_en": "Run /compact between the two explorations."
+        "text_en": "Run /compact between the two explorations, so the second one starts from a condensed baseline."
       }
     ],
     "answer": [
@@ -842,6 +842,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

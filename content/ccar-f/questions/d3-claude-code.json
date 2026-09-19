@@ -15,19 +15,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "User-level memory is not shared through version control; team conventions belong in a project-level CLAUDE.md committed to the repository."
+        "text_en": "User-level memory is never shared through version control; team conventions belong in a project CLAUDE.md committed to the repository."
       },
       {
         "label": "B",
-        "text_en": "The file exceeds the size limit for memory files, so it is silently skipped."
+        "text_en": "The file has grown past the size limit for memory files, so Claude Code silently skips it and none of the conventions are applied at all."
       },
       {
         "label": "C",
-        "text_en": "~/.claude/CLAUDE.md is only loaded when Claude Code runs in plan mode."
+        "text_en": "User memory such as ~/.claude/CLAUDE.md is loaded only in plan mode; outside it the conventions have no effect on either machine."
       },
       {
         "label": "D",
-        "text_en": "The new teammate must run /memory once on their machine to activate memory files."
+        "text_en": "Memory files stay inactive until /memory has been run once on a machine, so the new teammate must enable them before conventions apply."
       }
     ],
     "answer": [
@@ -40,7 +40,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 3
+    "rev": 4
   },
   {
     "id": "f-d3-q102",
@@ -58,19 +58,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Custom commands are disabled by default; each teammate must enable them in /config."
+        "text_en": "Custom commands are disabled by default, so each teammate has to turn them on in /config before repository commands become visible."
       },
       {
         "label": "B",
-        "text_en": "The command must be registered by name in the project CLAUDE.md before Claude Code will load it."
+        "text_en": "The command must be listed by name in the project CLAUDE.md, which acts as the registry that Claude Code reads when loading commands."
       },
       {
         "label": "C",
-        "text_en": "/release-notes collides with a built-in command name, so the custom version is shadowed; rename it."
+        "text_en": "/release-notes collides with a built-in command name, so the custom definition is shadowed for everyone else; renaming it restores it."
       },
       {
         "label": "D",
-        "text_en": "The command file lives in ~/.claude/commands/ on the engineer's machine, outside the repository; move it into the repository's .claude/commands/ directory so it ships with clone and pull."
+        "text_en": "The command file sits in ~/.claude/commands/, outside the repository; move it to the repo's .claude/commands/ so it ships with pull."
       }
     ],
     "answer": [
@@ -83,7 +83,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q103",
@@ -103,19 +103,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Duplicate the root CLAUDE.md into every subdirectory under infra/."
+        "text_en": "Duplicate the root CLAUDE.md into every subdirectory under infra/, so each Terraform area carries the conventions beside its files."
       },
       {
         "label": "B",
-        "text_en": "Keep them in the root CLAUDE.md but wrap them in a note asking Claude to ignore them unless relevant."
+        "text_en": "Keep them in the root CLAUDE.md, wrapped in a note asking Claude to ignore the section unless the task touches infra/."
       },
       {
         "label": "C",
-        "text_en": "Move them into a rule file under .claude/rules/ with paths: [\"infra/**/*\"] in its frontmatter, so they load only when matching files are edited."
+        "text_en": "Move them into .claude/rules/ with paths: [\"infra/**/*\"] in the frontmatter, so they load only when matching files are edited."
       },
       {
         "label": "D",
-        "text_en": "Move them to ~/.claude/CLAUDE.md to keep the project file small."
+        "text_en": "Move them to ~/.claude/CLAUDE.md — machine-level memory — so that the committed project file stays small for the whole team."
       }
     ],
     "answer": [
@@ -128,7 +128,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q104",
@@ -146,19 +146,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Tighten the prompt: \"Always use exactly the same wording and section order in your answer.\""
+        "text_en": "Tighten the prompt with an instruction such as \"use exactly the same wording and section order\", so the regexes keep matching."
       },
       {
         "label": "B",
-        "text_en": "Request structured output with --output-format json, adding --json-schema so the findings always arrive in a fixed, validated structure."
+        "text_en": "Request structured output with --output-format json plus --json-schema, so findings arrive in a fixed, validated structure."
       },
       {
         "label": "C",
-        "text_en": "Switch to the --emit machine flag to enable the CLI's machine-readable mode."
+        "text_en": "Switch on the CLI's machine-readable mode with the --emit machine flag, which prints each finding as a record for the dashboard."
       },
       {
         "label": "D",
-        "text_en": "Add a second claude -p call that converts the first answer into JSON."
+        "text_en": "Add a second claude -p call that converts the first answer into JSON, giving the script a payload it can parse in place of prose."
       }
     ],
     "answer": [
@@ -172,6 +172,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]
