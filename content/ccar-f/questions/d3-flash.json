@@ -544,7 +544,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Describe the test-driven iteration loop for refining generated code.",
+    "stem_en": "You ask Claude Code to implement a date-parsing utility and it produces code that handles the happy path but mishandles time zones and empty input. Each time you describe the problem in prose, the next version fixes one case and breaks another. Describe the test-driven iteration loop for refining generated code in a situation like this.",
     "choices": null,
     "answer": null,
     "answer_en": "Write tests covering expected behavior and edge cases,\nthen share the failing checks and iterate until they pass.",
@@ -554,7 +554,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q024",
