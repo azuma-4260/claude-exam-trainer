@@ -899,7 +899,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What characterizes an adaptive plan for exploring a complex workflow?",
+    "stem_en": "An agent is asked to map how orders flow through a large, unfamiliar legacy codebase with dozens of services. It writes a rigid plan up front (read every service in alphabetical order), then keeps following it even after discovering that three services carry almost all of the order logic. What characterizes an adaptive plan for exploring a complex workflow like this?",
     "choices": null,
     "answer": null,
     "answer_en": "Start with structure discovery, target high-impact areas,\nand update priorities as dependencies are found.",
@@ -910,7 +910,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q038",
