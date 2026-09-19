@@ -16,19 +16,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Move everything into each engineer's ~/.claude/CLAUDE.md so each person keeps only what they need."
+        "text_en": "Move every convention into each engineer's ~/.claude/CLAUDE.md, so that people load only the rules for the packages they actually work in."
       },
       {
         "label": "B",
-        "text_en": "Split the root file into one CLAUDE.md per Git branch so conventions follow the code being changed."
+        "text_en": "Split the root file into one CLAUDE.md per Git branch, so that the conventions in context always match the code being changed there."
       },
       {
         "label": "C",
-        "text_en": "Keep repo-wide standards in the root CLAUDE.md and move package-specific conventions into per-package CLAUDE.md files inside payments/, risk/, and web/."
+        "text_en": "Keep repo-wide standards in the root CLAUDE.md and move package-specific conventions into a CLAUDE.md inside payments/, risk/, and web/."
       },
       {
         "label": "D",
-        "text_en": "Delete the root file and rely on code review to teach conventions."
+        "text_en": "Delete the root CLAUDE.md and let code review carry the conventions, so that reviewers decide which standards apply to each change."
       }
     ],
     "answer": [
@@ -41,7 +41,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q202",
@@ -60,19 +60,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Convert the file to a single table so every rule fits on one line."
+        "text_en": "Convert the whole file into a single table with one rule per row (area, rule, exception), so that every rule sits at a scannable position instead of inside prose."
       },
       {
         "label": "B",
-        "text_en": "Break the content into topic files (security, API style, testing) under .claude/rules/, attach a paths glob to the ones tied to a specific area (e.g. security checklist) so they load only when matching files are touched, and keep only the short, always-needed standards in the root file."
+        "text_en": "Split it into topic files under .claude/rules/, give the area-specific ones such as the security checklist a paths glob so they load only when matching files are touched, and leave only short always-needed standards in the root."
       },
       {
         "label": "C",
-        "text_en": "Duplicate the most important rules at both the top and bottom of the file so position effects cannot hide them."
+        "text_en": "Duplicate the most important rules at both the top and the bottom of the root file (security, API style, testing), so that primacy and recency keep them visible wherever attention falls in the file."
       },
       {
         "label": "D",
-        "text_en": "Ask Claude to summarize the file at the start of each session and work from the summary."
+        "text_en": "Ask Claude to read and summarize the root file at the start of each session and then work from that summary, so that the whole rule set is compressed into a form small enough to stay in view throughout the session."
       }
     ],
     "answer": [
@@ -86,7 +86,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q203",
@@ -105,19 +105,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Run /context and check the Memory files section to see exactly which memory files are loaded in the current session."
+        "text_en": "Run /context and read its Memory files section, which lists exactly the memory files loaded in the current session."
       },
       {
         "label": "B",
-        "text_en": "Reinstall Claude Code to reset any corrupted internal state."
+        "text_en": "Reinstall Claude Code to clear any corrupted internal state, since the behavior changed without any edit to the repository."
       },
       {
         "label": "C",
-        "text_en": "Rewrite the conventions in stronger language and see whether behavior improves."
+        "text_en": "Rewrite the testing conventions in stronger, more imperative language, then check whether the next session follows them."
       },
       {
         "label": "D",
-        "text_en": "Delete all CLAUDE.md files and re-create them from scratch."
+        "text_en": "Delete every CLAUDE.md in the repository and re-create them from scratch, so the memory files start from a known-good state."
       }
     ],
     "answer": [
@@ -130,7 +130,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 2
+    "rev": 3
   },
   {
     "id": "f-d3-q204",
@@ -149,19 +149,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "In .claude/commands/ on a long-lived personal branch of the monorepo."
+        "text_en": "In .claude/commands/ on a long-lived personal branch, so the command ships with the repo but never lands on main."
       },
       {
         "label": "B",
-        "text_en": "In .claude/commands/ on main, with a comment telling teammates to ignore it."
+        "text_en": "In .claude/commands/ on main, marked experimental in a comment so teammates know not to rely on it yet."
       },
       {
         "label": "C",
-        "text_en": "In the root CLAUDE.md as an always-loaded instruction block."
+        "text_en": "In the root CLAUDE.md as an always-loaded instruction block describing the boilerplate it should generate."
       },
       {
         "label": "D",
-        "text_en": "In ~/.claude/commands/, the user-scope location that is personal and available across all their projects."
+        "text_en": "In ~/.claude/commands/, the user-scope location that stays personal and works across all of their repos."
       }
     ],
     "answer": [
@@ -174,7 +174,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q205",
@@ -193,7 +193,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "argument-hint, to document the arguments the skill expects"
+        "text_en": "argument-hint, to document the arguments the skill expects so callers pass them in one line"
       },
       {
         "label": "B",
@@ -201,15 +201,15 @@
       },
       {
         "label": "C",
-        "text_en": "disallowed-tools, to remove Bash and Write from the available tool pool"
+        "text_en": "disallowed-tools, to take Bash and Write out of the tool pool so the skill stops raising permission prompts"
       },
       {
         "label": "D",
-        "text_en": "allowed-tools, to pre-approve the Bash and Write calls for the skill's turn"
+        "text_en": "allowed-tools, to pre-approve for the skill's turn the Bash and Write calls that it always needs"
       },
       {
         "label": "E",
-        "text_en": "model, to route the skill to a smaller model that produces shorter output"
+        "text_en": "model, to route the skill to a smaller model — shorter scaffolding output, lower cost per run"
       }
     ],
     "answer": [
@@ -223,7 +223,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q206",
@@ -287,19 +287,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Rules files are scoped by filename; renaming the file to card-vault.md would restrict it to that directory."
+        "text_en": "Rules files are scoped by filename, so renaming this one to card-vault.md would tie it to that directory and stop the other sessions from loading it."
       },
       {
         "label": "B",
-        "text_en": "Rules files load only when @imported from CLAUDE.md, so the rules engineers keep seeing must be a leftover copy still present in the root file."
+        "text_en": "Rules files load only when @imported from CLAUDE.md, so the rules that engineers keep seeing must come from a leftover copy of them still present in the root CLAUDE.md file."
       },
       {
         "label": "C",
-        "text_en": "A rules file without a paths frontmatter loads unconditionally in every session; adding paths: [\"payments/card-vault/**\"] makes it load only when matching files are involved."
+        "text_en": "A rules file with no paths frontmatter loads unconditionally in every session; adding paths: [\"payments/card-vault/**\"] scopes it to sessions that touch those files."
       },
       {
         "label": "D",
-        "text_en": ".claude/rules/ is user scope, so the rules follow the engineer rather than the repository; moving the file back to a project-scope location fixes it."
+        "text_en": "The .claude/rules/ directory is user scope, so its rules follow the engineer rather than the repository; moving the file back to a project-scope location fixes it."
       }
     ],
     "answer": [
@@ -313,7 +313,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q208",
@@ -332,19 +332,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "A path-scoped rule with a glob pattern like **/*.stories.tsx, matching the file type across all directories."
+        "text_en": "A path-scoped rule with a glob such as **/*.stories.tsx, matching that file type across every directory."
       },
       {
         "label": "B",
-        "text_en": "A CLAUDE.md in every directory that contains at least one stories file, kept in sync by hand."
+        "text_en": "A CLAUDE.md in every directory that holds stories files, kept in sync by hand as the conventions change."
       },
       {
         "label": "C",
-        "text_en": "The root CLAUDE.md, since the files appear in all packages anyway."
+        "text_en": "The root CLAUDE.md, since the stories files are spread across all three packages of the monorepo anyway."
       },
       {
         "label": "D",
-        "text_en": "A user-scope rule in each frontend engineer's home directory."
+        "text_en": "A user-scope rule in each frontend engineer's home directory, applying the same stories conventions everywhere."
       }
     ],
     "answer": [
@@ -358,7 +358,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q209",
@@ -377,19 +377,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Fix a typo in a user-facing error message in web/checkout.ts."
+        "text_en": "Fix a typo in a user-facing error message in web/checkout.ts, a one-line change whose replacement text is already agreed."
       },
       {
         "label": "B",
-        "text_en": "Add a unit test for an existing pure currency-rounding function."
+        "text_en": "Add a unit test for an existing pure currency-rounding function, whose inputs and expected outputs the ticket already lists in full."
       },
       {
         "label": "C",
-        "text_en": "Migrate the payments package from callback-style database access to async/await — roughly 40 files, with at least two viable migration strategies."
+        "text_en": "Migrate the payments package from callback-style database access to async/await — 40 files, with at least two viable strategies."
       },
       {
         "label": "D",
-        "text_en": "Rename a local variable flagged by the linter in a single file."
+        "text_en": "Rename a local variable flagged by the linter in a single file — the linter output already names the line and the new name."
       }
     ],
     "answer": [
@@ -403,7 +403,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q210",
@@ -422,19 +422,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Read every relevant file in the main session — full visibility beats a clean context."
+        "text_en": "Read every relevant file in the main session, since full visibility during the migration beats a clean context window."
       },
       {
         "label": "B",
-        "text_en": "Run /compact after every few file reads to keep squeezing the survey output down."
+        "text_en": "Run /compact after every few file reads, so the survey's findings are continuously squeezed down to their essentials."
       },
       {
         "label": "C",
-        "text_en": "Skip the survey and let the migration discover the flow as it goes."
+        "text_en": "Skip the survey and let the migration discover the ledger-entry flow file by file as it rewrites each call site."
       },
       {
         "label": "D",
-        "text_en": "Delegate the survey to the Explore subagent, which isolates the verbose discovery output and returns only a summary to the main session."
+        "text_en": "Delegate the survey to the Explore subagent, which isolates the verbose discovery output and returns only a summary."
       }
     ],
     "answer": [
@@ -448,7 +448,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q211",
@@ -467,19 +467,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Provide two or three concrete input/output examples, explicitly including the edge cases: formatCents(-125000) → \"($1,250.00)\", formatCents(0) → \"$0.00\"."
+        "text_en": "Give two or three concrete input/output examples covering the edge cases: formatCents(-125000) -> \"($1,250.00)\", formatCents(0) -> \"$0.00\"."
       },
       {
         "label": "B",
-        "text_en": "Write a longer prose description with more adjectives about correctness."
+        "text_en": "Write a longer prose description of the format, spelling out in words how negatives, zero, and separators should appear."
       },
       {
         "label": "C",
-        "text_en": "Ask Claude to guess several formats and pick the one that looks best."
+        "text_en": "Ask Claude to generate several candidate formats (with negatives and zero shown) and pick whichever output looks right."
       },
       {
         "label": "D",
-        "text_en": "Link the finance team's 40-page reporting standards document and ask Claude to infer the format."
+        "text_en": "Link the finance team's 40-page reporting standards document — the authoritative source for the format — and ask Claude to infer the rules from it."
       }
     ],
     "answer": [
@@ -492,7 +492,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q212",
@@ -511,19 +511,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Re-review only on the first push, skipping all subsequent commits to the PR."
+        "text_en": "Re-review only the first push of a pull request and skip later commits, treating follow-up pushes as fixes that need no second pass."
       },
       {
         "label": "B",
-        "text_en": "Pass the previous review's findings into the re-review prompt and instruct the reviewer to report only new issues and previously reported ones that remain unaddressed."
+        "text_en": "Pass the previous review's findings into the re-review prompt and have the reviewer report only new issues and earlier ones still unaddressed."
       },
       {
         "label": "C",
-        "text_en": "Delete all of the job's earlier comments before each run so duplicates never accumulate."
+        "text_en": "Delete the job's earlier comments before each run, so the pull request only ever shows the findings from the most recent push."
       },
       {
         "label": "D",
-        "text_en": "Lower the reviewer's severity threshold so it produces fewer findings overall."
+        "text_en": "Lower the reviewer's severity threshold so that each run posts fewer findings and the duplicates that remain stay manageable."
       }
     ],
     "answer": [
@@ -537,7 +537,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q204",
@@ -556,19 +556,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Keep the server in each engineer's ~/.claude.json so tokens never enter the repository at all."
+        "text_en": "Keep the server in each engineer's ~/.claude.json and share the snippet in the team wiki, so tokens never enter the repository at all."
       },
       {
         "label": "B",
-        "text_en": "Commit .mcp.json with a shared service-account token, rotated monthly."
+        "text_en": "Commit .mcp.json with a shared service-account token, rotated monthly so that any value that leaks stops working before long."
       },
       {
         "label": "C",
-        "text_en": "Commit the token encrypted in .mcp.json and share the decryption key in the team chat."
+        "text_en": "Commit the token encrypted in .mcp.json and share the decryption key in the team chat, so that the repository itself never holds a readable secret."
       },
       {
         "label": "D",
-        "text_en": "Commit a project-scope .mcp.json that references the token as ${JIRA_TOKEN}, with each engineer supplying their own value through their environment."
+        "text_en": "Commit a project-scope .mcp.json that refers to the token as ${JIRA_TOKEN}, with each engineer supplying the value from their own environment."
       }
     ],
     "answer": [
@@ -581,7 +581,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q205",
@@ -600,19 +600,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Each server's tools load only after the server is mentioned by name in the conversation."
+        "text_en": "Each server's tools load only once that server is named in the conversation, so idle servers cost nothing and the six of them never compete for the same context."
       },
       {
         "label": "B",
-        "text_en": "Definitions load upfront while they total less than about a tenth of the context window, and start being deferred beyond that — this threshold behavior is the default."
+        "text_en": "Definitions load upfront while they total less than about a tenth of the context window and start being deferred past that point — this threshold behavior, not on-demand loading, is what Claude Code does by default."
       },
       {
         "label": "C",
-        "text_en": "By default the definitions are deferred: tool search discovers and loads them on demand, so adding servers does not load every definition upfront. An opt-in threshold mode instead preloads them while they stay small."
+        "text_en": "By default the definitions are deferred: tool search finds and loads them on demand, so adding servers does not preload every definition. A mode that preloads them while they stay small is opt-in."
       },
       {
         "label": "D",
-        "text_en": "All definitions always load in full at session start; the only mitigation is disconnecting servers."
+        "text_en": "All definitions always load in full at session start, so the only mitigation is disconnecting whichever servers are not needed for the day's work."
       }
     ],
     "answer": [
@@ -625,7 +625,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q206",
@@ -644,19 +644,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Start from the symptom: Grep for the report name and related identifiers to find entry points, Read those files, and follow their imports outward only as far as the bug requires."
+        "text_en": "Start from the symptom: Grep for the report name and related identifiers, Read the files that match, and follow their imports only as far as the bug requires."
       },
       {
         "label": "B",
-        "text_en": "Read every file once but in alphabetical order, so the context at least fills up predictably."
+        "text_en": "Read every file once but in alphabetical order, so that the context fills up predictably and no part of the monorepo is skipped by accident."
       },
       {
         "label": "C",
-        "text_en": "Paste the repository's directory listing into the prompt as a substitute for reading files."
+        "text_en": "Paste the repository's directory listing into the prompt, using the file and folder names as a map of the settlement code instead of reading it."
       },
       {
         "label": "D",
-        "text_en": "Ask Claude to summarize each of the 900 files into one line before starting."
+        "text_en": "Ask Claude to summarize each of the 900 files into one line first — a compact index of the whole repository to debug against."
       }
     ],
     "answer": [
@@ -670,6 +670,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]
