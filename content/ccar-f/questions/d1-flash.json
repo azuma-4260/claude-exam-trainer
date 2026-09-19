@@ -554,7 +554,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why should coordinator prompts to subagents state goals and quality criteria rather than step-by-step procedures?",
+    "stem_en": "A coordinator's prompt to a research subagent spells out an exact procedure: open the first three search results, copy the pricing table from each, then compare them. On one run the top results are login-walled and contain no pricing table, so the subagent follows the steps literally and returns an empty comparison. Why should coordinator prompts to subagents state goals and quality criteria rather than step-by-step procedures like this?",
     "choices": null,
     "answer": null,
     "answer_en": "Goal-oriented prompts let subagents adapt their approach to what they find;\nrigid scripts break on unexpected conditions.",
@@ -565,7 +565,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q024",
