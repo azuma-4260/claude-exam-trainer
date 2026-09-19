@@ -350,7 +350,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why should a tool be designed around an agent's workflow rather than as a thin API wrapper?",
+    "stem_en": "A support agent is handed one tool per backend endpoint: get_customer, get_orders, get_order_items, get_shipping_status. To answer \"where is my last order\", it has to chain four calls in the right order every time and often picks the wrong one or stops early. Why should a tool be designed around the agent's workflow rather than as a thin wrapper over each API endpoint?",
     "choices": null,
     "answer": null,
     "answer_en": "Workflow-oriented tools give the agent a clearer, higher-level action\nand reduce unnecessary tool-selection complexity.",
@@ -360,7 +360,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q016",
