@@ -36,7 +36,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "How does structured note-taking preserve important facts across a long agent workflow?",
+    "stem_en": "A support agent works through a long session in which the customer raises several issues over dozens of turns, and details such as the order number, the refund amount, and the promised ship date must stay exact until the end. Relying on the conversation itself, the agent gradually loses or distorts those values. How does structured note-taking preserve important facts like these across a long agent workflow?",
     "choices": null,
     "answer": null,
     "answer_en": "Store concise, task-relevant notes in external memory such as a file;\nagents can retrieve those notes without relying on the active context window.",
@@ -46,7 +46,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q003",
