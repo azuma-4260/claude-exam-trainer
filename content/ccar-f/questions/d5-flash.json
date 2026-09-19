@@ -425,7 +425,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "How do you set a confidence threshold for routing extractions to human review?",
+    "stem_en": "An extraction pipeline asks the model to report a confidence score for each field and wants to route low-confidence extractions to human review. The team is tempted to pick a round number like 0.8 as the cutoff. How should you set the confidence threshold for routing extractions to human review?",
     "choices": null,
     "answer": null,
     "answer_en": "Calibrate field-level confidence against a labeled set,\nthen choose thresholds from the measured error rates.",
@@ -435,7 +435,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q019",
