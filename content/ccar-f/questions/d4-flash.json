@@ -11,7 +11,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why do instructions like \"be conservative\" or \"only report high-confidence issues\" fail to improve review precision?",
+    "stem_en": "An automated code review posts too many low-value findings, so the team adds \"be conservative\" and \"only report high-confidence issues\" to the prompt. The volume of noisy findings barely changes. Why do instructions like these fail to improve review precision?",
     "choices": null,
     "answer": null,
     "answer_en": "They are vague relative to the model's calibration;\nprecision improves when you specify categories to report and to skip.",
@@ -22,7 +22,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q002",
