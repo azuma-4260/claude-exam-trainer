@@ -158,7 +158,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "When should a system prompt use a strong instruction about tool use?",
+    "stem_en": "A support product requires that every customer question be answered from the knowledge base rather than from the model's own memory, but with tool_choice auto Claude sometimes answers directly without calling the search tool. The team wonders whether to add an explicit instruction in the system prompt. When should a system prompt use a strong instruction about tool use like this?",
     "choices": null,
     "answer": null,
     "answer_en": "When the product requires a consistent tool-use behavior;\notherwise leave the model discretion with auto selection.",
@@ -168,7 +168,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q008",
