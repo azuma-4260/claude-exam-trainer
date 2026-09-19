@@ -302,7 +302,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why does giving one agent 18 tools instead of the 4-5 it needs degrade reliability?",
+    "stem_en": "A research system has one coordinator and several specialized subagents, but for convenience every subagent is given all 18 tools in the system (web search, database, file writes, report formatting, and more), although each role only uses 4-5 of them. Tool-selection errors rise, and the synthesis agent starts running web searches instead of writing the report. Why does giving one agent 18 tools instead of the 4-5 it needs degrade reliability?",
     "choices": null,
     "answer": null,
     "answer_en": "More candidates make description matching harder,\nlowering tool-selection accuracy and inviting misuse of out-of-role tools.",
@@ -312,7 +312,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q014",
