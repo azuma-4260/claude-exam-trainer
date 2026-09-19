@@ -17,19 +17,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Strengthen the wording to \"Be EXTREMELY conservative\" and add \"only report issues you are 100% sure about\"."
+        "text_en": "Strengthen the wording to \"Be EXTREMELY conservative\" and add \"only report issues you are 100% sure about\" to the prompt."
       },
       {
         "label": "B",
-        "text_en": "Run the review twice and only post findings that appear in both runs."
+        "text_en": "Run the review twice and post only the findings that appear in both runs, treating agreement between runs as a precision filter."
       },
       {
         "label": "C",
-        "text_en": "Truncate the diff so the model sees less code and therefore reports fewer issues."
+        "text_en": "Truncate the diff (dropping unchanged context) so the model sees less code and therefore reports fewer issues per pull request."
       },
       {
         "label": "D",
-        "text_en": "Enumerate explicit categories to report (bugs, security flaws) and not to report (style, naming preferences), with a concrete code example for each severity level."
+        "text_en": "Enumerate the categories to report (bugs, security flaws) and not to report (style, naming), with a code example per severity."
       }
     ],
     "answer": [
@@ -43,7 +43,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q102",
@@ -63,19 +63,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Include an example finding that demonstrates the exact output fields: location, issue, severity, and suggested fix."
+        "text_en": "Include an example finding that shows the exact output fields: location, issue, severity, and suggested fix."
       },
       {
         "label": "B",
-        "text_en": "Ask the model to generate its own illustrative examples before starting each review."
+        "text_en": "Ask the model to generate its own illustrative examples before each review — fresh ones, matched to the diff at hand."
       },
       {
         "label": "C",
-        "text_en": "Include a paired example showing the accepted logging pattern labeled as acceptable, next to a genuinely problematic variant labeled as an issue."
+        "text_en": "Include a paired example: the accepted logging pattern labeled acceptable, next to a problematic variant labeled an issue."
       },
       {
         "label": "D",
-        "text_en": "Increase max_tokens so the model has more room to explain its formatting choices."
+        "text_en": "Increase max_tokens so the model has more room to explain its formatting choices and to justify the severity it assigns to each finding."
       }
     ],
     "answer": [
@@ -90,7 +90,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q103",
@@ -108,19 +108,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Ask the model to wrap the JSON in triple backticks and strip them in post-processing."
+        "text_en": "Ask the model to wrap the JSON in triple backticks — a marker the post-processing strips, so only the payload reaches the internal API."
       },
       {
         "label": "B",
-        "text_en": "Retry the request in a loop until the output parses as JSON."
+        "text_en": "Retry the request in a loop until the output parses as JSON, discarding any response that comes back unparseable."
       },
       {
         "label": "C",
-        "text_en": "Define a report_findings tool with strict: true whose input schema matches the API payload, force the call with tool_choice, and extract the arguments from the model's tool_use block."
+        "text_en": "Define a report_findings tool with strict: true whose schema matches the API payload, force the call with tool_choice, and read the tool_use block."
       },
       {
         "label": "D",
-        "text_en": "Set temperature to zero so the model stops adding surrounding prose."
+        "text_en": "Set temperature to zero so that sampling stops adding prose around the JSON block on the remaining requests."
       }
     ],
     "answer": [
@@ -135,7 +135,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q104",
@@ -153,19 +153,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Send the diff and the findings to a fresh instance that has no access to the first session's reasoning, and let it judge each finding independently."
+        "text_en": "Send the diff and the findings to a fresh instance with no access to the first session's reasoning, and judge each finding there."
       },
       {
         "label": "B",
-        "text_en": "Enable extended thinking in the self-review step so the model reasons more deeply about its findings."
+        "text_en": "Enable extended thinking in the self-review step, so the model reasons more deeply about each finding before it decides to keep it."
       },
       {
         "label": "C",
-        "text_en": "Append \"Be honest about your own mistakes\" to the re-review prompt."
+        "text_en": "Append \"Be honest about your own mistakes\" to the re-review prompt, so the session is licensed to retract its own findings."
       },
       {
         "label": "D",
-        "text_en": "Have the same session re-review three times and drop any finding it removes at least once."
+        "text_en": "Have the same session re-review three times, and drop any finding that it removes on at least one of those passes."
       }
     ],
     "answer": [
@@ -178,6 +178,6 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

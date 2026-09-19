@@ -16,19 +16,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The system prompt should instruct the model to include its final summary in the same response as the tool calls, so no second request is needed."
+        "text_en": "The system prompt should require the model to put its final summary in the same response as the tool calls, so that one round trip covers both the calls and the answer."
       },
       {
         "label": "B",
-        "text_en": "After appending the tool results, the loop must call the model again and inspect the new stop_reason each time — continuing while it is \"tool_use\", finishing on \"end_turn\", and handling other values such as \"max_tokens\" explicitly; the tool results are input to the model's next step, not the answer."
+        "text_en": "After appending the tool results, the loop must call the model again and branch on the new stop_reason each time — continuing while it is \"tool_use\", finishing on \"end_turn\" — because the tool results are input to the next step, not the answer."
       },
       {
         "label": "C",
-        "text_en": "The loop should set tool_choice to \"none\" after the first round so the model is forced to answer in text instead of requesting more tools."
+        "text_en": "The loop should set tool_choice to \"none\" once the first round of tools has run, so that the model is forced to answer in text rather than request further calls that delay the summary."
       },
       {
         "label": "D",
-        "text_en": "The loop should start a fresh conversation containing only the tool outputs as the new user prompt, since the original history is no longer relevant."
+        "text_en": "The loop should open a fresh conversation whose only user message carries the collected tool outputs — the original request has already been turned into calls, so the earlier history only adds cost, and the summary can be written from the outputs alone."
       }
     ],
     "answer": [
@@ -42,7 +42,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q302",
@@ -61,19 +61,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The Grep output is too large; truncating it to a few hundred lines will make the request valid again."
+        "text_en": "The Grep output is far too large for a single message; truncating it to a few hundred lines brings the request back under the limit and lets validation pass."
       },
       {
         "label": "B",
-        "text_en": "The system prompt lacks an instruction telling the model how to read results that arrive as assistant text."
+        "text_en": "The system prompt lacks an instruction telling the model how to read results that arrive as assistant text, so it treats them as plain narration and the calls made earlier are never acknowledged."
       },
       {
         "label": "C",
-        "text_en": "Tool results must be returned in the user message that immediately follows the assistant's tool_use, as tool_result blocks whose tool_use_id matches each call; a fabricated assistant text message leaves the tool_use unanswered, so the API rejects the history."
+        "text_en": "Tool results must come back in the user message that immediately follows the assistant's tool_use, as tool_result blocks whose tool_use_id matches each call; a fabricated assistant text message leaves the tool_use unanswered."
       },
       {
         "label": "D",
-        "text_en": "The tool_use block should be deleted from the history after execution so there is no pending call for the API to complain about."
+        "text_en": "The tool_use block should be deleted from the history once the command has run, so that no pending call is left in the conversation for the API to validate against."
       }
     ],
     "answer": [
@@ -87,7 +87,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q303",
@@ -108,19 +108,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Move the prohibition to the very top of the system prompt, restate it in capital letters, and add it again at the end of every user message."
+        "text_en": "Move the prohibition to the very top of the system prompt, restate it in capital letters, and repeat it at the end of every user message so it stays close to the next action."
       },
       {
         "label": "B",
-        "text_en": "Remove the Bash tool from Atlas entirely and have engineers run builds and tests by hand."
+        "text_en": "Remove the Bash tool from Atlas and have engineers run builds and tests by hand, since a capability the agent no longer holds cannot be misused during an unattended job."
       },
       {
         "label": "C",
-        "text_en": "Add a PostToolUse hook that logs every Bash command and pages the on-call engineer whenever a forbidden command appears in the log."
+        "text_en": "Add a PostToolUse hook that logs every Bash command and pages the on-call engineer whenever a forbidden command shows up, so the team can react to each violation."
       },
       {
         "label": "D",
-        "text_en": "Add a PreToolUse hook that inspects each Bash command before execution, denies commands matching force-push or production-deploy patterns, and returns an explanation so the agent chooses an alternative."
+        "text_en": "Add a PreToolUse hook that inspects each Bash command before execution, denies the ones matching force-push or production-deploy patterns, and returns an explanation so the agent picks an alternative."
       }
     ],
     "answer": [
@@ -134,7 +134,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q304",
@@ -153,19 +153,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Start a new session and paste yesterday's terminal scrollback as the first message."
+        "text_en": "Start a new session and paste yesterday's terminal scrollback in as the first message, so the findings are back in context before the mapping work continues."
       },
       {
         "label": "B",
-        "text_en": "Restart Claude Code with --resume (or --continue for the most recent session) to reopen the previous session with its full conversation state, then say which files changed overnight so re-analysis stays targeted."
+        "text_en": "Restart Claude Code with --resume (or --continue for the most recent session) to reopen the previous session with its conversation state, then name the files that changed overnight."
       },
       {
         "label": "C",
-        "text_en": "Run /init so Claude regenerates the project map from scratch."
+        "text_en": "Run /init so that Claude regenerates the project map from scratch, giving the new session a current picture of the pricing module before the work continues."
       },
       {
         "label": "D",
-        "text_en": "Add a summary of the findings to CLAUDE.md so every future session starts with it."
+        "text_en": "Add a summary of yesterday's findings to CLAUDE.md (the project memory file each session loads at startup), so that every later session on the monolith opens with the pricing module described."
       }
     ],
     "answer": [
@@ -179,7 +179,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q305",
@@ -198,19 +198,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "In the system prompt: instruct Atlas to read test output carefully and ignore noise."
+        "text_en": "In the system prompt: tell Atlas to read the test output through to the end and report the failing cases, so that progress noise is not mistaken for success."
       },
       {
         "label": "B",
-        "text_en": "With a PreToolUse hook that blocks the test command unless the engineer runs it manually."
+        "text_en": "With a PreToolUse hook that blocks the test command unless an engineer runs the suite by hand and hands Atlas a result they have already checked themselves."
       },
       {
         "label": "C",
-        "text_en": "With a PostToolUse hook on Bash that parses the runner's output before the model sees it and replaces it with a structured summary — pass/fail counts, the names of failing tests, and the first lines of each failure."
+        "text_en": "With a PostToolUse hook on Bash that parses the runner's output before the model sees it and replaces it with a structured summary: pass/fail counts, failing test names, first lines of each failure."
       },
       {
         "label": "D",
-        "text_en": "By raising max_tokens so the model has more room to reason over the full output."
+        "text_en": "By raising max_tokens so that the model has room to reason over all ten thousand lines of runner output instead of losing the three failures among the progress dots, timing tables, and deprecation warnings."
       }
     ],
     "answer": [
@@ -224,7 +224,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q306",
@@ -243,19 +243,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Run per-file local analysis passes, then an integration pass for cross-cutting dependencies; start from the module's structure, identify high-impact areas, and update the priority list as dependencies are discovered."
+        "text_en": "Run per-file local analysis passes, then an integration pass for cross-cutting dependencies, starting from the module's structure and updating the priority list as dependencies surface."
       },
       {
         "label": "B",
-        "text_en": "Keep the fixed alphabetical plan but split it into four prompts of 100 files each so it fits the context window."
+        "text_en": "Keep the alphabetical plan but split it into four prompts of one hundred files each, so that every batch fits the context window and the whole module is still covered."
       },
       {
         "label": "C",
-        "text_en": "Analyze only the twenty largest files, since the important logic is concentrated there."
+        "text_en": "Analyze the twenty largest files and extrapolate the module's design from them, since the substantive logic of a legacy module collects in its biggest files."
       },
       {
         "label": "D",
-        "text_en": "Concatenate all 400 files and ask for a single assessment, relying on the model to prioritize internally."
+        "text_en": "Concatenate all 400 files into one assessment prompt and let the model prioritize internally, since it then sees the whole module at once and can weigh every part of it against the others."
       }
     ],
     "answer": [
@@ -269,7 +269,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q307",
@@ -288,19 +288,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Increase the coordinator's turn limit so it has more opportunities to try the other subagents."
+        "text_en": "Raise the coordinator's turn limit so that it has more chances to route work to test-writer and doc-writer instead of settling on migrator for nearly every request."
       },
       {
         "label": "B",
-        "text_en": "Add the Agent tool to each subagent's tool list so migrator can delegate test work to test-writer itself."
+        "text_en": "Add the Agent tool to each subagent's tool list, so that migrator can pass test work on to test-writer (a direct subagent-to-subagent handoff) once it sees the request is not a migration."
       },
       {
         "label": "C",
-        "text_en": "Merge the three definitions into one general-purpose subagent so routing mistakes become impossible."
+        "text_en": "Merge the three definitions into one general-purpose subagent, so that routing mistakes become impossible and every request is served by the same worker."
       },
       {
         "label": "D",
-        "text_en": "Rewrite each description to state precisely when the subagent should be chosen and what it returns, and restrict each subagent's tools to what its role needs (for example, test-writer cannot edit non-test source files)."
+        "text_en": "Rewrite each description to state when the subagent should be chosen and what it returns, and restrict each subagent's tools to its role (test-writer cannot edit non-test source files)."
       }
     ],
     "answer": [
@@ -314,7 +314,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q301",
@@ -333,19 +333,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Give Edit enough surrounding context to make each target unique (or use its replace-all behavior when every occurrence should change), and fall back to Read followed by Write only when a file needs a wholesale rewrite."
+        "text_en": "Give Edit enough surrounding context to make each target unique, or use its replace-all behavior when every occurrence should change, and switch to Read then Write only for a wholesale rewrite."
       },
       {
         "label": "B",
-        "text_en": "Switch every edit to Write, having the model regenerate each file's full content with the new name."
+        "text_en": "Switch every edit to Write and have the model regenerate each file's full content with the new identifier, which sidesteps the uniqueness check on the target string and rewrites each file in one call."
       },
       {
         "label": "C",
-        "text_en": "Run a repository-wide sed command through Bash so the rename happens in one step without Edit's uniqueness check."
+        "text_en": "Run one repository-wide sed command through Bash, so that the rename lands in a single pass and no per-file uniqueness failure can abort the job partway through."
       },
       {
         "label": "D",
-        "text_en": "Retry the same Edit call several times; uniqueness failures are usually transient."
+        "text_en": "Retry the same Edit call several times before moving on, treating the uniqueness failure as a transient condition that clears on one of the later attempts."
       }
     ],
     "answer": [
@@ -359,7 +359,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q302",
@@ -378,19 +378,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Read every file in the repository into context so no caller can be missed."
+        "text_en": "Read every file in the repository into context, so that no caller slips past a search that depends on matching the function's exact name."
       },
       {
         "label": "B",
-        "text_en": "Read the wrapper module to enumerate the names it exports, then Grep for each exported name to find the callers that reach applyDiscount indirectly."
+        "text_en": "Read the wrapper module to enumerate the names it exports, then Grep for each of those names to find the callers that reach applyDiscount indirectly."
       },
       {
         "label": "C",
-        "text_en": "Ask the model to recall the codebase structure from previous sessions instead of searching."
+        "text_en": "Ask the model to recall the codebase structure from its previous sessions, since it has already walked the pricing module and knows what calls into it."
       },
       {
         "label": "D",
-        "text_en": "Use Glob for files whose names contain \"discount\" and treat those as the callers."
+        "text_en": "Use Glob for files whose names contain \"discount\" and treat those as the callers, on the assumption that a feature's files are named after the feature."
       }
     ],
     "answer": [
@@ -404,7 +404,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q303",
@@ -423,19 +423,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add each teammate's staging credentials to .mcp.json so the prompt succeeds for everyone."
+        "text_en": "Add each teammate's staging credentials to .mcp.json, so that the approval prompt succeeds and the explorer works from everyone's session."
       },
       {
         "label": "B",
-        "text_en": "Tell teammates to decline the approval prompt; the server is harmless if never approved."
+        "text_en": "Tell teammates to decline the approval prompt, since a server that is never approved is never started and so cannot reach the staging database."
       },
       {
         "label": "C",
-        "text_en": "Move the server definition into the project CLAUDE.md so it is documented but not executed."
+        "text_en": "Move the server definition into the project CLAUDE.md, where it stays documented for anyone who wants it without being loaded as a project server."
       },
       {
         "label": "D",
-        "text_en": "Remove it from .mcp.json and register it at user scope instead, keeping .mcp.json only for servers the whole team should share."
+        "text_en": "Remove it from .mcp.json and register it at user scope instead, keeping .mcp.json for the servers the whole team is meant to share."
       }
     ],
     "answer": [
@@ -449,7 +449,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q304",
@@ -468,19 +468,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Paste a snapshot of the entire catalog into Atlas's system prompt so no calls are needed."
+        "text_en": "Paste a snapshot of the whole catalog — services, owners, endpoint schemas — into Atlas's system prompt, so that the data is on hand from the first turn and no discovery calls are needed."
       },
       {
         "label": "B",
-        "text_en": "Raise Atlas's maximum turn count so the exploratory calls no longer cut into the task budget."
+        "text_en": "Raise Atlas's maximum turn count so that the exploratory list_services and get_service calls no longer eat into the budget the migration task itself needs."
       },
       {
         "label": "C",
-        "text_en": "Expose the catalog — service list, ownership, endpoint schemas — as MCP resources so Atlas can read the structured content directly instead of discovering it through repeated tool calls."
+        "text_en": "Expose the catalog — service list, ownership, endpoint schemas — as MCP resources, so that Atlas reads the structured content directly instead of discovering it call by call."
       },
       {
         "label": "D",
-        "text_en": "Replace the catalog server with a checked-out copy of its database and let Atlas Grep through it."
+        "text_en": "Replace the catalog server with a checked-out copy of its database and let Atlas Grep through the dump, which answers the same questions without any tool round trips."
       }
     ],
     "answer": [
@@ -494,7 +494,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q305",
@@ -513,19 +513,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Consolidate the overlapping wrappers into a single clearly scoped search tool with an explicit input/output contract (or rename the survivors to distinct purposes, such as semantic search versus literal Grep), and remove the redundant ones."
+        "text_en": "Consolidate the overlapping wrappers into one clearly scoped search tool with an explicit input/output contract, keeping a separate tool only where the capability really differs."
       },
       {
         "label": "B",
-        "text_en": "Add \"always prefer grep_repo\" to the system prompt so the choice becomes deterministic."
+        "text_en": "Add a line to the system prompt telling Atlas to prefer grep_repo for every search, so that the choice among the four overlapping tools becomes deterministic."
       },
       {
         "label": "C",
-        "text_en": "Disable the built-in Grep tool so only custom tools remain."
+        "text_en": "Disable the built-in Grep tool so that only the three custom search tools remain, narrowing the choice the model has to make on each run of the same question."
       },
       {
         "label": "D",
-        "text_en": "Keep all four tools but add usage counters to learn which one the model likes best."
+        "text_en": "Keep all four tools and attach usage counters to them, so that the team can see which backend the model favors before any of the definitions are changed."
       }
     ],
     "answer": [
@@ -539,7 +539,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q306",
@@ -560,19 +560,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Disable the built-in Grep tool so the MCP tool is the only option."
+        "text_en": "Disable the built-in Grep tool, so that the MCP server becomes the only search option left and the agent reaches for it on every request."
       },
       {
         "label": "B",
-        "text_en": "Rewrite the MCP tool's description to explain what it does differently from Grep — natural-language queries, ranked semantic matches — when to prefer it, and what inputs it expects."
+        "text_en": "Rewrite the MCP tool's description to say what it does that Grep does not — natural-language queries, ranked semantic matches — when to prefer it, and what inputs it takes."
       },
       {
         "label": "C",
-        "text_en": "Set ENABLE_TOOL_SEARCH to false so every MCP tool definition is preloaded into context."
+        "text_en": "Set ENABLE_TOOL_SEARCH to false — preloading every MCP tool definition into context — so that the semantic search tool is visible to the agent from the very first turn of a session."
       },
       {
         "label": "D",
-        "text_en": "Rename the tool to grep2 so the model associates it with searching."
+        "text_en": "Rename the tool to grep2, so that the model associates it with the searching it already does and reaches for it alongside the built-in Grep tool."
       }
     ],
     "answer": [
@@ -586,7 +586,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q301",
@@ -605,23 +605,23 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Before context fills, persist the working decisions and key findings to a scratchpad file in the repository, and have Atlas re-read it after compaction."
+        "text_en": "Before context fills, persist the working decisions and key findings to a scratchpad file in the repository, and have Atlas re-read that file after compaction."
       },
       {
         "label": "B",
-        "text_en": "Disable compaction entirely so nothing is ever summarized."
+        "text_en": "Disable compaction entirely, so that nothing in the conversation is ever summarized away and every decision stays in context word for word."
       },
       {
         "label": "C",
-        "text_en": "Record decisions that should hold for the rest of the project in CLAUDE.md (or a gitignored CLAUDE.local.md for personal ones), because the project-root memory file is re-read from disk after compaction while conversation-only instructions are not."
+        "text_en": "Record decisions meant to hold for the rest of the project in CLAUDE.md (or CLAUDE.local.md for personal ones), since the project-root memory file is re-read from disk after compaction."
       },
       {
         "label": "D",
-        "text_en": "Rely on Atlas recalling the earlier conversation on its own after compaction, without resuming a session, saving to a file, or writing to auto memory."
+        "text_en": "Rely on Atlas recalling the earlier conversation after compaction, without resuming a session, saving to a file, or writing to auto memory, since the summary is built from that same conversation."
       },
       {
         "label": "E",
-        "text_en": "Increase max_tokens so the summarizer has room to keep everything."
+        "text_en": "Increase max_tokens so that the summarizer has room (a few thousand extra tokens) to carry every earlier decision into the compacted conversation."
       }
     ],
     "answer": [
@@ -636,7 +636,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q302",
@@ -655,19 +655,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Send the document as three separate consecutive messages so each part is processed on its own."
+        "text_en": "Send the document as three consecutive messages, so that each part is processed on its own and the middle sections get the same attention as the rest."
       },
       {
         "label": "B",
-        "text_en": "Cut the document down to its first 200 lines to keep the context short."
+        "text_en": "Cut the document down to its first 200 lines, keeping the context short enough that Atlas can hold the whole of it in view while it works."
       },
       {
         "label": "C",
-        "text_en": "Repeat the request three times throughout the prompt so it is never far from any section."
+        "text_en": "Repeat the request three times through the prompt, so that no section of the document is ever far from a statement of what Atlas has to do."
       },
       {
         "label": "D",
-        "text_en": "Structure the document into explicitly labeled sections with a short key-points summary up front, and place the request after the document content rather than before it."
+        "text_en": "Restructure the document into labeled sections with a short key-points summary up front, and place the request after the document content rather than before it."
       }
     ],
     "answer": [
@@ -681,7 +681,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q303",
@@ -700,19 +700,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Nothing: each phase should be fully independent so that failures do not propagate."
+        "text_en": "Nothing: each phase should be fully independent, so that a mistake made during inventory cannot propagate into the transform phase that follows it."
       },
       {
         "label": "B",
-        "text_en": "The full transcript, but with the tool outputs compressed by gzip to fit."
+        "text_en": "The full transcript, with the bulky tool outputs compressed by gzip, so that the same information still fits inside the transform phase's context."
       },
       {
         "label": "C",
-        "text_en": "A concise structured summary written at the end of the inventory phase — key findings, decisions, the list of remaining units, and pointers to the manifest where detailed results live — injected as the transform phase's initial context."
+        "text_en": "A concise structured summary written at the end of inventory — key findings, decisions, remaining units — plus pointers to the manifest where the detailed results live."
       },
       {
         "label": "D",
-        "text_en": "Only the list of file paths, since the transform phase can re-read any file it needs."
+        "text_en": "Only the list of file paths, since the transform phase can re-read any file it needs and nothing else from the inventory transcript is worth carrying into a fresh subagent."
       }
     ],
     "answer": [
@@ -726,6 +726,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

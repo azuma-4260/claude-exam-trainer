@@ -16,19 +16,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Strengthen the wording: \"only flag when you are extremely confident there is a genuine problem.\""
+        "text_en": "Strengthen the confidence wording to \"only flag when you are extremely confident there is a genuine problem, and stay silent on items you merely find unusual,\" raising the bar the model applies to every document."
       },
       {
         "label": "B",
-        "text_en": "Replace the vague instruction with explicit categories to flag (duplicate invoice numbers, totals disagreeing with line items, missing tax IDs) and categories NOT to flag (rounding under one cent, formatting variations), with a concrete example of each."
+        "text_en": "List the categories to flag (duplicate invoice numbers, totals disagreeing with line items, missing tax IDs) and the categories not to flag (sub-cent rounding, formatting variations), with one example of each."
       },
       {
         "label": "C",
-        "text_en": "Add \"think carefully before flagging\" to invoke more deliberate reasoning."
+        "text_en": "Add \"think carefully before flagging\" to the prompt, so the model reasons more deliberately about each document and drops its weaker suspicions on its own."
       },
       {
         "label": "D",
-        "text_en": "Cap the model at three flags per day so reviewers are never overwhelmed."
+        "text_en": "Cap the model at three flags per day (the volume the review team can absorb), so the most suspicious documents compete for a queue reviewers can finish."
       }
     ],
     "answer": [
@@ -42,7 +42,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q202",
@@ -61,11 +61,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Keep everything as is — some false positives are the unavoidable price of catching real issues."
+        "text_en": "Keep every category enabled as it is, treating the false positives as the unavoidable price of catching the real issues that the accurate categories do find."
       },
       {
         "label": "B",
-        "text_en": "Retrain reviewers to evaluate each flag on its merits regardless of past noise."
+        "text_en": "Retrain the review team to evaluate each flag on its own merits regardless of the category's past noise, restoring attention without giving up any detection coverage."
       },
       {
         "label": "C",
@@ -73,7 +73,7 @@
       },
       {
         "label": "D",
-        "text_en": "Route all flags to a second model that re-scores them before reviewers see anything."
+        "text_en": "Route every flag through a second model that re-scores it before anything reaches the reviewers' queue."
       }
     ],
     "answer": [
@@ -86,7 +86,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q203",
@@ -105,19 +105,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Two to four worked examples of ambiguous documents, each showing the correct choice (the legal entity on the letterhead) and briefly why that entity was chosen over the alternatives."
+        "text_en": "Two to four worked examples of ambiguous documents, each showing the correct choice (the legal entity on the letterhead) and briefly why that entity wins."
       },
       {
         "label": "B",
-        "text_en": "A longer glossary defining \"parent company,\" \"subsidiary,\" and \"trade name.\""
+        "text_en": "A longer glossary section defining \"parent company,\" \"subsidiary,\" and \"trade name,\" so the model can apply the terms precisely as it reads each letterhead."
       },
       {
         "label": "C",
-        "text_en": "An instruction to return all three name variants and let downstream systems pick."
+        "text_en": "An instruction to return all three name variants (parent, subsidiary, trade name) and let the downstream matching system pick the one its vendor records expect."
       },
       {
         "label": "D",
-        "text_en": "A rule to always return the shortest name, since it is the least likely to contain errors."
+        "text_en": "A deterministic rule to return the shortest of the candidate names, since the shortest string carries the fewest transcription errors and normalizes consistently."
       }
     ],
     "answer": [
@@ -131,7 +131,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q204",
@@ -154,19 +154,19 @@
       },
       {
         "label": "B",
-        "text_en": "More examples of the common clean-invoice layout, since mastering the majority case transfers to the rest."
+        "text_en": "Many more examples of the common clean-invoice layout, on the reasoning that a model which masters the majority case transfers that skill to rarer layouts."
       },
       {
         "label": "C",
-        "text_en": "Examples where a field is genuinely absent and the correct output shows null — demonstrating the difference between \"absent\" and \"present but hard to find.\""
+        "text_en": "Examples where a field is genuinely absent and the correct output shows null, demonstrating the difference between \"absent\" and \"present but hard to find.\""
       },
       {
         "label": "D",
-        "text_en": "Examples with deliberately wrong extractions labeled \"do not do this\" as the primary teaching signal."
+        "text_en": "Examples with deliberately wrong extractions labeled \"do not do this\" — the mistakes themselves as the primary teaching signal for the failing layouts."
       },
       {
         "label": "E",
-        "text_en": "A single mega-example concatenating all document types into one document."
+        "text_en": "A single mega-example concatenating every document type into one composite document, so that one example covers the full range of layouts at once."
       }
     ],
     "answer": [
@@ -181,7 +181,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q205",
@@ -200,19 +200,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add a post-processing step that strips markdown fences and leading prose before parsing."
+        "text_en": "Add a post-processing step that strips markdown fences and any leading prose before the parse, so the wrapper patterns seen so far no longer reach the ingestion job and crash it."
       },
       {
         "label": "B",
-        "text_en": "Repeat the JSON-only instruction at both the start and end of the prompt."
+        "text_en": "Repeat the JSON-only instruction at both the start and the end of the prompt, since an instruction placed at both prompt boundaries is the one the model follows most reliably on a long document."
       },
       {
         "label": "C",
-        "text_en": "Retry any unparseable response up to five times."
+        "text_en": "Retry any unparseable response up to five times, since a fresh sample almost always comes back as clean JSON and the wrapped responses are rare."
       },
       {
         "label": "D",
-        "text_en": "Define an extraction tool whose input schema is the desired record structure with strict enforcement, force the call with tool_choice so a tool response is guaranteed, and read the data from the tool_use block instead of parsing free text."
+        "text_en": "Define an extraction tool whose input schema is the desired record structure with strict enforcement, force the call with tool_choice, and read the data from the tool_use block rather than parsing text."
       }
     ],
     "answer": [
@@ -226,7 +226,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q206",
@@ -245,19 +245,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "tool_choice: {\"type\": \"tool\", \"name\": \"extract_invoice\"}, forcing the most common document type's tool."
+        "text_en": "tool_choice: {\"type\": \"tool\", \"name\": \"extract_invoice\"}, forcing the tool for the most common document type so every document is extracted rather than described."
       },
       {
         "label": "B",
-        "text_en": "tool_choice: \"any\", which guarantees the model calls one of the three tools — it still chooses the appropriate schema, but prose answers become impossible."
+        "text_en": "tool_choice: \"any\", which guarantees the model calls one of the three tools while still leaving the choice of schema to it, so prose answers become impossible."
       },
       {
         "label": "C",
-        "text_en": "tool_choice: \"auto\" with a firmer instruction to extract rather than describe."
+        "text_en": "tool_choice: \"auto\" with a firmer instruction to extract rather than describe, keeping the model free to pick the schema that matches the document in front of it."
       },
       {
         "label": "D",
-        "text_en": "tool_choice: \"none\", letting a downstream classifier decide the type first."
+        "text_en": "tool_choice: \"none\", with a downstream classifier deciding the document type first so the right extraction tool can be called on a later turn."
       }
     ],
     "answer": [
@@ -270,7 +270,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q207",
@@ -289,19 +289,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Make po_number nullable with instructions to return null when absent, and extend the enum with an \"other\" value paired with a free-text detail field."
+        "text_en": "Make po_number nullable with instructions to return null when it is absent, and extend the enum with an \"other\" value paired with a free-text detail field."
       },
       {
         "label": "B",
-        "text_en": "Keep po_number required — required fields force the model to look harder for the value."
+        "text_en": "Keep po_number required, since a required field pushes the model to search harder for a number that is easy to overlook on a long service contract."
       },
       {
         "label": "C",
-        "text_en": "Remove the schema entirely for these documents and extract into free text."
+        "text_en": "Drop the schema for these documents and extract their fields into free text, so no required field or fixed enum can force a value the document does not contain."
       },
       {
         "label": "D",
-        "text_en": "Add every payment phrasing ever observed to the enum and reject documents containing new ones."
+        "text_en": "Extend the enum with every payment phrasing observed so far and reject documents containing a new one, keeping the enum an exact list of terms the team has vetted."
       }
     ],
     "answer": [
@@ -315,7 +315,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q208",
@@ -334,19 +334,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Before retrying, distinguish the failure class: retry only format/structure errors; for information genuinely absent from the document, accept null (or route to review) instead of retrying."
+        "text_en": "Distinguish the failure class before retrying: retry format and structure errors, but accept null or route to human review when the information is genuinely absent."
       },
       {
         "label": "B",
-        "text_en": "Raise the retry limit to ten — more attempts eventually find the value."
+        "text_en": "Raise the retry limit from three to ten, since each further attempt reads the document again and eventually surfaces a due date that the earlier passes had overlooked."
       },
       {
         "label": "C",
-        "text_en": "Add \"due_date is mandatory\" to the retry prompt so the model tries harder."
+        "text_en": "Add \"due_date is mandatory\" to the retry prompt, so the model treats the field as non-negotiable and re-reads the document for a date it skipped."
       },
       {
         "label": "D",
-        "text_en": "Remove validation feedback from retries, since it is biasing the model toward the same failure."
+        "text_en": "Remove the validation feedback from retries — repeating the same error message anchors the model to the output that already failed once."
       }
     ],
     "answer": [
@@ -360,7 +360,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q209",
@@ -379,23 +379,23 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "retry_count, recording how many attempts the extraction took"
+        "text_en": "retry_count, recording how many attempts the extraction took before it passed, so unstable documents stand out in the pipeline's records"
       },
       {
         "label": "B",
-        "text_en": "calculated_total, computed by summing the extracted line items, returned alongside stated_total so validation can compare them"
+        "text_en": "calculated_total, the sum of the extracted line items returned alongside stated_total so validation can compare the two figures"
       },
       {
         "label": "C",
-        "text_en": "model_confidence_narrative, a paragraph where the model describes how it feels about the extraction"
+        "text_en": "model_confidence_narrative, a short paragraph in which the model describes how confident it feels about each field it extracted"
       },
       {
         "label": "D",
-        "text_en": "formatted_markdown, a rendered table of the invoice for human display"
+        "text_en": "formatted_markdown, a rendered table of the invoice and its line items for reviewers to read beside the source document"
       },
       {
         "label": "E",
-        "text_en": "conflict_detected, indicating a disagreement between related source documents and which values conflict"
+        "text_en": "conflict_detected, indicating a disagreement between related source documents and naming which values conflict"
       }
     ],
     "answer": [
@@ -410,7 +410,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q210",
@@ -429,19 +429,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Synchronous API for both — batches add operational complexity for no benefit."
+        "text_en": "Synchronous API for both workloads, since one code path (no queueing, no polling) keeps the pipeline simpler than running two delivery modes at once."
       },
       {
         "label": "B",
-        "text_en": "Batches API for both — the 50% discount applies to every request, including the accountant's."
+        "text_en": "Batches API for both workloads; the 50% discount applies to every request, and the accountant's single document usually returns well before the 24-hour window closes."
       },
       {
         "label": "C",
-        "text_en": "Message Batches API for the overnight backlog (50% cost reduction, non-blocking, up to 24 hours); synchronous API for the on-demand case, where a person is actively waiting."
+        "text_en": "Message Batches API for the overnight backlog (50% cost reduction, non-blocking, up to 24 hours); synchronous API for the on-demand case, where a person waits."
       },
       {
         "label": "D",
-        "text_en": "Batches API for the on-demand case and synchronous for the backlog, since big jobs need the lower-latency path."
+        "text_en": "Batches API for the on-demand case and synchronous calls for the backlog, since the large overnight job is the one that needs the lower-latency path."
       }
     ],
     "answer": [
@@ -454,7 +454,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q211",
@@ -473,19 +473,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Submit one giant batch at hour zero; 24 hours is inside 36, so the deadline is safe by construction."
+        "text_en": "Submit everything as one giant batch at hour zero and treat the 24-hour processing window as the guarantee, since 24 hours sits inside the 36-hour deadline with a twelve-hour margin left over."
       },
       {
         "label": "B",
-        "text_en": "Submit early in planned waves, poll for completion, resubmit only the failed requests identified by custom_id, and define a cutoff after which any remaining unfinished documents switch to the synchronous path."
+        "text_en": "Submit early in planned waves, poll for completion, resubmit only the failed requests identified by custom_id, and define a cutoff after which unfinished documents switch to the synchronous path."
       },
       {
         "label": "C",
-        "text_en": "Split the run across many small batches purely because smaller batches are guaranteed to finish faster."
+        "text_en": "Split the run across many small batches, since smaller batches move through the queue faster and the whole run therefore finishes sooner than one large submission."
       },
       {
         "label": "D",
-        "text_en": "Submit at hour zero and, if the batch has not finished by hour 35, resubmit everything as one new batch."
+        "text_en": "Submit at hour zero and, if the batch has not finished by hour 35, resubmit the whole run as one new batch so no document is left unprocessed at the deadline."
       }
     ],
     "answer": [
@@ -498,7 +498,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q212",
@@ -517,19 +517,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Have the generating session run all three checks on its own output — it has the most context about the extraction."
+        "text_en": "Have the generating session run all three checks on its own output, since it holds the most context about how each value was read and can revisit that reasoning for (3)."
       },
       {
         "label": "B",
-        "text_en": "Spend the LLM step on schema and arithmetic checking too, since model review is strictly more capable than validation code."
+        "text_en": "Spend the LLM step on the schema and arithmetic checks as well — a model reviewing the output also catches the malformed and miscomputed cases that validation code was never written to look for."
       },
       {
         "label": "C",
-        "text_en": "Enforce (1) with strict tool use and code validation, recompute (2) deterministically from the extracted line items in code, and spend the LLM step on (3): an independent second instance that receives the document and the extraction, but not the generator's conversation."
+        "text_en": "Enforce (1) with strict tool use and code validation, recompute (2) in code from the extracted line items, and spend the LLM step on (3): an independent instance given the document and the extraction only."
       },
       {
         "label": "D",
-        "text_en": "Implement (1) and (2) in code and skip (3) — once schema and totals pass, the values are necessarily faithful to the document."
+        "text_en": "Implement (1) and (2) in code and skip (3), since an extraction that conforms to the schema and whose line items sum to the stated total has already been checked on the dimensions that matter."
       }
     ],
     "answer": [
@@ -542,7 +542,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q208",
@@ -561,19 +561,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Segment accuracy by document type and by field — an aggregate number can hide, say, handwritten receipts extracting total_amount at 78% — and gate automation per segment."
+        "text_en": "Segment accuracy by document type and by field — an aggregate can hide, say, handwritten receipts extracting total_amount at 78% — and gate automation per segment."
       },
       {
         "label": "B",
-        "text_en": "Re-measure the aggregate on a larger sample to tighten the confidence interval around 96.8%."
+        "text_en": "Re-measure the aggregate on a much larger sample, so the confidence interval around 96.8% is tight enough to support a decision of this size with real certainty."
       },
       {
         "label": "C",
-        "text_en": "Compare the aggregate against industry benchmarks; above-median accuracy justifies automation."
+        "text_en": "Compare the 96.8% figure against published industry benchmarks for document extraction, and treat accuracy above the median as the bar that justifies the automation."
       },
       {
         "label": "D",
-        "text_en": "Survey the review team about which documents feel error-prone."
+        "text_en": "Survey the review team about which documents feel error-prone — reviewers see every correction — and keep review on the types they name as troublesome."
       }
     ],
     "answer": [
@@ -586,7 +586,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q209",
@@ -605,19 +605,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Review a uniform random 5% of all documents; equal treatment avoids systematic blind spots."
+        "text_en": "Review a uniform random 5% of all documents each day, so every document type and confidence band is sampled at the same rate and the measured error rate stays representative of the flow."
       },
       {
         "label": "B",
-        "text_en": "Trust the raw confidence scores as probabilities and review only documents the model scores below 0.5."
+        "text_en": "Trust the raw confidence scores as probabilities and review only documents the model scores below 0.5, concentrating the entire daily capacity where the model itself reports doubt."
       },
       {
         "label": "C",
-        "text_en": "Review the 300 highest-value invoices by amount, since money at stake matters most."
+        "text_en": "Review the 300 highest-value invoices by amount, since the documents with the most money at stake are the ones where an undetected extraction error is most expensive."
       },
       {
         "label": "D",
-        "text_en": "Calibrate the confidence scores against a labeled set to place thresholds, route low-confidence and conflicting documents to review, and stratified-sample a small slice of high-confidence documents to monitor error rates and new failure patterns."
+        "text_en": "Calibrate the confidence scores against a labeled set to place thresholds, route low-confidence and conflicting documents to review, and stratified-sample a slice of high-confidence documents to monitor error rates and drift."
       }
     ],
     "answer": [
@@ -630,6 +630,6 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

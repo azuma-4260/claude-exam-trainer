@@ -16,19 +16,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Add \"be thorough\" to the prompt."
+        "text_en": "Add a \"be thorough, miss nothing\" instruction to the prompt so that the reviewer widens its search across every place a query is built."
       },
       {
         "label": "B",
-        "text_en": "Raise the model's reasoning effort."
+        "text_en": "Raise the model's reasoning effort so that it spends longer analyzing each place where a query is assembled."
       },
       {
         "label": "C",
-        "text_en": "Add a concrete code example for the security category that shows the injection pattern inside an ORM builder, alongside the raw-SQL example."
+        "text_en": "Add a concrete code example for the security category showing the injection pattern inside an ORM builder, not only in raw SQL."
       },
       {
         "label": "D",
-        "text_en": "Ask the model to rate its confidence and lower the reporting threshold."
+        "text_en": "Ask the model to rate its confidence on each finding and lower the reporting threshold so borderline cases surface."
       }
     ],
     "answer": [
@@ -42,7 +42,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q502",
@@ -61,19 +61,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Temporarily disable the latency-spike category while its criteria are improved, so the trustworthy category keeps its credibility."
+        "text_en": "Temporarily disable the latency-spike category while its criteria are improved, so the accurate category keeps its credibility."
       },
       {
         "label": "B",
-        "text_en": "Keep both categories but add a disclaimer that latency findings may be wrong."
+        "text_en": "Keep both categories but add a disclaimer that latency findings may be wrong, so on-call engineers can weigh them accordingly."
       },
       {
         "label": "C",
-        "text_en": "Lower the threshold for auth failures so more of them appear and outweigh the noise."
+        "text_en": "Lower the reporting threshold for auth failures so that more of them appear and outweigh the noisy latency findings."
       },
       {
         "label": "D",
-        "text_en": "Merge the two categories into a single \"anomaly\" category."
+        "text_en": "Merge the two categories into a single \"anomaly\" category, so engineers triage one list instead of judging per category."
       }
     ],
     "answer": [
@@ -87,7 +87,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q503",
@@ -106,15 +106,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Shorten the instructions so the model has less to misread."
+        "text_en": "Shorten the instructions so the model has less to misread, leaving only the rules that matter most for severity."
       },
       {
         "label": "B",
-        "text_en": "Add a system prompt line saying \"be consistent\"."
+        "text_en": "Add a system prompt line saying \"be consistent\", so the model holds one output format and one severity bar across runs."
       },
       {
         "label": "C",
-        "text_en": "Switch to a lower temperature and hope the format stabilizes."
+        "text_en": "Switch to a lower temperature, which cuts sampling variation and should let the format settle down across runs."
       },
       {
         "label": "D",
@@ -131,7 +131,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q504",
@@ -150,19 +150,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Examples that show only flagged resumes so the model learns what a concern looks like."
+        "text_en": "Examples drawn only from flagged resumes (each labeled with the concern it raised), so the model learns what a real concern looks like."
       },
       {
         "label": "B",
-        "text_en": "Contrastive pairs: an accepted gap (documented leave) labeled acceptable next to an unexplained multi-year gap labeled as a concern."
+        "text_en": "Contrastive pairs: an accepted gap (documented leave) labeled acceptable next to an unexplained multi-year gap labeled a concern."
       },
       {
         "label": "C",
-        "text_en": "Examples drawn from a single job family to keep them consistent."
+        "text_en": "Examples drawn from a single job family — one consistent role type — so the labeling stays uniform across resumes."
       },
       {
         "label": "D",
-        "text_en": "A list of adjectives describing a strong candidate."
+        "text_en": "A list of adjectives describing a strong candidate, such as \"stable\" and \"committed\", for the model to match resumes against."
       }
     ],
     "answer": [
@@ -176,7 +176,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q505",
@@ -195,19 +195,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The extracted values will be semantically correct."
+        "text_en": "The extracted values will be semantically correct — totals, dates, and names will agree with the source document."
       },
       {
         "label": "B",
-        "text_en": "The tool inputs the model produces will conform to the schema — correct types, required fields, no undeclared fields — eliminating malformed calls."
+        "text_en": "The tool inputs will conform to the schema: correct types, required fields present, and no undeclared fields."
       },
       {
         "label": "C",
-        "text_en": "The model will always call the tool instead of answering in text."
+        "text_en": "The model will always call the tool instead of answering in text, so the pipeline never receives a prose reply."
       },
       {
         "label": "D",
-        "text_en": "The tool will be executed server-side."
+        "text_en": "The tool will be executed server-side by the API, so the pipeline does not have to run the function itself."
       }
     ],
     "answer": [
@@ -221,7 +221,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q506",
@@ -240,19 +240,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "{\"type\": \"any\"}: at least one tool call is guaranteed, and the model selects which schema fits the document."
+        "text_en": "{\"type\": \"any\"}: a tool call is guaranteed, and the model picks the schema that fits the document in front of it."
       },
       {
         "label": "B",
-        "text_en": "{\"type\": \"auto\"}: the model decides whether to use a tool at all."
+        "text_en": "{\"type\": \"auto\"}: the model decides whether a tool is needed, which keeps a prose answer available for odd documents."
       },
       {
         "label": "C",
-        "text_en": "{\"type\": \"tool\", \"name\": \"claim_form\"}: always start with the most common type."
+        "text_en": "{\"type\": \"tool\", \"name\": \"claim_form\"}: always start with the most common type and re-route the others afterwards."
       },
       {
         "label": "D",
-        "text_en": "{\"type\": \"none\"} followed by parsing the model's text."
+        "text_en": "{\"type\": \"none\"}: parse the model's text answer, which keeps the three schemas as documentation for reviewers."
       }
     ],
     "answer": [
@@ -266,7 +266,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q507",
@@ -285,19 +285,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Remove the enum and accept any string."
+        "text_en": "Remove the enum and accept any string, so unusual claim types are recorded exactly as they appear in the document."
       },
       {
         "label": "B",
-        "text_en": "Add more of the observed unusual types until the enum is exhaustive."
+        "text_en": "Add the observed unusual types to the enum, extending it until it covers every claim type reviewers have reported."
       },
       {
         "label": "C",
-        "text_en": "Make claim_type optional so the model can skip it."
+        "text_en": "Make claim_type optional so the model can leave unusual cases blank whenever none of the five enum values fits."
       },
       {
         "label": "D",
-        "text_en": "Add an escape value such as \"other\" together with a free-text detail field, so the model can flag unusual cases explicitly."
+        "text_en": "Add an escape value such as \"other\" plus a free-text detail field, so unusual cases are flagged explicitly."
       }
     ],
     "answer": [
@@ -311,7 +311,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q508",
@@ -330,19 +330,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The schema was missing a required flag; adding it will catch the swap."
+        "text_en": "The schema was missing a required flag on shipping_address; adding that flag will make a swapped record fail validation on arrival."
       },
       {
         "label": "B",
-        "text_en": "Field swaps are a syntax error; enabling strict mode will catch them."
+        "text_en": "Field swaps are a syntax error that a plain tool definition lets through, so enabling strict mode will reject them."
       },
       {
         "label": "C",
-        "text_en": "Schemas only guarantee structure and types, not meaning; add application-side cross-field checks and few-shot examples that show which address goes where."
+        "text_en": "Schemas guarantee structure, not meaning; add application-side cross-field checks and few-shot examples showing where each address goes."
       },
       {
         "label": "D",
-        "text_en": "Increase max_tokens so the model has room to place the fields correctly."
+        "text_en": "Increase max_tokens so the model has room to finish placing both addresses in the fields they belong to."
       }
     ],
     "answer": [
@@ -356,7 +356,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q509",
@@ -375,19 +375,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The original document, the failed extraction, and the specific validation error so the model knows what to fix."
+        "text_en": "The original document, the failed extraction, and the specific validation error, so the model knows what to fix."
       },
       {
         "label": "B",
-        "text_en": "A higher temperature so the second attempt differs from the first."
+        "text_en": "A higher temperature, so the second attempt samples differently from the first instead of repeating the same output."
       },
       {
         "label": "C",
-        "text_en": "Only the validation error, to keep the request short."
+        "text_en": "Only the validation error message, keeping the request short so retries stay cheap at this volume of documents."
       },
       {
         "label": "D",
-        "text_en": "A different document from the same batch."
+        "text_en": "A different document from the same batch, so throughput holds up while the failed one waits in the queue."
       }
     ],
     "answer": [
@@ -401,7 +401,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q510",
@@ -420,19 +420,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "A confidence score for the whole document."
+        "text_en": "A confidence score for the whole document, so documents the model is unsure about can be routed to a reviewer."
       },
       {
         "label": "B",
-        "text_en": "A conflict_detected field that lists both values and where each appeared, so conflicting documents can be routed for review."
+        "text_en": "A conflict_detected field listing both values and where each appeared, so those documents can be routed for review."
       },
       {
         "label": "C",
-        "text_en": "A boolean is_valid field set by the model."
+        "text_en": "A boolean is_valid field that the model sets, so the loop can pass through only the documents it marks valid."
       },
       {
         "label": "D",
-        "text_en": "A free-text notes field for the model's comments."
+        "text_en": "A free-text notes field where the model records anything unusual it noticed, so reviewers can read it during triage."
       }
     ],
     "answer": [
@@ -445,7 +445,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q511",
@@ -464,19 +464,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Use it for both jobs to halve costs."
+        "text_en": "Use it for both jobs, since the 50% discount applies to every request regardless of how urgent that request is."
       },
       {
         "label": "B",
-        "text_en": "Use it for the live chat job only, since replies are short."
+        "text_en": "Use it for the live chat job only (replies are short, so a batch of them should come back quickly) and the synchronous API for the backlog."
       },
       {
         "label": "C",
-        "text_en": "Use it for the historical classification (50% lower cost, non-blocking) and the synchronous API for the live chat job, which cannot wait up to 24 hours."
+        "text_en": "Use it for the historical classification (50% cheaper, non-blocking) and the synchronous API for the live chat."
       },
       {
         "label": "D",
-        "text_en": "Avoid it entirely because batches have no latency SLA."
+        "text_en": "Avoid it entirely, because a workload with no latency SLA cannot be depended on by either of these two jobs."
       }
     ],
     "answer": [
@@ -489,7 +489,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q512",
@@ -508,19 +508,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Submit one request per batch so order is preserved."
+        "text_en": "Submit one request per batch, so results come back in submission order and any failure is isolated to one batch."
       },
       {
         "label": "B",
-        "text_en": "Sort results by timestamp."
+        "text_en": "Sort the results by their timestamp — that restores the submission order and lets them be zipped back to the records."
       },
       {
         "label": "C",
-        "text_en": "Embed the record ID in the prompt text and parse it back out."
+        "text_en": "Embed the record ID in the prompt text and parse it back out of the model's answer as the results are read."
       },
       {
         "label": "D",
-        "text_en": "Assign a custom_id to each request: use it to map results to records and to resubmit only the failed requests."
+        "text_en": "Assign a custom_id to each request: it maps results back to records, and failed requests can be resubmitted alone."
       }
     ],
     "answer": [
@@ -533,7 +533,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q513",
@@ -552,19 +552,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The persona switch does not remove the session's own reasoning context, so it still rarely doubts its conclusions; send the artifact to a separate instance without that context."
+        "text_en": "The switch leaves the session's own reasoning context in place, so it still rarely doubts itself; send the artifact to a context-free instance."
       },
       {
         "label": "B",
-        "text_en": "The reviewer persona needs a longer prompt describing how strict to be."
+        "text_en": "The reviewer persona needs a longer prompt that describes how strict to be and which standards it should apply to each finding."
       },
       {
         "label": "C",
-        "text_en": "Extended thinking must be enabled for role switching to work."
+        "text_en": "Extended thinking must be enabled for role switching to work; without it the reviewer persona reasons no differently."
       },
       {
         "label": "D",
-        "text_en": "Reviews are unnecessary when the generator used few-shot examples."
+        "text_en": "Reviews are unnecessary once the generator has used few-shot examples, which already rule out the failure modes."
       }
     ],
     "answer": [
@@ -577,7 +577,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q514",
@@ -596,19 +596,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "A rule that posts only the first ten findings."
+        "text_en": "A rule that posts only the first ten findings, on the assumption that the reviewer reports its strongest ones first."
       },
       {
         "label": "B",
-        "text_en": "Per-finding self-reported confidence, calibrated against labeled examples, used to route findings between auto-post and human review."
+        "text_en": "Per-finding self-reported confidence, calibrated on labeled examples, to route findings to auto-post or human review."
       },
       {
         "label": "C",
-        "text_en": "A second identical pass whose findings replace the first."
+        "text_en": "A second identical pass whose findings replace the first, so the later and more considered set is what gets posted."
       },
       {
         "label": "D",
-        "text_en": "A longer prompt asking the reviewer to be more careful."
+        "text_en": "A longer prompt that repeats the request to be careful before posting any finding, without adding a measurable reliability signal."
       }
     ],
     "answer": [
@@ -622,6 +622,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

@@ -15,19 +15,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Remove escalate_to_human from the tool list and restore it only for conversations a human has flagged."
+        "text_en": "Remove escalate_to_human from the agent's tool list and restore it only for conversations that a human reviewer has already flagged, so that routine balance questions cannot be handed off."
       },
       {
         "label": "B",
-        "text_en": "Rewrite the description so the agent can tell a genuine escalation from a routine question: name the triggers that warrant it, the cases the data tools should handle instead, and the context a handoff must carry."
+        "text_en": "Rewrite the description to draw the boundary: the triggers that warrant escalation, the cases lookup_subscriber and get_invoice should handle instead, and the context a handoff must carry."
       },
       {
         "label": "C",
-        "text_en": "Put a classifier model in front of the agent that decides for each request whether escalation is permitted."
+        "text_en": "Put a classifier trained on past tickets in front of the agent, which decides for each incoming request whether escalation is permitted before the agent starts working."
       },
       {
         "label": "D",
-        "text_en": "Add \"Avoid escalating whenever possible\" to the system prompt."
+        "text_en": "Add \"Avoid escalating whenever possible; first try to resolve the question from the subscriber record and the invoice data\" to the system prompt."
       }
     ],
     "answer": [
@@ -41,7 +41,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q102",
@@ -59,15 +59,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Return numeric error codes only, since the model can learn what each number means."
+        "text_en": "Return numeric error codes only (1001, 1002, 1003), since the model can learn from the tool documentation what each number means."
       },
       {
         "label": "B",
-        "text_en": "Keep the generic message but raise the retry limit to ten for robustness."
+        "text_en": "Keep the generic message but raise the retry limit from three to ten, so that slow or flaky downstream calls get more chances to succeed."
       },
       {
         "label": "C",
-        "text_en": "Return isError: false with an empty result so the agent moves on instead of retrying."
+        "text_en": "Return isError: false with an empty result so that the agent moves on to the next step instead of retrying a call that failed."
       },
       {
         "label": "D",
@@ -85,7 +85,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q103",
@@ -103,11 +103,11 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Set tool_choice: \"any\" for the entire conversation so the model always calls some tool."
+        "text_en": "Set tool_choice: \"any\" for the entire conversation, so the model always calls a tool instead of answering from memory."
       },
       {
         "label": "B",
-        "text_en": "Add \"You MUST call lookup_subscriber first\" to the system prompt and keep \"auto\"."
+        "text_en": "Add \"You MUST call lookup_subscriber before answering any billing question\" to the system prompt, and keep tool_choice: \"auto\" for flexibility."
       },
       {
         "label": "C",
@@ -115,7 +115,7 @@
       },
       {
         "label": "D",
-        "text_en": "Remove all other tools so lookup_subscriber is the only one available."
+        "text_en": "Remove the other tools from the request so that lookup_subscriber is the only tool the model can call on a billing turn."
       }
     ],
     "answer": [
@@ -129,6 +129,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]

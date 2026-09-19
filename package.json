@@ -14,6 +14,7 @@
     "audit:flash": "tsx scripts/audit-flash.ts --status active",
     "audit:form": "tsx scripts/audit-form-mcq.ts --status active",
     "audit:practice": "tsx scripts/audit-practice-mcq.ts --counts 19,13,14,14,10 --status active",
+    "audit:choices": "tsx scripts/audit-choice-balance.ts --status active",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:check": "tsx scripts/db-check.ts",

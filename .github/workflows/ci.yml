@@ -1,5 +1,5 @@
 # CI + deploy 直列化(specs/06 §バンク静的検証, specs/09 §1 原則 3)。
-# - 全ブランチの push で validator → backlog:check → test → build を実行
+# - 全ブランチの push で validator → audit:choices → backlog:check → test → build を実行
 # - deploy は main のみ、ci job 成功後の後続 job からのみ(Vercel の Git 自動 deploy は O-2a で無効化済み)
 # - CI 失敗 = deploy job skip。これが「CI 失敗 = deploy 中止」の仕組み上の保証
 name: ci
@@ -28,6 +28,8 @@ jobs:
       - run: npm ci
       - name: validate-bank(バンク静的検証)
         run: npm run validate-bank
+      - name: audit:choices(MCQ 選択肢バランス監査)
+        run: npm run audit:choices
       - name: backlog:check(tasks/backlog 静的検証)
         run: npm run backlog:check
       - name: test
