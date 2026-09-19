@@ -16,19 +16,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Treat it like \"end_turn\": the server has decided the work is done."
+        "text_en": "Treat it like \"end_turn\", since the server-side loop hands control back only once it has satisfied the request, and pass whatever sources were gathered on to the coordinator."
       },
       {
         "label": "B",
-        "text_en": "Recognize it as the server pausing a long-running turn after its server-tool iteration limit (not completion): send the conversation back, including the paused assistant response, so the model continues the sweep, and only finish on \"end_turn\"."
+        "text_en": "Recognize it as the server pausing a long turn at its server-tool iteration limit, and send the conversation back with the paused response so the model resumes the sweep."
       },
       {
         "label": "C",
-        "text_en": "Treat it like \"max_tokens\" and retry the original request with a larger output limit."
+        "text_en": "Treat it like \"max_tokens\" and retry the original request with a larger output limit, since a multi-query sweep plainly produces more output than one response can carry."
       },
       {
         "label": "D",
-        "text_en": "Abort the sweep and mark the sources as unavailable."
+        "text_en": "Abort the sweep and mark the sources as unavailable, so that a turn the server could not carry to completion never contributes partial evidence to a client report."
       }
     ],
     "answer": [
@@ -42,7 +42,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q309",
@@ -63,19 +63,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Let the model decide which subagents to invoke, and in what order, based on the request and on what earlier subagent results reveal — the decision belongs in the agentic loop, not in a lookup table."
+        "text_en": "Let the model choose which subagents to invoke, and in what order, from the request itself and from what earlier subagent results reveal, so routing follows the work."
       },
       {
         "label": "B",
-        "text_en": "Expand the keyword table until it covers every phrasing analysts have used so far."
+        "text_en": "Expand the keyword table with more rows and synonyms until it covers all the phrasings analysts have used so far, adding a new entry whenever a request lands on the wrong row."
       },
       {
         "label": "C",
-        "text_en": "Run every subagent on every request so no request can be misrouted."
+        "text_en": "Run every subagent on every request, so that nothing can be misrouted and the coordinator always has the full set of results available at synthesis time."
       },
       {
         "label": "D",
-        "text_en": "Train a separate classifier model to map requests to subagent sets."
+        "text_en": "Train a separate classifier model on past requests and their subagent sets, so that routing generalizes to wordings the hand-written table never anticipated."
       }
     ],
     "answer": [
@@ -89,7 +89,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q310",
@@ -108,19 +108,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Increase the coordinator's context window so the raw output fits."
+        "text_en": "Move the coordinator onto the largest available context window — the raw output then fits in one place — since the degradation only shows up once the documents approach the current limit."
       },
       {
         "label": "B",
-        "text_en": "Route work and hold state only: have subagents return condensed, structured results (key findings, citations, relevance), and keep the raw documents in the subagents' own contexts or in files the coordinator references by pointer."
+        "text_en": "Route work and hold state only: have subagents return condensed, structured results (findings, citations, relevance) and keep the raw documents in their own contexts or in files referenced by pointer."
       },
       {
         "label": "C",
-        "text_en": "Let the synthesis subagent read the coordinator's context directly so the coordinator does not need to pass anything."
+        "text_en": "Let the synthesis subagent inherit and read the coordinator's context directly, so the coordinator never has to pass anything along and no detail is lost to an intermediate summarization step of its own."
       },
       {
         "label": "D",
-        "text_en": "Drop all subagent output after each phase so the coordinator's context stays empty."
+        "text_en": "Drop all subagent output from the coordinator once each phase completes (keeping only the live routing state), so its context stays empty and every decision uses the freshest material."
       }
     ],
     "answer": [
@@ -134,7 +134,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q311",
@@ -153,19 +153,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Extend the procedure with additional steps for each newly discovered source type."
+        "text_en": "Extend the procedure with additional steps for each newly discovered source type, so the subagent has an explicit branch to follow the next time one of them appears."
       },
       {
         "label": "B",
-        "text_en": "State the goal, the quality criteria for a good result, and the constraints, and let the subagent decide the steps so it can adapt to what it finds."
+        "text_en": "State the goal, the quality criteria for a good result, and the constraints, and let the subagent choose its own steps so it can adapt to the sources it actually finds."
       },
       {
         "label": "C",
-        "text_en": "Split the twelve steps across twelve narrowly scoped subagents."
+        "text_en": "Split the twelve steps across twelve narrowly scoped subagents, so that each one owns a single step and an unfamiliar source derails only that step rather than the sweep."
       },
       {
         "label": "D",
-        "text_en": "Have the coordinator perform the searches itself and use the subagent only for formatting."
+        "text_en": "Have the coordinator run the searches itself and use the subagent only for formatting, keeping the part of the work that meets unpredictable input under its direct control."
       }
     ],
     "answer": [
@@ -179,7 +179,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q312",
@@ -200,19 +200,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Both as hooks: any requirement worth stating is worth enforcing programmatically."
+        "text_en": "Both as hooks, since a requirement worth stating in the first place is worth enforcing programmatically, and neither the ordering rule nor the sourcing preference should rest on the model choosing to comply for us."
       },
       {
         "label": "B",
-        "text_en": "Both as prompt guidance, with the citation rule stated first and in capital letters."
+        "text_en": "Both as prompt guidance, with the citation rule stated first and in capital letters, so that the constraint with the most at stake for the client is also the one the model is most likely to follow."
       },
       {
         "label": "C",
-        "text_en": "Enforce (1) with a programmatic gate — a hook that blocks deliver_report unless a successful verify_citations result exists — because it is a deterministic ordering prerequisite; handle (2) with prompt guidance and examples, because \"prefer\" is a judgment call that depends on the sources found."
+        "text_en": "Enforce (1) with a hook that blocks deliver_report unless verify_citations has passed, since that is a deterministic ordering prerequisite; guide (2) by prompt and examples, since \"prefer\" is a judgment call."
       },
       {
         "label": "D",
-        "text_en": "Enforce (2) with a hook that rejects any secondary source, and leave (1) to the prompt since the model usually verifies anyway."
+        "text_en": "Enforce (2) with a hook that rejects any secondary source; leave (1) to the prompt, since the model already runs verification on its own in nearly every report the team has delivered so far."
       }
     ],
     "answer": [
@@ -226,7 +226,7 @@
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q313",
@@ -245,19 +245,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "A subagent with no tools list inherits the full tool set, including the Agent tool; declare an explicit tools list per AgentDefinition limited to what each role needs (for citation formatting: no search, no Agent)."
+        "text_en": "A subagent with no tools list inherits the full tool set, including the Agent tool; declare an explicit tools list per AgentDefinition limited to the role, with no search or Agent tool for formatting."
       },
       {
         "label": "B",
-        "text_en": "The coordinator's allowedTools is missing the Agent tool, so subagents are spawning agents in its place; add it to the coordinator."
+        "text_en": "The coordinator's allowedTools is missing the Agent tool, so the subagents are spawning agents in its place; add the Agent tool to the coordinator so that delegation happens where it belongs."
       },
       {
         "label": "C",
-        "text_en": "Subagents always inherit the coordinator's conversation, so the formatting subagent saw earlier search calls and imitated them; clear the history before each spawn."
+        "text_en": "Subagents inherit the coordinator's conversation, so the formatting subagent saw the earlier search and spawn calls and imitated them; clear that inherited history before each spawn so every role starts clean."
       },
       {
         "label": "D",
-        "text_en": "Write \"do not search or spawn agents\" in the subagent's system prompt."
+        "text_en": "Write into the citation subagent's system prompt that it must confine itself to formatting and leave searching and spawning to the other roles, leaving the shared tool configuration in place."
       }
     ],
     "answer": [
@@ -271,7 +271,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q314",
@@ -290,19 +290,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Keep deleting, but tell the coordinator in the system prompt to remember what it has already delegated."
+        "text_en": "Keep deleting on the same schedule, and have the system prompt tell the coordinator to track what it has already delegated so that the record it needs survives the trimming."
       },
       {
         "label": "B",
-        "text_en": "Delete results sooner — after two turns — so the model never relies on them."
+        "text_en": "Delete results sooner, two turns after they arrive, so that the model never builds its decisions on findings that may have been superseded by a later sweep."
       },
       {
         "label": "C",
-        "text_en": "Stop the loop from running more than five turns so nothing needs deleting."
+        "text_en": "Stop the loop from running more than five turns, so that nothing ever needs deleting and the whole run stays comfortably inside the coordinator's context window."
       },
       {
         "label": "D",
-        "text_en": "Keep the results the model needs for its decisions in history; when trimming is necessary, replace bulky results with condensed summaries that preserve the findings and provenance rather than deleting them outright."
+        "text_en": "Keep in history the results the model's decisions depend on, and where trimming is needed replace bulky results with condensed summaries that preserve the findings and their provenance."
       }
     ],
     "answer": [
@@ -316,7 +316,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q315",
@@ -335,7 +335,7 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Instruct the model in the system prompt to request only one tool per response so the loop never sees more than one block."
+        "text_en": "Instruct the model in the system prompt to request only one tool per response, so that the loop never sees more than a single block and its existing sequential handling stays correct on every turn."
       },
       {
         "label": "B",
@@ -343,11 +343,11 @@
       },
       {
         "label": "C",
-        "text_en": "Execute all three blocks but return each result in a separate user message so the model processes them one at a time."
+        "text_en": "Execute all three blocks but return each result in its own user message — one sweep at a time — so that the model takes them in sequentially and the ordering stays explicit."
       },
       {
         "label": "D",
-        "text_en": "Execute all three blocks and return only the first result, since the model will ask again for the others if it needs them."
+        "text_en": "Execute all three blocks and return only the first result, since the model will ask again for the sweeps it still needs once it has seen what the first one turned up."
       }
     ],
     "answer": [
@@ -361,7 +361,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q316",
@@ -380,19 +380,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Launch only the phases that are independent of each other in parallel (for example several search sweeps over different source types), and start document analysis after search returns, passing it the search results."
+        "text_en": "Launch in parallel only the phases that are independent of one another, such as several search sweeps over different source types, and start document analysis once search returns, passing it the results."
       },
       {
         "label": "B",
-        "text_en": "Keep launching both in parallel but add a fixed sixty-second sleep inside the analysis subagent."
+        "text_en": "Keep launching both subagents in the same response, but have the analysis subagent wait a fixed sixty seconds before it looks for documents, so that the search sweep has time to deposit its results first."
       },
       {
         "label": "C",
-        "text_en": "Never run subagents in parallel; sequential execution is always safer."
+        "text_en": "Never launch subagents in parallel; sequential execution is always safer, and it guarantees that each phase sees the output of the phase before it without any extra coordination."
       },
       {
         "label": "D",
-        "text_en": "Have the analysis subagent poll the search subagent directly until results appear."
+        "text_en": "Have the analysis subagent poll the search subagent directly and begin only once results appear, so that the dependency is settled between the two subagents as the run proceeds."
       }
     ],
     "answer": [
@@ -406,7 +406,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q307",
@@ -427,19 +427,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Let the exception propagate uncaught so the whole run stops and an engineer can investigate."
+        "text_en": "Let the exception propagate uncaught so that the run halts and an engineer can look at the paywall before the subagent spends any more of the budget on that source."
       },
       {
         "label": "B",
-        "text_en": "Catch the exception and return an empty document with no error flag so the subagent moves on quietly."
+        "text_en": "Catch the exception and return an empty document with no error flag (the sweep then continues as normal), so that one unreachable page cannot derail the rest of the run."
       },
       {
         "label": "C",
-        "text_en": "Catch the exception and retry the URL five times inside the tool before returning."
+        "text_en": "Catch the exception and retry the URL five times inside the tool before returning — transport failures often clear on their own — so the subagent hears about it only as a last resort."
       },
       {
         "label": "D",
-        "text_en": "Catch the exception explicitly and return an isError result that says which URL failed, why (paywalled — not retryable), and what to do next, such as searching for an open-access copy or marking the source unavailable."
+        "text_en": "Catch the exception explicitly and return an isError result naming the URL, the reason (paywalled, not retryable), and the next step — an open-access copy, or marking the source unavailable."
       }
     ],
     "answer": [
@@ -453,7 +453,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q308",
@@ -472,19 +472,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Set tool_choice to \"any\" so the model must pick a tool deliberately rather than by accident."
+        "text_en": "Set tool_choice to \"any\" for the synthesis call, so that the model has to pick a tool deliberately rather than reaching for search_web by accident in the middle of the prose."
       },
       {
         "label": "B",
-        "text_en": "Remove search_web from the shared MCP server so no subagent can call it."
+        "text_en": "Remove search_web from the shared MCP server, so that no subagent can call it and the synthesis turn has nothing left to reach for while it is writing the report."
       },
       {
         "label": "C",
-        "text_en": "Set tool_choice to \"none\" for the synthesis call so the model cannot invoke any tool and must answer in text (the same behavior as when no tools are provided)."
+        "text_en": "Set tool_choice to \"none\" for the synthesis call so the model cannot invoke any tool and must answer in text, the same behavior as when no tools are provided at all."
       },
       {
         "label": "D",
-        "text_en": "Add \"do not search\" to the synthesis prompt."
+        "text_en": "Add to the synthesis prompt that the report is to be written from the findings already supplied, so that the turn stays on the material the other subagents have cited."
       }
     ],
     "answer": [
@@ -498,7 +498,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q309",
@@ -517,19 +517,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Read every file under corpus/ into context and let the model filter."
+        "text_en": "Read every file under corpus/ into context and let the model filter, so that the year and the lithium wording are judged together in a single pass over the corpus."
       },
       {
         "label": "B",
-        "text_en": "Glob for the path pattern corpus/2024/*-10K.pdf.txt to get the file set, then Grep those files for the lithium-related terms, and Read only the matches."
+        "text_en": "Glob for the path pattern corpus/2024/*-10K.pdf.txt to get the file set, then Grep those files for the lithium-related terms, and Read only the ones that match."
       },
       {
         "label": "C",
-        "text_en": "Use Bash to run find and cat on the whole corpus so the model sees everything in one output."
+        "text_en": "Use Bash to run find and cat over the whole corpus, so that the model sees every filing in one output and can pick out the 2024 lithium filings from it."
       },
       {
         "label": "D",
-        "text_en": "Grep the corpus for the string \"2024\" to find the 2024 filings, then Read them all."
+        "text_en": "Grep the corpus for the string \"2024\" to identify the annual filings for that year, then Read all of them and pick out the ones that discuss lithium supply."
       }
     ],
     "answer": [
@@ -543,7 +543,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q304",
@@ -562,19 +562,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Require the search subagent to output claim-source mappings — each claim paired with its URL or document identifier and a supporting excerpt — and carry those mappings unchanged through analysis and synthesis."
+        "text_en": "Have the search subagent emit claim-source mappings — each claim paired with its URL or document title and a supporting excerpt — and carry those mappings unchanged through analysis and synthesis."
       },
       {
         "label": "B",
-        "text_en": "Have the report-generation subagent append a bibliography compiled from the search tool's request log."
+        "text_en": "Have the report-generation subagent append a bibliography compiled from the search tool's request log — every document the run touched, listed at the end of the report for the reader to check against."
       },
       {
         "label": "C",
-        "text_en": "Instruct the synthesis subagent to \"always cite your sources\"."
+        "text_en": "Instruct the synthesis subagent to always cite its sources, since synthesis is the stage where the sentences that carry the citations are actually written into the report."
       },
       {
         "label": "D",
-        "text_en": "Attach the raw search results as an appendix to every report."
+        "text_en": "Attach the raw search results to every report as an appendix, so that a reader who doubts a figure can trace it back to the material the sweep returned in full."
       }
     ],
     "answer": [
@@ -588,7 +588,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q305",
@@ -609,19 +609,19 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Always prefer the newest source and drop older figures; render everything as prose for consistency."
+        "text_en": "Always prefer the newest source and drop the older figures, and render every section as prose so that the reports read consistently from one client to the next."
       },
       {
         "label": "B",
-        "text_en": "Apply one uniform output template to every section so readers know what to expect."
+        "text_en": "Apply one uniform output template to every section of the report; readers then know what to expect, and no section arrives in a shape they have not seen before."
       },
       {
         "label": "C",
-        "text_en": "Ask the synthesis subagent to guess a date for each figure when none was captured."
+        "text_en": "Ask the synthesis subagent to infer a plausible date for each figure when none was captured upstream, so that every number carries the temporal context the conflict check needs to compare them."
       },
       {
         "label": "D",
-        "text_en": "Make publication and collection dates required fields in the subagents' structured output so temporal differences are not mistaken for conflicts, and render by content type — tables for financials, prose for narrative, structured lists for technical findings."
+        "text_en": "Make publication and collection dates required fields in the subagents' structured output so time gaps are not read as conflicts, and render by content type: tables for financials, prose for narrative."
       }
     ],
     "answer": [
@@ -635,7 +635,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q306",
@@ -656,23 +656,23 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Decide on recovery before synthesis — for example, attempt alternate routes or substitute sources for the three inaccessible ones when feasible."
+        "text_en": "Decide on recovery before synthesis, attempting alternate routes or substitute sources for the three inaccessible filings wherever that is feasible."
       },
       {
         "label": "B",
-        "text_en": "Proceed exactly as now; five of eight sources is a sufficient sample."
+        "text_en": "Proceed exactly as now, since findings drawn from five of the eight sources are a large enough sample to carry the report."
       },
       {
         "label": "C",
-        "text_en": "Abort the entire run whenever any source is inaccessible."
+        "text_en": "Abort the entire run whenever a source comes back inaccessible, so that no report is ever built on less than the full set of sources the research plan named."
       },
       {
         "label": "D",
-        "text_en": "Annotate the synthesis so the report distinguishes well-supported claims from gaps caused by the missing sources."
+        "text_en": "Annotate the synthesis so that the report distinguishes well-supported claims from the gaps left by the sources that could not be read."
       },
       {
         "label": "E",
-        "text_en": "Drop the affected subtopic from the report without mention so the client never sees an incomplete section."
+        "text_en": "Drop the affected subtopic from the report without mention, so the client is never shown a section the team could only partly support."
       }
     ],
     "answer": [
@@ -687,6 +687,6 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   }
 ]
