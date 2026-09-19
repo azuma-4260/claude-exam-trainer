@@ -642,7 +642,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Before launching the subagent for the next phase, what should the coordinator inject into its initial context?",
+    "stem_en": "A multi-phase research workflow runs each phase in a fresh subagent. The coordinator has been pasting the previous phase's entire raw output into the next subagent's prompt, so each new subagent starts with a context that is already mostly full. Before launching the subagent for the next phase, what should the coordinator inject into its initial context instead?",
     "choices": null,
     "answer": null,
     "answer_en": "A summary of the previous phase's key findings — not the raw output —\nso the new subagent starts with what matters in a fresh context.",
@@ -652,7 +652,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q028",
