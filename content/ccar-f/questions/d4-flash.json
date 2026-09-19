@@ -505,7 +505,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What should an extraction return alongside its primary values to support a validation and feedback loop?",
+    "stem_en": "A pipeline extracts each line item and its price from scanned invoices, returning only those primary fields per line. A downstream validator has no way to catch a misread price without re-parsing the original image. What should the extraction return alongside its primary values to support a validation and feedback loop?",
     "choices": null,
     "answer": null,
     "answer_en": "Validation-ready auxiliary values, such as detected patterns\nor calculated totals, alongside the primary extraction values.",
@@ -515,7 +515,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q022",
