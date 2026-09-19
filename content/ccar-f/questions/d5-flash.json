@@ -11,7 +11,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Why do exact amounts, dates, and stated customer expectations get corrupted by conversation summarization?",
+    "stem_en": "A support agent handles a long multi-issue conversation and compacts the history with a summary once it grows. After compaction, the agent misquotes the refund amount the customer was promised and forgets the delivery date the customer said they needed. Why do exact amounts, dates, and stated customer expectations get corrupted by conversation summarization?",
     "choices": null,
     "answer": null,
     "answer_en": "Summaries compress toward gist and blur precise values;\ncritical facts need a persistent block outside the summarized text.",
@@ -22,7 +22,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q002",
