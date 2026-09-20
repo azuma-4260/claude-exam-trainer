@@ -407,7 +407,7 @@
       "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
     ],
     "difficulty": 1,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -898,6 +898,78 @@
       "https://docs.claude.com/en/docs/agents-and-tools/mcp"
     ],
     "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q038",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which tool_choice value lets the model decide for itself whether to call a tool, and when is it applied by default?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "auto; it is the default whenever tools are supplied in the request.",
+    "explanation_ja": "tool_choice の auto は、ツールを呼ぶかどうかの判断をモデルに委ねる。tools を指定した場合の既定値がこの auto である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q039",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which tool_choice value requires the model to call at least one tool without naming which one?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "any; the model must emit a tool_use block but chooses the tool itself.",
+    "explanation_ja": "tool_choice の any は「必ずどれかのツールを使え」という指定で、どのツールを使うかはモデルに任せる。特定のツールを強制したいときは type: \"tool\" に name を添える。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d2-q040",
+    "exam": "ccar-f",
+    "domain_id": "f-d2",
+    "primary_topic_id": "f-d2-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which tool_choice value prohibits tool use even though tool definitions are present in the request?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "none; it is also the implicit default when no tools are supplied.",
+    "explanation_ja": "tool_choice の none は、tools が定義されていてもツール使用を禁止する。tools を指定しない場合の既定値も none である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 1,
     "status": "active",
     "rev": 1
   }

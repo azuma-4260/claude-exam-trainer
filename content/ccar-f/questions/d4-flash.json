@@ -562,7 +562,7 @@
       "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
     ],
     "difficulty": 1,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -978,6 +978,54 @@
       "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
     ],
     "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q041",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How does Message Batches API pricing compare with the synchronous Messages API?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "50% of the standard price for both input and output tokens.",
+    "explanation_ja": "Batches API は同期 API の 50% の料金で、入力・出力トークンの両方が割引対象になる。レイテンシに寛容な大量処理をコスト最適化する主要な手段である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d4-q042",
+    "exam": "ccar-f",
+    "domain_id": "f-d4",
+    "primary_topic_id": "f-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Does the Message Batches API guarantee how quickly a batch will finish?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "No. There is no latency SLA; many batches finish within an hour, but processing may take up to the 24-hour window.",
+    "explanation_ja": "Batches API には完了時刻の保証(レイテンシ SLA)がない。多くは 1 時間以内に終わるが、最大 24 時間の処理窓いっぱいまでかかり得るため、締切がある処理には同期 API のフォールバックが必要になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 1,
     "status": "active",
     "rev": 1
   }

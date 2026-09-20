@@ -20,7 +20,7 @@
       "https://docs.claude.com/en/docs/claude-code/memory"
     ],
     "difficulty": 1,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -238,7 +238,7 @@
       "https://docs.claude.com/en/docs/claude-code/skills"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -1019,6 +1019,126 @@
       "https://docs.claude.com/en/docs/claude-code/memory"
     ],
     "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q043",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which CLAUDE.md location holds instructions that the whole team receives through version control?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Project scope: ./CLAUDE.md (or ./.claude/CLAUDE.md), committed to the repository.",
+    "explanation_ja": "チーム全員に共有する規約は project スコープの CLAUDE.md に置き、リポジトリにコミットする。user スコープ(~/.claude/CLAUDE.md)に置くと自分の端末にしか効かない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q044",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which memory scope keeps instructions specific to one checkout but deliberately uncommitted?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Local scope: ./CLAUDE.local.md, which Claude Code adds to .gitignore.",
+    "explanation_ja": "local スコープ(CLAUDE.local.md)はそのリポジトリ専用だがコミットしない個人メモ用で、Claude Code が自動で .gitignore に追加する。プロジェクト共有の規約は project スコープに置く。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q045",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which memory scope is controlled by the organization rather than by an individual user or a project?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Managed policy scope: a system-level CLAUDE.md deployed by IT/DevOps that applies to every user on the machine.",
+    "explanation_ja": "managed policy スコープは組織(IT/DevOps)が OS のシステム領域に配置する CLAUDE.md で、その端末の全ユーザーに適用される。user・project・local の各スコープより上位の統制として扱う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/memory"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q046",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A skill's tool calls trigger a permission prompt every time — which SKILL.md frontmatter field lets those tools run without asking?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "allowed-tools: it pre-approves the listed tools for the skill's invocation.",
+    "explanation_ja": "allowed-tools は当該 skill 実行中に列挙したツールの権限確認を省く事前許可である。使えるツールを減らすものではないので、制限したい場合は disallowed-tools を使う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "f-d3-q047",
+    "exam": "ccar-f",
+    "domain_id": "f-d3",
+    "primary_topic_id": "f-d3-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What does the argument-hint frontmatter field in a SKILL.md provide?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A hint shown during autocomplete that documents the arguments the skill expects (e.g. [issue-number]).",
+    "explanation_ja": "argument-hint は skill を呼び出すときにオートコンプリートに表示される引数の案内で、期待する引数の形式を利用者に伝える。権限やツールの制御には関与しない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/skills"
+    ],
+    "difficulty": 1,
     "status": "active",
     "rev": 1
   }
