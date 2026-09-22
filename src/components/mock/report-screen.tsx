@@ -64,7 +64,8 @@ export function MockReportScreen({ report }: { report: MockReport }) {
   const weakest = report.domains.find((d) => d.domainId === report.weakestDomainId) ?? null;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 p-4 pb-10">
+    // 余白・下部ナビ分の padding は (tabs) layout が供給する
+    <main className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-semibold">模試レポート</h1>
