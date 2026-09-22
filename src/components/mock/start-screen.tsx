@@ -98,7 +98,8 @@ export function MockStartScreen({ formOptions }: { formOptions: MockFormOptions 
   const busy = starting || current.kind === "in_progress" || current.kind === "loading";
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col gap-6 p-6">
+    // 余白・下部ナビ分の padding は (tabs) layout が供給する
+    <main className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Mock(模試)</h1>
 
       {current.kind === "in_progress" && (

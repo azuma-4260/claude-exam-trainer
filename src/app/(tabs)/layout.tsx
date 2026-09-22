@@ -2,7 +2,9 @@ import { AppNav } from "@/components/app-nav";
 
 /**
  * タブ付き画面群(Home / Study / Mock / Stats)のレイアウト(specs/05 §全体構造)。
- * /login(Route Handler)と /drill(学習中は全画面)にはナビを出さないため route group に置く。
+ * ナビを出さない画面(/login の Route Handler、学習中・試験中は全画面の /drill・/practice・
+ * /mistakes/review・/mock/session)は route group の外に置く。Mock の開始画面(/mock)と
+ * レポート(/mock/report/[id])はタブ画面なのでこの group に置く。
  */
 export default function TabsLayout({ children }: LayoutProps<"/">) {
   return (

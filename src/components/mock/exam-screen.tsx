@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import type { MockAnswerDto, MockQuestionDto, MockScenarioDto, MockSessionDto } from "@/lib/mock/dto";
@@ -286,15 +287,35 @@ export function MockExamScreen() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-4 p-4">
       <header className="flex items-center justify-between gap-2">
-        <span className="text-sm text-muted-foreground">
-          {index + 1} / {questions.length}(回答済 {answeredCount})
-        </span>
-        <span
-          className={`rounded-md border px-2 py-1 font-mono text-lg tabular-nums ${remainingMs !== null && remainingMs < 5 * 60_000 ? "border-destructive text-destructive" : ""}`}
-          aria-label="残り時間"
-        >
-          {remainingMs === null ? "--:--" : fmtRemaining(remainingMs)}
-        </span>
+        <div className="flex flex-col gap-0.5">
+          {/* 試験中はタブナビを出さない(誤タップ離脱防止)。離脱は許容されるが時計は止まらない(05 S-5)。
+              未 ACK の保存がある間はネイティブ disabled で離脱を止める(in-memory キューの消失防止) */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="-ml-2 h-7 w-fit px-2 text-xs text-muted-foreground"
+            disabled={savesBlocked}
+            aria-describedby="mock-exit-note"
+            onClick={() => router.push("/mock")}
+          >
+            <ArrowLeft data-icon="inline-start" aria-hidden />
+            Mock 画面へ
+          </Button>
+          <span id="mock-exit-note" className="text-[11px] text-muted-foreground">
+            {savesBlocked ? "保存中は移動できません" : "移動しても時計は止まりません"}
+          </span>
+        </div>
+        <div className="flex flex-col items-end gap-0.5">
+          <span
+            className={`rounded-md border px-2 py-1 font-mono text-lg tabular-nums ${remainingMs !== null && remainingMs < 5 * 60_000 ? "border-destructive text-destructive" : ""}`}
+            aria-label="残り時間"
+          >
+            {remainingMs === null ? "--:--" : fmtRemaining(remainingMs)}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {index + 1} / {questions.length}(回答済 {answeredCount})
+          </span>
+        </div>
       </header>
 
       {scenario && (
