@@ -21,7 +21,8 @@
     "task:check": "tsx scripts/task/check.ts",
     "task:start": "tsx scripts/task/start.ts",
     "task:report": "tsx scripts/task/report.ts",
-    "backlog:check": "tsx scripts/backlog/check.ts"
+    "backlog:check": "tsx scripts/backlog/check.ts",
+    "verify:release": "tsx scripts/verify-release.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
