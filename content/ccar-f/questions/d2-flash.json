@@ -627,7 +627,7 @@
       "https://docs.claude.com/en/docs/claude-code/common-workflows"
     ],
     "difficulty": 2,
-    "status": "flagged",
+    "status": "active",
     "rev": 2
   },
   {
@@ -652,7 +652,7 @@
       "https://www.anthropic.com/engineering/claude-code-best-practices"
     ],
     "difficulty": 2,
-    "status": "flagged",
+    "status": "active",
     "rev": 2
   },
   {

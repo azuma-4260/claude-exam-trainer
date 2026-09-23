@@ -60,17 +60,17 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "You send Claude a 200-page contract with a request to list every clause that allows early termination, and it keeps missing clauses buried in the middle, so which three prompt-engineering techniques should you apply to the prompt?",
+    "stem_en": "You send Claude a 200-page contract with a request to list every clause that allows early termination, and it keeps missing clauses buried in the middle, so which three techniques should you apply within that single prompt, without chunking the document or splitting the request into multiple calls?",
     "choices": null,
     "answer": null,
     "answer_en": "1) Put the contract at the top and the request at the end.\n2) Wrap the contract and instructions in separate XML tags (e.g., <contract>).\n3) Ask Claude to quote the relevant clauses before answering.",
-    "explanation_ja": "長い契約書は prompt の先頭付近に置き、「早期解約できる条項を列挙して」という依頼は末尾に置く。契約書・指示を別々の XML タグで区切ると、それぞれの役割を識別しやすい。回答前に該当条項を引用させると、中央部に埋もれた条項にも注意が向き、根拠に基づいた回答になる。",
+    "explanation_ja": "長い契約書は prompt の先頭付近に置き、「早期解約できる条項を列挙して」という依頼は末尾に置く。契約書・指示を別々の XML タグで区切ると、それぞれの役割を識別しやすい。回答前に該当条項を引用させると、関連箇所に焦点を絞って文書を精査させることになり、中央部の見落としを防ぐ助けになる。",
     "refs": [
       "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips",
       "https://docs.claude.com/en/docs/build-with-claude/context-windows"
     ],
     "difficulty": 1,
-    "status": "flagged",
+    "status": "active",
     "rev": 3
   },
   {
