@@ -60,18 +60,18 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "How should you structure a prompt containing a very long document and a question about it?",
+    "stem_en": "You send Claude a 200-page contract with a request to list every clause that allows early termination, and it keeps missing clauses buried in the middle, so which three techniques should you apply within that single prompt, without chunking the document or splitting the request into multiple calls?",
     "choices": null,
     "answer": null,
-    "answer_en": "Place the long document near the beginning and the question or instructions at the end;\nuse XML tags and ask Claude to ground its answer in relevant quotes.",
-    "explanation_ja": "長い文書はpromptの先頭付近に置き、文書に対する質問や指示は末尾に置く。文書・指示・例をXMLタグで区切ると、それぞれの役割を識別しやすい。回答前に関連箇所を引用させると、根拠へ注意を向けてgroundingを強められる。",
+    "answer_en": "1) Put the contract at the top and the request at the end.\n2) Wrap the contract and instructions in separate XML tags (e.g., <contract>).\n3) Ask Claude to quote the relevant clauses before answering.",
+    "explanation_ja": "長い契約書は prompt の先頭付近に置き、「早期解約できる条項を列挙して」という依頼は末尾に置く。契約書・指示を別々の XML タグで区切ると、それぞれの役割を識別しやすい。回答前に該当条項を引用させると、関連箇所に焦点を絞って文書を精査させることになり、中央部の見落としを防ぐ助けになる。",
     "refs": [
       "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips",
       "https://docs.claude.com/en/docs/build-with-claude/context-windows"
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 2
+    "rev": 3
   },
   {
     "id": "f-d5-q004",
@@ -158,7 +158,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Where should an agent workflow pause to collect human feedback?",
+    "stem_en": "Besides a maximum-iteration cap as a backstop, which three conditions should make a customer-support agent stop and escalate to a human?",
     "choices": null,
     "answer": null,
     "answer_en": "On an explicit request for a human, a policy exception or gap,\nor an objective blocker; a maximum-iteration limit is an additional safeguard.",
@@ -168,7 +168,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q008",
@@ -327,7 +327,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Late in a long session, output quality regresses toward generic patterns — name the countermeasures.",
+    "stem_en": "Two hours into a Claude Code session, the agent's answers drift toward generic boilerplate instead of task-specific detail, so which three countermeasures should you apply?",
     "choices": null,
     "answer": null,
     "answer_en": "Persist key facts to a scratchpad and reference them, delegate pointed questions to subagents,\nand /compact when the context fills with stale output.",
@@ -338,7 +338,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q015",

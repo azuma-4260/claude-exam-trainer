@@ -11,7 +11,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Which CLAUDE.md scopes are shared with a project, and which are personal or policy-controlled?",
+    "stem_en": "When a teammate clones your repository, which of the four CLAUDE.md memory scopes (managed policy, user, project, local) do they also receive, and how do the other three differ?",
     "choices": null,
     "answer": null,
     "answer_en": "Project instructions (./CLAUDE.md or ./.claude/CLAUDE.md) are shared through VCS;\nuser instructions are personal, local instructions are uncommitted, and managed policy is organization-controlled.",
@@ -21,7 +21,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q002",
@@ -132,7 +132,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Claude behaves differently across sessions on the same repo — outline the diagnostic first step.",
+    "stem_en": "Claude Code follows a CLAUDE.md rule in one teammate's session but ignores it in another's on the same repository, so what is the first diagnostic step?",
     "choices": null,
     "answer": null,
     "answer_en": "Run /context in each session and compare the Memory files section;\ndifferences there can explain inconsistent behavior.",
@@ -142,7 +142,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 3
+    "rev": 4
   },
   {
     "id": "f-d3-q007",
@@ -568,7 +568,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Before implementing in an unfamiliar domain, how do you surface considerations you might miss?",
+    "stem_en": "You are about to ask Claude Code to add a caching layer, a domain you know little about, so which pattern gets Claude to surface considerations you might miss before any code is written?",
     "choices": null,
     "answer": null,
     "answer_en": "Use the interview pattern:\nask Claude to question you first, eliciting concerns like cache invalidation and failure modes.",
@@ -578,7 +578,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d3-q025",

@@ -36,7 +36,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What should a high-quality tool description include beyond a one-line summary?",
+    "stem_en": "Claude keeps picking the wrong one of several similar tools whose descriptions are only one-line summaries, so which four things should each description add?",
     "choices": null,
     "answer": null,
     "answer_en": "Input format, usage examples, edge cases,\nand explicit boundaries against similar tools.",
@@ -47,7 +47,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q003",
@@ -617,18 +617,18 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What is the token-efficient way to understand a large codebase instead of reading every file upfront?",
+    "stem_en": "Using only its built-in tools, how should Claude Code track down the bug behind a login error saying \"Invalid session token\" in a large, unfamiliar repository without reading every file upfront?",
     "choices": null,
     "answer": null,
-    "answer_en": "Grep for entry points first,\nthen Read files selectively, following imports incrementally.",
-    "explanation_ja": "全ファイルの先読みは文脈を浪費する。Grep でエントリポイントを見つけ、Read で import を辿る段階的理解が効率的である。必要になった範囲だけを読み進めるのが原則である。",
+    "answer_en": "Grep for \"Invalid session token\" to find where it is raised (the entry point),\nthen Read only that file and follow its imports step by step.",
+    "explanation_ja": "全ファイルを先に Read すると、ログインと無関係なコードでコンテキストウィンドウが埋まってしまう。まず Grep でエラーメッセージの文字列を検索し、それを発生させている箇所をエントリポイントとして特定する。そのファイルだけを Read し、import を辿って関係するファイルを 1 つずつ読み進めれば、必要な範囲だけでフローを把握できる。",
     "refs": [
       "https://www.anthropic.com/engineering/claude-code-best-practices",
       "https://docs.claude.com/en/docs/claude-code/common-workflows"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q027",
@@ -642,18 +642,18 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "How do you trace how a function is used when calls go through a wrapper module?",
+    "stem_en": "Grepping for sendEmail only turns up notifications.ts, a wrapper whose exported functions like notifyOrderShipped() call it internally, so using only its built-in tools, how should Claude Code find every place that actually ends up calling sendEmail()?",
     "choices": null,
     "answer": null,
-    "answer_en": "List the wrapper's exported names first,\nthen search for each name to find the real call sites.",
-    "explanation_ja": "wrapper 経由の利用は元の関数名で検索しても見つからない。まず wrapper モジュールの export 名を列挙し、各名を個別に検索して実際の呼出し箇所を追う。間接参照を一段ずつ解決する手順が確実である。",
+    "answer_en": "List the names notifications.ts exports (e.g., notifyOrderShipped, notifyPasswordReset),\nthen Grep for each name across the codebase to find the real call sites.",
+    "explanation_ja": "呼出し側は notifyOrderShipped() などの wrapper 関数しか書かないため、sendEmail で検索しても wrapper 内部の呼出ししか見つからない。まず notifications.ts が export している名前をすべて列挙し、それぞれの名前でコードベース全体を Grep して実際の呼出し箇所を追う。間接参照を一段ずつ解決する手順が確実である。",
     "refs": [
       "https://docs.claude.com/en/docs/claude-code/common-workflows",
       "https://www.anthropic.com/engineering/claude-code-best-practices"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q028",
