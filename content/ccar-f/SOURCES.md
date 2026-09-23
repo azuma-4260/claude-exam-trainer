@@ -752,6 +752,7 @@ You are building a structured data extraction system using Claude. The system ex
 | 2026-09-19 | 選択肢バランス是正(オーナー指摘): active な MCQ 208 問中 206 問で正解が最長、正解の 83% にカンマ(誤答 21%)など、形で正解が推測できる偏りを確認。選択肢を正解と同等の長さ・構造・記法へ書き直し、変更 207 問を旧版との意味差分と選択肢・解説・採点キーの対応で 2 周再レビューした。追加の回復策・前提により元の誤答理由が弱くなっていた f-d1-q209 / q501 / q515、f-d3-q309、f-d4-q202 / q301 / q312 / q507 / q514、f-d5-q103 は元の意味を保つ表現に修正し、対象を flagged に戻して refs 突合 → 2 周再レビュー → active 再反転 → 全件監査を実施。最終変更は全て editorial fix(同一 ID、rev++、採点キー不変)。`scripts/audit-choice-balance.ts`(`npm run audit:choices`)を追加し CI で fail closed に検査(specs/06 / 07 更新) |
 | 2026-09-03 | C5 Step 4(step4-review セッション): refs 37 URL 到達確認、独立レビュー 2 周(P1 0 件)、重複統合で 42 件を別角度に書き直し(同一具体例 0)、新規 120 件を active 化。手順と件数は `content/ccar-f/C5-allocation.md` §Step 4 |
 | 2026-09-23 | 状況不明瞭なフラッシュの是正(オーナー指摘): f-d2-q026 / f-d2-q027 / f-d5-q003 の表面に具体的シナリオと解答範囲(built-in tools のみ・単一 prompt 内・技法 3 つ)を明示。問う概念・正解の意味は不変のため editorial fix として rev++(オーナー承認)。flagged → refs 突合 + 独立レビュー 2 周 → active 再反転 |
+| 2026-09-23 | 同上の全フラッシュ点検(active 約 200 枚): 表面だけでは問いが絞れない 10 枚(f-d1-q021 / q027、f-d2-q002、f-d3-q001 / q006 / q024、f-d4-q003 / q023、f-d5-q007 / q014)の stem_en に具体的シナリオと項目数を明示。answer_en / explanation_ja は不変、editorial fix として rev++(オーナー承認)。flagged → 独立レビュー 2 周(指摘 0)→ active 再反転。点検で見つかった既存の topic 付け違い(f-d1-q021 は f-d1-t3-02 の attribution ではなく委任内容、f-d4-q003 は f-d4-t1-01 ではなく XML タグ構造化で該当 topic なし)は未修正 |
 
 ## 10. refs ソース台帳(C2・2026-08-24)
 

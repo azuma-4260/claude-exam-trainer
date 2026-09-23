@@ -36,7 +36,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What should a high-quality tool description include beyond a one-line summary?",
+    "stem_en": "Claude keeps picking the wrong one of several similar tools whose descriptions are only one-line summaries, so which four things should each description add?",
     "choices": null,
     "answer": null,
     "answer_en": "Input format, usage examples, edge cases,\nand explicit boundaries against similar tools.",
@@ -47,7 +47,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d2-q003",

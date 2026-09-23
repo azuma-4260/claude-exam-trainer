@@ -504,7 +504,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Besides task boundaries, what information makes a research subagent assignment executable?",
+    "stem_en": "A coordinator delegates competitor-pricing research to a subagent by stating only the task boundaries and gets back unusable notes, so which three other pieces of information should the assignment have included?",
     "choices": null,
     "answer": null,
     "answer_en": "A clear objective, expected output format,\nand guidance on the tools and sources to use.",
@@ -515,7 +515,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q022",
@@ -653,7 +653,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What should a structured handoff summary contain when escalating a case to a human without access to the conversation log?",
+    "stem_en": "A support agent escalates a billing dispute to a human reviewer who cannot see the chat log, so which four items should its structured handoff summary contain?",
     "choices": null,
     "answer": null,
     "answer_en": "Customer ID, root cause, amounts involved, and recommended action,\nso the human can act without reading the transcript.",
@@ -663,7 +663,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d1-q028",

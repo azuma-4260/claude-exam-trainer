@@ -158,7 +158,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Where should an agent workflow pause to collect human feedback?",
+    "stem_en": "Besides a maximum-iteration cap as a backstop, which three conditions should make a customer-support agent stop and escalate to a human?",
     "choices": null,
     "answer": null,
     "answer_en": "On an explicit request for a human, a policy exception or gap,\nor an objective blocker; a maximum-iteration limit is an additional safeguard.",
@@ -168,7 +168,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q008",
@@ -327,7 +327,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "Late in a long session, output quality regresses toward generic patterns — name the countermeasures.",
+    "stem_en": "Two hours into a Claude Code session, the agent's answers drift toward generic boilerplate instead of task-specific detail, so which three countermeasures should you apply?",
     "choices": null,
     "answer": null,
     "answer_en": "Persist key facts to a scratchpad and reference them, delegate pointed questions to subagents,\nand /compact when the context fills with stale output.",
@@ -338,7 +338,7 @@
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d5-q015",

@@ -61,7 +61,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "How can XML tags make a complex review prompt easier for Claude to follow?",
+    "stem_en": "Your PR-review prompt mixes instructions, the diff, and sample findings in one block of prose, and Claude sometimes reviews the sample findings as if they were part of the diff, so how should you use XML tags to fix this?",
     "choices": null,
     "answer": null,
     "answer_en": "Wrap distinct instructions, context, and examples in clearly named XML tags\nso the prompt's sections and priorities are explicit.",
@@ -72,7 +72,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q004",
@@ -553,7 +553,7 @@
       "drill"
     ],
     "srs_eligible": true,
-    "stem_en": "What are the key characteristics of the Message Batches API?",
+    "stem_en": "Before moving a nightly bulk-extraction job to the Message Batches API, what should you know about its cost, its completion-time guarantee, and how it handles tool calls?",
     "choices": null,
     "answer": null,
     "answer_en": "50% cost reduction; batches expire after a processing window of up to 24 hours with no latency SLA.\nClient-side tool_result round trips need follow-up requests; server tools can run in the batch worker's loop.",
@@ -563,7 +563,7 @@
     ],
     "difficulty": 1,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "f-d4-q024",
