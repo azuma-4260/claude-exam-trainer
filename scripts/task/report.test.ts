@@ -68,7 +68,7 @@ function verdictsOf(ready: string[], extra: Partial<Record<string, Verdict["stat
   return m;
 }
 
-// 候補順位のテスト用に F 当時の §6 相当の予定日を明示する(現物 §6 は P の相対表記で日付を持たない)
+// 候補順位のテスト用に F 当時の §6 相当の予定日を明示する(現物 §6 は P の日程で、F のタスクは載っていない)
 const fSchedule = new Map<string, string>([
   ["D0-4", "2026-08-24"],
   ["D0-5", "2026-08-24"],

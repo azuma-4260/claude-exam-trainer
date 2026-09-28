@@ -32,6 +32,9 @@ describe("現物 specs/09_task-plan.md", () => {
     expect(g.get("M1")).toContain("C2");
     expect(g.get("D6-1")).toEqual(["T-exam"]);
     expect(g.get("M10")).toEqual(["M9", "O-P2", "CP2"]);
+    // P コンテンツの本番投入は試験別の絞り込み(D6-1)の後(v1.3 レビュー反映)
+    expect(g.get("CP2")).toContain("D6-1");
+    expect(g.get("CP3")).toContain("D6-1");
   });
 });
 
