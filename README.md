@@ -1,5 +1,7 @@
 # Claude 認定資格 対策アプリ 設計書
 
+**v1.3(2026-09-28)**: CCAR-F 合格(2026-09-27)を受けて `09_task-plan.md` を v1.3 に再編(F 未着手タスクの棚卸し、CCAR-P 向け Phase 6〜8 の追加)。CCAR-P の受験日は 2026-12-12。確定事項 1(9/27 まで F 固定)の解除を含む P 仕様の改訂は `09` の S-3 で行う(それまで本書の他の記述は v1.2.1 のまま)。
+
 **v1.2.1(2026-08-23)**: `09_task-plan.md` 追加(タスク分解・依存関係・DoD・リリースゲート)。`02`/`06`/`07` のパス記述を実態(`specs/`・`ExamGuide/`)に修正。`06` に CI 後続 job による deploy 直列化を追記。
 
 **v1.2(2026-08-22)**: 第 2 ラウンドレビュー反映。主な変更: 回答保存を厳密 ACK 方式に一本化(サーバー実行順まで固定)、srs_state 生成を「初回 rating commit 時」に変更、Mock attempt の提出時一括生成、模試フォームの holdout/解放ポリシー確立、日次キューを 45 分時間予算方式へ、**診断テスト機能の全削除**、MAX_INTERVAL 10 日上限の削除、実装契約の適用範囲の絞り込み、data-protection cutover の導入。
@@ -10,8 +12,8 @@
 
 | 資格 | コード | 試験日 | 形式 |
 |---|---|---|---|
-| Claude Certified Architect – Foundations | CCAR-F | **2026-09-27** | 60問 / 120分 / シナリオベース |
-| Claude Certified Architect – Professional | CCAR-P | F 合格後(未定) | 63問 / 120分 / 独立問題 |
+| Claude Certified Architect – Foundations | CCAR-F | 2026-09-27(**合格**) | 60問 / 120分 / シナリオベース |
+| Claude Certified Architect – Professional | CCAR-P | **2026-12-12** | 63問 / 120分 / 独立問題 |
 
 実装はすべて Claude Code に委任(オーナーはコードを読むが書かない)。本設計書群は AI 実装者への指示書として機能することを最優先とする。
 
@@ -72,6 +74,6 @@ UI 文言、loading/empty state、コンポーネント分割、CSS、内部関�
 
 ## 未確定事項
 
-- CCAR-P の受験時期
+- CCAR-P の Exam Guide v1.0 は取得済み(`ExamGuide/CCAR-P.pdf`)。`02` の CCAR-P 節との突合と P の模試構造(ドメイン別問題数)の確定は `09` CP0 で行う
 - ~~公式 Exam Guide の模試構造(4×15 か否か)→ `07` Step 0 で照合~~ → **解消(2026-08-23, C0)**: Guide に各シナリオ問題数の記述なし。各シナリオ 15 問検証は OFF 確定(`content/ccar-f/SOURCES.md` §1.1)
-- ハーフ模試: 任意機能(Phase 4 以降・余力時のみ)
+- ~~ハーフ模試: 任意機能(Phase 4 以降・余力時のみ)~~ → **削除(2026-09-28, S-2)**: F 期限付きの任意枠だった D5-2 とともに削除。P で必要ならバックログから新 ID で起こす

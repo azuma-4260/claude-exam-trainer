@@ -3,11 +3,13 @@ id: B-C3b-B-2
 origin: C3b-B
 created: 2026-09-02
 status: absorbed-by C3b-B
-related_tasks: [C6, T-rev]
+related_tasks: [T-rev]
 related_specs: ["07#step-6-継続改訂ループ", "03#rev-のライフサイクル"]
 related_paths: [content/ccar-f/questions/d3-flash.json, content/ccar-f/questions/d3-claude-code.json, content/ccar-f/questions/form-a-code-gen.json, content/ccar-f/SOURCES.md]
 related_backlog: []
 stop_condition: none
+decisions:
+  - { at: 2026-09-28, by: S-2, action: close, note: "F→P 棚卸し(09 v1.3)で C6 を削除したため related_tasks から外した。absorbed-by C3b-B は維持" }
 ---
 # `/memory` を「ロード済み一覧」とする active カードの事実誤り(C3b-A の 8/27 訂正が逆だった)
 

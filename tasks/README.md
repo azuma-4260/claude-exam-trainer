@@ -64,6 +64,6 @@
 
 - `.env.local` / `.vercel/project.json` の配布元は main worktree ルート。`task:start` がコピーする。値を表示しない
 - 各 worktree で `npm ci` が必要(`task:start` が実行する)。node_modules は共有されない
-- **同時 1 本のみ**: Drizzle migration を生成するタスク(D0-4、C6 の schema 変更)、`package-lock.json` を変えるタスク。dev branch の Neon DB は全 worktree 共有なので migration 適用も直列。task-check は強制しないので、着手時に `task:check` の IN_PROGRESS 一覧を見て判断する
+- **同時 1 本のみ**: Drizzle migration を生成するタスク(D0-4、P の T-exam / T-pmock(paired 実装側の schema 変更を含む)、CP6 の schema 変更)、`package-lock.json` を変えるタスク。dev branch の Neon DB は全 worktree 共有なので migration 適用も直列。task-check は強制しないので、着手時に `task:check` の IN_PROGRESS 一覧を見て判断する
 - 台帳更新は常に main worktree で行い、更新前に `git pull --ff-only`。push 失敗時は再 pull して再試行
 - `claude/*` など規約外ブランチを `task:check` が見つけたら警告する。`task/<ID>` に rename するかマージ・削除する

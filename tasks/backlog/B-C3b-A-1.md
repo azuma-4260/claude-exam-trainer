@@ -3,11 +3,13 @@ id: B-C3b-A-1
 origin: C3b-A
 created: 2026-08-27
 status: absorbed-by C3b-B
-related_tasks: [C3b-B, C3b-C]
+related_tasks: [C3b-B]
 related_specs: ["07#step-3b-固定フォーム用シナリオ-mcq最大工数", "03#mock_formsyaml-と-validator-条件"]
 related_paths: [content/ccar-f/scenarios.yaml, content/ccar-f/mock_forms.yaml]
 related_backlog: [B-C3a-1, B-D0-3-2]
 stop_condition: none
+decisions:
+  - { at: 2026-09-28, by: S-2, action: close, note: "F→P 棚卸し(09 v1.3)で C3b-C を削除したため related_tasks から外した。absorbed-by C3b-B は維持" }
 ---
 # form B/C のシナリオプール設計方針が未確定(全体 6〜8 本の上限と再利用の要否)
 

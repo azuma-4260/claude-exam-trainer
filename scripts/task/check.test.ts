@@ -58,10 +58,10 @@ afterEach(() => {
 });
 
 describe("task:check", () => {
-  it("初期状態: D0-4 / D0-5 / D0-6 / T-srs / C0 が READY、DONE は 8 件", () => {
+  it("初期状態: D0-4 / D0-5 / D0-6 / T-srs / C0 と依存なしの P ノード(S-2 / O-P1 / O-P2)が READY、DONE は 8 件", () => {
     const v = judgeAll(takeSnapshot(repo));
     const ready = [...v.values()].filter((x) => x.status === "READY").map((x) => x.id).sort();
-    expect(ready).toEqual(["C0", "D0-4", "D0-5", "D0-6", "T-srs"]);
+    expect(ready).toEqual(["C0", "D0-4", "D0-5", "D0-6", "O-P1", "O-P2", "S-2", "T-srs"]);
     expect([...v.values()].filter((x) => x.status === "DONE")).toHaveLength(8);
     expect(v.get("D0-3")!.status).toBe("BLOCKED");
     expect(v.get("D0-3")!.blockedBy).toEqual([{ id: "C1", status: "BLOCKED" }]);
@@ -95,15 +95,16 @@ describe("task:check", () => {
   });
 
   it("M-* は depends 全 DONE で MILESTONE_PENDING、記録後に DONE", () => {
-    // M6 ← M5 のみ。M5 を done にすると M6 が MILESTONE_PENDING
-    writeLedger(repo, "M5", "done", "owner");
-    pushMain(repo, "M5");
+    // M15 ← M14, O-P5。両方 done にすると M15 が MILESTONE_PENDING
+    writeLedger(repo, "M14", "done", "owner");
+    writeLedger(repo, "O-P5", "done", "owner");
+    pushMain(repo, "M14 + O-P5");
     let v = judgeAll(takeSnapshot(repo));
-    expect(v.get("M6")!.status).toBe("MILESTONE_PENDING");
-    writeLedger(repo, "M6", "done", "owner");
-    pushMain(repo, "M6");
+    expect(v.get("M15")!.status).toBe("MILESTONE_PENDING");
+    writeLedger(repo, "M15", "done", "owner");
+    pushMain(repo, "M15");
     v = judgeAll(takeSnapshot(repo));
-    expect(v.get("M6")!.status).toBe("DONE");
+    expect(v.get("M15")!.status).toBe("DONE");
   });
 
   it("ローカルの未 push 台帳は無視する(origin/main だけを見る)", () => {

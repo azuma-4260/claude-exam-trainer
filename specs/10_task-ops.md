@@ -70,8 +70,8 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
 ### 自動選択候補 `candidates`
 
 1. 母集合 = `status === "READY"` のノード
-2. 除外(`excluded` に理由付きで列挙): O-\*(`owner-track`)、M-\*(`milestone`)、paired task の実装側 D-y(`paired-dependent`、§3)、paired の T-x で相方 D-y の depends(T-x 自身を除く)に DONE でないものがある(`paired-blocked`: 両方 green で一緒に main に入れる規約を満たせないため)、「同時 1 本」対象で同じ lock の IN_PROGRESS がある(`lock-conflict`、§3)、凍結後(`frozen`: `today >= 2026-09-20`、または O-6 / M5 が DONE)
-3. 順位: 09 §6 の表から各 ID の予定日(行の日付。範囲行 `8/29–9/4` は開始日)を引き、**予定日が today より前のもの(期限超過)を古い順** → **当日** → **以降を日付順**。同日内はクリティカルパス優先(直近の未 DONE マイルストーンの depends に含まれるものを先に)。§6 に現れない ID は末尾
+2. 除外(`excluded` に理由付きで列挙): O-\*(`owner-track`)、M-\*(`milestone`)、paired task の実装側 D-y(`paired-dependent`、§3)、paired の T-x で相方 D-y の depends(T-x 自身を除く)に DONE でないものがある(`paired-blocked`: 両方 green で一緒に main に入れる規約を満たせないため)、「同時 1 本」対象で同じ lock の IN_PROGRESS がある(`lock-conflict`、§3)、凍結後(`frozen`: 09 §7 の凍結ノード O-P4 / M14 のいずれかが DONE。v1.3 で F の日付凍結 `today >= 2026-09-20` / O-6 / M5 は失効)
+3. 順位: 09 §6 の表から各 ID の予定日(行の日付。`M/D` は 2026 年、`YYYY-MM-DD` はその日付。範囲行 `8/29–9/4` は開始日。`X-14` 等の相対表記の行は読まない)を引き、**予定日が today より前のもの(期限超過)を古い順** → **当日** → **以降を日付順**。同日内はクリティカルパス優先(番号順で直近の未 DONE マイルストーンの depends に含まれるものを先に)。§6 に現れない ID は末尾
 4. 日付はすべて Asia/Tokyo。実行環境の `TZ` に依存しない
 
 ### 承認ボトルネック `bottlenecks`
@@ -97,8 +97,8 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
 
 09 §7 と `tasks/README.md` の規約の機械可読版。テストで 09 の記述・グラフと一致することを固定する。
 
-- `PAIRS`: `T-srs → D1-1`、`T-holdout → D1-2`、`T-write → D1-3`、`T-queue → D1-4`、`T-mock → D3-1`(T-rev は paired ではない)
-- `EXCLUSIVE_LOCKS`: `migration` = {`D0-4`, `C6`}(Drizzle migration 生成)。`package-lock.json` を変えるタスクは静的に列挙できないため、セッションが着手時に自己申告で報告する
+- `PAIRS`: `T-srs → D1-1`、`T-holdout → D1-2`、`T-write → D1-3`、`T-queue → D1-4`、`T-mock → D3-1`、`T-exam → D6-1`、`T-pmock → D6-4`(T-rev は paired ではない)
+- `EXCLUSIVE_LOCKS`: `migration` = {`D0-4`, `T-exam`, `T-pmock`, `CP6`}(Drizzle migration を生成し得るタスク。paired は T-x の worktree で進むので T-x で持つ)。`package-lock.json` を変えるタスクは静的に列挙できないため、セッションが着手時に自己申告で報告する
 
 ## 4. `/task-session` セッション状態(`.task-session-state`)
 
