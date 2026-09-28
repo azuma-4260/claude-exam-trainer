@@ -15,7 +15,7 @@ describe("pair 定数", () => {
     }
     for (const ids of EXCLUSIVE_LOCKS.values()) for (const id of ids) expect(g.has(id), id).toBe(true);
   });
-  it("09 §7 の paired task 列挙と一致する(5 組、T-rev は含まない)", () => {
+  it("09 §7 の paired task 列挙と一致する(7 組、T-rev は含まない)", () => {
     const s7 = real09.split("## 7.")[1];
     const listed = [...s7.matchAll(/(T-[a-z]+)\/(D\d-\d)/g)].map((m) => [m[1], m[2]] as const);
     expect(new Map(listed)).toEqual(new Map(PAIRS));

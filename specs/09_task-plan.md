@@ -1,8 +1,10 @@
-# 09. タスク計画(v1.2.1・依存関係と完了条件)
+# 09. タスク計画(v1.3・依存関係と完了条件)
 
 `08` が「いつ」のカレンダーであるのに対し、本書は「何を・どの順で・何が終われば完了か」を定める実行順の単一ソース。タスク ID は本書で採番し、以後のセッション・commit メッセージ・TODO(owner) で参照する。
 
-前提(2026-08-23 時点): Exam Guide PDF は `ExamGuide/CCAR-F.pdf` に commit 済み。GitHub リポジトリ `azuma-4260/claude-exam-trainer` 作成・remote 設定・main push 済み(**O-1 完了**)。Vercel project・Neon・環境変数も設定済み(**O-2a / O-3 / O-4 完了**、詳細は `06` §環境の実体)。残るオーナー手作業は O-2b(D0-3 後)と O-5。
+**v1.3(2026-09-28)**: CCAR-F は 2026-09-27 に合格。F 向けに積んでいた未着手タスクを棚卸し(§8)し、CCAR-P 向けタスクを Phase 6〜8 として追加した。F の完了済みノードと台帳(`tasks/status/`)はそのまま残す。**削除した ID は再利用しない**(§8 に一覧)。
+
+前提(2026-09-28 時点): Phase 0〜2 と Phase 3 の一部は完了済み(台帳参照)。本番 DB には F の学習データがあり、data-protection cutover(`06`)は P フェーズでも継続する(migration は追加のみ、本番データの変更・破壊禁止)。CCAR-P の Exam Guide は未取得(O-P1)、受験日は未定(O-P2)。
 
 ## 1. 順序を支配する原則
 
@@ -25,7 +27,12 @@
 | **C: Content** | Claude Code(別セッション) | バンク生成 `07` Step 0〜6 |
 | **M: Milestone** | – | 日付固定イベント |
 
+
+**P フェーズでの読み替え(v1.3)**: §1 の 1(スキーマ凍結 = migration は追加のみ)・3・4・6・8 はそのまま適用する。1 の日付(8/27)と 5 の form A 日付は F の履歴。P の holdout は 5 と同じく **P の最初の form が入る前**に D6-1 / T-exam で exam 別に成立させる。6 の抜き取りは P のドメイン数(CP0 で確定)で読む。
+
 ## 3. マイルストーン
+
+F のマイルストーン(M0〜M3)は履歴として残す。M4〜M8 は F 試験後に意味を失ったため削除(§8)。P のマイルストーン(M9〜M15)の日付は O-P2(受験日確定)で埋める。それまでは「X」= P 試験日からの相対で表す。
 
 | ID | 日付 | イベント | depends | DoD |
 |---|---|---|---|---|
@@ -33,14 +40,16 @@
 | **M1** | **8/27** | **Drill 開始 = data-protection cutover** | O-4, D1-1, D1-2, D1-3, D1-4, D1-5, D1-6, C2 | 本番 attempt 1 件保存 → 再読込で復元 → 翌日 due に出現。以後 migration は追加のみ |
 | M2 | 8/28 | Practice 開始 | M1, D2-1, C3a | Practice で 1 問回答 → attempt(mode=practice)が本番に保存 |
 | M3 | 9/6 | 第 1 回フル模試(form A) | D3-1, D3-2, D3-3, D3-4, C3b-A, O-5 | 提出完了・レポート表示・attempt 60 行生成・form A 問題が Practice に解放 |
-| M4 | 9/13 | 第 2 回フル模試(form B) | M3, C3b-B, D4-1, D4-2, D4-3 | 同上。70% 未満なら D1/D3/D4 集中運用(`08`) |
-| M5 | 9/20 | 新機能凍結 + 第 3 回フル模試(form C) | M4, C3b-C, C6, D5-1, O-6 | 凍結宣言済、以後 bug fix のみ。初回受験 2 回連続 85% で合格余裕圏 |
-| M6 | 9/22 | 弱点ミニ模試 | M5 | mini セッション 1 件 submitted |
-| M7 | 9/24 | rehearsal フル(最古 form・任意) | M5 | rehearsal ラベル表示・readiness 判定外 |
-| M8 | 9/26 | D-1 総ざらい | M5, O-7 | D-1 モードのキュー提示で間違いノート周回完了 |
-| – | 9/27 | 本試験 | | |
+| M9 | 未定(O-P2 後) | P 基盤完了(試験切替可能・F データ保全) | S-3, D6-1, D6-2, D6-3 | 本番で CCAR-P に切替 → Home のカウントダウン・キューが P 基準。F 側の attempt / srs_state 件数が切替前後で不変(export 比較) |
+| **M10** | 未定 | **P Drill 開始** | M9, O-P2, CP2 | P 試験日が設定済み。本番で P カードの attempt 1 件保存 → 再読込で復元 → 翌日 due に出現 |
+| M11 | 未定 | P Practice 開始 | M10, CP3 | P の独立 MCQ で Practice 1 問回答 → attempt(mode=practice, exam=ccar-p)が本番に保存 |
+| M12 | 未定(X-21 目安) | P 第 1 回フル模試(P form A) | M11, D6-4, CP4-A, O-P3 | 提出完了・レポート表示・attempt が form の問題数ぶん生成 |
+| M13 | 未定(X-14 目安) | P 第 2 回フル模試(P form B) | M12, CP4-B, D4-1, D6-5 | 同上。readiness は初回受験のみで判定(F と同じ 85% 基準) |
+| M14 | 未定(X-7 目安) | P 新機能凍結 | M13, CP6, D5-1, O-P4 | 凍結宣言済、以後 bug fix のみ |
+| M15 | 未定(X-1) | P D-1 総ざらい | M14, O-P5 | D-1 モードのキュー提示で P の間違いノート周回完了 |
+| – | X | CCAR-P 本試験 | | |
 
-D0-6(タスク運用補助ツール)と D0-7(Codex CLI 直接連携)は M0 の depends に含めない: アプリの土台ではなくセッション運用の補助であり、遅延しても M0 の DoD に影響しないため。
+D0-6(タスク運用補助ツール)と D0-7(Codex CLI 直接連携)は M0 の depends に含めない: アプリの土台ではなくセッション運用の補助であり、遅延しても M0 の DoD に影響しないため。同じ理由で S-2・D4-4・T-rev(単体)は P マイルストーンの depends に含めない(T-rev は CP6 経由で M14 に効く)。
 
 ## 4. 依存表(単一ソース)
 
@@ -98,9 +107,11 @@ D0-6(タスク運用補助ツール)と D0-7(Codex CLI 直接連携)は M0 の d
 
 ### Phase 3: 9/7–9/13 — バンク拡充と第 2 回模試
 
+v1.3: D4-1 は P でも使う(P は全問独立形式のため、ドメイン別ミニ模試の価値が F より高い)。P の exam 絞り込みを前提にするため depends に D6-1 を追加した。
+
 | ID | Tr | タスク | depends | spec | DoD |
 |---|---|---|---|---|---|
-| D4-1 | D | ドメイン別ミニ模試(独立 MCQ プールのみ、10〜15 問、abandon 可) | D3-1, D3-3, C5 | 01 FR-5, 03 §1 | テスト: フォーム収載問題が候補に 0 件、abandon で status=abandoned |
+| D4-1 | D | ドメイン別ミニ模試(独立 MCQ プールのみ、10〜15 問、abandon 可、**現在の exam のドメインのみ**) | D3-1, D3-3, C5, D6-1 | 01 FR-5, 03 §1 | テスト: フォーム収載問題が候補に 0 件、abandon で status=abandoned、他 exam の問題が候補に 0 件 |
 | D4-2 | D | 間違いノート(attempt 導出、3 連続正解卒業、誤答回数順、総ざらい=practice mode) | D2-1, D3-1 | 03 §間違いノート, 05 S-7 | テスト: 誤答→掲載、3 連続正解→消滅、再誤答→復帰。未提出 form 問題が現れない |
 | D4-3 | D | Stats 最低限 + `/api/export` + 設定画面(未解決フラグ一覧は現行 rev のみ、ログアウト) | D3-1, D1-6, D0-5 | 05 S-8, S-9; 03 §3 | export JSON に 5 テーブル + 現行 rev フラグのみ。未ログインで 401 |
 | D4-4 | D | フラッシュ評価の Next 時保存(評価は Next まで変更可、Next で送信 → ACK で自動的に次問へ) | D1-5, D4-2 | 05 S-3, 03 §書込プロトコル, 04 §モード行列 | machine.test: rated で再評価可 / COMMIT で saving / SAVE_OK で自動 advance / rated 中 FLAGGED で rejected。実機: 解説閲覧後に評価変更 → Next で保存された applied_rating が変更後の値 |
@@ -109,23 +120,58 @@ D0-6(タスク運用補助ツール)と D0-7(Codex CLI 直接連携)は M0 の d
 
 ### Phase 4: 9/14–9/19 — 改訂と増強
 
+v1.3: T-rev は P の改訂ループ CP6 の前提として残す。D5-1 は試験日を exam 別に読む形で P の D-1 に使う。C6・C3b-C・D5-2・O-6 は削除(§8)。
+
 | ID | Tr | タスク | depends | spec | DoD |
 |---|---|---|---|---|---|
-| T-rev | T | rev ライフサイクルテスト(rev++ で旧フラグ superseded、retired は出題除外、exam_session_answer の snapshot rev が deploy 後も不変) | D0-2, D0-4 | 03 §rev のライフサイクル, §question_flag | 存在し C6 前に green |
-| C6 | C | Step 6: export の未解決フラグ → 改訂(editorial=rev++ / それ以外=新 ID + retired)→ deploy | D4-3, T-rev, M3, M4 | 07 Step 6, 03 §rev | 現行 rev 未解決フラグ 0 件。retired の DB 履歴行が残存 |
-| C3b-C | C | form C + 弱点トピック difficulty 3 追加 → validator → Step 4 全工程 → deploy | C3b-B, M4 | 07 | 9/18 本番反映 |
-| D5-1 | D | D-1 モード(9/26 のみ: due 選定停止、「間違いノート → low-stability 順」を予算内提示)+ 9/20〜の推奨行動カード | D1-4, D4-2 | 04 §直前期と D-1, 05 S-1 | テスト: JST 9/26 固定でキューが仕様順、9/25 は通常順 |
-| D5-2 | D | (任意)ハーフ模試 / Stats チャート | M4 | 01 FR-5, 05 S-8 | 9/19 までに未着手なら捨てる |
-| O-6 | O | 9/20 凍結宣言(以後 bug fix のみ) | C3b-C, D5-1 | 08 | 宣言後の commit が fix のみ |
+| T-rev | T | rev ライフサイクルテスト(rev++ で旧フラグ superseded、retired は出題除外、exam_session_answer の snapshot rev が deploy 後も不変) | D0-2, D0-4 | 03 §rev のライフサイクル, §question_flag | 存在し CP6 前に green |
+| D5-1 | D | D-1 モード(**現在の exam の試験日前日**のみ: due 選定停止、「間違いノート → low-stability 順」を予算内提示)+ 凍結日〜の推奨行動カード | D1-4, D4-2, D6-1 | 04 §直前期と D-1, 05 S-1 | テスト: JST で P 試験日前日に固定するとキューが仕様順、前々日は通常順。F の試験日(9/26)には反応しない |
 
 ### Phase 5: 9/20–9/26 — 直前期
 
 | ID | Tr | タスク | depends | spec | DoD |
 |---|---|---|---|---|---|
-| O-7 | O | 9/26 間違いノート総ざらい(D-1 モード) | M5, D5-1 | 08, 04 §D-1 | 実施 |
 | D5-3 | D | **bug fix**: Mock 開始画面・レポートを `(tabs)` route group に移しタブナビを表示。試験中画面は全画面のまま `/mock` へ戻るボタン(未 ACK 保存中はネイティブ disabled) | D3-2, D3-3 | 05 §全体構造, S-5, S-6 | `/mock`・`/mock/report/[id]` でタブナビから Home / Study / Stats へ遷移できる。`/mock/session` にタブは出ず、保存中はクリック・キーボードとも `/mock` へ遷移しない。`npm run typecheck && npm test && npm run build` 緑 |
 
-## 5. 依存グラフ(§4 の depends 列から機械生成・全 58 ノード)
+### Phase 6: 9/28– — 棚卸しと P の土台
+
+P の日付はすべて O-P2 で確定する。S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、P の模試構造・採点)を決めるため、停止条件(README)に当たる選択はオーナー承認まで TODO(owner) で止める。
+
+| ID | Tr | タスク | depends | spec | DoD |
+|---|---|---|---|---|---|
+| S-2 | D | F→P 棚卸し: 09 を v1.3 に再編(F 未着手タスクの残置・削除、P タスク追加)、バックログ triage、`task:report` の凍結判定を P 用に移行 | – | 09, 10 §1–2 | `npm test`・`npm run backlog:check`・`npm run task:check` 緑。差分をオーナーが確認 |
+| O-P1 | O | CCAR-P 公式 Exam Guide PDF を取得し `ExamGuide/CCAR-P.pdf` に置く | – | 02 §CCAR-P | PDF が main に commit 済み |
+| O-P2 | O | CCAR-P の受験日を決めて予約し、本書 §3(M9〜M15 の日付)と §6 を実日付で埋める | – | 08 | 予約済み。09 §3 / §6 に日付が入る |
+| O-P3 | O | P フル模試 2 回分(120 分)の枠をカレンダー確保 | O-P2 | 08 | 2 件登録 |
+| S-3 | D | P フェーズの spec 改訂: README 確定事項(「9/27 まで F 固定」の解除)、`01` FR-10(試験切替)、`03`(exam 別の出題プール・フォーム・間違いノート・export)、`04`(試験日の exam 別化、切替後の F カードを queue に出すか)、`05`(試験切替 UI)、`06`(F 本番データの保全)、`07` / `08` の P 版 | S-2 | README, 01 FR-10, 03, 04, 05, 06, 07, 08 | 各 spec に P の仕様が入り、停止条件に当たる選択はオーナー承認済み(TODO(owner) 0 件) |
+| CP0 | C | P の Step 0: Guide 転記(`content/ccar-p/SOURCES.md`)、`02` CCAR-P 節の突合(公式優先)、**模試構造(問題数・ドメイン配分・シナリオ有無・multiple-response の選択数)**・In/Out-of-Scope の記録、F バンクと重なる領域のマップ | O-P1 | 07 Step 0, 02 §CCAR-P | `SOURCES.md` 作成、`02` 更新、P の模試構造を `03` §mock_forms に追記 |
+| CP1 | C | P の Step 1: `content/ccar-p/syllabus.yaml`(task statement 層は Guide と 1:1)+ オーナー粒度レビュー | CP0 | 07 Step 1, 02 §トピックツリー | topic 数が CP0 で決めた範囲内、オーナー承認 |
+| T-exam | T | 試験コンテキストの状態遷移テスト: exam 別試験日 → `maximum_interval`、キュー・出題プール・proficiency・間違いノートが現在 exam のみ、P form の holdout が F の提出状態と独立、試験日未設定時の挙動(S-3 の決定どおり) | S-3 | 03 §出題プールの判定順序, 04 | 存在し D6-1 で green |
+| D6-1 | D | 多試験コア: 現在 exam の決定と保持、`CCAR_F_EXAM_DATE_JST` 固定の解消(exam 別試験日)、queue / pool / proficiency / 間違いノート / Stats の exam 絞り込み | T-exam | 03, 04, 06 | T-exam green。本番 F データの export が deploy 前後で一致 |
+| D6-2 | D | 試験切替 UI(Home / Study / Mock / Stats に現在 exam を表示、切替導線。F は参照用) | D6-1 | 05 | 実機: P に切替 → カウントダウン・キュー・Stats が P 基準、F に戻すと F の履歴が見える |
+| D6-3 | D | バンクの複数試験対応: `bankDir` / load・`validate-bank`・audit 系スクリプトを `content/ccar-p/` に対応、CI で両 exam を検証 | S-3 | 03 §1, 06 §バンク静的検証 | 空(または fixture)の P バンクで CI 緑、F の検証結果が不変 |
+
+### Phase 7: P バンクと模試(日付は O-P2 後)
+
+| ID | Tr | タスク | depends | spec | DoD |
+|---|---|---|---|---|---|
+| CP2 | C | P 最小フラッシュ 150(weight 比例、F に無い 3 ドメインを優先。F からの流用は新 ID 採番)→ Step 4 全工程 → deploy | CP1, D6-3 | 07 Step 2, 4, CCAR-P フェーズ | 本番 active 150 件、validator 重み乖離警告なし |
+| CP3 | C | P 独立 MCQ 60〜100(Practice / ドメイン別ミニ模試用、フォーム非収載)→ Step 4 全工程 → deploy | CP1, D6-3 | 07 Step 5 | 本番反映、全ドメインに収録 |
+| T-pmock | T | P 模試テスト: CP0 の模試構造でのフォーム schema・開始時全行生成・提出時 attempt 一括・レポートのドメイン別集計(P のドメイン数・重み) | CP0, S-3 | 03 §exam_session, §Mock の attempt 生成 | 存在し D6-4 で green |
+| D6-4 | D | P 模試対応: `mock_forms` の P 構造、開始・提出・レポート・rehearsal 判定を exam 別に | T-pmock, D6-1, D6-3 | 03, 05 S-5, S-6 | T-pmock green。F form の開始可否・レポートが不変 |
+| CP4-A | C | P form A(問題数・配分は CP0)+ `mock_forms.yaml` → validator → Step 4 全工程 → deploy | CP3, D6-4 | 07 Step 3b, 4; 03 §mock_forms | M12 の 1 日前までに本番反映。遅延時は M12 を後ろ倒し(フラッシュ増産で代替しない) |
+| CP4-B | C | P form B(A と重複なし)→ validator → Step 4 全工程 → deploy | CP4-A | 07 Step 3b | M13 の 1 日前までに本番反映 |
+| D6-5 | D | P form A 提出後解放の本番 E2E(`verify:release` の P 対応。B-D3-4-1 の「解放問題への Practice 回答で applied_rating=null」の正の証拠もここで取る) | M12 | 03 §1, 04 | 本番 export で確認(M12 直後) |
+
+### Phase 8: P 直前期(日付は O-P2 後)
+
+| ID | Tr | タスク | depends | spec | DoD |
+|---|---|---|---|---|---|
+| CP6 | C | P の Step 6: export の未解決フラグ → 改訂(editorial=rev++ / それ以外=新 ID + retired)→ deploy | T-rev, D4-3, M12 | 07 Step 6, 03 §rev | P の現行 rev 未解決フラグ 0 件。retired の DB 履歴行が残存 |
+| O-P4 | O | P 凍結宣言(X-7 目安。以後 bug fix のみ) | CP6, D5-1 | 08 | 宣言後の commit が fix のみ |
+| O-P5 | O | P 試験前日の間違いノート総ざらい(D-1 モード) | M14, D5-1 | 08, 04 §D-1 | 実施 |
+
+## 5. 依存グラフ(§4 の depends 列から機械生成・全 76 ノード)
 
 `X ← A, B` は「X は A と B の完了後に着手可能」。§4 を更新したら本節も再生成する(§4 との 1:1 を検証スクリプトで確認する)。
 
@@ -165,70 +211,116 @@ D3-2 ← D3-1, D1-6
 D3-3 ← D3-1
 D3-4 ← D3-1, D1-2, D2-1, C3b-A
 C3b-A ← C3a, C0, D0-3
-D4-1 ← D3-1, D3-3, C5
+D4-1 ← D3-1, D3-3, C5, D6-1
 D4-2 ← D2-1, D3-1
 D4-3 ← D3-1, D1-6, D0-5
 D4-4 ← D1-5, D4-2
 C5 ← C2, C3a, D0-3
 C3b-B ← C3b-A
 T-rev ← D0-2, D0-4
-C6 ← D4-3, T-rev, M3, M4
-C3b-C ← C3b-B, M4
-D5-1 ← D1-4, D4-2
-D5-2 ← M4
+D5-1 ← D1-4, D4-2, D6-1
 D5-3 ← D3-2, D3-3
-O-6 ← C3b-C, D5-1
-O-7 ← M5, D5-1
+S-2 ← (なし)
+O-P1 ← (なし)
+O-P2 ← (なし)
+O-P3 ← O-P2
+S-3 ← S-2
+CP0 ← O-P1
+CP1 ← CP0
+T-exam ← S-3
+D6-1 ← T-exam
+D6-2 ← D6-1
+D6-3 ← S-3
+CP2 ← CP1, D6-3
+CP3 ← CP1, D6-3
+T-pmock ← CP0, S-3
+D6-4 ← T-pmock, D6-1, D6-3
+CP4-A ← CP3, D6-4
+CP4-B ← CP4-A
+D6-5 ← M12
+CP6 ← T-rev, D4-3, M12
+O-P4 ← CP6, D5-1
+O-P5 ← M14, D5-1
 M0 ← S-1, O-1, O-2a, O-2b, O-3, O-4, D0-1, D0-2, D0-3, D0-4, D0-5, C0, C1
 M1 ← O-4, D1-1, D1-2, D1-3, D1-4, D1-5, D1-6, C2
 M2 ← M1, D2-1, C3a
 M3 ← D3-1, D3-2, D3-3, D3-4, C3b-A, O-5
-M4 ← M3, C3b-B, D4-1, D4-2, D4-3
-M5 ← M4, C3b-C, C6, D5-1, O-6
-M6 ← M5
-M7 ← M5
-M8 ← M5, O-7
+M9 ← S-3, D6-1, D6-2, D6-3
+M10 ← M9, O-P2, CP2
+M11 ← M10, CP3
+M12 ← M11, D6-4, CP4-A, O-P3
+M13 ← M12, CP4-B, D4-1, D6-5
+M14 ← M13, CP6, D5-1, O-P4
+M15 ← M14, O-P5
 ```
 
-### クリティカルパス(8/27 M1 へ合流する 3 本)
+### クリティカルパス(P)
 
 ```
-Dev    : S-1 → O-1 → D0-1 → D0-4 → T-holdout → D1-2 → D1-3 → D1-5 → M1   (10 段・最長)
-           ├ D0-1 → T-srs → D1-1 → T-write → D1-3 / T-queue → D1-4 → D1-5
-           ├ D0-1 → D0-5 → D1-3(D0-5 は O-4 待ち)
-           └ D0-4 → D1-6 → M1(D0-4 は O-3 待ち)
-Owner  : S-1 → O-1 → O-2a → O-3 → O-4 → M1
-Content: C0 → C1 → D0-3 → C2 → M1(D0-3 は C1 / D0-2 / O-2a の 3 つ待ち)
+Dev    : S-2 → S-3 → T-exam → D6-1 → D6-2 → M9 → M10
+           ├ S-3 → D6-3 → CP2 / CP3(D6-3 がバンク投入の関門)
+           └ D6-1 → D6-4(+ T-pmock ← CP0)→ CP4-A → M12
+Content: O-P1 → CP0 → CP1 → CP2 → M10 / CP3 → CP4-A → M12 → CP6 → O-P4 → M14
+Owner  : O-P1(Guide がないと CP0 以降が全停止)、O-P2(日付がないと M10 と §6 が確定しない)
 ```
 
-- **O-3 が D0-4 を、O-4 が D0-5 を、O-2a が D0-3 を止める**ため、O-1〜O-4 は 8/23 中に完了が必要
-- M1 以降の主経路: M1 → D2-1 → M2 / T-mock → D3-1 → D3-2・D3-3・D3-4 → M3(C3b-A 9/5)→ D4-* → M4(C3b-B)→ C6・C3b-C・D5-1 → O-6 → M5 → M6・M7・M8
+- **O-P1 が P コンテンツ全体を止める**。Dev 側(S-2 → S-3 → T-exam → D6-1 / D6-3)は O-P1 を待たずに進められる
+- M12 以降の主経路: M12 → D6-5・CP6 → M13(CP4-B・D4-1)→ O-P4 → M14 → O-P5 → M15
 
-## 6. セッション配分(8/23–9/26)
+## 6. セッション配分(P フェーズ)
 
-| 日 | Owner | Dev / Test | Content |
+P の受験日(X)が未定のため、週は O-P2 からの相対で書く。O-P2 完了時に、この表の 1 列目を実日付(`M/D` または `YYYY-MM-DD`、範囲は開始日)に書き換える。`task:report` は実日付の行だけを予定日として読み、相対表記の行は「§6 未掲載」として順位の末尾(クリティカルパス優先)に回す。F の配分表(8/23–9/26)は §8 に履歴として残す。
+
+| 週 | Owner | Dev / Test | Content |
 |---|---|---|---|
-| 8/23 | ~~O-1~~, ~~O-2a~~, ~~O-3~~, ~~O-4~~, ~~O-5~~(全て済) | S-1, D0-1, D0-2 | C0, C1(+粒度レビュー) |
-| 8/24 | O-2b 確認 | D0-4, D0-5, D0-3, D0-6, D0-7, T-srs, T-holdout → **M0** | C2 生成開始 |
-| 8/25 | – | D1-1, D1-2, T-write, T-queue, D1-3 | C2 生成 |
-| 8/26 | C2 抜き取り | D1-4, D1-5, D1-6 | C2 レビュー・deploy |
-| 8/27 | **学習開始(M1)** | 実機確認、D2-1 | C3a |
-| 8/28 | C3a 抜き取り・学習 | D2-1 → **M2** | C3a deploy |
-| 8/29–9/4 | 学習 | T-mock, D3-1, D3-2, D3-3 | **C3b-A(最優先)** |
-| 9/5 | form A 抜き取り | – | form A deploy |
-| 9/6 | **M3** | D3-4(M3 直後) | – |
-| 9/7–9/11 | 学習 | D4-2, D4-3, T-rev | C5, C3b-B |
-| 9/12 | C5 / form B 抜き取り | D4-1 | deploy |
-| 9/13 | **M4** | – | – |
-| 9/14–9/17 | 学習 | D5-1, (D5-2) | C6, C3b-C |
-| 9/18 | form C 抜き取り | – | form C deploy |
-| 9/19 | – | bug fix | – |
-| 9/20 | O-6 → **M5** | – | – |
-| 9/21–9/26 | M6 / M7 / O-7 → M8 | bug fix のみ | – |
+| 着手直後 | O-P1, O-P2, O-P3 | S-2 → S-3 | – |
+| 1 週目 | P の Guide を読む | T-exam → D6-1, D6-3 | CP0, CP1(+粒度レビュー) |
+| 2 週目 | CP2 抜き取り | D6-2 → **M9**, D4-4 | CP2 |
+| 3 週目 | **P Drill 開始(M10)** | T-pmock → D6-4, D4-1 | CP3 → **M11** |
+| 4 週目 | CP4-A 抜き取り | D5-1, T-rev | CP4-A |
+| X-21 | **M12** | D6-5(M12 直後) | CP4-B |
+| X-14 | **M13** | bug fix | CP6 |
+| X-7 | O-P4 → **M14** | bug fix のみ | – |
+| X-1 | O-P5 → **M15** | – | – |
+
+X までが 5 週より短い場合は、CP4-B と M13 を落として M12 → CP6 → M14 に詰める(依存表を先に更新する)。
 
 ## 7. 運用ルール
 
 - 新しいセッションは「本書のどの ID に着手するか」を冒頭で宣言し、`npm run task:check <ID>` が READY であることを確認して `npm run task:start <ID>` で始める(完了判定・worktree 規約は `tasks/README.md`)
 - DoD を満たさない状態で次の ID に進まない。満たせない場合は TODO(owner) を残して停止する(README 停止条件)
-- 日付が遅延した場合は `08` のリスク表(form A → 9/8 後ろ倒し等)に従い、本書の depends は変更しない
-- **paired task**: テストタスク T-x と直後の実装タスク D-y(T-srs/D1-1、T-holdout/D1-2、T-write/D1-3、T-queue/D1-4、T-mock/D3-1)は、同一 worktree `task/T-x` でテスト先行 → 実装の順に作り、**両方 green の状態で一緒に main に入れる**(§1-2 の red テスト禁止の帰結。T-x 単独では main に入れない)。D-y の `task:start` は行わず、マージ時に両 ID を台帳記録する。T-rev は実装タスクが C6(コンテンツ)なので paired ではない
+- 日付が遅延した場合は `08` のリスク表(form A → 後ろ倒し等)に従い、本書の depends は変更しない
+- **paired task**: テストタスク T-x と直後の実装タスク D-y(T-srs/D1-1、T-holdout/D1-2、T-write/D1-3、T-queue/D1-4、T-mock/D3-1、T-exam/D6-1、T-pmock/D6-4)は、同一 worktree `task/T-x` でテスト先行 → 実装の順に作り、**両方 green の状態で一緒に main に入れる**(§1-2 の red テスト禁止の帰結。T-x 単独では main に入れない)。D-y の `task:start` は行わず、マージ時に両 ID を台帳記録する。T-rev は実装タスクが CP6(コンテンツ)なので paired ではない
+- **凍結**: `task:report` は O-P4 または M14 が DONE になったら全候補を `frozen` で除外する(F の 9/20 凍結は F 試験の終了とともに失効)
+
+## 8. F→P 棚卸し記録(v1.3・2026-09-28)
+
+### 残したタスク(未着手・P で使う)
+
+| ID | 残す理由 | v1.3 での変更 |
+|---|---|---|
+| D4-1 | P は全問独立形式で、ドメイン別ミニ模試がそのまま使える | depends に D6-1 を追加、DoD に exam 絞り込みを追加 |
+| D4-4 | フラッシュ評価の UX 改善で、exam に依存しない | なし |
+| T-rev | P の改訂ループ(CP6)の前提 | DoD の参照先を C6 → CP6 |
+| D5-1 | P の試験前日にも同じ D-1 モードを使う | 試験日を exam 別に読む(depends に D6-1)、DoD を P 試験日基準に |
+| M3 | 9/6 の form A 模試は実施済み(D3-4 の証跡)。depends は全 DONE | なし。オーナーが DoD を確認して台帳に `done` を記録する |
+
+### 削除したタスク(ID は再利用しない)
+
+| ID | 内容 | 削除理由 |
+|---|---|---|
+| C6 | F の Step 6 改訂ループ | F バンクは合格後に改訂しても得がない。P 版は CP6 |
+| C3b-C | F form C | F 試験の終了で不要 |
+| D5-2 | (任意)ハーフ模試 / Stats チャート | F 期限付きの任意枠。必要ならバックログから新 ID で起こす |
+| O-6 | F の 9/20 凍結宣言 | F 試験の終了で失効。P 版は O-P4 |
+| O-7 | F の 9/26 総ざらい | 同上。P 版は O-P5 |
+| M4〜M8 | F 第 2〜3 回模試・凍結・弱点ミニ・rehearsal・D-1 | F 試験の終了で失効(実施済みのものがあっても台帳には記録しない) |
+
+### F のセッション配分(履歴・8/23–9/26)
+
+| 日 | Owner | Dev / Test | Content |
+|---|---|---|---|
+| 8/23–8/24 | O-1〜O-5、O-2b | S-1, D0-1〜D0-7, T-srs, T-holdout → M0 | C0, C1, C2 開始 |
+| 8/25–8/28 | C2 / C3a 抜き取り、学習開始(M1) | D1-1〜D1-6, T-write, T-queue, D2-1 → M2 | C2, C3a |
+| 8/29–9/6 | M3 | T-mock, D3-1〜D3-4 | C3b-A |
+| 9/7–9/26 | 学習・模試 | D4-2, D4-3, D5-3 | C5, C3b-B |

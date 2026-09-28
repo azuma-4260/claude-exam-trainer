@@ -9,7 +9,9 @@ import { git, mainWorktreeRoot } from "./git";
 import { lockOf, PAIRED_DEPENDENTS, PAIRS } from "./pair";
 import { BACKLOG_DIR, parseBacklogFile, type BacklogItem } from "../backlog/schema";
 
-export const FREEZE_DATE = "2026-09-20";
+/** 凍結を示すノード(09 §7)。いずれかが DONE なら全候補を frozen で除外する。F の 9/20 凍結は F 試験の終了で失効 */
+export const FREEZE_NODES: readonly string[] = ["O-P4", "M14"];
+/** §6 の `M/D` 表記に補う年(`YYYY-MM-DD` 表記の行はその年を使う) */
 const PLAN_YEAR = 2026;
 
 export type ExcludeReason = "owner-track" | "milestone" | "paired-dependent" | "paired-blocked" | "lock-conflict" | "frozen";
@@ -76,16 +78,18 @@ export function parseNodeMeta(md: string): Map<string, NodeMeta> {
   return out;
 }
 
-/** §6 の表から ID → 予定日(YYYY-MM-DD。範囲行は開始日)。ID は known に含まれるものだけ拾う */
+/** §6 の表から ID → 予定日(YYYY-MM-DD。範囲行は開始日)。1 列目が `YYYY-MM-DD` / `M/D` 以外の行(相対表記)は読まない。ID は known に含まれるものだけ拾う */
 export function parseSchedule(md: string, known: ReadonlySet<string>): Map<string, string> {
   const out = new Map<string, string>();
   const s6 = /^## 6\.[^\n]*\n([\s\S]*?)(?=^## \d+\.|(?![\s\S]))/m.exec(md)?.[1] ?? "";
   for (const line of s6.split("\n")) {
     if (!line.startsWith("|")) continue;
     const cells = line.split("|").slice(1, -1);
-    const d = /^(\d{1,2})\/(\d{1,2})/.exec(cells[0]?.trim() ?? "");
-    if (!d) continue;
-    const date = `${PLAN_YEAR}-${d[1].padStart(2, "0")}-${d[2].padStart(2, "0")}`;
+    const head = cells[0]?.trim() ?? "";
+    const full = /^(\d{4})-(\d{2})-(\d{2})/.exec(head);
+    const short = /^(\d{1,2})\/(\d{1,2})/.exec(head);
+    if (!full && !short) continue;
+    const date = full ? `${full[1]}-${full[2]}-${full[3]}` : `${PLAN_YEAR}-${short![1].padStart(2, "0")}-${short![2].padStart(2, "0")}`;
     const rest = cells.slice(1).join(" ").replace(/[*~`()]/g, " ");
     for (const m of rest.matchAll(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)?/g)) {
       const id = m[0];
@@ -125,7 +129,7 @@ export interface SelectInput {
 export function selectCandidates(inp: SelectInput): { candidates: Candidate[]; excluded: { id: string; reason: ExcludeReason }[] } {
   const { verdicts, graph, meta, schedule, today } = inp;
   const status = (id: string) => verdicts.get(id)?.status;
-  const frozen = today >= FREEZE_DATE || status("O-6") === "DONE" || status("M5") === "DONE";
+  const frozen = FREEZE_NODES.some((id) => status(id) === "DONE");
   const inProgress = [...verdicts.values()].filter((v) => v.status === "IN_PROGRESS").map((v) => v.id);
   const heldLocks = new Set(inProgress.map(lockOf).filter((x): x is string => x !== null));
   const excluded: { id: string; reason: ExcludeReason }[] = [];
@@ -144,7 +148,10 @@ export function selectCandidates(inp: SelectInput): { candidates: Candidate[]; e
     else ready.push(v.id);
   }
   // クリティカルパス: 直近の未 DONE マイルストーンの depends
-  const nextMilestone = [...graph.keys()].filter(isMilestone).sort().find((m) => status(m) !== "DONE");
+  const nextMilestone = [...graph.keys()]
+    .filter(isMilestone)
+    .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)))
+    .find((m) => status(m) !== "DONE");
   const critical = new Set(nextMilestone ? graph.get(nextMilestone) ?? [] : []);
   const bucket = (id: string) => {
     const d = schedule.get(id);

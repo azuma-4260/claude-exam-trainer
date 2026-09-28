@@ -22,12 +22,30 @@ describe("09 の表の解析", () => {
     expect(meta.get("M1")).toEqual({ track: "M", spec: "09 §3" });
     expect(meta.size).toBe(graph.size);
   });
-  it("§6 の予定日(範囲行は開始日、装飾つき ID も拾う)", () => {
-    expect(schedule.get("D0-4")).toBe("2026-08-24");
-    expect(schedule.get("O-1")).toBe("2026-08-23"); // ~~O-1~~
-    expect(schedule.get("T-mock")).toBe("2026-08-29"); // 8/29–9/4
-    expect(schedule.get("D5-2")).toBe("2026-09-14"); // (D5-2)
-    expect(schedule.get("M3")).toBe("2026-09-06");
+  it("§6 の予定日(範囲行は開始日、装飾つき ID も拾う、YYYY-MM-DD も読む、相対表記の行は読まない)", () => {
+    const md = [
+      "## 6. 配分",
+      "",
+      "| 日 | Owner | Dev |",
+      "|---|---|---|",
+      "| 8/23 | ~~O-1~~ | D0-4 |",
+      "| 8/29–9/4 | 学習 | T-mock, (D5-1) |",
+      "| 2027-01-10 | **M12** | D6-5 |",
+      "| X-14 | **M13** | D4-1 |",
+      "",
+      "## 7. 運用",
+    ].join("\n");
+    const sch = parseSchedule(md, known);
+    expect(sch.get("O-1")).toBe("2026-08-23"); // ~~O-1~~
+    expect(sch.get("D0-4")).toBe("2026-08-23");
+    expect(sch.get("T-mock")).toBe("2026-08-29"); // 8/29–9/4
+    expect(sch.get("D5-1")).toBe("2026-08-29"); // (D5-1)
+    expect(sch.get("M12")).toBe("2027-01-10");
+    expect(sch.has("M13")).toBe(false);
+    expect(sch.has("D4-1")).toBe(false);
+  });
+  it("現物 §6(P の相対表記)からは予定日を拾わず、§8 の F 履歴表も読まない", () => {
+    expect(schedule.size).toBe(0);
   });
   it("isoJst は +09:00 で出す", () => {
     expect(isoJst(new Date("2026-08-24T16:05:06Z"))).toBe("2026-08-25T01:05:06+09:00");
@@ -46,10 +64,21 @@ function verdictsOf(ready: string[], extra: Partial<Record<string, Verdict["stat
   return m;
 }
 
+// 候補順位のテスト用に F 当時の §6 相当の予定日を明示する(現物 §6 は P の相対表記で日付を持たない)
+const fSchedule = new Map<string, string>([
+  ["D0-4", "2026-08-24"],
+  ["D0-5", "2026-08-24"],
+  ["D0-6", "2026-08-24"],
+  ["T-srs", "2026-08-24"],
+  ["D1-2", "2026-08-25"],
+  ["D1-6", "2026-08-26"],
+  ["D2-1", "2026-08-27"],
+]);
+
 describe("selectCandidates", () => {
   it("期限超過 → 当日 → 以降の順、同日はクリティカルパス優先、O/M/paired D-y は除外", () => {
     const v = verdictsOf(["D0-4", "D0-5", "T-srs", "D1-6", "O-2b", "M0", "D1-2", "D0-6"], { "D0-1": "DONE" });
-    const r = selectCandidates({ verdicts: v, graph, meta, schedule, today: "2026-08-25" });
+    const r = selectCandidates({ verdicts: v, graph, meta, schedule: fSchedule, today: "2026-08-25" });
     expect(r.candidates.map((c) => c.id)).toEqual(["D0-4", "D0-5", "D0-6", "T-srs", "D1-6"]);
     expect(r.candidates[0].reason).toMatch(/期限超過・クリティカルパス/);
     expect(r.candidates.find((c) => c.id === "D1-6")?.reason).toBe("以降");
@@ -64,26 +93,33 @@ describe("selectCandidates", () => {
   it("paired の T-x は相方 D-y の depends が未 DONE なら paired-blocked", () => {
     // T-write → D1-3 は D1-2, D0-5 にも依存
     const v = verdictsOf(["T-write"], { "D0-5": "DONE" });
-    expect(selectCandidates({ verdicts: v, graph, meta, schedule, today: "2026-08-25" }).excluded).toEqual([{ id: "T-write", reason: "paired-blocked" }]);
+    expect(selectCandidates({ verdicts: v, graph, meta, schedule: fSchedule, today: "2026-08-25" }).excluded).toEqual([{ id: "T-write", reason: "paired-blocked" }]);
     const v2 = verdictsOf(["T-write"], { "D0-5": "DONE", "D1-2": "DONE" });
-    expect(selectCandidates({ verdicts: v2, graph, meta, schedule, today: "2026-08-25" }).candidates.map((c) => c.id)).toEqual(["T-write"]);
+    expect(selectCandidates({ verdicts: v2, graph, meta, schedule: fSchedule, today: "2026-08-25" }).candidates.map((c) => c.id)).toEqual(["T-write"]);
   });
   it("当日が先頭になる", () => {
     const v = verdictsOf(["D1-6", "D2-1"]);
-    const r = selectCandidates({ verdicts: v, graph, meta, schedule, today: "2026-08-26" });
+    const r = selectCandidates({ verdicts: v, graph, meta, schedule: fSchedule, today: "2026-08-26" });
     expect(r.candidates.map((c) => [c.id, c.reason])).toEqual([["D1-6", "当日"], ["D2-1", "以降"]]);
   });
-  it("migration lock: D0-4 が IN_PROGRESS なら C6 は lock-conflict", () => {
-    const v = verdictsOf(["C6"], { "D0-4": "IN_PROGRESS" });
-    const r = selectCandidates({ verdicts: v, graph, meta, schedule, today: "2026-09-14" });
-    expect(r.excluded).toContainEqual({ id: "C6", reason: "lock-conflict" });
+  it("migration lock: D0-4 が IN_PROGRESS なら CP6 は lock-conflict", () => {
+    const v = verdictsOf(["CP6"], { "D0-4": "IN_PROGRESS" });
+    const r = selectCandidates({ verdicts: v, graph, meta, schedule: fSchedule, today: "2026-11-01" });
+    expect(r.excluded).toContainEqual({ id: "CP6", reason: "lock-conflict" });
   });
-  it("凍結: 9/20 以降、または O-6 / M5 DONE で候補なし", () => {
+  it("凍結: O-P4 / M14 が DONE で候補なし。日付だけでは凍結しない(F の 9/20 凍結は失効)", () => {
     const v = verdictsOf(["D5-1"]);
-    expect(selectCandidates({ verdicts: v, graph, meta, schedule, today: "2026-09-19" }).candidates).toHaveLength(1);
-    expect(selectCandidates({ verdicts: v, graph, meta, schedule, today: "2026-09-20" }).excluded).toEqual([{ id: "D5-1", reason: "frozen" }]);
-    const v2 = verdictsOf(["D5-1"], { "O-6": "DONE" });
-    expect(selectCandidates({ verdicts: v2, graph, meta, schedule, today: "2026-09-19" }).candidates).toHaveLength(0);
+    expect(selectCandidates({ verdicts: v, graph, meta, schedule, today: "2026-09-28" }).candidates).toHaveLength(1);
+    const v2 = verdictsOf(["D5-1"], { "O-P4": "DONE" });
+    expect(selectCandidates({ verdicts: v2, graph, meta, schedule, today: "2026-09-28" }).excluded).toEqual([{ id: "D5-1", reason: "frozen" }]);
+    const v3 = verdictsOf(["D5-1"], { M14: "DONE" });
+    expect(selectCandidates({ verdicts: v3, graph, meta, schedule, today: "2026-09-28" }).candidates).toHaveLength(0);
+  });
+  it("クリティカルパスは番号順で直近の未 DONE マイルストーン(M9 < M10)", () => {
+    const done = Object.fromEntries([...graph.keys()].filter((x) => /^M[0-3]$/.test(x)).map((x) => [x, "DONE" as const]));
+    const v = verdictsOf(["D6-3", "D4-4"], done);
+    const r = selectCandidates({ verdicts: v, graph, meta, schedule, today: "2026-09-28" });
+    expect(r.candidates.map((c) => [c.id, c.reason])).toEqual([["D6-3", "§6 未掲載・クリティカルパス"], ["D4-4", "§6 未掲載"]]);
   });
 });
 
@@ -206,7 +242,7 @@ describe("buildReport(一時 repo)", () => {
     expect(w.session?.hash).toBe("abc");
     expect(r.worktrees.find((x) => x.id === "D0-5")).toBeUndefined();
     expect(r.nodes.find((n) => n.id === "D0-4")?.status).toBe("IN_PROGRESS");
-    expect(r.candidates.map((c) => c.id)).toEqual(["C0", "D0-6", "T-srs"]); // C0 は 8/23 予定 = 期限超過
+    expect(r.candidates.map((c) => c.id)).toEqual(["C0", "D0-6", "S-2", "T-srs"]); // 現物 §6 に実日付が無いので全件「§6 未掲載」、ID 順(O-P* は owner-track で除外)
     expect(r.sharedCheckout.branch).toBe("main");
   });
 

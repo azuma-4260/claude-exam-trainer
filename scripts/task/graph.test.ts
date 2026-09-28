@@ -13,19 +13,25 @@ function fixture(opts: { s3?: string; s4?: string; s5?: string } = {}): string {
 }
 
 describe("現物 specs/09_task-plan.md", () => {
-  it("§3 が 9、§4 が 49、計 58 ノードで §5 と一致する", () => {
+  it("§3 が 11、§4 が 65、計 76 ノードで §5 と一致する", () => {
     const g = loadGraph(real);
     const ids = [...g.keys()];
-    expect(ids.filter(isMilestone)).toHaveLength(9);
-    expect(ids.filter((x) => !isMilestone(x))).toHaveLength(49);
-    expect(g.size).toBe(58);
-    expect(parseDerived(real).size).toBe(58);
+    expect(ids.filter(isMilestone)).toHaveLength(11);
+    expect(ids.filter((x) => !isMilestone(x))).toHaveLength(65);
+    expect(g.size).toBe(76);
+    expect(parseDerived(real).size).toBe(76);
+  });
+  it("F→P 棚卸し(v1.3)で削除した ID は存在しない", () => {
+    const g = loadGraph(real);
+    for (const id of ["C6", "C3b-C", "D5-2", "O-6", "O-7", "M4", "M5", "M6", "M7", "M8"]) expect(g.has(id), id).toBe(false);
   });
   it("既知の依存が読める", () => {
     const g = loadGraph(real);
     expect(g.get("D0-3")).toEqual(["D0-2", "C1", "O-2a"]);
     expect(g.get("S-1")).toEqual([]);
     expect(g.get("M1")).toContain("C2");
+    expect(g.get("D6-1")).toEqual(["T-exam"]);
+    expect(g.get("M10")).toEqual(["M9", "O-P2", "CP2"]);
   });
 });
 

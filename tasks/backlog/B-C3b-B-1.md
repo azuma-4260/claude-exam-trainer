@@ -2,12 +2,14 @@
 id: B-C3b-B-1
 origin: C3b-B
 created: 2026-09-02
-status: open
-related_tasks: [C3b-C]
+status: closed
+related_tasks: []
 related_specs: ["07#step-3b-固定フォーム用シナリオ-mcq最大工数", "03#mock_formsyaml-と-validator-条件"]
 related_paths: [content/ccar-f/scenarios.yaml, content/ccar-f/mock_forms.yaml]
 related_backlog: [B-C3b-A-1]
 stop_condition: none
+decisions:
+  - { at: 2026-09-28, by: S-2, action: close, note: "F 合格(2026-09-27)で form C(C3b-C)を削除したため不要。P の模試構造は CP0 で Guide から決める" }
 ---
 # form C のシナリオ構成方針(既存プールからの再利用を基本とする)
 
