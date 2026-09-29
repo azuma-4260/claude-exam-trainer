@@ -19,8 +19,8 @@ Claude 認定資格(CCAR-F: 2026-09-27 合格済み / CCAR-P: 2026-12-12)対策�
 - `npm run typecheck` — `next typegen && tsc --noEmit`
 - `npm run lint` — ESLint
 - `npm run build` — Next.js ビルド
-- `npm run validate-bank` — バンク静的検証 `scripts/validate-bank.ts`(CI で push ごとに実行、失敗時はデプロイ中止。D0-3 で実装)
-- `npm run db:generate` / `db:migrate` / `db:check` — Drizzle migration 生成・適用・両 branch 整合検証(D0-4 で実装)
+- `npm run validate-bank` — バンク静的検証 `scripts/validate-bank.ts`(CI で push ごとに実行、失敗時はデプロイ中止)
+- `npm run db:generate` / `db:migrate` / `db:check` — Drizzle migration 生成・適用・両 branch 整合検証
 - `npm run task:check [ID]` / `npm run task:start <ID>` — タスク状態の判定と worktree での着手(`tasks/README.md`)
 - shadcn/ui コンポーネント追加: `npx shadcn@latest add <name>`
 
@@ -55,7 +55,7 @@ Claude 専用(`.claude/skills/` 直下の実ディレクトリ)。Claude 固有�
 - 回答保存は厳密 ACK 方式のみ。outbox・楽観遷移・巻き戻し UI を実装しない(specs/03)
 - Mock は FSRS を更新しない。Mock の attempt は提出時に一括生成(specs/04)
 - holdout ゲート: 未提出フォーム収載問題を当該フォーム以外に一切出題しない(specs/03)
-- data-protection cutover(8/27 Drill 開始)以後、本番データを変更・破壊する操作をしない(specs/06)
+- data-protection cutover(最初の production attempt 保存時点。specs/06)以後、本番データを変更・破壊する操作をしない
 
 ## 規約
 
