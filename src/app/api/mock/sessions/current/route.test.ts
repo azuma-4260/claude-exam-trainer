@@ -19,7 +19,7 @@ vi.mock("@/lib/mock/server", async (importOriginal) => {
     mockServerContext: () => ({
       deps: { findQuestion: (id: string) => (id === Q1.id ? Q1 : null), store: {}, now: new Date(), newSessionId: () => "x" },
       forms: [],
-      scenarios: null, // scenarios.yaml 未整備でも見出し無しで動く
+      scenariosFor: () => null, // scenarios.yaml 未整備でも見出し無しで動く
     }),
   };
 });

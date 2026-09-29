@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { rowToCard } from "@/lib/srs/card-row";
+import { EXAM_DATE_JST } from "@/lib/exam/dates";
 import { getRetrievability } from "@/lib/srs/scheduler";
 import { NOW, flash, mcq, srsRow, syllabus } from "./test-fixtures";
+
+const F = EXAM_DATE_JST["ccar-f"]!;
 import { DEFAULT_RETENTION, domainProficiencies, topicPriorities, topicProficiencies } from "./proficiency";
 
 // T-queue: 習熟度(specs/04 §習熟度)。primary_topic_id のみで集計する。
@@ -26,7 +29,7 @@ describe("topicProficiencies", () => {
     const r1 = srsRow("f-d1-q001", { stability: 30 });
     const r2 = srsRow("f-d1-q002", { stability: 1 });
     const expected =
-      (getRetrievability(rowToCard(r1), NOW) + getRetrievability(rowToCard(r2), NOW)) / 2;
+      (getRetrievability(rowToCard(r1), NOW, F) + getRetrievability(rowToCard(r2), NOW, F)) / 2;
     const profs = topicProficiencies({
       questions: [q1, q2],
       syllabus,

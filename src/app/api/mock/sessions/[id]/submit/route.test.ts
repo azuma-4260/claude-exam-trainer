@@ -10,7 +10,7 @@ vi.mock("@/lib/mock/lifecycle", async (importOriginal) => ({
 }));
 vi.mock("@/lib/mock/server", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/mock/server")>()),
-  mockServerContext: () => ({ deps: { tag: "deps" }, forms: [], scenarios: null }),
+  mockServerContext: () => ({ deps: { tag: "deps" }, forms: [], scenariosFor: () => null }),
 }));
 
 const { POST } = await import("./route");

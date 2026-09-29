@@ -3,7 +3,7 @@ import { processAnswer } from "@/lib/answer/process";
 import { answerRequestSchema } from "@/lib/answer/schema";
 import { createAnswerStore, loadPoolContext } from "@/lib/answer/store";
 import { requireSession } from "@/lib/auth/session";
-import { loadBank } from "@/lib/bank/load";
+import { loadMultiBank } from "@/lib/bank/runtime";
 
 /**
  * 学習回答 API(drill / practice。specs/03 §学習回答の書込プロトコル — 厳密 ACK 方式)。
@@ -29,7 +29,8 @@ export async function POST(request: Request) {
 
   try {
     const db = getDb();
-    const bank = loadBank();
+    // 回答保存は学習スコープに依存しない(全 exam のバンク。切替直前に出題された問題の ACK を失わない)
+    const bank = loadMultiBank().all;
     const result = await processAnswer(parsed.data, {
       store: createAnswerStore(db),
       findQuestion: (id) => bank.byId.get(id) ?? null,

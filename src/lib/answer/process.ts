@@ -3,6 +3,7 @@ import type { AttemptRow } from "@/db/schema";
 import { evaluatePool, type PoolContext } from "@/lib/bank/pool";
 import type { Question } from "@/lib/bank/schema";
 import { cardToRow, rowToCard, type SrsStateUpsert } from "@/lib/srs/card-row";
+import { examDateOf } from "@/lib/exam/dates";
 import { applyRating } from "@/lib/srs/scheduler";
 import type { AnswerRequest } from "./schema";
 
@@ -125,7 +126,8 @@ export async function processAnswer(input: AnswerRequest, deps: AnswerDeps): Pro
   if (updatable) {
     const row = await store.findSrsState(q.id);
     const card: Card = row ? rowToCard(row) : createEmptyCard(now);
-    srs = cardToRow(q.id, q.exam, applyRating(card, rating, now).card);
+    // scheduler はカードの exam の試験日で作る(学習スコープではなくカード単位。specs/04 §試験日対応)
+    srs = cardToRow(q.id, q.exam, applyRating(card, rating, now, examDateOf(q.exam)).card);
   }
   const attempt: AttemptRow = {
     attemptId: input.attempt_id,

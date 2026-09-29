@@ -17,10 +17,10 @@ const formQuestions = (prefix: string): Question[] =>
     }),
   );
 
-const form = (id: string, questions: readonly Question[]): MockForm =>
+const form = (id: string, questions: readonly Question[], exam: "ccar-f" | "ccar-p" = "ccar-f"): MockForm =>
   mockFormSchema.parse({
     id,
-    exam: "ccar-f",
+    exam,
     scenario_ids: [...new Set(questions.map((q) => q.scenario_id))],
     question_ids: questions.map((q) => q.id),
   });
@@ -78,6 +78,42 @@ describe("buildMockFormOptions(D3-2, 01 FR-5 / 05 S-5)", () => {
 
   it("フォームが 0 件なら allBlocked:false(未収載は block ではない)", () => {
     const r = buildMockFormOptions([], [], [], find);
-    expect(r).toEqual({ options: [], recommendedFormId: null, allBlocked: false });
+    expect(r).toEqual({ options: [], recommendedFormId: null, recommendedByExam: {}, allBlocked: false });
+  });
+});
+
+describe("T-exam: F+P で同名 form の片方だけ提出済み(B-S-3-1、specs/03 §出題プール 1)", () => {
+  const qp = formQuestions("f-d4").map((q) =>
+    mcq(q.id.replace(/^f-/, "p-"), {
+      exam: "ccar-p",
+      domain_id: "p-d4",
+      primary_topic_id: "p-d4-t1-01",
+      scenario_id: "sc-p",
+      eligible_modes: ["mock", "practice"],
+      srs_eligible: false,
+    }),
+  );
+  const formAp = form("form-a", qp, "ccar-p");
+  const all = new Map([...byId, ...qp.map((q) => [q.id, q] as const)]);
+  const findAll = (id: string) => all.get(id) ?? null;
+
+  it("submitted と推奨は (exam, form_id) で判定し、別試験の同名 form の提出状態を取り違えない", () => {
+    const r = buildMockFormOptions([formA, formB, formAp], [submittedA], [], findAll);
+    expect(r.options.map((o) => [o.exam, o.formId, o.submitted])).toEqual([
+      ["ccar-f", "form-a", true],
+      ["ccar-f", "form-b", false],
+      ["ccar-p", "form-a", false],
+    ]);
+    expect(r.recommendedByExam).toEqual({ "ccar-f": "form-b", "ccar-p": "form-a" });
+  });
+
+  it("P の form-a を提出しても F の form-a は未提出のまま", () => {
+    const submittedAp: PoolSession = { ...submittedA, exam: "ccar-p" };
+    const r = buildMockFormOptions([formA, formAp], [submittedAp], [], findAll);
+    expect(r.options.map((o) => [o.exam, o.submitted])).toEqual([
+      ["ccar-f", false],
+      ["ccar-p", true],
+    ]);
+    expect(r.recommendedByExam).toEqual({ "ccar-f": "form-a", "ccar-p": null });
   });
 });

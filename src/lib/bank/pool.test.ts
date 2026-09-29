@@ -5,7 +5,8 @@ import {
   filterPool,
   formAvailability,
   holdoutFormOf,
-  unsubmittedFormIds,
+  formKey,
+  unsubmittedFormKeys,
   type OpenFlag,
   type PoolContext,
   type PoolQuery,
@@ -98,8 +99,8 @@ const inA = formQuestion(formAIds[0]);
 const free = q({ id: "f-d2-q001" });
 const practice: PoolQuery = { mode: "practice" };
 const drill: PoolQuery = { mode: "drill" };
-const fullA: PoolQuery = { mode: "mock", kind: "full", formId: "form-a" };
-const fullB: PoolQuery = { mode: "mock", kind: "full", formId: "form-b" };
+const fullA: PoolQuery = { mode: "mock", kind: "full", exam: "ccar-f", formId: "form-a" };
+const fullB: PoolQuery = { mode: "mock", kind: "full", exam: "ccar-f", formId: "form-b" };
 const miniD1: PoolQuery = { mode: "mock", kind: "domain_mini", domainId: "f-d1" };
 const miniD2: PoolQuery = { mode: "mock", kind: "domain_mini", domainId: "f-d2" };
 
@@ -108,13 +109,13 @@ const allowed = (question: Question, query: PoolQuery, c = ctx()) =>
 const reason = (question: Question, query: PoolQuery, c = ctx()) =>
   evaluatePool(question, query, c).reason;
 
-describe("unsubmittedFormIds / holdoutFormOf", () => {
+describe("unsubmittedFormKeys / holdoutFormOf", () => {
   it("session が無ければ全 form が未提出", () => {
-    expect(unsubmittedFormIds(ctx())).toEqual(new Set(["form-a", "form-b"]));
+    expect(unsubmittedFormKeys(ctx())).toEqual(new Set(["ccar-f:form-a", "ccar-f:form-b"]));
   });
 
   it("kind=full かつ status=submitted の session だけが form を解放する", () => {
-    expect(unsubmittedFormIds(ctx({ sessions: [session()] }))).toEqual(new Set(["form-b"]));
+    expect(unsubmittedFormKeys(ctx({ sessions: [session()] }))).toEqual(new Set(["ccar-f:form-b"]));
     for (const s of [
       session({ status: "in_progress" }),
       session({ status: "abandoned" }),
@@ -123,15 +124,15 @@ describe("unsubmittedFormIds / holdoutFormOf", () => {
       session({ formId: null }),
       session({ exam: "ccar-p" }), // 別試験の同名 form 提出は解放しない
     ]) {
-      expect(unsubmittedFormIds(ctx({ sessions: [s] })), JSON.stringify(s)).toEqual(
-        new Set(["form-a", "form-b"]),
+      expect(unsubmittedFormKeys(ctx({ sessions: [s] })), JSON.stringify(s)).toEqual(
+        new Set(["ccar-f:form-a", "ccar-f:form-b"]),
       );
     }
   });
 
   it("in_progress と submitted が混在しても submitted が 1 件あれば解放", () => {
     const c = ctx({ sessions: [session({ status: "in_progress" }), session()] });
-    expect(unsubmittedFormIds(c)).toEqual(new Set(["form-b"]));
+    expect(unsubmittedFormKeys(c)).toEqual(new Set(["ccar-f:form-b"]));
   });
 
   it("holdoutFormOf は収載 form の id、非収載なら null", () => {
@@ -266,13 +267,13 @@ describe("1. holdout ゲート(最優先)", () => {
     });
     const c = ctx({ forms: [formA, formB, formAp], sessions: [session()] });
     expect(allowed(inA, practice, c)).toBe(true);
-    expect(unsubmittedFormIds(c)).toEqual(new Set(["form-b", "form-a"])); // p 側の form-a は未提出のまま
+    expect(unsubmittedFormKeys(c)).toEqual(new Set(["ccar-f:form-b", "ccar-p:form-a"])); // p 側の form-a は未提出のまま
   });
 
   it("forms が空(フォーム未存在)でも判定は完全形で動く", () => {
     const c = ctx({ forms: [] });
     expect(allowed(free, practice, c)).toBe(true);
-    expect(unsubmittedFormIds(c)).toEqual(new Set());
+    expect(unsubmittedFormKeys(c)).toEqual(new Set());
   });
 });
 
@@ -428,5 +429,43 @@ describe("filterPool: 混合バンクで漏れ 0", () => {
   it("filterPool は入力順を保つ", () => {
     const ids = filterPool([free, bank[bank.length - 2]], practice, ctx()).map((x) => x.id);
     expect(ids).toEqual(["f-d2-q001", "f-d1-q900"]);
+  });
+});
+
+describe("T-exam: フォームは (exam, form_id) で識別する(specs/03 §出題プール 1、B-S-3-1)", () => {
+  const pIds = formAIds.map((id) => id.replace(/^f-/, "p-"));
+  const formAp: MockForm = mockFormSchema.parse({ id: "form-a", exam: "ccar-p", scenario_ids: ["sc-1"], question_ids: pIds });
+  const pQuestion = (id: string): Question =>
+    formQuestion(id, { exam: "ccar-p", domain_id: "p-d1", primary_topic_id: "p-d1-t1-01" });
+  const inAp = pQuestion(pIds[0]);
+  const inAf = formQuestion(formAIds[0]);
+  const fullAp: PoolQuery = { mode: "mock", kind: "full", exam: "ccar-p", formId: "form-a" };
+
+  it("formKey は exam と form_id の組", () => {
+    expect(formKey("ccar-p", "form-a")).toBe("ccar-p:form-a");
+    expect(formKey("ccar-f", "form-a")).not.toBe(formKey("ccar-p", "form-a"));
+  });
+
+  it("F の form-a だけ提出済み: F 側は解放、P 側は holdout のまま(逆も独立)", () => {
+    const fSubmitted = ctx({ forms: [formA, formAp], sessions: [session()] });
+    expect(unsubmittedFormKeys(fSubmitted)).toEqual(new Set(["ccar-p:form-a"]));
+    expect(allowed(inAf, practice, fSubmitted)).toBe(true);
+    expect(reason(inAp, practice, fSubmitted)).toBe("holdout");
+
+    const pSubmitted = ctx({ forms: [formA, formAp], sessions: [session({ exam: "ccar-p" })] });
+    expect(unsubmittedFormKeys(pSubmitted)).toEqual(new Set(["ccar-f:form-a"]));
+    expect(reason(inAf, practice, pSubmitted)).toBe("holdout");
+    expect(allowed(inAp, practice, pSubmitted)).toBe(true);
+  });
+
+  it("full 実施は (exam, form_id) が一致する form の収載問題だけを通す(同名の別試験 form を混ぜない)", () => {
+    const c = ctx({ forms: [formA, formAp] });
+    expect(allowed(inAp, fullAp, c)).toBe(true);
+    expect(allowed(inAf, fullA, c)).toBe(true);
+    // 同名 form-a でも exam が違えば holdout / not_in_form で落ちる
+    expect(reason(inAf, fullAp, c)).toBe("holdout");
+    expect(reason(inAp, fullA, c)).toBe("holdout");
+    const submittedBoth = ctx({ forms: [formA, formAp], sessions: [session(), session({ exam: "ccar-p" })] });
+    expect(reason(inAf, fullAp, submittedBoth)).toBe("not_in_form");
   });
 });

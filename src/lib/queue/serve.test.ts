@@ -17,12 +17,13 @@ const id3 = (n: number) => `f-d1-q${String(n).padStart(3, "0")}`;
 const view = (questions: Question[], over: Partial<Parameters<typeof assembleQueueView>[0]> = {}) =>
   assembleQueueView({
     now: NOW,
+    scope: "ccar-f",
     bank: bankOf(questions),
-    syllabus,
+    syllabi: [syllabus],
     poolCtx: emptyCtx(),
     srsRows: [],
     correctQuestionIds: new Set(),
-    consumption: { spentTodaySec: 0, introducedTodayCount: 0 },
+    consumption: { spentTodaySec: 0, introducedTodayCount: 0, introducedTodayByExam: {} },
     startedToday: false,
     ...over,
   });
@@ -155,7 +156,7 @@ describe("assembleQueueView", () => {
     const full = view(qs, { srsRows: qs.map((q) => srsRow(q.id)) });
     const spent = view(qs, {
       srsRows: qs.map((q) => srsRow(q.id)),
-      consumption: { spentTodaySec: 2700 - 40, introducedTodayCount: 0 }, // 残 40 秒 = flash 2 問
+      consumption: { spentTodaySec: 2700 - 40, introducedTodayCount: 0, introducedTodayByExam: {} }, // 残 40 秒 = flash 2 問
     });
     expect(full.drillTotal).toBe(30);
     expect(spent.drillTotal).toBe(2);
@@ -167,7 +168,7 @@ describe("assembleQueueView", () => {
     const qs = Array.from({ length: 30 }, (_, i) => flash(id3(i + 1)));
     const v = view(qs, {
       srsRows: qs.map((q) => srsRow(q.id)),
-      consumption: { spentTodaySec: 2700 - 40, introducedTodayCount: 0 },
+      consumption: { spentTodaySec: 2700 - 40, introducedTodayCount: 0, introducedTodayByExam: {} },
       startedToday: true,
     });
     expect(v.session.kind).toBe("ok");
@@ -181,9 +182,9 @@ describe("assembleQueueView", () => {
     expect(v.pace).toBeNull();
   });
 
-  it("daysLeft と budgetSec を Home 表示用に返す", () => {
+  it("スコープ内 exam のカウントダウンと budgetSec を Home 表示用に返す", () => {
     const v = view([]);
-    expect(v.daysLeft).toBe(34); // NOW = 8/24, 試験 9/27
+    expect(v.countdowns).toEqual([{ exam: "ccar-f", examDateJst: "2026-09-27", daysLeft: 34 }]); // NOW = 8/24, 試験 9/27
     expect(v.budgetSec).toBe(2700);
   });
 });

@@ -3,7 +3,7 @@
  *
  * 検証内容(branch ごと):
  *   1. drizzle/ の migration が全て適用済みで hash が一致する
- *   2. 5 テーブルの列定義(型・NOT NULL・default 有無)が specs/03 §2 と一致する
+ *   2. 5 テーブル + study_setting(v1.3)の列定義(型・NOT NULL・default 有無)が specs/03 と一致する
  *   3. partial unique index 2 本と PK が存在する
  *   4. CHECK 制約(exam / mode / kind / status / reason / state / rating)が存在する
  *
@@ -23,6 +23,7 @@ export const TABLE_NAMES = [
   "exam_session",
   "exam_session_answer",
   "question_flag",
+  "study_setting",
 ] as const;
 
 export interface ExpectedColumn {
@@ -95,6 +96,12 @@ export const EXPECTED_TABLES: Record<string, Record<string, ExpectedColumn>> = {
     created_at: { udt: "timestamptz", nullable: false, hasDefault: true },
     resolved_at: { udt: "timestamptz", nullable: true, hasDefault: false },
   },
+  /** specs/03 §study_setting(v1.3、追加のみ migration) */
+  study_setting: {
+    id: { udt: "int2", nullable: false, hasDefault: true },
+    scope: { udt: "text", nullable: false, hasDefault: false },
+    updated_at: { udt: "timestamptz", nullable: false, hasDefault: true },
+  },
 };
 
 /** インデックス検証: indexdef に required の全断片が含まれること */
@@ -118,6 +125,7 @@ export const EXPECTED_INDEXES: { table: string; name: string; required: string[]
     required: ["UNIQUE", "session_id", "question_id"],
   },
   { table: "question_flag", name: "question_flag_pkey", required: ["UNIQUE", "id"] },
+  { table: "study_setting", name: "study_setting_pkey", required: ["UNIQUE", "id"] },
 ];
 
 export const EXPECTED_CHECKS: { table: string; name: string }[] = [
@@ -131,6 +139,7 @@ export const EXPECTED_CHECKS: { table: string; name: string }[] = [
   { table: "exam_session", name: "exam_session_status_check" },
   { table: "exam_session", name: "exam_session_submission_reason_check" },
   { table: "question_flag", name: "question_flag_reason_check" },
+  { table: "study_setting", name: "study_setting_id_check" },
 ];
 
 export interface ColumnRow {

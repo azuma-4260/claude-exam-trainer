@@ -7,7 +7,7 @@ const processAnswer = vi.fn();
 vi.mock("@/lib/answer/process", () => ({ processAnswer: (...a: unknown[]) => processAnswer(...a) }));
 vi.mock("@/lib/answer/store", () => ({ createAnswerStore: () => ({ tag: "store" }), loadPoolContext: async () => ({ forms: [], sessions: [], flags: [] }) }));
 vi.mock("@/db/client", () => ({ getDb: () => ({ tag: "db" }) }));
-vi.mock("@/lib/bank/load", () => ({ loadBank: () => ({ questions: [], forms: [], byId: new Map() }) }));
+vi.mock("@/lib/bank/runtime", () => ({ loadMultiBank: () => ({ all: { questions: [], forms: [], byId: new Map() } }) }));
 
 const { POST } = await import("./route");
 const SECRET = "test-session-secret-0123456789abcdef";

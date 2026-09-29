@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Download, Flag, LogOut, Settings } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { getDb } from "@/db/client";
-import { loadBank } from "@/lib/bank/load";
+import { loadMultiBank } from "@/lib/bank/runtime";
 import { listCurrentOpenFlags } from "@/lib/export/load";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,8 @@ const REASON_LABEL = {
 } as const;
 
 export default async function SettingsPage() {
-  const bank = loadBank();
+  // 未解決フラグ一覧は学習スコープに関係なく全 exam(01 FR-10。exam ラベル表示は D6-2)
+  const bank = loadMultiBank().all;
   const flags = await listCurrentOpenFlags(getDb(), bank);
 
   return (

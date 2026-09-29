@@ -1,6 +1,7 @@
 import type { Question, Syllabus } from "@/lib/bank/schema";
 import { rowToCard, type SrsStateUpsert } from "@/lib/srs/card-row";
-import { CCAR_F_EXAM_DATE_JST, getRetrievability } from "@/lib/srs/scheduler";
+import { EXAM_DATE_JST, examDateOf, type ExamDates } from "@/lib/exam/dates";
+import { getRetrievability } from "@/lib/srs/scheduler";
 
 /**
  * 習熟度(specs/04 §習熟度)。primary_topic_id のみで集計する。
@@ -10,6 +11,7 @@ import { CCAR_F_EXAM_DATE_JST, getRetrievability } from "@/lib/srs/scheduler";
  *   coverage(t)    = t 配下の srs_eligible 問題のうち 1 回以上正解した割合
  *
  * 未学習トピックは 0.7×0.3 + 0.3×0 = 0.21 となり、初期の優先度は概ねドメイン重みで決まる(意図した挙動)。
+ * topic は exam 固有なので、呼び出し側はスコープ内 exam の syllabus ごとに呼ぶ(exam をまたいで平均しない)。
  */
 
 export const DEFAULT_RETENTION = 0.3;
@@ -21,7 +23,8 @@ export type ProficiencyInputs = {
   /** is_correct=true の attempt が 1 件以上ある question id 集合(モード不問。flash は Hard 以上 = 正解) */
   correctQuestionIds: ReadonlySet<string>;
   now: Date;
-  examDateJst?: string;
+  /** retrievability の scheduler はカードの exam の試験日で作る(既定はコード定数) */
+  examDates?: ExamDates;
 };
 
 const mean = (xs: readonly number[]): number => xs.reduce((a, x) => a + x, 0) / xs.length;
@@ -33,7 +36,7 @@ function topicsOf(syllabus: Syllabus): string[] {
 
 export function topicProficiencies(inputs: ProficiencyInputs): Map<string, number> {
   const { questions, syllabus, srsRows, correctQuestionIds, now } = inputs;
-  const examDateJst = inputs.examDateJst ?? CCAR_F_EXAM_DATE_JST;
+  const examDates = inputs.examDates ?? EXAM_DATE_JST;
   const byId = new Map(questions.map((q) => [q.id, q]));
 
   // トピックごとの retrievability / coverage 分母分子を 1 パスで集める
@@ -42,7 +45,7 @@ export function topicProficiencies(inputs: ProficiencyInputs): Map<string, numbe
     const q = byId.get(row.questionId);
     if (!q || q.status !== "active") continue; // active カードのみ
     const list = retrievabilities.get(q.primary_topic_id) ?? [];
-    list.push(getRetrievability(rowToCard(row), now, examDateJst));
+    list.push(getRetrievability(rowToCard(row), now, examDateOf(q.exam, examDates)));
     retrievabilities.set(q.primary_topic_id, list);
   }
   const eligibleCount = new Map<string, number>();

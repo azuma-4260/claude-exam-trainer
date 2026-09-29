@@ -5,7 +5,8 @@ import { EXAMS, mockFormsFileSchema, questionsFileSchema, type Exam, type MockFo
 
 /**
  * バンク(content/<exam>/)の読込(specs/03 §1)。静的ファイルをビルド成果物と同じプロセスで読む。
- * - loadBank() は CCAR-F のみ(既存の利用側は exam 絞り込みと (exam, form_id) 解決が未対応のため。D6-1 / D6-4 で移行)
+ * - loadBank() は CCAR-F のみ。アプリの利用側は D6-1 で src/lib/bank/runtime.ts(exam 別 + 学習スコープ)に移行済みで、
+ *   残る利用は F 専用の verify-release(P 対応は D6-5)
  * - loadBankAll() は全 exam(EXAMS)のディレクトリを合成する(D6-3)。exam の絞り込みは利用側(学習スコープ)の責務
  * - questions/*.json は questionsFileSchema、mock_forms.yaml は mockFormsFileSchema で検証(単一ソース)
  * - content/ が未整備(ファイル無し)でも空バンクとして動く(D1-3 の DoD: フォーム未存在でも完全形)

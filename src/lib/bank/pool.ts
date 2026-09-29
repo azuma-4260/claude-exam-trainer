@@ -1,5 +1,5 @@
 import type { ExamSessionRow, QuestionFlagRow } from "@/db/schema";
-import type { MockForm, Question } from "./schema";
+import type { Exam, MockForm, Question } from "./schema";
 
 /**
  * 出題プールの判定(specs/03 §出題プールの判定順序、全モード共通)。
@@ -29,8 +29,8 @@ export type PoolQuery =
   | { mode: "drill" }
   /** Practice は解放済みフォーム問題(srs_eligible=false)も出す。srs:true は D1-4 の remaining_new 等 SRS 文脈用 */
   | { mode: "practice"; srs?: boolean }
-  /** その正確な full form の実施(初回・rehearsal とも) */
-  | { mode: "mock"; kind: "full"; formId: string }
+  /** その正確な full form の実施(初回・rehearsal とも)。フォームは (exam, formId) で識別する */
+  | { mode: "mock"; kind: "full"; exam: Exam; formId: string }
   /** ドメイン別ミニ模試: 独立 MCQ プールのみ */
   | { mode: "mock"; kind: "domain_mini"; domainId: string };
 
@@ -47,11 +47,25 @@ export type PoolReason =
 
 export type PoolVerdict = { allowed: true; reason?: undefined } | { allowed: false; reason: PoolReason };
 
-/** submitted な full session が 1 件も無い form の id 集合。提出は (exam, formId) で照合する(F/P で同名 form が並存しうる) */
-export function unsubmittedFormIds(ctx: Pick<PoolContext, "forms" | "sessions">): Set<string> {
+/**
+ * フォームの識別キー。フォーム id は exam 内でのみ一意(F と P に同名の form-a があってよい)なので、
+ * 提出済み判定・中間集計・remaining_new のすべてで (exam, form_id) を組にする(specs/03 §出題プール 1)
+ */
+export function formKey(exam: string, formId: string): string {
+  return `${exam}:${formId}`;
+}
+
+/** submitted な full session が 1 件も無い form の formKey 集合。提出は (exam, formId) で照合する */
+export function unsubmittedFormKeys(ctx: Pick<PoolContext, "forms" | "sessions">): Set<string> {
   const result = new Set<string>();
-  for (const f of ctx.forms) if (!isSubmitted(f, ctx.sessions)) result.add(f.id);
+  for (const f of ctx.forms) if (!isSubmitted(f, ctx.sessions)) result.add(formKey(f.exam, f.id));
   return result;
+}
+
+/** 未提出 form の収載問題 id(holdout 対象問題集合) */
+export function holdoutQuestionIds(ctx: Pick<PoolContext, "forms" | "sessions">): Set<string> {
+  const unsubmitted = unsubmittedFormKeys(ctx);
+  return new Set(ctx.forms.filter((f) => unsubmitted.has(formKey(f.exam, f.id))).flatMap((f) => f.question_ids));
 }
 
 function containingForm(questionId: string, forms: readonly MockForm[]): MockForm | null {
@@ -117,11 +131,13 @@ function requiresSrs(query: PoolQuery): boolean {
 export function evaluatePool(q: Question, query: PoolQuery, ctx: PoolContext): PoolVerdict {
   const form = containingForm(q.id, ctx.forms);
   const formId = form?.id ?? null;
+  // full 実施の対象 form と一致するか((exam, formId) の組で比べる。別試験の同名 form を同一視しない)
+  const isQueriedForm =
+    form !== null && query.mode === "mock" && query.kind === "full" && form.exam === query.exam && form.id === query.formId;
 
   // 1. holdout ゲート(収載 form 自体の提出状態を (exam, formId) で見る。別試験の同名 form に影響されない)
   if (form !== null && !isSubmitted(form, ctx.sessions)) {
-    const isExactForm = query.mode === "mock" && query.kind === "full" && query.formId === formId;
-    if (!isExactForm) return { allowed: false, reason: "holdout" };
+    if (!isQueriedForm) return { allowed: false, reason: "holdout" };
   }
   // domain mini は独立 MCQ プールのみ(01 FR-5): full form 収載問題は提出済みでも常に除外、シナリオ問題も除外
   if (query.mode === "mock" && query.kind === "domain_mini") {
@@ -130,7 +146,7 @@ export function evaluatePool(q: Question, query: PoolQuery, ctx: PoolContext): P
     if (q.domain_id !== query.domainId) return { allowed: false, reason: "domain" };
   }
   // full form 実施では収載問題だけを対象にする
-  if (query.mode === "mock" && query.kind === "full" && formId !== query.formId) {
+  if (query.mode === "mock" && query.kind === "full" && !isQueriedForm) {
     return { allowed: false, reason: "not_in_form" };
   }
   // 2. status

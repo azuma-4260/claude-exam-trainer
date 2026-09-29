@@ -10,6 +10,7 @@ import { loadStartPool, mockServerContext, sessionPayload } from "@/lib/mock/ser
  * availability NG(status≠active / 現行 rev 未解決フラグ)の form は 409 form_blocked(D3-2)。
  *
  * POST /api/mock/sessions → 201 | 400 | 401 | 404 | 409 { error, session? | open_flag_count, inactive_count } | 500
+ * 開始候補は学習スコープ内 exam のフォーム(同名 form が複数 exam にあれば 409 ambiguous_form)。
  */
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 
@@ -29,7 +30,8 @@ export async function POST(request: Request) {
   try {
     const ctx = mockServerContext();
     const pool = await loadStartPool(ctx.forms);
-    const result = await startFullMock(parsed.data.form_id, ctx.forms, pool.sessions, pool.flags, ctx.deps);
+    // 開始候補は学習スコープ内 exam のフォームだけ(01 FR-5 / FR-10)。提出状態は全 exam の session で判定する
+    const result = await startFullMock(parsed.data.form_id, pool.startForms, pool.sessions, pool.flags, ctx.deps);
     if (result.status === 201) {
       const payload = sessionPayload(result.session, result.answers, ctx);
       if (!payload) return json({ error: "bank_inconsistent" }, 500);
@@ -42,6 +44,7 @@ export async function POST(request: Request) {
       if (result.error === "form_not_next") {
         return json({ error: result.error, recommended_form_id: result.recommendedFormId }, 409);
       }
+      if (result.error === "ambiguous_form") return json({ error: result.error }, 409);
       return json({ error: result.error, session: toSessionDto(result.session) }, 409);
     }
     return json({ error: result.error }, 404);

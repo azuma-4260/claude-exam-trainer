@@ -8,31 +8,50 @@ import { cn } from "@/lib/utils";
 
 /**
  * S-1 Home(specs/05)。カウントダウン + 進捗リング(予算消化)、ノルマ/バックログ分離、
- * CTA 1 ボタン、pace_warning 時のみ警告カード。推奨行動カード(9/20〜)は D5-1。
+ * CTA 1 ボタン、pace_warning 時のみ警告カード。推奨行動カード(直前期)は D5-1。
+ * 学習スコープ(v1.3): カウントダウンはスコープ内で試験日が未来の exam(過去の exam は「受験済み」)。
+ * スコープ切替 UI と exam ラベルの作り込みは D6-2。
  * DB を読むため常に動的レンダリング(ビルド時に DATABASE_URL を要求しない)。
  */
 export const dynamic = "force-dynamic";
 
 const min = (sec: number) => Math.round(sec / 60);
+const EXAM_LABEL = { "ccar-f": "CCAR-F", "ccar-p": "CCAR-P" } as const;
 
 export default async function HomePage() {
   const view = await loadQueueView(getDb(), new Date());
   const spentMin = min(view.spentTodaySec);
   const budgetMin = min(view.budgetSec);
   const canStart = view.kind === "ok" && view.session.kind === "ok";
+  // リング中央は試験日が最も近い未来の exam。すべて通過済みなら「受験済み」
+  const upcoming = view.countdowns.filter((c) => c.daysLeft >= 0).sort((a, b) => a.daysLeft - b.daysLeft);
+  const next = upcoming[0] ?? null;
+  const passed = view.countdowns.filter((c) => c.daysLeft < 0);
+  const warnings = view.paceByExam.filter((p) => p.pace.paceWarning);
 
   return (
     <main className="flex flex-col gap-6">
       <header className="flex items-baseline justify-between">
-        <h1 className="font-mono text-sm font-semibold tracking-[0.2em] text-muted-foreground md:hidden">CCAR-F</h1>
-        <p className="text-sm text-muted-foreground">試験日 2026-09-27</p>
+        <h1 className="font-mono text-sm font-semibold tracking-[0.2em] text-muted-foreground md:hidden">
+          {view.countdowns.map((c) => EXAM_LABEL[c.exam]).join(" + ")}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {next ? `${EXAM_LABEL[next.exam]} 試験日 ${next.examDateJst}` : null}
+          {passed.length > 0 ? `${next ? " / " : ""}${passed.map((c) => EXAM_LABEL[c.exam]).join("・")} 受験済み` : null}
+        </p>
       </header>
 
       {/* シグネチャ: 45 分予算リングの中心に試験カウントダウンを重ねた計器 */}
       <section aria-label="今日の進捗" className="flex flex-col items-center gap-2 py-2">
         <ProgressRing fraction={view.spentTodaySec / view.budgetSec} size={216}>
-          <span className="font-mono text-5xl font-bold tabular-nums leading-none">{view.daysLeft}</span>
-          <span className="mt-1 text-xs text-muted-foreground">days to exam</span>
+          {next ? (
+            <>
+              <span className="font-mono text-5xl font-bold tabular-nums leading-none">{next.daysLeft}</span>
+              <span className="mt-1 text-xs text-muted-foreground">days to {EXAM_LABEL[next.exam]}</span>
+            </>
+          ) : (
+            <span className="text-sm font-medium text-muted-foreground">受験済み</span>
+          )}
           <span className="mt-3 font-mono text-sm tabular-nums text-muted-foreground">
             {spentMin} <span className="text-muted-foreground/60">/ {budgetMin} min</span>
           </span>
@@ -75,18 +94,23 @@ export default async function HomePage() {
             </div>
           </section>
 
-          {view.pace?.paceWarning ? (
-            <section className="flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+          {warnings.map(({ exam, pace }) => (
+            <section
+              key={exam}
+              className="flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm"
+            >
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
               <div>
-                <p className="font-medium">新規導入が上限を超えるペースです</p>
+                <p className="font-medium">
+                  {view.countdowns.length > 1 ? `${EXAM_LABEL[exam]}: ` : ""}新規導入が上限を超えるペースです
+                </p>
                 <p className="mt-1 text-muted-foreground">
-                  残り {view.pace.remainingNew} 問を消化するには 1 日 {view.pace.requiredNew} 問が必要ですが、上限は
+                  残り {pace.remainingNew} 問を消化するには 1 日 {pace.requiredNew} 問が必要ですが、上限は
                   40 問です。学習日数を増やすことを検討してください。
                 </p>
               </div>
             </section>
-          ) : null}
+          ))}
 
           {view.deferredPracticeCount > 0 ? (
             // CTA 1 ボタン(S-1)は維持し、シナリオ課題への導線は補助リンクとして添える(D2-1)

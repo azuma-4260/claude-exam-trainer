@@ -19,10 +19,10 @@ vi.mock("@/lib/mock/server", async (importOriginal) => {
     mockServerContext: () => ({
       deps: { findQuestion: (id: string) => (id === Q1.id ? Q1 : null), store: {}, now: new Date(), newSessionId: () => "x" },
       forms: [],
-      scenarios: [{ id: "sc-a", title_en: "Title A", context_en: "Context A" }],
+      scenariosFor: () => [{ id: "sc-a", title_en: "Title A", context_en: "Context A" }],
     }),
     // 開始 API は DB から submitted セッションと open フラグを読むが、route テストでは DB に触れない
-    loadStartPool: async () => ({ forms: [], sessions: [], flags: [] }),
+    loadStartPool: async () => ({ forms: [], sessions: [], flags: [], startForms: [] }),
   };
 });
 

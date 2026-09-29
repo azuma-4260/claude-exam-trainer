@@ -14,6 +14,7 @@ import {
   examSessionAnswer,
   questionFlag,
   srsState,
+  studySetting,
 } from "./schema";
 import { EXAMS, MODES } from "../lib/bank/schema";
 
@@ -140,8 +141,8 @@ describe("migration SQL と specs/03 §2 の一致", () => {
 });
 
 describe("Drizzle schema のテーブル/列名", () => {
-  it("5 テーブルが specs/03 の物理名で定義されている", () => {
-    const names = [srsState, attempt, examSession, examSessionAnswer, questionFlag].map(
+  it("5 テーブル + study_setting が specs/03 の物理名で定義されている", () => {
+    const names = [srsState, attempt, examSession, examSessionAnswer, questionFlag, studySetting].map(
       (t) => getTableConfig(t).name,
     );
     expect(names).toEqual([
@@ -150,6 +151,30 @@ describe("Drizzle schema のテーブル/列名", () => {
       "exam_session",
       "exam_session_answer",
       "question_flag",
+      "study_setting",
     ]);
+  });
+});
+
+describe("T-exam: study_setting(specs/03 §study_setting v1.3)は追加のみの migration", () => {
+  it("単一行(id smallint PK default 1 / CHECK id = 1)・scope text not null・updated_at", () => {
+    const ddl = tableDdl("study_setting");
+    expect(ddl).toContain(`"id" smallint PRIMARY KEY DEFAULT 1 NOT NULL`);
+    expect(ddl).toContain(`"scope" text NOT NULL`);
+    expect(ddl).toContain(`"updated_at" timestamp with time zone DEFAULT now() NOT NULL`);
+    expect(ddl).toContain(`CONSTRAINT "study_setting_id_check" CHECK ("study_setting"."id" = 1)`);
+  });
+
+  it("0000 以降の migration は CREATE TABLE / CREATE INDEX のみ(既存行・列の UPDATE / DELETE / ALTER / DROP を含まない。06 cutover)", () => {
+    for (const e of journal.entries.slice(1)) {
+      const body = readFileSync(join(migrationsDir, `${e.tag}.sql`), "utf8");
+      const statements = body
+        .split("--> statement-breakpoint")
+        .map((x) => x.trim())
+        .filter(Boolean);
+      for (const st of statements) {
+        expect(st, `${e.tag}: ${st.slice(0, 60)}`).toMatch(/^CREATE (TABLE|(UNIQUE )?INDEX) /);
+      }
+    }
   });
 });
