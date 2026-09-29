@@ -15,8 +15,6 @@ model: haiku
 
 変更されたファイルを分析し、関連する変更を論理的にグループ化して、適切なコミットメッセージで複数のコミットを自動作成します。
 
-呼び出しは Claude Code が `/smart-commit`、Codex が `$smart-commit`。
-
 **重要: このスキルの呼び出し自体がコミット実行の承認です。** コミット計画を提示したあとは、ユーザーへの確認を挟まずそのままコミットまで実行してください。ただし以下の場合のみ一時停止して確認します:
 - 未追跡ファイルにバイナリ・一時ファイル(`.DS_Store` / `~$` 等)や生成物が含まれ、コミット対象に含めるか判断が必要な場合
 - 機密情報・認証情報を含む可能性のあるファイル(`.env*`、`.vercel/project.json`、鍵・トークンらしき値)が検出された場合。**値は表示せずパスだけを報告する**
@@ -64,7 +62,7 @@ model: haiku
 - 注意: 台帳の `state: merged` / `state: done` は `tasks/README.md`「完了の記録」の規約どおり**独立コミット**にする。実装と混ぜない
 
 #### **エージェント設定系** (`agents`)
-- ファイル: `.agents/**`(スキル正本), `.claude/**`(symlink・settings・フック), `AGENTS.md`, `CLAUDE.md`
+- ファイル: `.claude/**`(スキル・settings・フック), `AGENTS.md`, `CLAUDE.md`
 - コミットタイプ: `feat:`(スキル新規追加)/ `chore:`(設定変更)/ `docs:`(指示ファイル更新)
 
 #### **ビルド / CI 設定系** (`config`)
@@ -115,7 +113,7 @@ model: haiku
 1. **コミットすべきファイル**(確認不要・そのままコミット対象に含める):
    - `specs/*.md`, `content/**`, `src/**`, `scripts/**`, `drizzle/**`
    - `tasks/backlog/*.md`, `tasks/status/*.yaml`
-   - `.agents/skills/**`(スキル正本), `.claude/skills/*`(正本への symlink)
+   - `.claude/skills/**`(スキル)
 2. **除外を推奨するファイル**(コミット対象から除外し、含めるか確認する):
    - `.DS_Store` などのシステムファイル、`~$` で始まる一時ファイル
    - ビルド生成物・ログ・スクラッチ(`.next/`, `*.log`, 一時 JSON 等)
