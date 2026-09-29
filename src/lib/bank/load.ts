@@ -19,10 +19,11 @@ export interface Bank {
 /**
  * development 限定の検証支援: BANK_DIR が指すディレクトリをバンクとして使う
  * (フィクスチャ専用バンクでの手動検証・実機 DoD 用)。production では必ず無視する。
+ * override は ccar-f にだけ効かせる(他 exam に F のフィクスチャを読ませない。多試験化は D6-3)
  */
 export function bankDir(exam = "ccar-f"): string {
   const override = process.env.BANK_DIR;
-  if (override && process.env.NODE_ENV !== "production") return path.resolve(override);
+  if (override && process.env.NODE_ENV !== "production" && exam === "ccar-f") return path.resolve(override);
   return path.join(process.cwd(), "content", exam);
 }
 

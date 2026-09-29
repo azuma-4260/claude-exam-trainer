@@ -1,16 +1,10 @@
 import type { Db } from "@/db/client";
-import { loadPoolContext } from "@/lib/answer/store";
-import { bankDir, loadBank, type Bank } from "@/lib/bank/load";
+import type { Bank } from "@/lib/bank/load";
 import { filterPool, holdoutFormOf, type PoolContext } from "@/lib/bank/pool";
 import type { Question, Scenario } from "@/lib/bank/schema";
-import { loadScenarios, loadSyllabus } from "@/lib/bank/syllabus";
 import { toScenarioDtos, type MockScenarioDto } from "@/lib/mock/dto";
 import type { QueueItem } from "@/lib/queue/build";
-import { deriveConsumption } from "@/lib/queue/consumption";
-import { estSec } from "@/lib/queue/estimate";
-import { loadConsumptionRows, loadQueueSignals } from "@/lib/queue/load";
-import { assembleQueueView } from "@/lib/queue/serve";
-import { jstStartOfDay } from "@/lib/srs/jst";
+import { assembleQueueView, loadQueueInputs } from "@/lib/queue/serve";
 
 /**
  * S-4 Practice 向けの出題組み立て(D2-1。specs/01 FR-4、04 §モード行列、05 S-4)。
@@ -133,27 +127,14 @@ export function assemblePracticeView(inputs: PracticeAssembleInputs): PracticeVi
  * Practice ビューへ射影するので、Home の deferredPracticeCount と提示内容が一致する。
  */
 export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView> {
-  const bank = loadBank();
-  const syllabus = loadSyllabus(bankDir());
-  const scenarios = loadScenarios(bankDir());
-  const todayStart = jstStartOfDay(now);
-  const [poolCtx, signals, consumptionRows] = await Promise.all([
-    loadPoolContext(db, bank.forms),
-    loadQueueSignals(db),
-    loadConsumptionRows(db, todayStart),
-  ]);
-  const consumption = deriveConsumption({
-    todayRows: consumptionRows.todayRows,
-    introducedBefore: consumptionRows.introducedBefore,
-    estOf: (id) => {
-      const q = bank.byId.get(id);
-      return q ? estSec(q) : null;
-    },
-  });
+  // 出題はスコープ内 exam のみ(scoped.bank)。消費予算は全 exam(loadQueueInputs)
+  const { scope, scoped, poolCtx, signals, consumption, consumptionRows } = await loadQueueInputs(db, now);
+  const bank = scoped.bank;
   const queueView = assembleQueueView({
     now,
+    scope,
     bank,
-    syllabus,
+    syllabi: scoped.syllabi,
     poolCtx,
     srsRows: signals.srsRows,
     correctQuestionIds: signals.correctQuestionIds,
@@ -166,7 +147,7 @@ export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView>
   return assemblePracticeView({
     bank,
     poolCtx,
-    scenarios,
+    scenarios: scoped.scenarios,
     practiceQueue: queueView.practiceItems,
     excludeIds: new Set([...queueView.queueQuestionIds, ...answeredToday]),
   });

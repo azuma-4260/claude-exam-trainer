@@ -1,13 +1,17 @@
 import { eq } from "drizzle-orm";
 import type { Db } from "@/db/client";
 import { attempt, examSession, srsState } from "@/db/schema";
-import { loadBank } from "@/lib/bank/load";
-import { loadSyllabusCached } from "@/lib/mock/server";
-import { buildStatsView, type StatsView } from "./derive";
+import { loadMultiBank, scopeBank } from "@/lib/bank/runtime";
+import { getStudyScope } from "@/lib/scope/repo";
+import { buildScopedStatsViews, type ExamStatsSection } from "./derive";
 
-/** S-8 用の読み取り。個人利用で行数が限定的なため 3 クエリを並列発行する。 */
-export async function loadStatsView(db: Db, now: Date = new Date()): Promise<StatsView> {
-  const [srsRows, attempts, sessions] = await Promise.all([
+/**
+ * S-8 用の読み取り。個人利用で行数が限定的なため並列発行する。
+ * 学習スコープ内の exam ごとに section を返す(01 FR-8 v1.3)。
+ */
+export async function loadStatsViews(db: Db, now: Date = new Date()): Promise<ExamStatsSection[]> {
+  const [scope, srsRows, attempts, sessions] = await Promise.all([
+    getStudyScope(db),
     db.select().from(srsState),
     db
       .select({
@@ -21,10 +25,8 @@ export async function loadStatsView(db: Db, now: Date = new Date()): Promise<Sta
       .from(attempt),
     db.select().from(examSession).where(eq(examSession.status, "submitted")),
   ]);
-  const bank = loadBank();
-  return buildStatsView({
-    questions: bank.questions,
-    syllabus: loadSyllabusCached(),
+  return buildScopedStatsViews({
+    exams: scopeBank(loadMultiBank(), scope).exams,
     srsRows,
     attempts,
     sessions,

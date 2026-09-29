@@ -1,12 +1,15 @@
 import type { Db } from "@/db/client";
 import { loadPoolContext } from "@/lib/answer/store";
-import { bankDir, loadBank, type Bank } from "@/lib/bank/load";
+import type { Bank } from "@/lib/bank/load";
 import type { PoolContext } from "@/lib/bank/pool";
-import type { Question, Syllabus } from "@/lib/bank/schema";
-import { loadSyllabus } from "@/lib/bank/syllabus";
+import { loadMultiBank, scopeBank } from "@/lib/bank/runtime";
+import type { Exam, Question, Syllabus } from "@/lib/bank/schema";
+import { EXAM_DATE_JST, examDateOf, type ExamDates } from "@/lib/exam/dates";
+import { getStudyScope } from "@/lib/scope/repo";
+import { scopeExams, type StudyScope } from "@/lib/scope/scope";
 import { jstStartOfDay } from "@/lib/srs/jst";
 import type { SrsStateUpsert } from "@/lib/srs/card-row";
-import { CCAR_F_EXAM_DATE_JST, daysUntilExam } from "@/lib/srs/scheduler";
+import { daysUntilExam } from "@/lib/srs/scheduler";
 import { buildDailyQueue, queueModeFor, type QueueItem, type QueueSource } from "./build";
 import { deriveConsumption, type Consumption } from "./consumption";
 import { DAILY_QUEUE_BUDGET_SEC, estSec } from "./estimate";
@@ -18,7 +21,8 @@ import type { NewPace } from "./pace";
  * - buildDailyQueue(D1-4)の出力を画面が必要とする形(セッション分割・practice 分離)へ射影する
  * - 復元はサーバー再構築で実現: 保存済み attempt が srs_state / 消費シグナル経由で反映されるので、
  *   クライアントに「どこまでやったか」を持たない(specs/03 の厳密 ACK と同じ思想)
- * - D-1(9/26)はセレクタ(D5-1)未実装の間 fail closed の typed 値を返す(通常キューへ fallback しない)
+ * - D-1(単独スコープの試験日前日)はセレクタ(D5-1)未実装の間 fail closed の typed 値を返す(通常キューへ fallback しない)
+ * - 学習スコープ(v1.3): キュー・カウントダウンはスコープ内の exam。消費予算(spent)は全 exam で数える
  */
 
 /** FR-3: 1 セッション 5〜20 問 */
@@ -49,13 +53,19 @@ export type SessionPlan =
   | { kind: "below_session_min"; count: number }
   | { kind: "ok"; items: DrillItem[]; remainingAfterSession: number };
 
+/** スコープ内 exam の試験日カウントダウン(daysLeft < 0 は受験済み。01 FR-6) */
+export type ExamCountdown = { exam: Exam; examDateJst: string; daysLeft: number };
+
 export type QueueView = {
   kind: "ok" | "d_minus_1_unavailable";
-  daysLeft: number;
+  scope: StudyScope;
+  countdowns: ExamCountdown[];
   budgetSec: number;
   spentTodaySec: number;
-  /** d_minus_1_unavailable では buildDailyQueue を通らないため null */
+  /** d_minus_1_unavailable では buildDailyQueue を通らないため null。スコープ全体の合計(specs/04) */
   pace: NewPace | null;
+  /** exam ごとのペース(警告をどの exam のものか表示するため)。d_minus_1_unavailable では空 */
+  paceByExam: { exam: Exam; pace: NewPace }[];
   totalEstSec: number;
   dueBacklogCount: number;
   /** キュー内の practice-mode item(シナリオ MCQ 等)。S-3 では出さず Practice 画面(S-4)で消化する */
@@ -72,15 +82,17 @@ export type QueueView = {
 
 export type AssembleInputs = {
   now: Date;
+  scope: StudyScope;
+  /** スコープで絞った bank(scopeBank の bank)。bankEmpty の判定と drill DTO の解決に使う */
   bank: Bank;
-  syllabus: Syllabus;
+  syllabi: readonly Syllabus[];
   poolCtx: PoolContext;
   srsRows: readonly SrsStateUpsert[];
   correctQuestionIds: ReadonlySet<string>;
   consumption: Consumption;
   /** 当日(00:00 JST 以降)に drill attempt が存在するか(開始済みセッションの継続シグナル) */
   startedToday: boolean;
-  examDateJst?: string;
+  examDates?: ExamDates;
 };
 
 /**
@@ -98,21 +110,26 @@ export function planSession(items: readonly DrillItem[], startedToday: boolean):
 }
 
 export function assembleQueueView(inputs: AssembleInputs): QueueView {
-  const examDateJst = inputs.examDateJst ?? CCAR_F_EXAM_DATE_JST;
-  const daysLeft = daysUntilExam(inputs.now, examDateJst);
+  const examDates = inputs.examDates ?? EXAM_DATE_JST;
+  const countdowns = scopeExams(inputs.scope).map((exam) => {
+    const examDateJst = examDateOf(exam, examDates);
+    return { exam, examDateJst, daysLeft: daysUntilExam(inputs.now, examDateJst) };
+  });
   const base = {
-    daysLeft,
+    scope: inputs.scope,
+    countdowns,
     budgetSec: DAILY_QUEUE_BUDGET_SEC,
     spentTodaySec: inputs.consumption.spentTodaySec,
     bankEmpty: inputs.bank.questions.length === 0,
   };
 
   // D-1: セレクタ(D5-1)未実装の間は fail closed(buildDailyQueue の throw に到達させない)
-  if (queueModeFor(inputs.now, examDateJst) === "d_minus_1") {
+  if (queueModeFor(inputs.now, inputs.scope, examDates) === "d_minus_1") {
     return {
       ...base,
       kind: "d_minus_1_unavailable",
       pace: null,
+      paceByExam: [],
       totalEstSec: 0,
       dueBacklogCount: 0,
       deferredPracticeCount: 0,
@@ -125,14 +142,15 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
 
   const queue = buildDailyQueue({
     now: inputs.now,
+    scope: inputs.scope,
     questions: inputs.bank.questions,
-    syllabus: inputs.syllabus,
+    syllabi: inputs.syllabi,
     poolCtx: inputs.poolCtx,
     srsRows: inputs.srsRows,
     correctQuestionIds: inputs.correctQuestionIds,
     spentTodaySec: inputs.consumption.spentTodaySec,
-    introducedTodayCount: inputs.consumption.introducedTodayCount,
-    examDateJst,
+    introducedToday: inputs.consumption.introducedTodayByExam,
+    examDates,
   });
 
   const drillItems: DrillItem[] = [];
@@ -164,6 +182,7 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
     ...base,
     kind: "ok",
     pace: queue.pace,
+    paceByExam: queue.paceByExam,
     totalEstSec: queue.totalEstSec,
     dueBacklogCount: queue.dueBacklogCount,
     deferredPracticeCount: practiceItems.length,
@@ -174,13 +193,17 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
   };
 }
 
-/** RSC から呼ぶ I/O 合成(Home / Drill ページ共用)。specs/05: Study 進入時のキュー取得が Neon warm-up */
-export async function loadQueueView(db: Db, now: Date): Promise<QueueView> {
-  const bank = loadBank();
-  const syllabus = loadSyllabus(bankDir());
+/**
+ * キュー / Practice 共通のシグナル読込。スコープで絞った bank と、全 exam の消費(spent)を返す。
+ * holdout 判定の forms・消費見積りは全 exam(bank.forms / multi.all)で行う。
+ */
+export async function loadQueueInputs(db: Db, now: Date) {
+  const multi = loadMultiBank();
+  const scope = await getStudyScope(db);
+  const scoped = scopeBank(multi, scope);
   const todayStart = jstStartOfDay(now);
   const [poolCtx, signals, consumptionRows] = await Promise.all([
-    loadPoolContext(db, bank.forms),
+    loadPoolContext(db, multi.all.forms),
     loadQueueSignals(db),
     loadConsumptionRows(db, todayStart),
   ]);
@@ -188,14 +211,21 @@ export async function loadQueueView(db: Db, now: Date): Promise<QueueView> {
     todayRows: consumptionRows.todayRows,
     introducedBefore: consumptionRows.introducedBefore,
     estOf: (id) => {
-      const q = bank.byId.get(id);
+      const q = multi.all.byId.get(id);
       return q ? estSec(q) : null;
     },
   });
+  return { scope, scoped, poolCtx, signals, consumption, consumptionRows };
+}
+
+/** RSC から呼ぶ I/O 合成(Home / Drill ページ共用)。specs/05: Study 進入時のキュー取得が Neon warm-up */
+export async function loadQueueView(db: Db, now: Date): Promise<QueueView> {
+  const { scope, scoped, poolCtx, signals, consumption, consumptionRows } = await loadQueueInputs(db, now);
   return assembleQueueView({
     now,
-    bank,
-    syllabus,
+    scope,
+    bank: scoped.bank,
+    syllabi: scoped.syllabi,
     poolCtx,
     srsRows: signals.srsRows,
     correctQuestionIds: signals.correctQuestionIds,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { AttemptRow, ExamSessionRow, SrsStateRow } from "@/db/schema";
-import { flash, syllabus } from "@/lib/queue/test-fixtures";
-import { buildStatsView } from "./derive";
+import { flash, pflash, pSyllabus, syllabus } from "@/lib/queue/test-fixtures";
+import { buildScopedStatsViews, buildStatsView } from "./derive";
 
 const attempt = (overrides: Partial<AttemptRow> = {}): AttemptRow => ({
   attemptId: crypto.randomUUID(),
@@ -138,5 +138,36 @@ describe("buildStatsView(specs/05 S-8)", () => {
       now: new Date("2026-08-29T00:00:00.000Z"),
     });
     expect(view.mockTrends).toEqual({ initial: [], rehearsal: [] });
+  });
+});
+
+describe("T-exam: Stats はスコープ内 exam ごとの section(01 FR-8 v1.3)", () => {
+  it("exam ごとにその exam の attempt / session だけを集計し、syllabus 未整備の exam は section を作らない", () => {
+    const sections = buildScopedStatsViews({
+      exams: [
+        { exam: "ccar-f", questions: [flash("f-d1-q001")], syllabus },
+        { exam: "ccar-p", questions: [pflash("p-d1-q001")], syllabus: pSyllabus },
+      ],
+      srsRows: [],
+      attempts: [attempt(), attempt({ questionId: "p-d1-q001", exam: "ccar-p" }), attempt({ questionId: "p-d1-q001", exam: "ccar-p" })],
+      sessions: [fullSession("s-f", "2026-09-10T03:00:00.000Z", 50), { ...fullSession("s-p", "2026-10-10T03:00:00.000Z", 40), exam: "ccar-p" }],
+      now: new Date("2026-10-11T00:00:00+09:00"),
+    });
+    expect(sections.map((s) => s.exam)).toEqual(["ccar-f", "ccar-p"]);
+    const [f, p] = sections;
+    expect(f.view.dailyAnswers.reduce((a, d) => a + d.count, 0)).toBe(1);
+    expect(p.view.dailyAnswers.reduce((a, d) => a + d.count, 0)).toBe(2);
+    expect(f.view.mockTrends.initial.map((m) => m.sessionId)).toEqual(["s-f"]);
+    expect(p.view.mockTrends.initial.map((m) => m.sessionId)).toEqual(["s-p"]);
+    expect(p.view.domains.map((d) => d.domainId)).toEqual(["p-d1", "p-d2"]);
+
+    const onlyF = buildScopedStatsViews({
+      exams: [{ exam: "ccar-p", questions: [], syllabus: null }],
+      srsRows: [],
+      attempts: [],
+      sessions: [],
+      now: new Date(),
+    });
+    expect(onlyF).toEqual([]);
   });
 });

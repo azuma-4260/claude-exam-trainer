@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createEmptyCard, Rating, State } from "ts-fsrs";
+import { createEmptyCard, Rating, State, type Card, type Grade } from "ts-fsrs";
 import { cardToRow, rowToCard } from "./card-row";
-import { applyRating } from "./scheduler";
+import { EXAM_DATE_JST } from "@/lib/exam/dates";
+import { applyRating as applyRatingFor } from "./scheduler";
+
+/** 既存ケースは CCAR-F の試験日で検証する(T-exam: 試験日は呼び出し側が明示する) */
+const applyRating = (card: Card, grade: Grade, now: Date) => applyRatingFor(card, grade, now, EXAM_DATE_JST["ccar-f"]!);
 
 // T-srs: Card ↔ srs_state 行の lossless round-trip(specs/03 §srs_state、specs/04 §方針)
 

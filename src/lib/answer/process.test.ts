@@ -290,3 +290,42 @@ describe("バンクとの整合", () => {
     expect(await processAnswer(flashReq({ question_id: "f-d2-q001" }), deps(new FakeStore(), [q()]))).toMatchObject({ status: 409, reason: "kind" });
   });
 });
+
+describe("T-exam: rating はカードの exam の試験日で scheduler を作る(specs/04 §試験日対応 v1.3)", () => {
+  const OCT1 = jst("2026-10-01T09:00:00");
+  // 成熟した Review カード(生の間隔が 72 日を大きく超える)
+  const matureRow = (questionId: string, exam: string): SrsStateUpsert => ({
+    questionId,
+    exam,
+    dueAt: jst("2026-10-01T00:00:00"),
+    stability: 500,
+    difficulty: 5,
+    elapsedDays: 10,
+    scheduledDays: 30,
+    reps: 5,
+    lapses: 0,
+    learningSteps: 0,
+    state: State.Review,
+    lastReviewAt: jst("2026-09-20T00:00:00"),
+  });
+  const pq = q({ id: "p-d2-q001", exam: "ccar-p", domain_id: "p-d2", primary_topic_id: "p-d2-t1-03" });
+
+  it("試験日を過ぎた F のカードは上限なし(旧式の「毎日 due」にならない)", async () => {
+    const store = new FakeStore();
+    store.srs.set("f-d2-q001", matureRow("f-d2-q001", "ccar-f"));
+    const res = await processAnswer(mcqReq(), deps(store, [q()], {}, OCT1));
+    expect(res.status).toBe(200);
+    expect(store.srs.get("f-d2-q001")!.scheduledDays).toBeGreaterThan(72);
+  });
+
+  it("同じ日の P のカードは P の試験日(12/12)で上限 71 日(Good の隣接分離 +1 まで)", async () => {
+    const store = new FakeStore();
+    store.srs.set("p-d2-q001", matureRow("p-d2-q001", "ccar-p"));
+    const res = await processAnswer(mcqReq({ question_id: "p-d2-q001" }), deps(store, [pq], {}, OCT1));
+    expect(res.status).toBe(200);
+    const row = store.srs.get("p-d2-q001")!;
+    expect(row.exam).toBe("ccar-p");
+    expect(row.scheduledDays).toBeLessThanOrEqual(72);
+    expect(row.scheduledDays).toBeGreaterThan(1);
+  });
+});

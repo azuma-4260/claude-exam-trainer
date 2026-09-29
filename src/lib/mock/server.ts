@@ -1,58 +1,57 @@
 import { randomUUID } from "node:crypto";
 import { getDb } from "@/db/client";
-import { bankDir, loadBank } from "@/lib/bank/load";
-import { loadScenarios, loadSyllabus } from "@/lib/bank/syllabus";
+import { loadMultiBank } from "@/lib/bank/runtime";
 import { loadPoolContext } from "@/lib/answer/store";
 import type { PoolContext } from "@/lib/bank/pool";
 import type { ExamSessionAnswerRow, ExamSessionRow } from "@/db/schema";
-import type { MockForm, Scenario, Syllabus } from "@/lib/bank/schema";
+import type { Exam, MockForm, Scenario, Syllabus } from "@/lib/bank/schema";
+import { getStudyScope } from "@/lib/scope/repo";
+import { mockBankContext, startFormsFor } from "./context";
 import { scenarioIdsInOrder, toAnswerDtos, toQuestionDtos, toScenarioDtos, toSessionDto } from "./dto";
 import type { MockDeps } from "./lifecycle";
 import { createMockStore } from "./store";
 
-/** Mock API ルート共通の依存組み立て(server 専用)。バンク同様、シナリオもプロセス内キャッシュ */
+/**
+ * Mock API ルート共通の依存組み立て(server 専用)。バンクはプロセス内キャッシュ。
+ * 進行中セッションの操作は学習スコープに依存しない(問題は全 exam、シナリオはセッションの exam から引く)。
+ */
 
-let scenariosCache: { loaded: true; value: Scenario[] | null } | null = null;
-
-function loadScenariosCached(): Scenario[] | null {
-  scenariosCache ??= { loaded: true, value: loadScenarios(bankDir()) };
-  return scenariosCache.value;
-}
-
-let syllabusCache: Syllabus | null = null;
-
-/** S-6 レポートのドメイン名・重み用(バンク同様プロセス内キャッシュ) */
-export function loadSyllabusCached(): Syllabus {
-  syllabusCache ??= loadSyllabus(bankDir());
-  return syllabusCache;
+/** S-6 レポートのドメイン名・重み用。セッションの exam の syllabus(未整備の exam は null) */
+export function syllabusFor(exam: Exam): Syllabus | null {
+  return loadMultiBank().get(exam).syllabus;
 }
 
 export interface MockServerContext {
   deps: MockDeps;
+  /** 全 exam のフォーム */
   forms: readonly MockForm[];
-  scenarios: readonly Scenario[] | null;
+  scenariosFor: (exam: Exam) => readonly Scenario[] | null;
 }
 
 export function mockServerContext(): MockServerContext {
-  const bank = loadBank();
+  const ctx = mockBankContext(loadMultiBank());
   return {
     deps: {
       store: createMockStore(getDb()),
-      findQuestion: (id) => bank.byId.get(id) ?? null,
+      findQuestion: ctx.findQuestion,
       now: new Date(),
       newSessionId: () => randomUUID(),
     },
-    forms: bank.forms,
-    scenarios: loadScenariosCached(),
+    forms: ctx.forms,
+    scenariosFor: ctx.scenariosFor,
   };
 }
 
 /**
- * 開始 API の availability・自動選択検証用に submitted セッションと open フラグを読む
- * (mockServerContext は同期・軽量のまま保つ)
+ * 開始 API の availability・自動選択検証用に submitted セッションと open フラグを読み、
+ * 開始候補を学習スコープ内 exam のフォームに絞る(mockServerContext は同期・軽量のまま保つ)
  */
-export async function loadStartPool(forms: MockServerContext["forms"]): Promise<PoolContext> {
-  return loadPoolContext(getDb(), forms);
+export async function loadStartPool(
+  forms: MockServerContext["forms"],
+): Promise<PoolContext & { startForms: MockForm[] }> {
+  const db = getDb();
+  const [pool, scope] = await Promise.all([loadPoolContext(db, forms), getStudyScope(db)]);
+  return { ...pool, startForms: startFormsFor(forms, scope) };
 }
 
 /** 開始・復元が返すセッション一式(出題 DTO のみ。正解・解説は含めない)。バンク不整合は null */
@@ -67,6 +66,6 @@ export function sessionPayload(
     session: toSessionDto(session),
     answers: toAnswerDtos(answers),
     questions,
-    scenarios: toScenarioDtos(scenarioIdsInOrder(questions), ctx.scenarios),
+    scenarios: toScenarioDtos(scenarioIdsInOrder(questions), ctx.scenariosFor(session.exam as Exam)),
   };
 }

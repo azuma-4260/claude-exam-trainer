@@ -1,17 +1,27 @@
 import { describe, expect, it } from "vitest";
 import { createEmptyCard, Rating, State, type Card } from "ts-fsrs";
+import { generatorParameters } from "ts-fsrs";
+import { examDateOf } from "@/lib/exam/dates";
 import { daysBetweenJstDates, jstCalendarDate } from "./jst";
 import {
-  applyRating,
-  CCAR_F_EXAM_DATE_JST,
-  createScheduler,
-  daysUntilExam,
-  getRetrievability,
-  maximumIntervalFor,
+  applyRating as applyRatingFor,
+  createScheduler as createSchedulerFor,
+  daysUntilExam as daysUntilExamFor,
+  getRetrievability as getRetrievabilityFor,
+  maximumIntervalFor as maximumIntervalForExam,
   REQUEST_RETENTION,
 } from "./scheduler";
 
 // T-srs: SRS 遷移テスト(specs/04、03 §srs_state)。D1-1 の src/lib/srs/ を対象とする。
+// T-exam(v1.3): 試験日は exam ごと。既存ケースは CCAR-F の試験日に束縛したラッパーで検証する
+
+const F = examDateOf("ccar-f");
+const P = examDateOf("ccar-p");
+const applyRating = (card: Card, grade: Parameters<typeof applyRatingFor>[1], now: Date) => applyRatingFor(card, grade, now, F);
+const createScheduler = (now: Date) => createSchedulerFor(now, F);
+const daysUntilExam = (now: Date) => daysUntilExamFor(now, F);
+const getRetrievability = (card: Card, now: Date) => getRetrievabilityFor(card, now, F);
+const maximumIntervalFor = (now: Date) => maximumIntervalForExam(now, F);
 
 const MIN = 60_000;
 const DAY = 86_400_000;
@@ -36,7 +46,8 @@ describe("JST 日付(規約: 全日付ロジックは Asia/Tokyo)", () => {
   });
 
   it("daysUntilExam は JST 暦日で数える(UTC 日付とずれる境界で検証)", () => {
-    expect(CCAR_F_EXAM_DATE_JST).toBe("2026-09-27");
+    expect(F).toBe("2026-09-27");
+    expect(P).toBe("2026-12-12");
     // UTC ではまだ 9/26 だが JST では 9/27(試験当日)
     expect(daysUntilExam(new Date("2026-09-26T15:00:00Z"))).toBe(0);
     expect(daysUntilExam(new Date("2026-09-26T14:59:59Z"))).toBe(1);
@@ -50,10 +61,9 @@ describe("maximum_interval = max(1, days_until_exam - 1)(specs/04 §試験日対
     expect(maximumIntervalFor(jst("2026-09-20T09:00:00"))).toBe(6);
   });
 
-  it("下限 1 でクリップされる(前日・当日・通過後)", () => {
+  it("下限 1 でクリップされる(前日・当日)", () => {
     expect(maximumIntervalFor(jst("2026-09-26T23:59:59"))).toBe(1);
     expect(maximumIntervalFor(jst("2026-09-27T00:00:00"))).toBe(1);
-    expect(maximumIntervalFor(jst("2026-09-28T09:00:00"))).toBe(1);
   });
 
   it("scheduler パラメータに反映される(retention 0.9 / fuzz 無効)", () => {
@@ -175,5 +185,43 @@ describe("返却 Card の非改変(specs/04 §方針)", () => {
     expect(typeof r).toBe("number");
     expect(r).toBeGreaterThan(0);
     expect(r).toBeLessThanOrEqual(1);
+  });
+});
+
+describe("T-exam: exam 別試験日と試験日通過後の上限なし(specs/04 §試験日対応 v1.3)", () => {
+  const mature = (): Card => ({
+    due: jst("2026-10-01T00:00:00"),
+    stability: 500,
+    difficulty: 5,
+    elapsed_days: 10,
+    scheduled_days: 30,
+    reps: 5,
+    lapses: 0,
+    learning_steps: 0,
+    state: State.Review,
+    last_review: jst("2026-09-20T00:00:00"),
+  });
+
+  it("残日数 0(当日)は 1、5 日前は 4", () => {
+    expect(maximumIntervalForExam(jst("2026-12-12T09:00:00"), P)).toBe(1);
+    expect(maximumIntervalForExam(jst("2026-12-07T09:00:00"), P)).toBe(4);
+  });
+
+  it("試験日を過ぎた exam(days < 0)は maximum_interval を指定せず ts-fsrs 既定値になる", () => {
+    const now = jst("2026-09-28T09:00:00"); // F は通過 1 日後
+    expect(maximumIntervalForExam(now, F)).toBeUndefined();
+    expect(createSchedulerFor(now, F).parameters.maximum_interval).toBe(generatorParameters().maximum_interval);
+    expect(createSchedulerFor(now, F).parameters.request_retention).toBe(0.9);
+  });
+
+  it("同じ時刻でも exam ごとの試験日で上限が決まる(学習スコープではなくカード単位)", () => {
+    const now = jst("2026-10-01T09:00:00");
+    // P: 12/12 まで 72 日 → 上限 71
+    expect(maximumIntervalForExam(now, P)).toBe(71);
+    const p = applyRatingFor(mature(), Rating.Good, now, P).card;
+    expect(p.scheduled_days).toBeLessThanOrEqual(71 + 1); // Good の隣接分離(+1)まで
+    // F: 通過後は上限なし → 旧式の「毎日 due」にならない
+    const f = applyRatingFor(mature(), Rating.Good, now, F).card;
+    expect(f.scheduled_days).toBeGreaterThan(72);
   });
 });

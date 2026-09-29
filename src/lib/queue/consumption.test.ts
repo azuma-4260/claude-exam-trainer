@@ -69,6 +69,7 @@ describe("deriveConsumption(specs/04 §消費シグナル導出)", () => {
     expect(deriveConsumption({ todayRows: [], introducedBefore: new Set(), estOf })).toEqual({
       spentTodaySec: 0,
       introducedTodayCount: 0,
+      introducedTodayByExam: {},
     });
   });
 });

@@ -8,8 +8,9 @@ import { buildDailyQueue, queueModeFor, type QueueInputs } from "./build";
 
 const inputs = (over: Partial<QueueInputs>): QueueInputs => ({
   now: NOW,
+  scope: "ccar-f",
   questions: [],
-  syllabus,
+  syllabi: [syllabus],
   poolCtx: emptyCtx(),
   srsRows: [],
   correctQuestionIds: new Set(),
@@ -194,7 +195,7 @@ describe("buildDailyQueue: 同日内の再構築(予算・導入目標は 1 日�
 
   it("introducedTodayCount 分は新規導入しない(new_per_day は 1 日の導入目標)", () => {
     const newQs = Array.from({ length: 40 }, (_, i) => flash(`f-d1-q${pad(1 + i)}`));
-    const q = buildDailyQueue(inputs({ questions: newQs, introducedTodayCount: 2 }));
+    const q = buildDailyQueue(inputs({ questions: newQs, introducedToday: { "ccar-f": 2 } }));
     // 日次目標は当日開始時点の remaining(40 + 2 = 42)から: ceil(42/27) = 2。今日すでに 2 枚導入済みなら追加しない
     expect(q.pace).toEqual({ remainingNew: 42, requiredNew: 2, newPerDay: 2, paceWarning: false });
     expect(q.items).toEqual([]);
@@ -208,7 +209,7 @@ describe("buildDailyQueue: 同日内の再構築(予算・導入目標は 1 日�
       srsRow("f-d1-q001", { dueAt: new Date("2026-09-20T12:00:00+09:00") }), // 今日導入 → due は未来
       srsRow("f-d1-q002", { dueAt: new Date("2026-09-20T12:00:00+09:00") }),
     ];
-    const q = buildDailyQueue(inputs({ now, questions: qs, srsRows: introduced, introducedTodayCount: 2 }));
+    const q = buildDailyQueue(inputs({ now, questions: qs, srsRows: introduced, introducedToday: { "ccar-f": 2 } }));
     expect(q.pace).toEqual({ remainingNew: 5, requiredNew: 5, newPerDay: 5, paceWarning: false });
     expect(q.items.map((i) => [i.questionId, i.source])).toEqual([
       ["f-d1-q003", "new"],
@@ -242,10 +243,10 @@ describe("buildDailyQueue: 直前期と D-1(specs/04)", () => {
   });
 
   it("queueModeFor: 9/26(JST)だけ d_minus_1", () => {
-    expect(queueModeFor(new Date("2026-09-25T23:59:59+09:00"))).toBe("normal");
-    expect(queueModeFor(new Date("2026-09-26T00:00:00+09:00"))).toBe("d_minus_1");
-    expect(queueModeFor(new Date("2026-09-26T23:59:59+09:00"))).toBe("d_minus_1");
-    expect(queueModeFor(new Date("2026-09-27T00:00:00+09:00"))).toBe("normal");
+    expect(queueModeFor(new Date("2026-09-25T23:59:59+09:00"), "ccar-f")).toBe("normal");
+    expect(queueModeFor(new Date("2026-09-26T00:00:00+09:00"), "ccar-f")).toBe("d_minus_1");
+    expect(queueModeFor(new Date("2026-09-26T23:59:59+09:00"), "ccar-f")).toBe("d_minus_1");
+    expect(queueModeFor(new Date("2026-09-27T00:00:00+09:00"), "ccar-f")).toBe("normal");
   });
 
   it("D-1 は due ベース選定を停止し、セレクタの結果を時間予算内だけ提示する", () => {

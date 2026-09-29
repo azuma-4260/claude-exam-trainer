@@ -16,7 +16,7 @@
 
 import { readFileSync } from "node:fs";
 import { loadBank, type Bank } from "../src/lib/bank/load";
-import { evaluatePool, holdoutFormOf, unsubmittedFormIds, type PoolContext, type PoolReason } from "../src/lib/bank/pool";
+import { evaluatePool, formKey, holdoutFormOf, unsubmittedFormKeys, type PoolContext, type PoolReason } from "../src/lib/bank/pool";
 import { MOCK_FORM_SIZE } from "../src/lib/bank/schema";
 import { assemblePracticeView, PRACTICE_BATCH_MAX } from "../src/lib/practice/serve";
 import { jstCalendarDate } from "../src/lib/srs/jst";
@@ -153,8 +153,9 @@ export function verifyRelease(data: ExportData, bank: Bank, formId: string, now:
 
   // ---- C. holdout の機械検証(本番と同じ evaluatePool を export 由来の PoolContext で) ----
   const ctx = poolContextFrom(data, bank);
-  const unsubmitted = unsubmittedFormIds(ctx);
-  if (unsubmitted.has(formId)) failures.push(`${formId} は PoolContext 上も未提出扱い(holdout 継続)`);
+  // フォームは (exam, form_id) で識別する(specs/03 §出題プール 1 v1.3)
+  const unsubmitted = unsubmittedFormKeys(ctx);
+  if (unsubmitted.has(formKey(form.exam, form.id))) failures.push(`${formId} は PoolContext 上も未提出扱い(holdout 継続)`);
   for (const id of form.question_ids) {
     const q = bank.byId.get(id);
     if (!q) {
@@ -169,7 +170,7 @@ export function verifyRelease(data: ExportData, bank: Bank, formId: string, now:
   for (const id of result.holdout.targetHoldoutRejected) failures.push(`${formId} 収載 ${id} が提出後も holdout で拒否される`);
 
   for (const other of bank.forms) {
-    if (!unsubmitted.has(other.id)) continue;
+    if (!unsubmitted.has(formKey(other.exam, other.id))) continue;
     const entry = { formId: other.id, holdoutRejected: 0, notHoldout: [] as { questionId: string; reason: string }[] };
     for (const id of other.question_ids) {
       const q = bank.byId.get(id);

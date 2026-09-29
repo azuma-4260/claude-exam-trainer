@@ -1,5 +1,6 @@
 import type { AttemptRow, ExamSessionRow, SrsStateRow } from "@/db/schema";
-import type { Question, Syllabus } from "@/lib/bank/schema";
+import type { Exam, Question, Syllabus } from "@/lib/bank/schema";
+import { examOfQuestionId } from "@/lib/exam/dates";
 import { domainProficiencies, topicProficiencies } from "@/lib/queue/proficiency";
 import { jstCalendarDate } from "@/lib/srs/jst";
 import { isRehearsal } from "@/lib/mock/report";
@@ -133,4 +134,36 @@ export function buildStatsView(args: {
   }
 
   return { domains, dailyAnswers, mockTrends };
+}
+
+/** スコープ内 exam ごとの Stats(F+P では exam ごとに分けて表示。ドメインは exam 固有なので混ぜない) */
+export interface ExamStatsSection {
+  exam: Exam;
+  view: StatsView;
+}
+
+/**
+ * 学習スコープ内の exam ごとに buildStatsView を組む(01 FR-8 v1.3)。
+ * 各 exam の section には、その exam の問題・srs_state・attempt(question id の接頭辞)・session だけを渡す。
+ * syllabus が未整備の exam は集計対象のドメインが無いので section を作らない。
+ */
+export function buildScopedStatsViews(args: {
+  exams: readonly { exam: Exam; questions: readonly Question[]; syllabus: Syllabus | null }[];
+  srsRows: readonly SrsStateRow[];
+  attempts: readonly StatsAttempt[];
+  sessions: readonly ExamSessionRow[];
+  now: Date;
+}): ExamStatsSection[] {
+  return args.exams.flatMap(({ exam, questions, syllabus }) => {
+    if (!syllabus) return [];
+    const view = buildStatsView({
+      questions,
+      syllabus,
+      srsRows: args.srsRows.filter((r) => r.exam === exam),
+      attempts: args.attempts.filter((a) => examOfQuestionId(a.questionId) === exam),
+      sessions: args.sessions.filter((s) => s.exam === exam),
+      now: args.now,
+    });
+    return [{ exam, view }];
+  });
 }

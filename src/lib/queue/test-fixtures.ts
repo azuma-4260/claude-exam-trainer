@@ -119,3 +119,43 @@ export const emptyCtx = (forms: readonly MockForm[] = []): PoolContext => ({ for
 /** 60 問収載の未提出フォーム(holdout ゲート検証用) */
 export const holdoutForm = (id: string, questionIds: readonly string[]): MockForm =>
   mockFormSchema.parse({ id, exam: "ccar-f", scenario_ids: ["sc-1"], question_ids: questionIds });
+
+// ---- T-exam(学習スコープ)用の CCAR-P fixture ----
+
+/** P の試験日 2026-12-12 の 72 日前。F(9/27)は通過 4 日後 */
+export const NOW_P = new Date("2026-10-01T12:00:00+09:00");
+
+/** CCAR-P の問題(id は p- 接頭辞。domain / topic は id から導出) */
+export const pflash = (id: string, over: Partial<Question> = {}): Question => flash(id, { exam: "ccar-p", ...over });
+export const pmcq = (id: string, over: Partial<Question> = {}): Question => mcq(id, { exam: "ccar-p", ...over });
+
+/** p-d1: weight 70 / p-d2: weight 30 */
+export const pSyllabus: Syllabus = syllabusFileSchema.parse({
+  exam: "ccar-p",
+  version: 1,
+  source: "test fixture",
+  domains: [
+    {
+      id: "p-d1",
+      name: "P Domain 1",
+      weight: 70,
+      form_questions: 30,
+      task_statements: [
+        { id: "p-d1-t1", name: "P TS 1", topics: [{ id: "p-d1-t1-01", name: "P Topic 1-1", scope_ja: "範囲" }] },
+      ],
+    },
+    {
+      id: "p-d2",
+      name: "P Domain 2",
+      weight: 30,
+      form_questions: 30,
+      task_statements: [
+        { id: "p-d2-t1", name: "P TS 2", topics: [{ id: "p-d2-t1-01", name: "P Topic 2-1", scope_ja: "範囲" }] },
+      ],
+    },
+  ],
+});
+
+/** P の未提出フォーム(同名 form-a の exam 独立性の検証用) */
+export const pHoldoutForm = (id: string, questionIds: readonly string[]): MockForm =>
+  mockFormSchema.parse({ id, exam: "ccar-p", scenario_ids: ["sc-1"], question_ids: questionIds });
