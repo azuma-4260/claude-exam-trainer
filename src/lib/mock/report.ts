@@ -57,6 +57,8 @@ export interface MockReportWrongItem {
 
 export interface MockReport {
   sessionId: string;
+  /** レポートで exam を明示する(05 S-6) */
+  exam: string;
   formId: string | null;
   kind: string;
   scoreRaw: number;
@@ -137,6 +139,7 @@ export function buildMockReport(args: {
 
   return {
     sessionId: session.id,
+    exam: session.exam,
     formId: session.formId,
     kind: session.kind,
     scoreRaw: session.scoreRaw ?? derivedScore,

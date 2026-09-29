@@ -4,6 +4,7 @@ import { Practice } from "@/components/practice/practice";
 import { buttonVariants } from "@/components/ui/button";
 import { getDb } from "@/db/client";
 import { loadPracticeView } from "@/lib/practice/serve";
+import { showExamLabel } from "@/lib/scope/scope";
 import { cn } from "@/lib/utils";
 
 /**
@@ -17,7 +18,14 @@ export default async function PracticePage() {
   const view = await loadPracticeView(getDb(), new Date());
 
   if (view.kind === "ok") {
-    return <Practice items={view.items} scenarios={view.scenarios} remainingAfterBatch={view.remainingAfterBatch} />;
+    return (
+      <Practice
+        items={view.items}
+        scenarios={view.scenarios}
+        remainingAfterBatch={view.remainingAfterBatch}
+        showExamLabel={showExamLabel(view.scope)}
+      />
+    );
   }
 
   const message =

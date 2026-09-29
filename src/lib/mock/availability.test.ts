@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mockFormSchema, type MockForm, type Question } from "@/lib/bank/schema";
 import type { OpenFlag, PoolSession } from "@/lib/bank/pool";
 import { mcq } from "@/lib/queue/test-fixtures";
-import { buildMockFormOptions } from "./availability";
+import { buildMockFormOptions, formStartability } from "./availability";
 
 // D3-2: S-5 開始画面のフォーム選択肢(01 FR-5、05 S-5)。
 // availability・submitted(rehearsal)・推奨フォームは DB に保存せず都度導出する。
@@ -115,5 +115,49 @@ describe("T-exam: F+P で同名 form の片方だけ提出済み(B-S-3-1、specs
       ["ccar-p", true],
     ]);
     expect(r.recommendedByExam).toEqual({ "ccar-f": "form-a", "ccar-p": null });
+  });
+});
+
+describe("D6-2: 開始可否は exam ごとの推奨で判定し、同名 form は開始させない(05 S-5、B-T-exam-2)", () => {
+  const pQuestions = (prefix: string) =>
+    formQuestions(prefix).map((q) =>
+      mcq(q.id.replace(/^f-/, "p-"), {
+        exam: "ccar-p",
+        domain_id: q.domain_id.replace(/^f-/, "p-"),
+        primary_topic_id: q.primary_topic_id.replace(/^f-/, "p-"),
+        scenario_id: `sc-p-${prefix}`,
+        eligible_modes: ["mock", "practice"],
+        srs_eligible: false,
+      }),
+    );
+  const qpx = pQuestions("f-d5");
+  const qpa = pQuestions("f-d6");
+  const formPx = form("form-px", qpx, "ccar-p");
+  const formPa = form("form-a", qpa, "ccar-p");
+  const all = new Map([...byId, ...[...qpx, ...qpa].map((q) => [q.id, q] as const)]);
+  const findAll = (id: string) => all.get(id) ?? null;
+  const at = (r: ReturnType<typeof buildMockFormOptions>, exam: string, formId: string) =>
+    formStartability(r.options.find((o) => o.exam === exam && o.formId === formId)!, r);
+
+  it("F と P で form id が異なれば、それぞれの exam の推奨フォームとして開始できる", () => {
+    const r = buildMockFormOptions([formA, formB, formPx], [], [], findAll);
+    expect(at(r, "ccar-f", "form-a")).toEqual({ recommended: true, startable: true, blocked: null });
+    expect(at(r, "ccar-p", "form-px")).toEqual({ recommended: true, startable: true, blocked: null });
+    expect(at(r, "ccar-f", "form-b")).toEqual({ recommended: false, startable: false, blocked: "not_next" });
+  });
+
+  it("同名 form が F と P の両方にあれば、未実施・提出済みとも開始不可(理由 ambiguous_form)", () => {
+    const r = buildMockFormOptions([formA, formB, formPa], [submittedA], [], findAll);
+    expect(at(r, "ccar-f", "form-a")).toMatchObject({ startable: false, blocked: "ambiguous_form" });
+    expect(at(r, "ccar-p", "form-a")).toMatchObject({ startable: false, blocked: "ambiguous_form" });
+    // 同名でない form は影響を受けない
+    expect(at(r, "ccar-f", "form-b")).toEqual({ recommended: true, startable: true, blocked: null });
+  });
+
+  it("単独スコープ(F のみ)では従来どおり: 推奨は開始可、提出済みは rehearsal で開始可、block は unavailable", () => {
+    const r = buildMockFormOptions([formA, formB, formC], [submittedA], [openFlag(qc[0])], find);
+    expect(at(r, "ccar-f", "form-a")).toEqual({ recommended: false, startable: true, blocked: null });
+    expect(at(r, "ccar-f", "form-b")).toEqual({ recommended: true, startable: true, blocked: null });
+    expect(at(r, "ccar-f", "form-c")).toEqual({ recommended: false, startable: false, blocked: "unavailable" });
   });
 });

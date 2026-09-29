@@ -4,6 +4,7 @@ import { attempt } from "@/db/schema";
 import { loadPoolContext } from "@/lib/answer/store";
 import { loadMultiBank, scopeBank } from "@/lib/bank/runtime";
 import { getStudyScope } from "@/lib/scope/repo";
+import type { StudyScope } from "@/lib/scope/scope";
 import { assembleMistakesView, type MistakeAttempt, type MistakesView } from "./derive";
 
 /** practice / mock attempt だけを時系列で取得する。derive 側も対象 mode を再確認する。 */
@@ -24,7 +25,7 @@ export function buildMistakeAttemptsSelect(db: Db) {
 export async function loadMistakesView(
   db: Db,
   options: { reviewExcludeIds?: ReadonlySet<string> } = {},
-): Promise<MistakesView> {
+): Promise<MistakesView & { scope: StudyScope }> {
   // 表示対象は学習スコープ内 exam の問題のみ(specs/03 §間違いノート v1.3)。
   // scoped.bank.byId に無い(スコープ外 exam の)問題の attempt は掲載されない
   const [scope, poolCtx, attempts] = await Promise.all([
@@ -33,11 +34,13 @@ export async function loadMistakesView(
     buildMistakeAttemptsSelect(db),
   ]);
   const scoped = scopeBank(loadMultiBank(), scope);
-  return assembleMistakesView({
+  const view = assembleMistakesView({
     bank: scoped.bank,
     poolCtx,
     scenarios: scoped.scenarios,
     attempts: attempts satisfies MistakeAttempt[],
     reviewExcludeIds: options.reviewExcludeIds,
   });
+  // scope は画面の exam ラベル表示(both のみ)に使う(D6-2)
+  return { ...view, scope };
 }

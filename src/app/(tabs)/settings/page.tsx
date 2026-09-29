@@ -1,12 +1,22 @@
 import Link from "next/link";
-import { ArrowLeft, Download, Flag, LogOut, Settings } from "lucide-react";
+import { ArrowLeft, Download, Flag, Layers, LogOut, Settings } from "lucide-react";
+import { ExamBadge } from "@/components/exam-badge";
+import { ScopeSwitcher } from "@/components/scope-switcher";
 import { buttonVariants } from "@/components/ui/button";
 import { getDb } from "@/db/client";
+import { EXAMS } from "@/lib/bank/schema";
 import { loadMultiBank } from "@/lib/bank/runtime";
+import { examOfQuestionId } from "@/lib/exam/dates";
+import { EXAM_LABEL } from "@/lib/exam/label";
 import { listCurrentOpenFlags } from "@/lib/export/load";
+import { getStudyScope } from "@/lib/scope/repo";
+import { selectableScopes } from "@/lib/scope/scope";
 import { cn } from "@/lib/utils";
 
-/** S-9 設定。パスコード変更 UI は仕様どおり持たない。 */
+/**
+ * S-9 設定。学習スコープ切替・データエクスポート(全 exam / exam 別)・未解決フラグ一覧・ログアウト(specs/05)。
+ * パスコード変更 UI は仕様どおり持たない。
+ */
 export const dynamic = "force-dynamic";
 
 const REASON_LABEL = {
@@ -16,9 +26,10 @@ const REASON_LABEL = {
 } as const;
 
 export default async function SettingsPage() {
-  // 未解決フラグ一覧は学習スコープに関係なく全 exam(01 FR-10。exam ラベル表示は D6-2)
+  // 未解決フラグ一覧は学習スコープに関係なく全 exam を exam ラベル付きで表示する(01 FR-10、05 S-9)
   const bank = loadMultiBank().all;
-  const flags = await listCurrentOpenFlags(getDb(), bank);
+  const db = getDb();
+  const [flags, scope] = await Promise.all([listCurrentOpenFlags(db, bank), getStudyScope(db)]);
 
   return (
     <main className="flex flex-col gap-7">
@@ -33,6 +44,24 @@ export default async function SettingsPage() {
         </div>
       </header>
 
+      <section aria-labelledby="scope-heading" className="flex flex-col gap-3">
+        <h2 id="scope-heading" className="font-medium">学習スコープ</h2>
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="flex items-start gap-3">
+            <Layers className="mt-0.5 size-5 text-muted-foreground" aria-hidden />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-muted-foreground">
+                出題・今日のキュー・間違いノート・Stats・模試の開始候補を、選んだ試験に絞ります。
+                切り替えても学習履歴は変わりません。進行中の模試はスコープに関係なく再開できます。
+              </p>
+              <div className="mt-4">
+                <ScopeSwitcher scope={scope} options={selectableScopes()} variant="full" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section aria-labelledby="data-heading" className="flex flex-col gap-3">
         <h2 id="data-heading" className="font-medium">データ</h2>
         <div className="rounded-xl border border-border bg-card p-4">
@@ -43,10 +72,23 @@ export default async function SettingsPage() {
               <p className="mt-1 text-sm text-muted-foreground">
                 進捗 5 テーブルと、現行 rev の未解決フラグのみを JSON で保存します。
               </p>
-              <a href="/api/export" download className={cn(buttonVariants({ variant: "outline" }), "mt-4")}>
+              <a href="/api/export" download className={cn(buttonVariants({ variant: "outline" }), "mt-4 w-full")}>
                 <Download data-icon="inline-start" aria-hidden />
-                JSON をダウンロード
+                全試験の JSON をダウンロード
               </a>
+              {/* exam 別(03 §3: その exam の行のみ。study_setting は含まない) */}
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {EXAMS.map((exam) => (
+                  <a
+                    key={exam}
+                    href={`/api/export?exam=${exam}`}
+                    download
+                    className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "border border-border")}
+                  >
+                    {EXAM_LABEL[exam]} のみ
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -69,6 +111,7 @@ export default async function SettingsPage() {
               return (
                 <li key={flag.id} className="rounded-xl border border-border bg-card p-4">
                   <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <ExamBadge exam={examOfQuestionId(flag.questionId)} />
                     <span className="rounded-md bg-amber-500/10 px-2 py-1 font-medium text-amber-700 dark:text-amber-300">
                       {REASON_LABEL[flag.reason as keyof typeof REASON_LABEL] ?? flag.reason}
                     </span>
