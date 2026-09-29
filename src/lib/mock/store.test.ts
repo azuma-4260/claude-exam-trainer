@@ -41,6 +41,12 @@ describe("保存系の条件付き UPDATE(terminal 後は 0 行で書き換わ�
     expect(sql).not.toContain('"answer_updated_at"');
     expect(sql).not.toContain('"chosen"');
   });
+  it("回答・フラグ保存は question_rev を SET に含めない(開始時 snapshot を deploy 後も書き換えない。T-rev)", () => {
+    for (const patch of [{ chosen: ["B"] }, { chosen: null }, { flagged: true }]) {
+      const { sql } = buildPatchAnswer(db, SID, "f-d1-q001", patch, NOW).toSQL();
+      expect(sql.slice(0, sql.indexOf(" where "))).not.toContain('"question_rev"');
+    }
+  });
   it("current_index / abandon も in_progress 条件付き(exam_session 行の UPDATE 自体が提出と直列化する)", () => {
     for (const q of [buildSavePosition(db, SID, 3), buildAbandon(db, SID, NOW)]) {
       const { sql } = q.toSQL();
@@ -108,6 +114,12 @@ describe("提出の 2 文(claim → 新スナップショットで採点・attem
     expect(text).toContain("gen_random_uuid()");
     expect(text).toMatch(/'mock'/);
     expect(text).toMatch(/null, coalesce\(g\.is_correct, false\)/);
+  });
+  it("attempt.question_rev は exam_session_answer の snapshot から取り、バンク側の rev を渡さない(T-rev)", () => {
+    expect(text).toContain("select a.question_id, a.question_rev,");
+    expect(text).toContain("select gen_random_uuid(), g.question_id, g.question_rev,");
+    const keyParam = params.find((p) => typeof p === "string" && p.includes("question_id"));
+    expect(keyParam).not.toContain("rev");
   });
   it("answered_at: 最終状態が未回答(chosen null)なら finished_at、回答済みなら answer_updated_at", () => {
     expect(text).toContain("case when g.chosen is null then c.finished_at");
