@@ -15,7 +15,7 @@
 | 資格 | コード | 試験日 | 形式 |
 |---|---|---|---|
 | Claude Certified Architect – Foundations | CCAR-F | 2026-09-27(**合格**) | 60問 / 120分 / シナリオベース |
-| Claude Certified Architect – Professional | CCAR-P | **2026-12-12** | 63問 / 120分 / 独立問題 |
+| Claude Certified Architect – Professional | CCAR-P | **2026-12-12** | 63問 / 120分 / シナリオ記述なし(形式は T-pmock で確定) |
 
 実装はすべて Claude Code に委任(オーナーはコードを読むが書かない)。本設計書群は AI 実装者への指示書として機能することを最優先とする。
 
@@ -76,7 +76,7 @@ UI 文言、loading/empty state、コンポーネント分割、CSS、内部関�
 
 ## 未確定事項
 
-- CCAR-P の Exam Guide v1.0 は取得済み(`ExamGuide/CCAR-P.pdf`)。`02` の CCAR-P 節との突合と P の模試構造の Guide 上の事実の記録は `09` CP0、`03` §mock_forms への P 構造(問題数・フォーム数・ドメイン配分・選択数)の仕様化は T-pmock で行う(停止条件: Mock のスコア)
+- P の模試構造: Guide 上の事実は CP0 で `content/ccar-p/SOURCES.md` §1.1 に記録済み(2026-09-29。63 問・シナリオ構造の記述なし・multiple-response の選択数は明記なし・ドメイン配分は重みのみ)。**独立問題形式か否か**を含む `03` §mock_forms への P 構造(問題数・フォーム数・ドメイン配分・選択数)の仕様化は T-pmock で行う(停止条件: Mock のスコア)
 - ~~9/27 以後の F データの扱い・試験切替~~ → **解消(2026-09-29, S-3)**: 学習スコープ方式で確定(確定事項 1・4・6)
 - ~~公式 Exam Guide の模試構造(4×15 か否か)→ `07` Step 0 で照合~~ → **解消(2026-08-23, C0)**: Guide に各シナリオ問題数の記述なし。各シナリオ 15 問検証は OFF 確定(`content/ccar-f/SOURCES.md` §1.1)
 - ~~ハーフ模試: 任意機能(Phase 4 以降・余力時のみ)~~ → **削除(2026-09-28, S-2)**: F 期限付きの任意枠だった D5-2 とともに削除。P で必要ならバックログから新 ID で起こす
