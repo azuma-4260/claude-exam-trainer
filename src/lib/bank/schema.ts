@@ -217,7 +217,8 @@ const syllabusDomainSchema = z
     id: domainIdSchema,
     name: z.string().trim().min(1),
     weight: z.number().int().min(0).max(100),
-    form_questions: z.number().int().min(0),
+    /** 固定フォーム配分が確定した exam のみ必須、未確定の exam は書かない(specs/03 §1。下の superRefine で強制) */
+    form_questions: z.number().int().min(0).optional(),
     task_statements: z.array(syllabusTaskStatementSchema).min(1),
   })
   .strict();
@@ -225,7 +226,8 @@ const syllabusDomainSchema = z
 /**
  * syllabus.yaml(specs/02 §トピックツリー)。
  * 階層整合(task_statement / topic が自 domain 配下)・ID の全体一意性・
- * weight 合計 100・form_questions 合計 = MOCK_FORM_SIZE をここで強制する。
+ * weight 合計 100 をここで強制する。form_questions は固定フォーム配分が確定した exam(FORM_DOMAIN_QUOTA あり)でのみ
+ * 必須で合計 = MOCK_FORM_SIZE、未確定の exam(ccar-p は T-pmock / D6-4 まで)では書かない(specs/03 §1, D6-3)。
  */
 export const syllabusFileSchema = z
   .object({
@@ -260,8 +262,19 @@ export const syllabusFileSchema = z
     });
     const weight = s.domains.reduce((a, d) => a + d.weight, 0);
     if (weight !== 100) issue(["domains"], `weight 合計が 100 でない(${weight})`);
-    const fq = s.domains.reduce((a, d) => a + d.form_questions, 0);
-    if (fq !== MOCK_FORM_SIZE) issue(["domains"], `form_questions 合計が ${MOCK_FORM_SIZE} でない(${fq})`);
+    if (FORM_DOMAIN_QUOTA[s.exam]) {
+      s.domains.forEach((d, di) => {
+        if (d.form_questions === undefined)
+          issue(["domains", di, "form_questions"], `exam=${s.exam} は固定フォーム配分が確定しているため form_questions が必須`);
+      });
+      const fq = s.domains.reduce((a, d) => a + (d.form_questions ?? 0), 0);
+      if (fq !== MOCK_FORM_SIZE) issue(["domains"], `form_questions 合計が ${MOCK_FORM_SIZE} でない(${fq})`);
+    } else {
+      s.domains.forEach((d, di) => {
+        if (d.form_questions !== undefined)
+          issue(["domains", di, "form_questions"], `exam=${s.exam} は固定フォーム配分が未確定のため form_questions を書かない`);
+      });
+    }
   });
 export type Syllabus = z.infer<typeof syllabusFileSchema>;
 export type SyllabusDomain = Syllabus["domains"][number];
