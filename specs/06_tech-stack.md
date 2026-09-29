@@ -1,4 +1,6 @@
-# 06. 技術スタック(v1.2・固定仕様)
+# 06. 技術スタック(v1.3・固定仕様)
+
+**v1.3(2026-09-29, S-3)**: F 本番データの保全(学習スコープ導入時)を追加。CI の step 順序を実態(`backlog:check` を含む)に合わせて修正(B-D0-3-1)。固定フォーム検証の件数・配分は CCAR-F 固有と明記。
 
 ## 採用スタックとバージョン方針
 
@@ -37,6 +39,14 @@ Next.js 16 では middleware.ts の file convention は deprecated であり、�
 - Production と development/preview は **Neon branch で分離**。Production branch へは Vercel Production 環境のみ接続。テストコードから production DATABASE_URL 参照禁止
 - **cutover ルール**: 最初の production attempt が保存された時点を data-protection cutover とする。cutover **前**はスキーマ修正目的の production DB リセットを許可(この期間に設計を素早く直す)。cutover **後**は DROP / 破壊的 ALTER / reset / reseed を禁止
 - migration フロー(cutover 後): 生成 → dev branch 適用 → smoke test → production に一度だけ適用 → deploy。Preview デプロイごとの production migration 禁止。失敗時は deploy 中止
+
+### F 本番データの保全(v1.3、P フェーズ)
+
+- cutover ルールは exam を問わず継続(F の試験日通過後も F の attempt / srs_state / exam_session / question_flag は保護対象)
+- 多試験対応(`09` D6-1〜D6-4)の migration は**追加のみ**(新テーブル `study_setting`、新 index 等)。既存行の UPDATE / DELETE、exam 列の書換、backfill を伴う migration は禁止
+- 学習スコープの切替は `study_setting` の 1 行のみを書く(`03`)。F の既存行は切替・P のデータ投入のいずれでも変化しない
+- 検証: 多試験対応の deploy 前後と、スコープを P に切り替える前後で `/api/export?exam=ccar-f` を取得し、件数だけでなく行の中身まで一致することを確認する(`09` M9 / D6-1 の DoD)。`?exam=` 導入前(D6-1 deploy 前)の基準値は、全体 export から F の行を同じ規則(`03` §3)で抽出したものとする(study_setting は導入前には存在しない)
+- 試験日を過ぎた exam の scheduler 変更(`04` 上限なし)は将来の rating にのみ効き、既存 srs_state 行を書き換えない
 
 ## 認証(固定)
 
@@ -81,10 +91,10 @@ Next.js 16 では middleware.ts の file convention は deprecated であり、�
 - Zod 検証(`03` の全不変条件)、id 重複、syllabus 整合、refs
 - ドメイン別問題数の重み乖離(±30% 超で警告)
 - **MCQ 選択肢バランス監査**(`npm run audit:choices`、`07` 品質ルール): 正解だけが長い / 独特の記法を含む偏りを fail closed で検査(validator とは別スクリプト。受理集合を変えないため)
-- **固定フォーム検証**: 60 問 / ドメイン配分 16-11-12-12-9 / form 間重複なし / mock eligible / scenario_id 非 null / scenario_id ∈ form.scenario_ids / 実使用シナリオ集合 = form.scenario_ids / (公式確認済みの場合のみ)各シナリオ 15 問 — **Step 0 判定(2026-08-23): 公式記述なしのため OFF 確定**(`content/ccar-f/SOURCES.md` §1.1)。シナリオ内件数は検証しない
-- **deploy は CI の後続 job からのみ実行**(validator → `audit:choices` → `npm test` → `npm run build` が全て成功した場合のみ Vercel CLI + token で deploy)。Vercel の Git 連携による自動 deploy は無効化する。これにより「CI 失敗 = deploy 中止」を仕組みで保証する
+- **固定フォーム検証**(以下の件数・配分は CCAR-F 固有値。P は T-pmock で `03` §mock_forms に追記し D6-4 で validator に反映): 60 問 / ドメイン配分 16-11-12-12-9 / form 間重複なし / mock eligible / scenario_id 非 null / scenario_id ∈ form.scenario_ids / 実使用シナリオ集合 = form.scenario_ids / (公式確認済みの場合のみ)各シナリオ 15 問 — **Step 0 判定(2026-08-23): 公式記述なしのため OFF 確定**(`content/ccar-f/SOURCES.md` §1.1)。シナリオ内件数は検証しない
+- **deploy は CI の後続 job からのみ実行**(`validate-bank` → `audit:choices` → `backlog:check` → `npm test` → `npm run build` が全て成功した場合のみ Vercel CLI + token で deploy)。Vercel の Git 連携による自動 deploy は無効化する。これにより「CI 失敗 = deploy 中止」を仕組みで保証する
 - 失敗時は CI fail・デプロイ中止。**フラグの resolved_at 更新はデプロイ成功条件に含めない**(旧 rev フラグは superseded として自動失効)
 
 ## 不採用(変更なし)
 
-SvelteKit 等 / Supabase / ローカル SQLite + GitHub 同期 / localStorage のみ / API 動的生成(F 合格後まで)/ durable outbox / keep-alive cron
+SvelteKit 等 / Supabase / ローカル SQLite + GitHub 同期 / localStorage のみ / API 動的生成 / durable outbox / keep-alive cron

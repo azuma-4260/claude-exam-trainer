@@ -1,9 +1,11 @@
-# 07. 問題バンク生成パイプライン(v1.2)
+# 07. 問題バンク生成パイプライン(v1.3)
+
+**v1.3(2026-09-29, S-3)**: CCAR-P フェーズを詳細化(ディレクトリ・Step ごとの差分・生成量サマリ P 版)。以下の Step 0〜6 本文は F で確定した手順で、P は §CCAR-P フェーズの差分を適用して再実行する。
 
 ## 原則
 
 - 一次ソース主義: 公式 Exam Guide v1.0 / docs.claude.com / Anthropic Academy / Anthropic 公式ブログのみ。サードパーティ問題集は参照・転記禁止
-- ソーススナップショット固定: 参照 docs の版/日付を `content/ccar-f/SOURCES.md` に記録。試験前の改訂トリガーは (a) Exam Guide の version/errata、(b) フラグで判明した明確な事実誤り、のみ
+- ソーススナップショット固定: 参照 docs の版/日付を `content/<exam>/SOURCES.md`(F: `content/ccar-f/`、P: `content/ccar-p/`)に記録。試験前の改訂トリガーは (a) Exam Guide の version/errata、(b) フラグで判明した明確な事実誤り、のみ
 - クリティカルパスはシナリオ MCQ。ただし**フォームより先に Practice 専用プールを成立させる**(8/28 学習開始のため)
 - 全問題に refs 必須
 
@@ -59,11 +61,30 @@
 - 旧 rev フラグは superseded として自動失効(resolved_at 更新は任意の履歴整理)
 - **フォーム収載問題のフラグ**: 該当フォームは修正が active 化されるまで開始不可(`01` FR-5 の availability 検証)。実行時の代替差し込み禁止
 
-## CCAR-P フェーズ(F 合格後)
+## CCAR-P フェーズ(F 合格後。v1.3 で詳細化)
 
-- 同一パイプラインを P の Exam Guide で再実行。F からの流用は必ず新 ID 採番。P 固有 3 ドメイン(計 35%)に集中
+同一パイプラインを P の Exam Guide(`ExamGuide/CCAR-P.pdf`)で再実行する。タスク ID・期限は `09` Phase 6〜8 が正本。
 
-## 生成量サマリ(F・v1.2)
+- **置き場所**: `content/ccar-p/`(`03` §1)。ID は `p-` 接頭辞。**F からの流用は必ず新 ID 採番**(F の attempt / srs_state と混ざらないため。F のカードは F スコープで引き続き復習できる)
+- **Step 0(CP0)**: Guide を `content/ccar-p/SOURCES.md` に転記し、`02` CCAR-P 節を公式優先で突合。模試構造(問題数・ドメイン配分・シナリオ有無・multiple-response の選択数)と In/Out-of-Scope は **Guide の事実として記録するまで**。`03` §mock_forms への仕様化は T-pmock(停止条件: Mock のスコア)
+- **Step 1(CP1)**: `content/ccar-p/syllabus.yaml`。task statement 層は Guide と 1:1、topic 数は CP0 で決めた範囲。オーナー粒度レビュー
+- **Step 2(CP2)**: 最小フラッシュ 150(ドメイン重み比例)。F に無い 3 ドメイン(Governance / Stakeholder & Lifecycle / Developer Enablement、計 35%)を優先し、F と重なる領域は CP0 の重なりマップで F カードとの重複を避ける
+- **Step 3a は P に適用しない**: P は独立問題形式(`02`)のため、Practice 用は Step 5 相当の独立 MCQ(CP3)で成立させる
+- **Step 3b(CP4-A / CP4-B)**: P の固定フォームは T-pmock で確定した構造に従う(シナリオ条件・件数は F 固有値を流用しない)。フォーム収載問題の標準値(`eligible_modes: ["mock", "practice"]` / `srs_eligible: false`)と holdout は F と同じ(`03`、フォームは `(exam, form_id)` で識別)
+- **Step 4**: F と同じ全工程(flagged で登録 → 2 周 → active、オーナー抜き取り各ドメイン 5 問、active 化後の修正ループ)。選択肢バランス監査も同じ基準で P に適用する
+- **Step 5(CP3)**: 独立 MCQ 60〜100(Practice / ドメイン別ミニ模試用、フォーム非収載、全ドメインに収録)
+- **Step 6(CP6)**: P の現行 rev 未解決フラグを `/api/export?exam=ccar-p` から取得して改訂
+
+### 生成量サマリ(P・v1.3)
+
+| 種別 | 目標 | 期限 | 用途 |
+|---|---|---|---|
+| 最小フラッシュ | 150(weight 比例) | 10/23(CP2) | 10/24 P Drill 開始 |
+| 独立 MCQ | 60〜100 | 10/30(CP3) | 10/31 P Practice 開始 / ミニ模試 |
+| P form A | 構造は T-pmock | 11/20(CP4-A) | 11/21 第 1 回フル模試 |
+| P form B(A と重複なし) | 同上 | 11/27(CP4-B) | 11/28 第 2 回フル模試 |
+
+## 生成量サマリ(F・v1.2。履歴)
 
 | 種別 | 目標 | 期限/優先 | 用途 |
 |---|---|---|---|

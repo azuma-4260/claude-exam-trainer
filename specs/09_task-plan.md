@@ -10,7 +10,7 @@
 
 1. **8/27 cutover = スキーマ凍結**: `06` は cutover 後の DROP / 破壊的 ALTER を禁止する。Mock 実装が Phase 2 でも、**5 テーブル(srs_state / attempt / exam_session / exam_session_answer / question_flag)の migration は Phase 0 で全て適用**し、本番 attempt 発生前にスキーマ不備を潰し切る
 2. **テスト先行(README 常時遵守 #2)は機能別タスク**: T-srs / T-holdout / T-write / T-queue / T-mock / T-rev を対応実装の直前に書く。`it.todo` や red のテストを main に置かない。**main は常に `npm test` green**
-3. **CI とデプロイの直列化**: GitHub Actions で `validate-bank → npm test → npm run build` を 1 ワークフローで実行し、**Vercel の Git 自動 deploy は無効化**。deploy は CI 成功後の後続 job(Vercel CLI + token)からのみ実行する(`06` §バンク静的検証)。CI 失敗の動作確認は**一時ブランチ**で行い、main では行わない
+3. **CI とデプロイの直列化**: GitHub Actions で `validate-bank → audit:choices → backlog:check → npm test → npm run build` を 1 ワークフローで実行し、**Vercel の Git 自動 deploy は無効化**。deploy は CI 成功後の後続 job(Vercel CLI + token)からのみ実行する(`06` §バンク静的検証)。CI 失敗の動作確認は**一時ブランチ**で行い、main では行わない
 4. **共通リリースゲート G**: 各タスク完了 → `/codex:review`(P1 は修正)→ オーナー承認 → commit → push → CI 成功 → deploy。DoD に「deploy」「本番反映」とあるタスクは G を経由する。G は全タスクの depends に暗黙に含め、表には書かない
 5. **holdout ゲートは最初の出題プール実装に含める**: 9/5 に form A がバンクに入った瞬間に Practice へ漏れないよう、`03` §1 の 5 段判定は D1-2 で完全形で実装する(フォーム未存在でも fixture でテスト)
 6. **コンテンツの DoD は `07` Step 4 の全工程**: refs 突合 → 曖昧の flagged → 重複統合 → 修正 + 再レビュー 2 周 → active → **オーナー抜き取り(各ドメイン 5 問)** → deploy。C2 / C3a / C5 / C3b-* すべてに適用する。抜き取り時間は各期限の内側に置く。総収録数がドメイン数×5 に満たないタスクは、対象ドメインを 5 ドメインすべてとし各ドメイン **min(5, 当該ドメイン収録数)** を抜き取る(2026-08-24, C3a)。C3a は全 5 ドメインを各 2 問以上収録すること
@@ -39,7 +39,7 @@ F のマイルストーン(M0〜M3)は履歴として残す。M4〜M8 は F 試�
 | **M1** | **8/27** | **Drill 開始 = data-protection cutover** | O-4, D1-1, D1-2, D1-3, D1-4, D1-5, D1-6, C2 | 本番 attempt 1 件保存 → 再読込で復元 → 翌日 due に出現。以後 migration は追加のみ |
 | M2 | 8/28 | Practice 開始 | M1, D2-1, C3a | Practice で 1 問回答 → attempt(mode=practice)が本番に保存 |
 | M3 | 9/6 | 第 1 回フル模試(form A) | D3-1, D3-2, D3-3, D3-4, C3b-A, O-5 | 提出完了・レポート表示・attempt 60 行生成・form A 問題が Practice に解放 |
-| M9 | 10/18 | P 基盤完了(試験切替可能・F データ保全) | S-3, D6-1, D6-2, D6-3 | 本番で CCAR-P に切替 → Home のカウントダウン・キューが P 基準。F の本番 export(`/api/export`)が切替前後で内容一致(件数だけでなく行の中身も比較) |
+| M9 | 10/18 | P 基盤完了(学習スコープ切替可能・F データ保全) | S-3, D6-1, D6-2, D6-3 | 本番で学習スコープを P のみに切替 → Home のカウントダウン・キューが P 基準。F の本番 export(`/api/export?exam=ccar-f`、`03` §3)が切替前後で内容一致(件数だけでなく行の中身も比較) |
 | **M10** | **10/24** | **P Drill 開始** | M9, O-P2, CP2 | P 試験日が設定済み。本番で P カードの attempt 1 件保存 → 再読込で復元 → 翌日 due に出現 |
 | M11 | 10/31 | P Practice 開始 | M10, CP3 | P の独立 MCQ で Practice 1 問回答 → attempt(mode=practice, exam=ccar-p)が本番に保存 |
 | M12 | 11/21(X-21) | P 第 1 回フル模試(P form A) | M11, D6-4, CP4-A, O-P3 | 提出完了・レポート表示・attempt が form の問題数ぶん生成 |
@@ -124,7 +124,7 @@ v1.3: T-rev は P の改訂ループ CP6 の前提として残す。D5-1 は試�
 | ID | Tr | タスク | depends | spec | DoD |
 |---|---|---|---|---|---|
 | T-rev | T | rev ライフサイクルテスト(rev++ で旧フラグ superseded、retired は出題除外、exam_session_answer の snapshot rev が deploy 後も不変) | D0-2, D0-4 | 03 §rev のライフサイクル, §question_flag | 存在し CP6 前に green |
-| D5-1 | D | D-1 モード(**現在の exam の試験日前日**のみ: due 選定停止、「間違いノート → low-stability 順」を予算内提示)+ 凍結日〜の推奨行動カード | D1-4, D4-2, D6-1 | 04 §直前期と D-1, 05 S-1 | テスト: JST で P 試験日前日に固定するとキューが仕様順、前々日は通常順。F の試験前日(9/26)には反応しない |
+| D5-1 | D | D-1 モード(**単独スコープで、その exam の試験日前日**のみ。スコープ F+P では発動しない(`04`): due 選定停止、「間違いノート → low-stability 順」を予算内提示)+ 凍結日〜の推奨行動カード | D1-4, D4-2, D6-1 | 04 §直前期と D-1, 05 S-1 | テスト: JST で P 試験日前日に固定するとキューが仕様順、前々日は通常順。スコープ F+P では P 前日でも通常順。F の試験前日(9/26)には反応しない |
 
 ### Phase 5: 9/20–9/26 — 直前期
 
@@ -136,6 +136,8 @@ v1.3: T-rev は P の改訂ループ CP6 の前提として残す。D5-1 は試�
 
 S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、P の模試構造・採点)を決めるため、停止条件(README)に当たる選択はオーナー承認まで TODO(owner) で止める。
 
+**用語(S-3 で確定、2026-09-29)**: 「現在の exam」は単一の exam ではなく**学習スコープ**(`ccar-f` / `ccar-p` / `both`、`01` FR-10・`03` §study_setting)を指す。本書の「現在の exam のみ」は「学習スコープ内の exam のみ」と読む。
+
 | ID | Tr | タスク | depends | spec | DoD |
 |---|---|---|---|---|---|
 | S-2 | D | F→P 棚卸し: 09 を v1.3 に再編(F 未着手タスクの残置・削除、P タスク追加)、バックログ triage、`task:report` の凍結判定を P 用に移行 | – | 09, 10 §1–2 | `npm test`・`npm run backlog:check`・`npm run task:check` 緑。差分をオーナーが確認 |
@@ -145,9 +147,9 @@ S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、
 | S-3 | D | P フェーズの spec 改訂: README 確定事項(「9/27 まで F 固定」の解除)、`01` FR-10(試験切替)、`03`(exam 別の出題プール・フォーム・間違いノート・export)、`04`(試験日の exam 別化、切替後の F カードを queue に出すか)、`05`(試験切替 UI)、`06`(F 本番データの保全)、`07` / `08` の P 版 | S-2 | README, 01 FR-10, 03, 04, 05, 06, 07, 08 | 各 spec に P の仕様が入り(P 模試の構造値は対象外。CP0 の記録をもとに T-pmock で仕様化する)、停止条件に当たる選択はオーナー承認済み(TODO(owner) 0 件) |
 | CP0 | C | P の Step 0: Guide 転記(`content/ccar-p/SOURCES.md`)、`02` CCAR-P 節の突合(公式優先)、**模試構造(問題数・ドメイン配分・シナリオ有無・multiple-response の選択数)**・In/Out-of-Scope の記録、F バンクと重なる領域のマップ | O-P1 | 07 Step 0, 02 §CCAR-P | `SOURCES.md` 作成、`02` 更新。P の模試構造は Guide の事実として `SOURCES.md` に記録するまで(`03` §mock_forms への仕様化は採点・スコアに関わる停止条件なので、T-pmock の冒頭でオーナー承認を経て行う) |
 | CP1 | C | P の Step 1: `content/ccar-p/syllabus.yaml`(task statement 層は Guide と 1:1)+ オーナー粒度レビュー | CP0 | 07 Step 1, 02 §トピックツリー | topic 数が CP0 で決めた範囲内、オーナー承認 |
-| T-exam | T | 試験コンテキストの状態遷移テスト: exam 別試験日 → `maximum_interval`、キュー・出題プール・proficiency・間違いノートが現在 exam のみ、P form の holdout が F の提出状態と独立、試験日未設定時の挙動(S-3 の決定どおり) | S-3 | 03 §出題プールの判定順序, 04 | 存在し D6-1 で green |
-| D6-1 | D | 多試験コア: 現在 exam の決定と保持、`CCAR_F_EXAM_DATE_JST` 固定の解消(exam 別試験日)、queue / pool / proficiency / 間違いノート / Stats の exam 絞り込み | T-exam | 03, 04, 06 | T-exam green。本番 F データの export が deploy 前後で一致 |
-| D6-2 | D | 試験切替 UI(Home / Study / Mock / Stats に現在 exam を表示、切替導線。F は参照用) | D6-1 | 05 | 実機: P に切替 → カウントダウン・キュー・Stats が P 基準、F に戻すと F の履歴が見える |
+| T-exam | T | 学習スコープの状態遷移テスト: exam 別試験日 → `maximum_interval`(試験日通過後は上限なし)、キュー・出題プール・proficiency・間違いノートがスコープ内 exam のみ、スコープ F+P のキュー合成(予算共有・due 古い順・new は exam 別ペースの合計で、F の未導入カードが P の新規枠を消費しない・spent は全 exam で数える)と D-1 非発動、P form の holdout が F の提出状態と独立(**F+P で同名 form の片方だけ提出済み**のケースを含み、holdout 集合と remaining_new が `(exam, form_id)` で正しい)、進行中セッションがスコープ切替後も再開・提出できる、試験日未設定 exam を含むスコープは拒否、スコープ切替が他テーブルを変えない | S-3 | 03 §出題プールの判定順序, 04 | 存在し D6-1 で green |
+| D6-1 | D | 多試験コア: 学習スコープの保持(`study_setting`、追加のみ migration)、`CCAR_F_EXAM_DATE_JST` 固定の解消(exam 別試験日・過去試験は上限なし)、holdout 中間集計の `(exam, form_id)` 化、queue / pool / proficiency / 間違いノート / Stats のスコープ絞り込み、`/api/export?exam=` | T-exam | 03, 04, 06 | T-exam green。本番 F データの export が deploy 前後で一致 |
+| D6-2 | D | 学習スコープ切替 UI(Home ヘッダ・S-9 設定。F のみ / P のみ / F+P、`both` では exam ラベル) | D6-1 | 05 | 実機: P のみに切替 → カウントダウン・キュー・Stats が P 基準、F+P で両方の due が出る、F のみに戻すと F の履歴と復習が使える |
 | D6-3 | D | バンクの複数試験対応: `bankDir` / load・`validate-bank`・audit 系スクリプトを `content/ccar-p/` に対応、CI で両 exam を検証 | S-3 | 03 §1, 06 §バンク静的検証 | 空(または fixture)の P バンクで CI 緑、F の検証結果が不変 |
 
 ### Phase 7: 10/19–11/28 — P バンクと模試

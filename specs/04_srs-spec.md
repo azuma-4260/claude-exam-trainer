@@ -1,4 +1,6 @@
-# 04. 復習アルゴリズム仕様(v1.2)
+# 04. 復習アルゴリズム仕様(v1.3)
+
+**v1.3(2026-09-29, S-3 / オーナー決定)**: 試験日を exam 別化し、試験日を過ぎた exam は上限なしで復習継続。学習スコープ(F / P / F+P)でのキュー合成・新規ペース・習熟度・D-1 の規則を追加。
 
 ## 方針
 
@@ -20,15 +22,27 @@
 
 ## 試験日対応
 
+試験日は exam ごとのコード定数(Asia/Tokyo 暦日): CCAR-F = 2026-09-27、CCAR-P = 2026-12-12。rating を適用するカードの **exam の試験日**で scheduler を作る(学習スコープではなくカード単位)。
+
 ```
-maximum_interval = max(1, days_until_exam - 1)
+days_until_exam = そのカードの exam の試験日 - 今日(JST 暦日。当日 0、通過後は負)
+
+if days_until_exam < 0:          # 試験日を過ぎた exam(v1.3 / オーナー決定 2026-09-29)
+    maximum_interval = 指定しない(ts-fsrs 5.4.1 の既定値。上限なし)
+else:
+    maximum_interval = max(1, days_until_exam - 1)
 request_retention = 0.90
 ```
+
+- 試験日を過ぎた exam のカードも復習を継続する。旧式 `max(1, 負数) = 1` による「毎日 due」は廃止(過去試験が学習時間を圧迫しないため)。既存カードの due は書き換えず、次回 rating 時から新しい上限で再計算される(Card の lossless 原則を維持)
+- 試験日が未設定の exam は学習スコープに選べない(`03` §study_setting)ため、未定義の試験日でスケジューリングすることはない
 
 - これ以外の間隔上限は設けない(v1.1 の MAX_INTERVAL_DAYS=10 は削除。試験日制約と高頻度復習という別目的を混ぜない)
 - retrievability の取得は `scheduler.get_retrievability(card, now, false)`(number で受ける)
 
 ## 新規カード導入ペース(target)
+
+exam ごとに下式を計算する(remaining_new / days_left ともその exam の値。holdout は `(exam, form_id)` で判定、`03`)。
 
 ```
 remaining_new = 「status=active AND srs_eligible=true AND holdout 非該当」で srs_state 行なしの問題数
@@ -45,9 +59,14 @@ else:
 pace_warning = (required_new > DAILY_NEW_CAP)
 ```
 
+- 試験日を過ぎた exam は days_left <= buffer_days なので new_per_day = 0(新規導入なし。復習のみ継続)
+- 学習スコープ `both` では、new_per_day = 各 exam の new_per_day の合計、pace_warning = いずれかの exam が該当、required_new は exam ごとに表示できるよう保持する。**新規枠は exam ごとに独立**: 新規候補は exam ごとにその exam の(当日導入済みを差し引いた)new_per_day 件までを取り、それを priority 順にマージする。ある exam の未導入カードが他の exam の新規枠を消費することはない(試験日を過ぎた F は new_per_day = 0 なので F の新規は入らない)
+
 **new_per_day は達成目標であり hard guarantee ではない。時間予算が優先。** 実導入数が target 未満なら翌日 remaining_new から再計算される(自己補正)。
 
 ## 日次キュー(45 分時間予算方式)
+
+候補は学習スコープ内の exam の問題のみ(`03` 出題プール判定 0)。スコープ `both` でも予算は 1 つ(2700 秒)を共有する(v1.3 / オーナー決定 2026-09-29)。
 
 item 数 cap は廃止。問題種別の固定コストで予算管理する(実測からの自動調整は実装しない)。
 
@@ -62,17 +81,17 @@ NEW_RESERVED_SEC       = 600    // 新規用に最大 10 分を予約
 アルゴリズム:
 
 ```
-new_candidates    = priority 降順、最大 new_per_day 件
+new_candidates    = exam ごとに priority 降順で最大 new_per_day(exam) 件 → priority 順にマージ
 reserved_new_sec  = min(NEW_RESERVED_SEC, sum(EST_SEC(new_candidates)))
 
-1. due(due_at <= now)を古い順に、
+1. due(due_at <= now)を古い順に(スコープ `both` でも exam を区別せず due_at 順)、
    DAILY_QUEUE_BUDGET_SEC - reserved_new_sec の範囲まで積む
 2. new_candidates を priority 順に、new_per_day 件以内かつ残予算内で積む
 3. 予算が余れば due バックログを追加
 4. 予算超過分は翌日へ(バックログとして件数のみ分離表示)
 ```
 
-新規の priority: `priority(topic) = domain_weight × (1 - proficiency(topic))`
+新規の priority: `priority(topic) = domain_weight × (1 - proficiency(topic))`(domain_weight はその topic の exam の公式重み。exam ごとの候補の切り出しと、マージ後の並び順の両方にこの式を使う)
 
 ### 同日内リビルドの消費シグナル導出(v1.2.3 確定、B-T-queue-1 解消)
 
@@ -81,7 +100,9 @@ reserved_new_sec  = min(NEW_RESERVED_SEC, sum(EST_SEC(new_candidates)))
 
 ```
 当日 = answered_at >= 当日 00:00 JST
-対象 mode = drill / practice のみ(mock は提出時一括生成で answered_at が回答時刻でないため除外)
+対象 mode = drill / practice のみ
+対象 exam(v1.3): spent_today_sec は全 exam(スコープに関係なく当日実際に使った学習時間。同日にスコープを切り替えても予算は戻らない)。
+  introduced_today_count は exam ごとに導出する(新規枠が exam ごとのため)(mock は提出時一括生成で answered_at が回答時刻でないため除外)
 
 spent_today_sec       = Σ EST_SEC(question)  … 当日対象 attempt の全件(回答回数ぶん加算。
                         同一問題の同日内再回答(learning steps による再 due)も 1 回ずつ数える。
@@ -95,7 +116,7 @@ introduced_today_count = distinct question 数 … 「applied_rating IS NOT NULL
 
 ## 習熟度(proficiency)
 
-primary_topic_id のみで集計。
+primary_topic_id のみで集計。topic は exam 固有なので、スコープ内の exam の topic だけを計算対象にする(ドメイン・exam をまたいで平均しない)。
 
 ```
 proficiency(t) = 0.7 × retention(t) + 0.3 × coverage(t)
@@ -115,11 +136,13 @@ coverage(t) = t 配下の srs_eligible 問題のうち 1 回以上正解した�
 
 素の正答率 / ドメイン重み付き正答率 / 未提出フォーム初回受験の模試推移(rehearsal は別系列)/ 内部目標 85%。スケールドスコア換算なし。
 
-## 直前期(9/20〜9/26)と D-1
+## 直前期と D-1
+
+**v1.3**: 以下は「学習スコープが単一 exam のとき、その exam の試験日」に対して適用する。直前期 = 凍結日(試験日 − 7 日)〜試験日前日、D-1 = 試験日前日(F: 9/20〜9/26 / 9/26、P: 12/5〜12/11 / 12/11)。**スコープ `both` では D-1 モードにしない**(常に通常キュー。前日は単独スコープに切り替えて使う。オーナー決定 2026-09-29)。
 
 - 新規導入は逆算式により自動 0。キュー = due 復習 + 間違いノート + 固定フォーム模試
-- **D-1(9/26)**: 通常の due ベースのキュー選定を停止し、「間違いノート → low-stability 順」を**時間予算内だけ**提示する。全カード完走は要求しない。回答自体は通常どおり attempt + srs_state を更新してよいが、返却された将来 due は試験前のキュー選定に使用しない
+- **D-1(試験日前日。単独スコープ時のみ)**: 通常の due ベースのキュー選定を停止し、「間違いノート → low-stability 順」を**時間予算内だけ**提示する。全カード完走は要求しない。回答自体は通常どおり attempt + srs_state を更新してよいが、返却された将来 due は試験前のキュー選定に使用しない
 
 ## 日付規約
 
-試験日・days_left・日次リセット・直前期判定は Asia/Tokyo 暦日。日次リセット 00:00 JST。
+試験日・days_left・日次リセット・直前期判定は Asia/Tokyo 暦日。試験日は exam ごと(§試験日対応)。日次リセット 00:00 JST。
