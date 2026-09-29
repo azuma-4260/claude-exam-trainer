@@ -1,4 +1,5 @@
-// 固定フォーム収載 MCQ 監査 `npm run audit:form -- [--dir <path>] [--form <form-id>] [--status flagged]`
+// 固定フォーム収載 MCQ 監査 `npm run audit:form -- [--exam ccar-f|ccar-p] [--dir <path>] [--form <form-id>] [--status flagged]`
+// --exam(既定 ccar-f。D6-3)は既定ディレクトリ content/<exam>/ と、form.exam の期待値を決める。
 // validate-bank(specs/03 §mock_forms の spec 条件)が見ない C3b-* 固有の要件を検査する
 // (B-C3a-1 の恒久化。汎用 validator に足すと受理集合が変わるため別スクリプトにする):
 //   mock_forms.yaml の各 form(--form 指定時はその form のみ)の収載問題について
@@ -8,21 +9,28 @@
 //   2. lifecycle: status が --status と一致(生成直後 flagged / Step 4 完了後 active。specs/07 Step 4)
 //   3. refs が SOURCES.md「refs ソース台帳」記載 URL のみ(specs/07 原則の一次ソース主義)
 //   4. warning(非ブロッキング): mcq_single の正解ラベル偏り(最頻ラベル > 35%)/
-//      シナリオあたり問題数が 12〜18 の設計指針外(SOURCES.md §1.1 の非検証指針)
+//      シナリオあたり問題数が 12〜18 の設計指針外(SOURCES.md §1.1 の非検証指針。CCAR-F のみ。
+//      P はフォーム構造(シナリオ有無)が T-pmock で確定するまでシナリオ件数を見ない)
 // 違反(1〜3)は fail closed(非 0)。warning のみなら 0。
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
-import { mockFormsFileSchema, type MockForm, type Question } from "../src/lib/bank/schema";
-import { parseLedgerUrls } from "./audit-flash";
+import { mockFormsFileSchema, type Exam, type MockForm, type Question } from "../src/lib/bank/schema";
+import { parseExam, parseLedgerUrls } from "./audit-flash";
 import { loadBankForValidation } from "./validate-bank";
 
-/** シナリオあたり問題数の設計指針(SOURCES.md §1.1。validator では検証しない) */
+/** シナリオあたり問題数の設計指針(content/ccar-f/SOURCES.md §1.1。validator では検証しない) */
 export const SCENARIO_SIZE_RANGE = { min: 12, max: 18 } as const;
+/** シナリオ件数 warning を適用する exam(F 固有の設計指針。P は T-pmock で構造確定まで適用しない) */
+export const SCENARIO_SIZE_RANGE_BY_EXAM: Partial<Record<Exam, { readonly min: number; readonly max: number }>> = {
+  "ccar-f": SCENARIO_SIZE_RANGE,
+};
 /** mcq_single の正解ラベル最頻シェアの warning 閾値 */
 export const ANSWER_SHARE_WARN = 0.35;
 
 export interface FormAuditOptions {
+  /** 期待する exam(既定 ccar-f)。D6-3 */
+  exam?: Exam;
   /** 監査対象の form id。null なら全 form */
   formId: string | null;
   /** 収載問題に期待する status */
@@ -66,8 +74,10 @@ export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditR
     forms = found;
   }
 
+  const exam = opts.exam ?? "ccar-f";
   let total = 0;
   for (const f of forms) {
+    if (f.exam !== exam) errors.push(`${f.id}: exam ${f.exam}(期待 ${exam})`);
     const answerCounts = new Map<string, number>();
     let singles = 0;
     const perScenario = new Map<string, number>();
@@ -106,27 +116,31 @@ export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditR
       if (count / singles > ANSWER_SHARE_WARN)
         warnings.push(`${f.id}: mcq_single の正解ラベル ${label} が ${count}/${singles}(${Math.round((count / singles) * 100)}% > ${ANSWER_SHARE_WARN * 100}%)`);
     }
-    for (const [sid, n] of [...perScenario.entries()].sort()) {
-      if (n < SCENARIO_SIZE_RANGE.min || n > SCENARIO_SIZE_RANGE.max)
-        warnings.push(`${f.id}: ${sid} の問題数 ${n}(設計指針 ${SCENARIO_SIZE_RANGE.min}〜${SCENARIO_SIZE_RANGE.max})`);
-    }
+    const range = SCENARIO_SIZE_RANGE_BY_EXAM[f.exam];
+    if (range)
+      for (const [sid, n] of [...perScenario.entries()].sort()) {
+        if (n < range.min || n > range.max)
+          warnings.push(`${f.id}: ${sid} の問題数 ${n}(設計指針 ${range.min}〜${range.max})`);
+      }
   }
 
   return { errors, warnings, total };
 }
 
 export function parseArgs(argv: readonly string[]): { dir: string; opts: FormAuditOptions } {
-  let dir = path.join(process.cwd(), "content", "ccar-f");
+  let dir: string | null = null;
+  let exam: Exam = "ccar-f";
   let formId: string | null = null;
   let status = "active";
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--dir") dir = path.resolve(argv[++i]);
+    else if (argv[i] === "--exam") exam = parseExam(argv[++i]);
     else if (argv[i] === "--form") formId = argv[++i];
     else if (argv[i] === "--status") status = argv[++i];
     else throw new Error(`未知の引数: ${argv[i]}`);
   }
   if (formId === "") throw new Error("--form が空");
-  return { dir, opts: { formId, status } };
+  return { dir: dir ?? path.join(process.cwd(), "content", exam), opts: { exam, formId, status } };
 }
 
 function main(): void {
@@ -138,7 +152,7 @@ function main(): void {
     console.error(`audit-form-mcq 失敗: ${r.errors.length} 件(warnings ${r.warnings.length})`);
     process.exit(1);
   }
-  console.log(`audit-form-mcq OK (form questions ${r.total}, status=${opts.status}, warnings ${r.warnings.length})`);
+  console.log(`audit-form-mcq OK (form questions ${r.total}, exam=${opts.exam}, status=${opts.status}, warnings ${r.warnings.length})`);
 }
 
 if (process.argv[1] && /audit-form-mcq\.ts$/.test(process.argv[1])) {

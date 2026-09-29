@@ -16,6 +16,7 @@ content/ccar-p/              # v1.3。構成は ccar-f と同じ(ファイルの
 - exam ごとにディレクトリを分ける。**問題・syllabus(domain / task statement / topic)の ID** は exam 接頭辞(`f-` / `p-`)で全体一意(`src/lib/bank/schema.ts` の `EXAM_PREFIX`)。F からの流用は新 ID(`07`)
 - **シナリオ ID(`sc-*`)とフォーム ID(`form-*`)は exam 内で一意**(接頭辞なし。F と P に同名の `form-a` があってよい)。フォームは常に `(exam, form_id)`、シナリオは `(exam, scenario_id)` で解釈する
 - 各 question の `exam` はそのディレクトリの exam と一致する(validator で検証)
+- `syllabus.yaml` の各 domain の `form_questions`(固定フォームのドメイン配分)は、固定フォーム配分が確定した exam(`src/lib/bank/schema.ts` の `FORM_DOMAIN_QUOTA` に値がある exam。現状 CCAR-F のみ)でのみ必須で、合計 = フォーム問題数・配分一致を検証する。配分が未確定の exam(CCAR-P は T-pmock で確定し D6-4 で反映するまで)は `form_questions` を**書かない**(書けば validator エラー。暫定配分の混入防止)。配分未確定の exam の `mock_forms.yaml` は validator が拒否する(D6-3)
 
 ### question オブジェクト
 

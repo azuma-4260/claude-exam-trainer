@@ -275,6 +275,38 @@ describe("syllabusFileSchema", () => {
       expect(JSON.stringify(r.error?.issues)).toMatch(re);
     });
   }
+
+  // D6-3(specs/03 §1): form_questions は固定フォーム配分が確定した exam(FORM_DOMAIN_QUOTA あり)でのみ必須。
+  // 未確定の exam(ccar-p)は書かない(暫定配分の混入防止)
+  const toP = (s: typeof syllabus) =>
+    JSON.parse(JSON.stringify(s).replaceAll('"f-d', '"p-d').replace('"exam":"ccar-f"', '"exam":"ccar-p"')) as Record<
+      string,
+      unknown
+    >;
+  const withoutFormQuestions = (s: typeof syllabus) => ({
+    ...s,
+    domains: s.domains.map((d) => {
+      const copy: Partial<(typeof s.domains)[number]> = { ...d };
+      delete copy.form_questions;
+      return copy;
+    }),
+  });
+
+  it("配分確定 exam(ccar-f)で form_questions が欠けると拒否", () => {
+    const r = syllabusFileSchema.safeParse(withoutFormQuestions(syllabus));
+    expect(r.success).toBe(false);
+    expect(JSON.stringify(r.error?.issues)).toMatch(/form_questions が必須/);
+  });
+
+  it("配分未確定 exam(ccar-p)は form_questions 無しで受理", () => {
+    expect(syllabusFileSchema.safeParse(toP(withoutFormQuestions(syllabus) as typeof syllabus)).success).toBe(true);
+  });
+
+  it("配分未確定 exam(ccar-p)に form_questions があると拒否(合計 60 でも)", () => {
+    const r = syllabusFileSchema.safeParse(toP(syllabus));
+    expect(r.success).toBe(false);
+    expect(JSON.stringify(r.error?.issues)).toMatch(/固定フォーム配分が未確定/);
+  });
 });
 
 describe("mockFormsFileSchema", () => {

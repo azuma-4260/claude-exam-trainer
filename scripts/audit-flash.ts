@@ -1,4 +1,5 @@
-// フラッシュカード監査 `npm run audit:flash -- [--dir <path>] [--counts 40,27,30,30,23] [--status flagged] [--batch-ids <id,...>]`
+// フラッシュカード監査 `npm run audit:flash -- [--exam ccar-f|ccar-p] [--dir <path>] [--counts 40,27,30,30,23] [--status flagged] [--batch-ids <id,...>]`
+// --exam(既定 ccar-f。D6-3)は既定ディレクトリ content/<exam>/ と期待 exam を決める。--counts は <接頭辞>-d1.. の番号順。
 // validate-bank(Zod スキーマ検証)が見ない C2/C5 固有の要件を検査する(specs/07 Step 2 / C2 プラン):
 //   questions/*.json の全カードを読み、flash の内容要件だけを監査する。ID 連番は flash の q001〜だけ、
 //   件数も flash のみで検査するため、予約帯 q101〜の MCQ と同居しても壊れない。ファイル名には依存しない。
@@ -7,17 +8,19 @@
 //   3. syllabus.yaml の全 topic に primary_topic_id で最低 1 枚
 //   4. 形式: stem_en 1 文 / answer_en 3 行以内 / explanation_ja 2〜4 文(「。」数)
 //   5. refs が SOURCES.md「refs ソース台帳」記載 URL のみ
-//   6. 固定値: exam=ccar-f, scenario_id=null, srs_eligible=true,
+//   6. 固定値: exam=--exam(syllabus.exam も一致), scenario_id=null, srs_eligible=true,
 //      eligible_modes=["drill"]。status=--status は --batch-ids 指定時はその新規バッチだけ、
 //      未指定時は全 flash に適用する。rev=1 は新規バッチ(--batch-ids 指定時)だけに適用する
 //   7. id 接頭辞と domain_id の一致
 // 違反は fail closed(非 0)。
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { questionsFileSchema, type Question } from "../src/lib/bank/schema";
+import { EXAM_PREFIX, EXAMS, examSchema, questionsFileSchema, type Exam, type Question } from "../src/lib/bank/schema";
 import { loadSyllabus } from "../src/lib/bank/syllabus";
 
 export interface AuditOptions {
+  /** 期待する exam(既定 ccar-f)。D6-3 */
+  exam?: Exam;
   /** ドメイン番号順(d1..d5)の期待件数。null なら件数検査をスキップ */
   counts: readonly number[] | null;
   /** lifecycle 対象カードに期待する status */
@@ -44,7 +47,10 @@ export function sentenceCount(text: string): number {
 
 export function runAuditFlash(dir: string, opts: AuditOptions): { errors: string[]; total: number } {
   const errors: string[] = [];
+  const exam = opts.exam ?? "ccar-f";
+  const prefix = EXAM_PREFIX[exam];
   const syllabus = loadSyllabus(dir);
+  if (syllabus.exam !== exam) errors.push(`syllabus.yaml: exam=${syllabus.exam}(期待 ${exam})`);
   const allTopics = new Set<string>();
   for (const d of syllabus.domains) for (const t of d.task_statements) for (const tc of t.topics) allTopics.add(tc.id);
 
@@ -84,13 +90,13 @@ export function runAuditFlash(dir: string, opts: AuditOptions): { errors: string
   const total = [...byDomain.values()].reduce((n, arr) => n + arr.length, 0);
   if (total === 0) errors.push("type=flash のカードが 1 枚も無い");
 
-  // 1. 件数(--counts の d1..d5 順と domain_id 単位で突合。カード 0 のドメインも検出)
+  // 1. 件数(--counts の d1..dN 順と domain_id 単位で突合。カード 0 のドメインも検出)
   if (opts.counts) {
-    const domains = new Set([...byDomain.keys(), ...opts.counts.map((_, i) => `f-d${i + 1}`)]);
+    const domains = new Set([...byDomain.keys(), ...opts.counts.map((_, i) => `${prefix}-d${i + 1}`)]);
     for (const domainId of [...domains].sort()) {
-      const m = /^f-d([1-9])$/.exec(domainId);
+      const m = new RegExp(`^${prefix}-d([1-9])$`).exec(domainId);
       if (!m) {
-        errors.push(`domain_id ${domainId}: f-dN 形式でない`);
+        errors.push(`domain_id ${domainId}: ${prefix}-dN 形式でない`);
         continue;
       }
       const expected = opts.counts[Number(m[1]) - 1];
@@ -119,7 +125,7 @@ export function runAuditFlash(dir: string, opts: AuditOptions): { errors: string
       // 7. id 接頭辞と domain_id の一致は Zod スキーマ(単一ソース)が強制するためここでは検査しない
 
       // 6. 固定値
-      if (q.exam !== "ccar-f") errors.push(`${q.id}: exam ${q.exam}`);
+      if (q.exam !== exam) errors.push(`${q.id}: exam ${q.exam}(期待 ${exam})`);
       if (q.scenario_id !== null) errors.push(`${q.id}: scenario_id が null でない`);
       if (!q.srs_eligible) errors.push(`${q.id}: srs_eligible が true でない`);
       if (q.eligible_modes.length !== 1 || q.eligible_modes[0] !== "drill")
@@ -156,12 +162,14 @@ export function runAuditFlash(dir: string, opts: AuditOptions): { errors: string
 }
 
 export function parseArgs(argv: readonly string[]): { dir: string; opts: AuditOptions } {
-  let dir = path.join(process.cwd(), "content", "ccar-f");
+  let dir: string | null = null;
+  let exam: Exam = "ccar-f";
   let counts: number[] | null = null;
   let status = "flagged";
   let batchIds: Set<string> | null = null;
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--dir") dir = path.resolve(argv[++i]);
+    else if (argv[i] === "--exam") exam = parseExam(argv[++i]);
     else if (argv[i] === "--counts") {
       counts = argv[++i].split(",").map((s) => Number(s.trim()));
       if (counts.some((n) => !Number.isInteger(n) || n < 0)) throw new Error(`--counts が不正: ${argv[i]}`);
@@ -170,7 +178,14 @@ export function parseArgs(argv: readonly string[]): { dir: string; opts: AuditOp
     else throw new Error(`未知の引数: ${argv[i]}`);
   }
   if (batchIds?.size === 0) throw new Error("--batch-ids が空");
-  return { dir, opts: { counts, status, batchIds } };
+  return { dir: dir ?? path.join(process.cwd(), "content", exam), opts: { exam, counts, status, batchIds } };
+}
+
+/** --exam の値検証(audit-* 共通) */
+export function parseExam(value: string | undefined): Exam {
+  const r = examSchema.safeParse(value);
+  if (!r.success) throw new Error(`--exam の値が不正: ${value}(${EXAMS.join(" / ")})`);
+  return r.data;
 }
 
 function main(): void {
@@ -181,7 +196,7 @@ function main(): void {
     console.error(`audit-flash 失敗: ${r.errors.length} 件`);
     process.exit(1);
   }
-  console.log(`audit-flash OK (flash cards ${r.total}, status=${opts.status})`);
+  console.log(`audit-flash OK (flash cards ${r.total}, exam=${opts.exam}, status=${opts.status})`);
 }
 
 if (process.argv[1] && /audit-flash\.ts$/.test(process.argv[1])) {

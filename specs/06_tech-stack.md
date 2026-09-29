@@ -88,6 +88,7 @@ Next.js 16 では middleware.ts の file convention は deprecated であり、�
 
 ## バンク静的検証(CI、push ごと)
 
+- **全 exam を検証**(D6-3): `validate-bank` と `audit:choices` は引数なしで `content/<exam>/`(`ccar-f` / `ccar-p`)を exam ごとに検証する(集計系の閾値も exam ごと。exam を跨いで合算しない)。**空バンク**(`syllabus.yaml` / `scenarios.yaml` / `mock_forms.yaml` / `questions/*.json` のいずれも無い。`SOURCES.md` は数えない)の exam は SKIP として緑、1 つでもあれば全件検証する。**全 exam が SKIP なら失敗**(content root の取り違え検出)。syllabus・question・form の `exam` はディレクトリの exam と一致すること
 - Zod 検証(`03` の全不変条件)、id 重複、syllabus 整合、refs
 - ドメイン別問題数の重み乖離(±30% 超で警告)
 - **MCQ 選択肢バランス監査**(`npm run audit:choices`、`07` 品質ルール): 正解だけが長い / 独特の記法を含む偏りを fail closed で検査(validator とは別スクリプト。受理集合を変えないため)
