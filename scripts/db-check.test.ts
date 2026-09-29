@@ -17,6 +17,7 @@ import {
   examSessionAnswer,
   questionFlag,
   srsState,
+  studySetting,
 } from "../src/db/schema";
 
 /** db-check の期待スナップショットが src/db/schema.ts とズレていないことの相互検証 */
@@ -32,7 +33,7 @@ describe("EXPECTED_TABLES と Drizzle schema の整合", () => {
     "text[]": "_text",
   };
 
-  for (const table of [srsState, attempt, examSession, examSessionAnswer, questionFlag]) {
+  for (const table of [srsState, attempt, examSession, examSessionAnswer, questionFlag, studySetting]) {
     const config = getTableConfig(table);
     it(`${config.name}: 列名・型・NOT NULL・default が一致する`, () => {
       const expected = EXPECTED_TABLES[config.name];
@@ -115,6 +116,7 @@ describe("diffIndexes", () => {
         "CREATE UNIQUE INDEX exam_session_answer_session_id_question_id_pk ON public.exam_session_answer USING btree (session_id, question_id)",
     },
     { indexname: "question_flag_pkey", indexdef: "CREATE UNIQUE INDEX question_flag_pkey ON public.question_flag USING btree (id)" },
+    { indexname: "study_setting_pkey", indexdef: "CREATE UNIQUE INDEX study_setting_pkey ON public.study_setting USING btree (id)" },
   ];
 
   it("partial unique index 2 本 + PK が揃っていれば差分 0", () => {
@@ -146,6 +148,7 @@ describe("diffChecks", () => {
     { table_name: "exam_session", conname: "exam_session_status_check" },
     { table_name: "exam_session", conname: "exam_session_submission_reason_check" },
     { table_name: "question_flag", conname: "question_flag_reason_check" },
+    { table_name: "study_setting", conname: "study_setting_id_check" },
   ];
 
   it("全 CHECK が存在すれば差分 0、欠落は検出する", () => {

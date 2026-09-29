@@ -159,8 +159,23 @@ export const questionFlag = pgTable(
   ],
 );
 
+/**
+ * study_setting — 学習スコープの単一行設定(specs/03 §study_setting v1.3)。追加のみ migration で導入。
+ * scope の値域(ccar-f | ccar-p | both)は 03 の DDL に CHECK が無いため Zod(src/lib/scope)で守る
+ */
+export const studySetting = pgTable(
+  "study_setting",
+  {
+    id: smallint("id").primaryKey().default(1),
+    scope: text("scope").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [check("study_setting_id_check", sql`${t.id} = 1`)],
+);
+
 export type SrsStateRow = typeof srsState.$inferSelect;
 export type AttemptRow = typeof attempt.$inferSelect;
 export type ExamSessionRow = typeof examSession.$inferSelect;
 export type ExamSessionAnswerRow = typeof examSessionAnswer.$inferSelect;
 export type QuestionFlagRow = typeof questionFlag.$inferSelect;
+export type StudySettingRow = typeof studySetting.$inferSelect;
