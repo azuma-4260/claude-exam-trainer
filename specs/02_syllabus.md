@@ -1,4 +1,6 @@
-# 02. 試験ブループリント整理(v1.2)
+# 02. 試験ブループリント整理(v1.3)
+
+**v1.3(2026-09-29, CP0)**: CCAR-P 節を公式 Exam Guide v1.0(`ExamGuide/CCAR-P.pdf`)と突合し、公式優先で更新。転記原文と判断記録は `content/ccar-p/SOURCES.md` が正本。「独立問題形式」は Guide 未確認(シナリオ構造の記述が無いだけ)と訂正し、P の出題範囲・F との重なり・トピックツリー方針を追記。
 
 **v1.2(2026-08-23, C0)**: 公式 Exam Guide v1.0(`ExamGuide/CCAR-F.pdf`)と突合し、公式優先で全面更新。転記原文と判断記録は `content/ccar-f/SOURCES.md` が正本(本ファイルはその要約)。CCAR-P 節は引き続き Web 調査ベース(P の Exam Guide 取得後に同手順で突合する)。
 
@@ -45,39 +47,50 @@
 
 ### 出題範囲(Guide §17 Appendix)
 
-In-Scope / Out-of-Scope の全リストは `SOURCES.md` §4。**Out-of-Scope はバンクに出題しない**: fine-tuning、API 認証/課金、言語・フレームワーク固有実装、MCP サーバーのデプロイ/ホスティング、モデル内部・学習、Constitutional AI/RLHF、embedding/ベクトル DB、computer use、vision、streaming/SSE、rate limit/料金計算、OAuth/キーローテーション、クラウド別設定、ベンチマーク、prompt caching 実装詳細、tokenization。
+In-Scope / Out-of-Scope の全リストは `content/ccar-f/SOURCES.md` §4。**CCAR-F の Out-of-Scope は F のバンクに出題しない**(P には流用しない。P は下記 CCAR-P §出題範囲): fine-tuning、API 認証/課金、言語・フレームワーク固有実装、MCP サーバーのデプロイ/ホスティング、モデル内部・学習、Constitutional AI/RLHF、embedding/ベクトル DB、computer use、vision、streaming/SSE、rate limit/料金計算、OAuth/キーローテーション、クラウド別設定、ベンチマーク、prompt caching 実装詳細、tokenization。
 
 ## CCAR-P: Claude Certified Architect – Professional($175)
 
-(Web 調査ベース・P の Exam Guide 取得後に突合)
+(公式 Exam Guide v1.0 で突合済み・2026-09-29 CP0。転記原文と判断記録は `content/ccar-p/SOURCES.md`)
 
-- 63 問、独立問題形式、multiple-choice + multiple-response
-- 対象: ミッド〜シニアのソリューションアーキテクト
+- **63 問**、**multiple-choice + multiple-response**(各問で選択数を明記。具体的な選択数の記述は Guide に無い)。バンクでは `mcq_single` / `mcq_multi` が対応(`03`)
+- **出題構造**: Guide に**シナリオ構造の記述が無い**(F の "4 scenarios drawn from a bank of 6" に相当する記述なし)。「独立問題形式」は Guide では**未確認**で、サンプル問題 3 問が独立 4 択なのは例示に過ぎない(`SOURCES.md` §1.1)。本試験・模試の形式、フォームの問題数・ドメイン配分・選択数は **T-pmock で `03` §mock_forms に確定する**(停止条件: Mock のスコア)
+- 対象: ミッド〜シニアの技術職(solution architect / AI・ML engineer / tech lead / senior SWE)。推奨経験: systems architecture 3 年以上、本番 LLM システム 6 ヶ月以上
 
-### ドメインと重み
+### ドメインと重み(公式 §6 Blueprint・一致を確認)
 
-| # | ドメイン | 重み |
-|---|---|---|
-| P-D1 | Solution Design & Architecture | 17% |
-| P-D2 | Claude Models, Prompting & Context Engineering | 13% |
-| P-D3 | Integration | 19% |
-| P-D4 | Evaluation, Testing & Optimization | 16% |
-| P-D5 | Governance, Safety & Risk Management | 14% |
-| P-D6 | Stakeholder Communication & Lifecycle Management | 14% |
-| P-D7 | Developer Productivity & Operational Enablement | 7% |
+重みは "the approximate proportion of scored items drawn from each domain"。P のドメイン数は **7**。
+
+| # | ドメイン | 重み | 詳細目標(公式 §6、`SOURCES.md` §3 に原文) |
+|---|---|---|---|
+| P-D1 | Solution Design & Architecture | 17% | 1.1 業務課題 → Claude ソリューション / 1.2 end-to-end アーキテクチャ(feedback loop 含む)/ 1.3 パターン選択(workflow・agentic・augmented LLM)/ 1.4 マルチエージェントとオーケストレーション / 1.5 分解技法 / 1.6 ビジネス価値の柱(効率・変革・生産性・コスト・性能 SLA) |
+| P-D2 | Claude Models, Prompting & Context Engineering | 13% | 2.1 モデル選択のトレードオフ / 2.2 system prompt・テンプレート・guardrails / 2.3 zero-shot・few-shot・CoT / 2.4 コンテキストウィンドウ最適化とトークン管理 / 2.5 プロンプト再利用(caching・modular prompts・Skills) |
+| P-D3 | Integration | 19% | 3.1 ツール・エージェント構成の capability bloat / 3.2 認証・認可要件のセキュリティギャップ / 3.3 精度 - レイテンシのトレードオフ / 3.4 大規模 observability と監視戦略 / 3.5 RAG(chunking・indexing)/ 3.6 データ形状・クエリに合わせた retrieval / 3.7 接続方式(MCP・API/CLI・agent-to-agent)/ 3.8 progressive discovery vs monolithic context |
+| P-D4 | Evaluation, Testing & Optimization | 16% | 4.1 評価指標(精度・レイテンシ・コスト・安全性・セキュリティ)/ 4.2 評価データセットと混合手法のテスト / 4.3 A/B テストと反復改善 / 4.4 障害診断(prompt failure・hallucination・model mismatch)/ 4.5 トークン・レイテンシ・コスト最適化 / 4.6 ロギング・observability による監視 |
+| P-D5 | Governance, Safety & Risk Management | 14% | 5.1 guardrails と安全統制 / 5.2 リスク・限界・故障モード / 5.3 human-in-the-loop 検証 / 5.4 規制準拠(GDPR・HIPAA・FedRAMP)/ 5.5 倫理(bias・fairness・transparency) |
+| P-D6 | Stakeholder Communication & Lifecycle Management | 14% | 6.1 構造化 discovery と要件収集 / 6.2 意思決定とトレードオフの伝達 / 6.3 フィードバックループと期待値調整(SLA 含む)/ 6.4 アーキテクチャ文書化と実装ガイダンス / 6.5 ライフサイクル(discovery・design・handoff・monitoring・iteration) |
+| P-D7 | Developer Productivity & Operational Enablement | 7% | 7.1 チーム向け Claude ツール・環境設定(Claude Code 等)/ 7.2 AI 支援ツールによる開発ワークフロー改善 / 7.3 デバッグと運用上の問題解決 |
+
+63 問への配分は Guide に記述が無いため本書では固定しない(largest-remainder の参考計算は `SOURCES.md` §1.2。確定は T-pmock)。
+
+### 出題範囲
+
+P の Guide には In-Scope / Out-of-Scope の Appendix が**無い**。出題範囲は上表の 38 目標と Guide §7(Claude API・models・prompt engineering・MCP・Skills の公式ドキュメント)で読む。**CCAR-F の Out-of-Scope は P に流用しない**: prompt caching(2.5・サンプル 2)、認証・認可(3.2)、RAG / embedding(3.5・3.6・サンプル 3)は P では出題対象(`SOURCES.md` §4)。
 
 ### F との差分
 
-Governance / Stakeholder & Lifecycle / Developer Enablement(計 35%)は F に存在しない。F 期間中この 3 領域のバンクは作らない。P フェーズで F バンクから流用する場合も**新 ID を採番して移植**する(`07` 参照)。
+D5 / D6 / D7(計 35%)は**ドメインとしては** F に無いが、目標単位では D7 は F-D3 とほぼ重なり、D5 の guardrails・HITL も F と重なる。F に対応の無い領域は D6 全体、D5 の規制準拠・倫理、D3 の RAG・retrieval・observability・認証認可、D4 の評価・監視、D1 / D2 のビジネス整合・モデル選択。P 38 目標 × F task statement の重なりマップ(強 / 部分 / なし)は `SOURCES.md` §8 が正本で、CP2 の優先付けと F カードとの重複回避に使う。F バンクから流用する場合も**新 ID を採番して移植**する(`07` 参照)。
 
 ## トピックツリーの構造方針
 
 - 階層: `exam > domain > task_statement > topic`。**task_statement 層は公式の 30 本(7/5/6/6/6)と 1:1**(ID: `f-dn-tm`)。問題は primary topic 1 つに帰属(集計単位)、関連 topic は secondary として保持
 - topic の粒度: フラッシュカード 3〜5 枚で覆える概念単位。F 全体で 60〜80 topics 目安(task statement あたり 2〜3)
 - ツリーは `content/ccar-f/syllabus.yaml` が単一ソース(Step 1 = C1 で作成、オーナー粒度レビュー)
+- **CCAR-P**: task_statement 層は公式詳細目標 **38 本(6/5/8/6/5/5/3)** と 1:1(ID: `p-dn-tm`。Guide は番号無しの bullet のため、列挙順に採番。`content/ccar-p/SOURCES.md` §3)。topic は同じ粒度規則(task statement あたり 2〜3)で **76〜114 topics** 目安。ツリーは `content/ccar-p/syllabus.yaml`(CP1)
 
 ## 主要ソース
 
-- 公式 Exam Guide v1.0(CCAR-F): Partner Academy 配布 PDF(`ExamGuide/CCAR-F.pdf`、SHA-256 は `SOURCES.md` §0)
+- 公式 Exam Guide v1.0(CCAR-F): Partner Academy 配布 PDF(`ExamGuide/CCAR-F.pdf`、SHA-256 は `content/ccar-f/SOURCES.md` §0)
+- 公式 Exam Guide v1.0(CCAR-P): Partner Academy 配布 PDF(`ExamGuide/CCAR-P.pdf`、SHA-256 は `content/ccar-p/SOURCES.md` §0)
 - Pearson VUE: https://www.pearsonvue.com/us/en/anthropic.html
 - Anthropic Academy 対応コース(無料)、docs.claude.com、Anthropic engineering ブログ(解説 refs の一次参照先)

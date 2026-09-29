@@ -68,8 +68,8 @@
 - **置き場所**: `content/ccar-p/`(`03` §1)。ID は `p-` 接頭辞。**F からの流用は必ず新 ID 採番**(F の attempt / srs_state と混ざらないため。F のカードは F スコープで引き続き復習できる)
 - **Step 0(CP0)**: Guide を `content/ccar-p/SOURCES.md` に転記し、`02` CCAR-P 節を公式優先で突合。模試構造(問題数・ドメイン配分・シナリオ有無・multiple-response の選択数)と In/Out-of-Scope は **Guide の事実として記録するまで**。`03` §mock_forms への仕様化は T-pmock(停止条件: Mock のスコア)
 - **Step 1(CP1)**: `content/ccar-p/syllabus.yaml`。task statement 層は Guide と 1:1、topic 数は CP0 で決めた範囲。オーナー粒度レビュー
-- **Step 2(CP2)**: 最小フラッシュ 150(ドメイン重み比例)。F に無い 3 ドメイン(Governance / Stakeholder & Lifecycle / Developer Enablement、計 35%)を優先し、F と重なる領域は CP0 の重なりマップで F カードとの重複を避ける
-- **Step 3a は P に適用しない**: P は独立問題形式(`02`)のため、Practice 用は Step 5 相当の独立 MCQ(CP3)で成立させる
+- **Step 2(CP2)**: 最小フラッシュ 150(ドメイン重み比例)。ドメイン内では CP0 の重なりマップ(`content/ccar-p/SOURCES.md` §8)で F と重ならない目標(「なし」「部分」)を優先し、重なる目標は F カードとの重複を避ける。D5 / D6 / D7 はドメインとしては F に無いが、目標単位では D7 と D5 の一部が F と重なる(CP0)
+- **Step 3a は P に適用しない(暫定の制作方針)**: P の Guide にシナリオ構造の記述が無い(CP0、`02` / `content/ccar-p/SOURCES.md` §1.1)ため、Practice 用は Step 5 相当の独立 MCQ(CP3)で成立させる。独立問題形式は Guide の確認事項ではない。T-pmock で模試形式を確定し、シナリオ形式と判明した場合は Step 3a 相当の要否を見直す
 - **Step 3b(CP4-A / CP4-B)**: P の固定フォームは T-pmock で確定した構造に従う(シナリオ条件・件数は F 固有値を流用しない)。フォーム収載問題の標準値(`eligible_modes: ["mock", "practice"]` / `srs_eligible: false`)と holdout は F と同じ(`03`、フォームは `(exam, form_id)` で識別)
 - **Step 4**: F と同じ全工程(flagged で登録 → 2 周 → active、オーナー抜き取り各ドメイン 5 問、active 化後の修正ループ)。選択肢バランス監査も同じ基準で P に適用する
 - **Step 5(CP3)**: 独立 MCQ 60〜100(Practice / ドメイン別ミニ模試用、フォーム非収載、全ドメインに収録)
