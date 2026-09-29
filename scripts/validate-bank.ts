@@ -1,10 +1,12 @@
 // バンク静的検証 `npm run validate-bank [dir]`(specs/06 §バンク静的検証, specs/03 §mock_forms)。
+// 引数なしは content/<exam>/ を全 exam について検証する(D6-3。空バンクの exam は SKIP、全 exam 空なら失敗)。
 // 違反は fail closed(非 0)。warning(重み乖離)のみなら 0。
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
 import type { ZodError } from "zod";
 import {
+  EXAMS,
   FORM_DOMAIN_QUOTA,
   FORM_SCENARIO_COUNT,
   MOCK_FORM_SIZE,
@@ -12,6 +14,7 @@ import {
   questionsFileSchema,
   type MockForm,
   type Question,
+  type Exam,
   type Scenario,
   type Syllabus,
 } from "../src/lib/bank/schema";
@@ -239,33 +242,75 @@ export interface RunResult {
   stderr: string[];
 }
 
-/** CLI 本体(process.exit しない版)。テストから exit code を検証するために export */
-export function runValidateBank(dir: string): RunResult {
+/**
+ * CLI 本体(process.exit しない版)。テストから exit code を検証するために export。
+ * exam を渡すと content/<exam>/ としての検証(syllabus.exam = ディレクトリの exam)を足し、出力に [exam] を付ける
+ */
+export function runValidateBank(dir: string, exam?: Exam): RunResult {
   const stdout: string[] = [];
   const stderr: string[] = [];
+  const tag = exam ? ` [${exam}]` : "";
   const loaded = loadBankForValidation(dir);
   const errors = [...loaded.errors];
   let warnings: string[] = [];
   let counts = "";
   if (loaded.input) {
+    if (exam && loaded.input.syllabus.exam !== exam)
+      errors.push(`syllabus.yaml: exam=${loaded.input.syllabus.exam} が content/${exam}/ と不一致`);
     const r = validateBank(loaded.input);
     errors.push(...r.errors);
     warnings = r.warnings;
     counts = `questions ${loaded.input.questions.length} / forms ${loaded.input.forms.length}`;
   }
-  for (const w of warnings) stderr.push(`validate-bank WARN ${w}`);
-  for (const e of errors) stderr.push(`validate-bank NG ${e}`);
+  for (const w of warnings) stderr.push(`validate-bank WARN${tag} ${w}`);
+  for (const e of errors) stderr.push(`validate-bank NG${tag} ${e}`);
   if (errors.length > 0) {
-    stderr.push(`validate-bank 失敗: ${errors.length} 件(warnings ${warnings.length})`);
+    stderr.push(`validate-bank 失敗${tag}: ${errors.length} 件(warnings ${warnings.length})`);
     return { exitCode: 1, stdout, stderr };
   }
-  stdout.push(`validate-bank OK (${counts}, warnings ${warnings.length})`);
+  stdout.push(`validate-bank OK${tag} (${counts}, warnings ${warnings.length})`);
   return { exitCode: 0, stdout, stderr };
 }
 
+/**
+ * 空バンク(specs/06): syllabus.yaml / scenarios.yaml / mock_forms.yaml / questions/*.json のいずれも無い。
+ * SOURCES.md 等は数えない。1 つでもあれば全件検証の対象(「questions はあるが syllabus 無し」を空扱いにしない)
+ */
+export function isEmptyBankDir(dir: string): boolean {
+  for (const f of ["syllabus.yaml", "scenarios.yaml", "mock_forms.yaml"]) if (existsSync(path.join(dir, f))) return false;
+  const qDir = path.join(dir, "questions");
+  return !(existsSync(qDir) && readdirSync(qDir).some((n) => n.endsWith(".json")));
+}
+
+/** 全 exam(<root>/<exam>/)を exam ごとに検証。空の exam は SKIP、全 exam が空なら失敗 */
+export function runValidateAll(root: string): RunResult {
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+  let failed = false;
+  let validated = 0;
+  for (const exam of EXAMS) {
+    const dir = path.join(root, exam);
+    if (isEmptyBankDir(dir)) {
+      stdout.push(`validate-bank SKIP [${exam}] 空バンク(${path.relative(process.cwd(), dir) || dir})`);
+      continue;
+    }
+    validated++;
+    const r = runValidateBank(dir, exam);
+    stdout.push(...r.stdout);
+    stderr.push(...r.stderr);
+    if (r.exitCode !== 0) failed = true;
+  }
+  if (validated === 0) {
+    stderr.push(`validate-bank 失敗: 全 exam が空(${root} に content/<exam>/ が無い。root の取り違え?)`);
+    failed = true;
+  }
+  return { exitCode: failed ? 1 : 0, stdout, stderr };
+}
+
 function main(): void {
-  const dir = process.argv[2] ? path.resolve(process.argv[2]) : path.join(process.cwd(), "content", "ccar-f");
-  const r = runValidateBank(dir);
+  const r = process.argv[2]
+    ? runValidateBank(path.resolve(process.argv[2]))
+    : runValidateAll(path.join(process.cwd(), "content"));
   for (const l of r.stderr) console.error(l);
   for (const l of r.stdout) console.log(l);
   if (r.exitCode !== 0) process.exit(r.exitCode);

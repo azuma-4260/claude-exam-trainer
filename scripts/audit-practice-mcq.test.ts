@@ -225,3 +225,93 @@ describe("parseArgs", () => {
     expect(parseArgs(["--counts", "1,1,1,1,1"]).opts.status).toBe("active");
   });
 });
+
+// D6-3: ccar-p は独立 MCQ プロファイル(specs/07 §CCAR-P。F の帯・連番・C3a 条件を適用しない)
+describe("runAuditPracticeMcq(exam=ccar-p・独立 MCQ プロファイル)", () => {
+  const P_WEIGHTS = [17, 13, 19, 16, 14, 14, 7];
+  const P_SYLLABUS = `
+exam: ccar-p
+version: 1
+source: content/ccar-p/SOURCES.md
+domains:
+${P_WEIGHTS.map(
+  (w, i) => `  - id: p-d${i + 1}
+    name: "D${i + 1}"
+    weight: ${w}
+    task_statements:
+      - id: p-d${i + 1}-t1
+        name: "TS"
+        topics:
+          - { id: p-d${i + 1}-t1-01, name: "T", scope_ja: "範囲" }`,
+).join("\n")}
+`;
+  const P_COUNTS = [2, 1, 2, 1, 1, 1, 1];
+  // ID は帯の外(q001〜)。P の ID 規則は未定義なので帯 error が出ないことも確認する
+  let seq = 0;
+  const pmcq = (domain: number, n: number, over: Record<string, unknown> = {}) =>
+    mcq(domain, n, {
+      id: `p-d${domain}-q${String(n).padStart(3, "0")}`,
+      exam: "ccar-p",
+      domain_id: `p-d${domain}`,
+      primary_topic_id: `p-d${domain}-t1-01`,
+      answer: [LABELS[seq++ % 4]],
+      ...over,
+    });
+  const pBank = (over: (d: number, n: number) => Record<string, unknown> = () => ({})) =>
+    P_COUNTS.flatMap((count, i) => Array.from({ length: count }, (_, k) => pmcq(i + 1, k + 1, over(i + 1, k + 1))));
+  const pOpts = () => ({ exam: "ccar-p" as const, counts: P_COUNTS, status: "active" });
+
+  beforeEach(() => {
+    seq = 0;
+    writeFileSync(path.join(dir, "syllabus.yaml"), P_SYLLABUS);
+  });
+
+  it("正常な P 独立 MCQ(帯の外の ID・7 ドメイン配分)は green", () => {
+    write("p.json", pBank());
+    const r = runAuditPracticeMcq(dir, pOpts());
+    expect(r.errors).toEqual([]);
+    expect(r.warnings).toEqual([]);
+    expect(r.total).toBe(9);
+  });
+
+  it.each([
+    ["srs_eligible=false", { srs_eligible: false }, "srs_eligible が true でない"],
+    ["eligible_modes 不一致", { eligible_modes: ["practice"] }, "eligible_modes が"],
+    ["scenario_id あり", { scenario_id: "sc-x" }, "scenario_id が null でない"],
+    ["台帳外 ref", { refs: [URL_OUT] }, "がソース台帳に無い"],
+    ["status 不一致", { status: "flagged" }, "status flagged(期待 active)"],
+  ])("違反を検出: %s", (_, over, msg) => {
+    write("p.json", pBank((d, n) => (d === 1 && n === 1 ? over : {})));
+    const r = runAuditPracticeMcq(dir, pOpts());
+    expect(r.errors.some((e) => e.startsWith("p-d1-q001") && e.includes(msg))).toBe(true);
+  });
+
+  it("配分違いと --counts の値数不一致を検出する", () => {
+    write("p.json", pBank());
+    const wrong = runAuditPracticeMcq(dir, { ...pOpts(), counts: [2, 1, 2, 1, 1, 1, 2] });
+    expect(wrong.errors).toContain("p-d7: 独立 MCQ live 件数 1(期待 2)");
+    const short = runAuditPracticeMcq(dir, { ...pOpts(), counts: [2, 1, 2, 1, 1] });
+    expect(short.errors.some((e) => e.includes("--counts は 7 値"))).toBe(true);
+  });
+
+  it("form 収載問題と flash は対象外", () => {
+    const flash = { ...pmcq(1, 99), type: "flash", choices: null, answer: null, answer_en: "a", eligible_modes: ["drill"] };
+    // form 収載(srs_eligible=false)は独立 MCQ 条件に掛けない。暫定 60 問 form(現行 mockFormSchema)
+    const formQs = Array.from({ length: 60 }, (_, i) => pmcq(2, 101 + i, { srs_eligible: false }));
+    write("p.json", [...pBank(), flash, ...formQs]);
+    writeFileSync(
+      path.join(dir, "mock_forms.yaml"),
+      `forms:\n  - id: form-a\n    exam: ccar-p\n    scenario_ids: [sc-x]\n    question_ids: [${formQs.map((q) => q.id).join(", ")}]\n`,
+    );
+    const r = runAuditPracticeMcq(dir, pOpts());
+    expect(r.errors).toEqual([]);
+    expect(r.total).toBe(9);
+  });
+
+  it("parseArgs: ccar-p は --counts の値数を 5 に固定しない", () => {
+    const { opts, dir: d } = parseArgs(["--exam", "ccar-p", "--counts", "2,1,2,1,1,1,1"]);
+    expect(opts.exam).toBe("ccar-p");
+    expect(opts.counts).toHaveLength(7);
+    expect(d).toBe(path.join(process.cwd(), "content", "ccar-p"));
+  });
+});
