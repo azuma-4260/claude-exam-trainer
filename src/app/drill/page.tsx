@@ -4,6 +4,7 @@ import { QuickDrill } from "@/components/drill/quick-drill";
 import { buttonVariants } from "@/components/ui/button";
 import { getDb } from "@/db/client";
 import { loadQueueView } from "@/lib/queue/serve";
+import { showExamLabel } from "@/lib/scope/scope";
 import { cn } from "@/lib/utils";
 
 /**
@@ -17,7 +18,13 @@ export default async function DrillPage() {
   const view = await loadQueueView(getDb(), new Date());
 
   if (view.kind === "ok" && view.session.kind === "ok") {
-    return <QuickDrill items={view.session.items} remainingAfterSession={view.session.remainingAfterSession} />;
+    return (
+      <QuickDrill
+        items={view.session.items}
+        remainingAfterSession={view.session.remainingAfterSession}
+        showExamLabel={showExamLabel(view.scope)}
+      />
+    );
   }
 
   const message =

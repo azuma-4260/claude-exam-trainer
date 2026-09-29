@@ -3,10 +3,12 @@
 import { useEffect, useReducer, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, CircleCheck, CircleX, LoaderCircle, RotateCcw, X } from "lucide-react";
+import { ExamBadge } from "@/components/exam-badge";
 import { QuestionMenu } from "@/components/question-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { classifyAnswerResponse, type RejectReason } from "@/lib/answer/ack";
 import type { AnswerRequest } from "@/lib/answer/schema";
+import { examOfQuestionId } from "@/lib/exam/dates";
 import type { MockScenarioDto } from "@/lib/mock/dto";
 import {
   canNext,
@@ -37,10 +39,13 @@ export function Practice({
   items,
   scenarios,
   remainingAfterBatch,
+  showExamLabel = false,
 }: {
   items: PracticeItem[];
   scenarios: MockScenarioDto[];
   remainingAfterBatch: number;
+  /** 学習スコープ both のとき問題に exam ラベル(F / P)を付ける(05 全体構造、D6-2) */
+  showExamLabel?: boolean;
 }) {
   const [state, dispatch] = useReducer(practiceReducer, items, initialPracticeState);
   const startedAtRef = useRef(0);
@@ -146,8 +151,11 @@ export function Practice({
         <Link href="/study" aria-label="Study へ戻る" className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}>
           <ArrowLeft aria-hidden />
         </Link>
-        <p className="font-mono text-sm tabular-nums text-muted-foreground">
-          {Math.min(state.index + 1, state.items.length)} <span className="text-muted-foreground/60">/ {state.items.length}</span>
+        <p className="flex items-center gap-2 font-mono text-sm tabular-nums text-muted-foreground">
+          {showExamLabel ? <ExamBadge exam={examOfQuestionId(item.questionId)} /> : null}
+          <span>
+            {Math.min(state.index + 1, state.items.length)} <span className="text-muted-foreground/60">/ {state.items.length}</span>
+          </span>
         </p>
         <QuestionMenu
           questionId={item.questionId}

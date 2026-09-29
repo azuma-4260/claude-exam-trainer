@@ -1,22 +1,25 @@
 import Link from "next/link";
 import { CircleAlert, TriangleAlert } from "lucide-react";
+import { ExamBadge } from "@/components/exam-badge";
 import { ProgressRing } from "@/components/progress-ring";
+import { ScopeSwitcher } from "@/components/scope-switcher";
 import { buttonVariants } from "@/components/ui/button";
 import { getDb } from "@/db/client";
+import { EXAM_LABEL } from "@/lib/exam/label";
 import { loadQueueView } from "@/lib/queue/serve";
+import { selectableScopes, showExamLabel } from "@/lib/scope/scope";
 import { cn } from "@/lib/utils";
 
 /**
  * S-1 Home(specs/05)。カウントダウン + 進捗リング(予算消化)、ノルマ/バックログ分離、
  * CTA 1 ボタン、pace_warning 時のみ警告カード。推奨行動カード(直前期)は D5-1。
- * 学習スコープ(v1.3): カウントダウンはスコープ内で試験日が未来の exam(過去の exam は「受験済み」)。
- * スコープ切替 UI と exam ラベルの作り込みは D6-2。
+ * 学習スコープ(v1.3): ヘッダに現在のスコープを常時表示し、ここから切替できる(D6-2)。
+ * カウントダウンはスコープ内で試験日が未来の exam(過去の exam は「受験済み」)。both では exam ごとに並べる。
  * DB を読むため常に動的レンダリング(ビルド時に DATABASE_URL を要求しない)。
  */
 export const dynamic = "force-dynamic";
 
 const min = (sec: number) => Math.round(sec / 60);
-const EXAM_LABEL = { "ccar-f": "CCAR-F", "ccar-p": "CCAR-P" } as const;
 
 export default async function HomePage() {
   const view = await loadQueueView(getDb(), new Date());
@@ -28,17 +31,22 @@ export default async function HomePage() {
   const next = upcoming[0] ?? null;
   const passed = view.countdowns.filter((c) => c.daysLeft < 0);
   const warnings = view.paceByExam.filter((p) => p.pace.paceWarning);
+  const labeled = showExamLabel(view.scope);
 
   return (
     <main className="flex flex-col gap-6">
-      <header className="flex items-baseline justify-between">
-        <h1 className="font-mono text-sm font-semibold tracking-[0.2em] text-muted-foreground md:hidden">
-          {view.countdowns.map((c) => EXAM_LABEL[c.exam]).join(" + ")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {next ? `${EXAM_LABEL[next.exam]} 試験日 ${next.examDateJst}` : null}
-          {passed.length > 0 ? `${next ? " / " : ""}${passed.map((c) => EXAM_LABEL[c.exam]).join("・")} 受験済み` : null}
-        </p>
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="font-mono text-sm font-semibold tracking-[0.2em] text-muted-foreground">
+            {view.countdowns.map((c) => EXAM_LABEL[c.exam]).join(" + ")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {next ? `${EXAM_LABEL[next.exam]} 試験日 ${next.examDateJst}` : null}
+            {passed.length > 0 ? `${next ? " / " : ""}${passed.map((c) => EXAM_LABEL[c.exam]).join("・")} 受験済み` : null}
+          </p>
+        </div>
+        {/* 学習スコープの常時表示と切替(05 全体構造、D6-2) */}
+        <ScopeSwitcher scope={view.scope} options={selectableScopes()} variant="compact" />
       </header>
 
       {/* シグネチャ: 45 分予算リングの中心に試験カウントダウンを重ねた計器 */}
@@ -56,6 +64,19 @@ export default async function HomePage() {
             {spentMin} <span className="text-muted-foreground/60">/ {budgetMin} min</span>
           </span>
         </ProgressRing>
+        {/* both では exam ごとのカウントダウンを並べる(05 S-1「複数あれば各々」) */}
+        {labeled && view.countdowns.length > 1 ? (
+          <ul className="mt-2 flex flex-wrap justify-center gap-x-5 gap-y-1 text-sm">
+            {view.countdowns.map((c) => (
+              <li key={c.exam} className="flex items-center gap-2">
+                <ExamBadge exam={c.exam} />
+                <span className="font-mono tabular-nums">
+                  {c.daysLeft >= 0 ? `${c.daysLeft} 日` : <span className="text-muted-foreground">受験済み</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </section>
 
       {view.kind === "d_minus_1_unavailable" ? (
@@ -102,7 +123,7 @@ export default async function HomePage() {
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
               <div>
                 <p className="font-medium">
-                  {view.countdowns.length > 1 ? `${EXAM_LABEL[exam]}: ` : ""}新規導入が上限を超えるペースです
+                  {labeled ? `${EXAM_LABEL[exam]}: ` : ""}新規導入が上限を超えるペースです
                 </p>
                 <p className="mt-1 text-muted-foreground">
                   残り {pace.remainingNew} 問を消化するには 1 日 {pace.requiredNew} 問が必要ですが、上限は

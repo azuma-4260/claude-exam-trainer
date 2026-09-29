@@ -31,7 +31,7 @@ export function AppNav() {
       )}
     >
       <div className="hidden pb-6 pl-3 pt-2 md:block">
-        <p className="font-mono text-xs font-semibold tracking-[0.2em] text-muted-foreground">CCAR-F</p>
+        <p className="font-mono text-xs font-semibold tracking-[0.2em] text-muted-foreground">CCAR</p>
       </div>
       {ITEMS.map(({ href, label, icon: Icon, enabled }) => {
         const active = pathname === href || (href !== "/" && pathname.startsWith(href));

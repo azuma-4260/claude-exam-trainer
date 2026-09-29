@@ -2,14 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ExamBadge } from "@/components/exam-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { MockFormOption, MockFormOptions } from "@/lib/mock/availability";
+import { EXAMS, type Exam } from "@/lib/bank/schema";
+import { EXAM_SHORT } from "@/lib/exam/label";
+import { formStartability, type MockFormOption, type MockFormOptions } from "@/lib/mock/availability";
 import type { MockSessionDto } from "@/lib/mock/dto";
 
 /**
  * S-5 開始画面(client)。進行中セッションがあれば「再開」を最優先表示する。
  * D3-2: availability NG は理由付き選択不可、提出済みは rehearsal ラベル、未実施フォームを推奨表示。
+ * D6-2: 推奨・開始可否は exam ごと(formStartability)。both ではフォームに exam ラベルを付ける。
+ * 進行中セッションはスコープ外 exam でも表示するため常に exam ラベルを付ける。
  */
 
 type CurrentState =
@@ -18,6 +23,8 @@ type CurrentState =
   | { kind: "in_progress"; session: MockSessionDto }
   | { kind: "timed_out"; session: MockSessionDto }
   | { kind: "error" };
+
+const isExam = (v: string): v is Exam => (EXAMS as readonly string[]).includes(v);
 
 /** availability NG の理由表示(05 S-5: 未解決フラグ n 件) */
 function blockedReason(o: MockFormOption): string {
@@ -28,7 +35,14 @@ function blockedReason(o: MockFormOption): string {
   return parts.join(" / ");
 }
 
-export function MockStartScreen({ formOptions }: { formOptions: MockFormOptions }) {
+export function MockStartScreen({
+  formOptions,
+  showExamLabel = false,
+}: {
+  formOptions: MockFormOptions;
+  /** 学習スコープ both のときフォームに exam ラベル(F / P)を付ける(05 S-5) */
+  showExamLabel?: boolean;
+}) {
   const router = useRouter();
   const [current, setCurrent] = useState<CurrentState>({ kind: "loading" });
   const [starting, setStarting] = useState(false);
@@ -94,7 +108,7 @@ export function MockStartScreen({ formOptions }: { formOptions: MockFormOptions 
     }
   };
 
-  const { options, recommendedFormId, allBlocked } = formOptions;
+  const { options, allBlocked } = formOptions;
   const busy = starting || current.kind === "in_progress" || current.kind === "loading";
 
   return (
@@ -104,7 +118,10 @@ export function MockStartScreen({ formOptions }: { formOptions: MockFormOptions 
 
       {current.kind === "in_progress" && (
         <section className="rounded-lg border-2 border-primary p-4">
-          <p className="font-medium">進行中の模試があります</p>
+          <p className="flex items-center gap-2 font-medium">
+            {isExam(current.session.exam) && <ExamBadge exam={current.session.exam} />}
+            進行中の模試があります
+          </p>
           <p className="mt-1 text-sm text-muted-foreground">
             {current.session.kind === "full" ? `フル模試 ${current.session.form_id}` : `ミニ模試 ${current.session.domain_id}`}
             (閉じている間も時計は進んでいます)
@@ -147,21 +164,27 @@ export function MockStartScreen({ formOptions }: { formOptions: MockFormOptions 
         )}
         {options.map((o) => {
           const available = o.availability.available;
-          const isRecommended = o.formId === recommendedFormId;
-          // 未実施フォームは自動選択(次の有効な未実施フォーム)のみ開始可(01 FR-5)。
-          // 提出済みフォームは rehearsal として available なら常に選択可
-          const startable = available && (o.submitted || isRecommended);
+          // 未実施フォームは exam ごとの自動選択(次の有効な未実施フォーム)のみ開始可(01 FR-5)。
+          // 提出済みフォームは rehearsal として available なら常に選択可。同名 form は D6-4 まで開始不可
+          const { recommended: isRecommended, startable, blocked } = formStartability(o, formOptions);
           return (
-            <div key={o.formId} className="flex items-center justify-between gap-3 rounded-lg border p-4">
+            <div key={`${o.exam}:${o.formId}`} className="flex items-center justify-between gap-3 rounded-lg border p-4">
               <div>
                 <p className="flex items-center gap-2 font-medium">
+                  {showExamLabel && <ExamBadge exam={o.exam} />}
                   {o.formId}
                   {o.submitted && <Badge variant="secondary">rehearsal</Badge>}
-                  {!o.submitted && isRecommended && <Badge>次のフォーム</Badge>}
+                  {!o.submitted && isRecommended && blocked !== "ambiguous_form" && <Badge>次のフォーム</Badge>}
                 </p>
                 <p className="text-sm text-muted-foreground">{o.questionCount} 問 / 120 分</p>
                 {!available && <p className="mt-1 text-sm text-destructive">開始不可: {blockedReason(o)}</p>}
-                {available && !o.submitted && !isRecommended && (
+                {blocked === "ambiguous_form" && (
+                  <p className="mt-1 text-sm text-destructive">
+                    開始不可: {options.filter((x) => x.formId === o.formId).map((x) => EXAM_SHORT[x.exam]).join(" / ")}{" "}
+                    に同名のフォームがあるため、P 模試対応(D6-4)まで開始できません
+                  </p>
+                )}
+                {blocked === "not_next" && (
                   <p className="mt-1 text-xs text-muted-foreground">未実施フォームは自動選択の順で受験します</p>
                 )}
                 {o.submitted && available && (
@@ -170,7 +193,7 @@ export function MockStartScreen({ formOptions }: { formOptions: MockFormOptions 
               </div>
               <Button
                 disabled={busy || !startable}
-                variant={isRecommended ? "default" : "outline"}
+                variant={isRecommended && startable ? "default" : "outline"}
                 onClick={() => start(o.formId)}
               >
                 開始

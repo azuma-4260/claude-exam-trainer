@@ -3,9 +3,11 @@
 import { useEffect, useReducer, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, CircleCheck, CircleX, LoaderCircle, RotateCcw, X } from "lucide-react";
+import { ExamBadge } from "@/components/exam-badge";
 import { QuestionMenu } from "@/components/question-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
 import type { AnswerRequest } from "@/lib/answer/schema";
+import { examOfQuestionId } from "@/lib/exam/dates";
 import type { MockScenarioDto } from "@/lib/mock/dto";
 import type { DrillItem } from "@/lib/queue/serve";
 import {
@@ -49,12 +51,15 @@ export function QuickDrill({
   remainingAfterSession,
   scenarios = [],
   answerMode = "drill",
+  showExamLabel = false,
   navigation,
 }: {
   items: DrillItem[];
   remainingAfterSession: number;
   scenarios?: MockScenarioDto[];
   answerMode?: "drill" | "practice";
+  /** 学習スコープ both のとき問題に exam ラベル(F / P)を付ける(05 全体構造、D6-2) */
+  showExamLabel?: boolean;
   navigation?: {
     backHref: string;
     backLabel: string;
@@ -154,8 +159,11 @@ export function QuickDrill({
         <Link href={nav.backHref} aria-label={nav.backLabel} className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}>
           <ArrowLeft aria-hidden />
         </Link>
-        <p className="font-mono text-sm tabular-nums text-muted-foreground">
-          {Math.min(state.index + 1, state.items.length)} <span className="text-muted-foreground/60">/ {state.items.length}</span>
+        <p className="flex items-center gap-2 font-mono text-sm tabular-nums text-muted-foreground">
+          {showExamLabel ? <ExamBadge exam={examOfQuestionId(item.questionId)} /> : null}
+          <span>
+            {Math.min(state.index + 1, state.items.length)} <span className="text-muted-foreground/60">/ {state.items.length}</span>
+          </span>
         </p>
         <QuestionMenu
           questionId={item.questionId}

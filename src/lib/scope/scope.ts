@@ -37,3 +37,13 @@ export function validateScope(scope: StudyScope, dates: ExamDates = EXAM_DATE_JS
   const missingExamDates = scopeExams(scope).filter((e) => !dates[e]);
   return missingExamDates.length === 0 ? { ok: true } : { ok: false, missingExamDates };
 }
+
+/** 選択肢に出すスコープ(試験日未設定の exam を含むものは出さない。サーバーも 409 で拒否する) */
+export function selectableScopes(dates: ExamDates = EXAM_DATE_JST): StudyScope[] {
+  return STUDY_SCOPES.filter((s) => validateScope(s, dates).ok);
+}
+
+/** 問題・フォーム・ドメインに exam ラベル(F / P)を付けるか(05 全体構造: both のときのみ) */
+export function showExamLabel(scope: StudyScope): boolean {
+  return scope === "both";
+}

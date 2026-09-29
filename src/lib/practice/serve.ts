@@ -5,6 +5,7 @@ import type { Question, Scenario } from "@/lib/bank/schema";
 import { toScenarioDtos, type MockScenarioDto } from "@/lib/mock/dto";
 import type { QueueItem } from "@/lib/queue/build";
 import { assembleQueueView, loadQueueInputs } from "@/lib/queue/serve";
+import type { StudyScope } from "@/lib/scope/scope";
 
 /**
  * S-4 Practice 向けの出題組み立て(D2-1。specs/01 FR-4、04 §モード行列、05 S-4)。
@@ -126,7 +127,7 @@ export function assemblePracticeView(inputs: PracticeAssembleInputs): PracticeVi
  * RSC から呼ぶ I/O 合成(loadQueueView と同じシグナル一式)。日次キューを同一入力で組み立ててから
  * Practice ビューへ射影するので、Home の deferredPracticeCount と提示内容が一致する。
  */
-export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView> {
+export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView & { scope: StudyScope }> {
   // 出題はスコープ内 exam のみ(scoped.bank)。消費予算は全 exam(loadQueueInputs)
   const { scope, scoped, poolCtx, signals, consumption, consumptionRows } = await loadQueueInputs(db, now);
   const bank = scoped.bank;
@@ -144,11 +145,13 @@ export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView>
   // D-1(d_minus_1_unavailable)は practiceItems / queueQuestionIds が空 = 第 2 層のみで通常どおり動く
   // (04 §D-1 が止めるのは日次キューの選定であって Practice 画面ではない)
   const answeredToday = consumptionRows.todayRows.map((r) => r.questionId);
-  return assemblePracticeView({
+  const view = assemblePracticeView({
     bank,
     poolCtx,
     scenarios: scoped.scenarios,
     practiceQueue: queueView.practiceItems,
     excludeIds: new Set([...queueView.queueQuestionIds, ...answeredToday]),
   });
+  // scope は画面の exam ラベル表示(both のみ)に使う(D6-2)
+  return { ...view, scope };
 }

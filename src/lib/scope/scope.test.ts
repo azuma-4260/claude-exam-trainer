@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import * as schema from "@/db/schema";
-import { inScope, scopeExams, scopeFromRow, studyScopeSchema, validateScope } from "./scope";
+import { inScope, scopeExams, scopeFromRow, selectableScopes, showExamLabel, studyScopeSchema, validateScope } from "./scope";
 import { buildScopeSelect, buildSetScopeUpsert } from "./repo";
 
 // T-exam: 学習スコープ(specs/03 §study_setting、01 FR-10)
@@ -28,6 +28,14 @@ describe("学習スコープの値と exam 集合", () => {
   });
 });
 
+describe("exam ラベルは both のときだけ付ける(05 全体構造、D6-2)", () => {
+  it("showExamLabel", () => {
+    expect(showExamLabel("both")).toBe(true);
+    expect(showExamLabel("ccar-f")).toBe(false);
+    expect(showExamLabel("ccar-p")).toBe(false);
+  });
+});
+
 describe("試験日未設定 exam を含むスコープは拒否(fail closed)", () => {
   const dates = { "ccar-f": "2026-09-27", "ccar-p": null } as const;
 
@@ -39,6 +47,11 @@ describe("試験日未設定 exam を含むスコープは拒否(fail closed)", 
 
   it("既定のコード定数(F / P とも設定済み)では全スコープを許可", () => {
     for (const s of studyScopeSchema.options) expect(validateScope(s)).toEqual({ ok: true });
+  });
+
+  it("selectableScopes: 試験日未設定の exam を含むスコープは選択肢に出さない(05 全体構造、D6-2)", () => {
+    expect(selectableScopes(dates)).toEqual(["ccar-f"]);
+    expect(selectableScopes()).toEqual(["ccar-f", "ccar-p", "both"]);
   });
 });
 

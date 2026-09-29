@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { ArrowRight, CircleCheck, NotebookPen } from "lucide-react";
+import { ExamBadge } from "@/components/exam-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { getDb } from "@/db/client";
+import { examOfQuestionId } from "@/lib/exam/dates";
 import { loadMistakesView } from "@/lib/mistakes/load";
+import { showExamLabel } from "@/lib/scope/scope";
 import { cn } from "@/lib/utils";
 
 /** S-7 間違いノート。attempt からリクエストごとに導出するためキャッシュしない。 */
@@ -10,6 +13,8 @@ export const dynamic = "force-dynamic";
 
 export default async function MistakesPage() {
   const view = await loadMistakesView(getDb());
+  // 学習スコープ both では exam ラベル付き(05 S-7)
+  const labeled = showExamLabel(view.scope);
 
   return (
     <main className="flex flex-col gap-5">
@@ -55,7 +60,10 @@ export default async function MistakesPage() {
                   <span className="rounded-md bg-muted px-2 py-1 font-mono tabular-nums text-muted-foreground">
                     連続正解 {item.correctStreak}/3
                   </span>
-                  <span className="ml-auto font-mono text-muted-foreground">{item.domainId.toUpperCase()}</span>
+                  <span className="ml-auto flex items-center gap-2">
+                    {labeled ? <ExamBadge exam={examOfQuestionId(item.questionId)} /> : null}
+                    <span className="font-mono text-muted-foreground">{item.domainId.toUpperCase()}</span>
+                  </span>
                 </div>
                 {item.released ? (
                   <p className="mt-3 text-xs font-medium text-muted-foreground">模試出題済み</p>

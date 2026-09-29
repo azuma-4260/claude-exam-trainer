@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BarChart3, CalendarDays, ChevronRight, Settings } from "lucide-react";
 import { getDb } from "@/db/client";
 import type { Exam } from "@/lib/bank/schema";
+import { EXAM_LABEL } from "@/lib/exam/label";
 import type { StatsView } from "@/lib/stats/derive";
 import { loadStatsViews } from "@/lib/stats/load";
 
@@ -54,8 +55,6 @@ export default async function StatsPage() {
     </main>
   );
 }
-
-const EXAM_LABEL: Record<Exam, string> = { "ccar-f": "CCAR-F", "ccar-p": "CCAR-P" };
 
 function ExamStats({ exam, view, showLabel }: { exam: Exam; view: StatsView; showLabel: boolean }) {
   const days = view.dailyAnswers.slice(-14);

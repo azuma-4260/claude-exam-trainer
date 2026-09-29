@@ -62,3 +62,26 @@ export function buildMockFormOptions(
     allBlocked: options.length > 0 && options.every((o) => !o.availability.available),
   };
 }
+
+/**
+ * S-5 開始画面の 1 フォームの開始可否(D6-2)。推奨は exam ごと(`recommendedByExam`)で判定する。
+ * - 未実施フォームは exam ごとの「次の有効な未実施フォーム」のみ開始可(01 FR-5)
+ * - 提出済みフォームは available なら rehearsal として常に開始可
+ * - 開始候補に同名 form が複数 exam 分あると開始 API は `{ form_id }` だけでは特定できず 409 ambiguous_form になる。
+ *   押しても必ず失敗するボタンを出さないため開始不可にする(開始リクエストへの exam 追加は D6-4、B-T-exam-2)
+ */
+export type FormStartability = {
+  recommended: boolean;
+  startable: boolean;
+  blocked: null | "unavailable" | "ambiguous_form" | "not_next";
+};
+
+export function formStartability(option: MockFormOption, all: MockFormOptions): FormStartability {
+  const recommended = all.recommendedByExam[option.exam] === option.formId;
+  if (all.options.filter((o) => o.formId === option.formId).length > 1) {
+    return { recommended, startable: false, blocked: "ambiguous_form" };
+  }
+  if (!option.availability.available) return { recommended, startable: false, blocked: "unavailable" };
+  if (!option.submitted && !recommended) return { recommended, startable: false, blocked: "not_next" };
+  return { recommended, startable: true, blocked: null };
+}

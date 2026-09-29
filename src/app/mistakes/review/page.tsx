@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { getDb } from "@/db/client";
 import { loadMistakesView } from "@/lib/mistakes/load";
 import { nextReviewHref, parseReviewSeen } from "@/lib/mistakes/review-cursor";
+import { showExamLabel } from "@/lib/scope/scope";
 import { cn } from "@/lib/utils";
 
 /** 間違いノートの「総ざらい」。Quick Drill 形式で高速周回し、保存 mode だけ practice にする。 */
@@ -25,6 +26,7 @@ export default async function MistakeReviewPage({
         scenarios={view.review.scenarios}
         remainingAfterSession={view.review.remainingAfterBatch}
         answerMode="practice"
+        showExamLabel={showExamLabel(view.scope)}
         navigation={{
           backHref: "/mistakes",
           backLabel: "間違いノートへ戻る",

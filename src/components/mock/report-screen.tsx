@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import type { Exam } from "@/lib/bank/schema";
+import { EXAM_LABEL } from "@/lib/exam/label";
 import type { MockReport, MockReportDomain } from "@/lib/mock/report";
 
 /**
@@ -69,6 +71,7 @@ export function MockReportScreen({ report }: { report: MockReport }) {
       <header className="flex flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-semibold">模試レポート</h1>
+          <Badge variant="outline">{EXAM_LABEL[report.exam as Exam] ?? report.exam}</Badge>
           {report.formId && <Badge variant="outline">{report.formId}</Badge>}
           {report.rehearsal && <Badge variant="secondary">rehearsal(再受験)</Badge>}
         </div>
