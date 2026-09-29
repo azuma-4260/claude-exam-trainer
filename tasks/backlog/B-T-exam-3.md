@@ -6,6 +6,7 @@ status: open
 related_tasks: [CP1, D6-4]
 related_specs: ["03#1-問題バンクcontent", "05#s-4-practice", "05#s-7-間違いノート"]
 related_paths: [src/lib/bank/runtime.ts, src/lib/mock/dto.ts, src/lib/practice/serve.ts, src/lib/mistakes/derive.ts]
+related_backlog: [B-D6-3-1]
 stop_condition: none
 ---
 # スコープ both の Practice / 間違いノートで、F と P に同名シナリオ id があると本文を取り違える

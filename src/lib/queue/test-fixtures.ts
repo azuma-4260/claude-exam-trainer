@@ -129,7 +129,7 @@ export const NOW_P = new Date("2026-10-01T12:00:00+09:00");
 export const pflash = (id: string, over: Partial<Question> = {}): Question => flash(id, { exam: "ccar-p", ...over });
 export const pmcq = (id: string, over: Partial<Question> = {}): Question => mcq(id, { exam: "ccar-p", ...over });
 
-/** p-d1: weight 70 / p-d2: weight 30 */
+/** p-d1: weight 70 / p-d2: weight 30(P の固定フォーム配分は未確定なので form_questions は書かない) */
 export const pSyllabus: Syllabus = syllabusFileSchema.parse({
   exam: "ccar-p",
   version: 1,
@@ -139,7 +139,6 @@ export const pSyllabus: Syllabus = syllabusFileSchema.parse({
       id: "p-d1",
       name: "P Domain 1",
       weight: 70,
-      form_questions: 30,
       task_statements: [
         { id: "p-d1-t1", name: "P TS 1", topics: [{ id: "p-d1-t1-01", name: "P Topic 1-1", scope_ja: "範囲" }] },
       ],
@@ -148,7 +147,6 @@ export const pSyllabus: Syllabus = syllabusFileSchema.parse({
       id: "p-d2",
       name: "P Domain 2",
       weight: 30,
-      form_questions: 30,
       task_statements: [
         { id: "p-d2-t1", name: "P TS 2", topics: [{ id: "p-d2-t1-01", name: "P Topic 2-1", scope_ja: "範囲" }] },
       ],

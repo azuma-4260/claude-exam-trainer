@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { stringify as toYaml } from "yaml";
 import { MOCK_FORM_SIZE, type MockForm, type Question, type Scenario, type Syllabus } from "../src/lib/bank/schema";
-import { loadBankForValidation, runValidateBank, validateBank, type BankInput } from "./validate-bank";
+import { loadBankForValidation, runValidateAll, runValidateBank, validateBank, type BankInput } from "./validate-bank";
 
 // specs/06 §バンク静的検証 / specs/03 §mock_forms の各条件を 1 つずつ写す。
 // valid fixture を基準に 1 箇所だけ壊して invalid を作る(scripts/backlog/check.test.ts と同じ手法)。
@@ -278,5 +278,141 @@ describe("loadBankForValidation / runValidateBank(I/O と exit code)", () => {
 
   it("MOCK_FORM_SIZE は 60", () => {
     expect(MOCK_FORM_SIZE).toBe(60);
+  });
+});
+
+// --- D6-3: 全 exam の検証(specs/06 §バンク静的検証)---
+// P の fixture は実際の P と同じ形(7 ドメイン・weight 17/13/19/16/14/14/7・form_questions 無し。specs/03 §1)
+const P_WEIGHTS = [17, 13, 19, 16, 14, 14, 7];
+
+function makePSyllabus(): Syllabus {
+  return {
+    exam: "ccar-p",
+    version: 1,
+    source: "content/ccar-p/SOURCES.md",
+    domains: P_WEIGHTS.map((weight, i) => {
+      const id = `p-d${i + 1}`;
+      return {
+        id,
+        name: `Domain ${id}`,
+        weight,
+        task_statements: [
+          { id: `${id}-t1`, name: `Task ${id}`, topics: [{ id: `${id}-t1-01`, name: "Topic", scope_ja: "範囲" }] },
+        ],
+      };
+    }),
+  };
+}
+
+function makePQuestion(domain: string, n: number, over: Partial<Question> = {}): Question {
+  return makeQuestion(domain, n, { exam: "ccar-p", primary_topic_id: `${domain}-t1-01`, ...over });
+}
+
+describe("runValidateAll(content/<exam>/ を exam ごとに検証)", () => {
+  let root: string;
+  beforeEach(() => {
+    root = mkdtempSync(path.join(os.tmpdir(), "validate-all-"));
+  });
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  function write(exam: string, files: { syllabus?: Syllabus; questions?: Question[]; forms?: MockForm[]; scenarios?: Scenario[] }) {
+    const dir = path.join(root, exam);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(path.join(dir, "SOURCES.md"), "# sources\n");
+    if (files.syllabus) writeFileSync(path.join(dir, "syllabus.yaml"), toYaml(files.syllabus));
+    if (files.questions) {
+      mkdirSync(path.join(dir, "questions"));
+      writeFileSync(path.join(dir, "questions", "all.json"), JSON.stringify(files.questions));
+    }
+    if (files.forms) writeFileSync(path.join(dir, "mock_forms.yaml"), toYaml({ forms: files.forms }));
+    if (files.scenarios) writeFileSync(path.join(dir, "scenarios.yaml"), toYaml({ scenarios: files.scenarios }));
+  }
+  const writeF = () => {
+    const b = makeBank();
+    write("ccar-f", { syllabus: b.syllabus, questions: [...b.questions], forms: [...b.forms], scenarios: [...(b.scenarios ?? [])] });
+  };
+
+  it("F 完全 + P 空(SOURCES.md のみ)⇒ exit 0、F は OK・P は SKIP", () => {
+    writeF();
+    write("ccar-p", {});
+    const r = runValidateAll(root);
+    expect(r.exitCode).toBe(0);
+    const out = r.stdout.join("\n");
+    expect(out).toMatch(/validate-bank OK \[ccar-f\] \(questions 65 \/ forms 1, warnings 0\)/);
+    expect(out).toMatch(/validate-bank SKIP \[ccar-p\]/);
+  });
+
+  it("P ディレクトリが無くても SKIP", () => {
+    writeF();
+    const r = runValidateAll(root);
+    expect(r.exitCode).toBe(0);
+    expect(r.stdout.join("\n")).toMatch(/SKIP \[ccar-p\]/);
+  });
+
+  it("P fixture(form_questions 無しの 7 ドメイン syllabus + 問題)⇒ OK [ccar-p]", () => {
+    writeF();
+    write("ccar-p", {
+      syllabus: makePSyllabus(),
+      questions: P_WEIGHTS.flatMap((_, i) => [1, 2].map((n) => makePQuestion(`p-d${i + 1}`, n))),
+    });
+    const r = runValidateAll(root);
+    expect(r.stderr).toEqual(expect.not.arrayContaining([expect.stringMatching(/NG/)]));
+    expect(r.exitCode).toBe(0);
+    expect(r.stdout.join("\n")).toMatch(/validate-bank OK \[ccar-p\] \(questions 14 \/ forms 0/);
+  });
+
+  it("P の syllabus.exam がディレクトリと不一致 ⇒ exit 1", () => {
+    writeF();
+    write("ccar-p", { syllabus: makeSyllabus() });
+    const r = runValidateAll(root);
+    expect(r.exitCode).toBe(1);
+    expect(r.stderr.join("\n")).toMatch(/NG \[ccar-p\] syllabus\.yaml: exam=ccar-f が content\/ccar-p\/ と不一致/);
+  });
+
+  it("P に questions があるが syllabus 無し ⇒ exit 1(空扱いにしない)", () => {
+    writeF();
+    write("ccar-p", { questions: [makePQuestion("p-d1", 1)] });
+    const r = runValidateAll(root);
+    expect(r.exitCode).toBe(1);
+    expect(r.stderr.join("\n")).toMatch(/NG \[ccar-p\] syllabus\.yaml/);
+  });
+
+  it("P の question.exam が ccar-f ⇒ exit 1", () => {
+    writeF();
+    write("ccar-p", { syllabus: makePSyllabus(), questions: [makePQuestion("p-d1", 1, { exam: "ccar-f" })] });
+    expect(runValidateAll(root).exitCode).toBe(1);
+  });
+
+  it("P の form は配分未確定のため拒否(fail closed)", () => {
+    writeF();
+    const qs = Array.from({ length: MOCK_FORM_SIZE }, (_, i) =>
+      makePQuestion("p-d1", i + 1, { eligible_modes: ["mock", "practice"], srs_eligible: false }),
+    );
+    write("ccar-p", {
+      syllabus: makePSyllabus(),
+      questions: qs,
+      forms: [{ id: "form-a", exam: "ccar-p", scenario_ids: ["sc-1"], question_ids: qs.map((q) => q.id) }],
+      scenarios: [makeScenario("sc-1")],
+    });
+    const r = runValidateAll(root);
+    expect(r.exitCode).toBe(1);
+    expect(r.stderr.join("\n")).toMatch(/NG \[ccar-p\] exam=ccar-p の固定フォーム配分が未定義/);
+  });
+
+  it("P 側の違反は F の結果に影響しない(F は OK 行のまま)", () => {
+    writeF();
+    write("ccar-p", { questions: [makePQuestion("p-d1", 1)] });
+    const r = runValidateAll(root);
+    expect(r.stdout.join("\n")).toMatch(/OK \[ccar-f\]/);
+    expect(r.stderr.join("\n")).not.toMatch(/\[ccar-f\]/);
+  });
+
+  it("全 exam が空 ⇒ exit 1(content root の取り違え検出)", () => {
+    write("ccar-f", {});
+    const r = runValidateAll(root);
+    expect(r.exitCode).toBe(1);
+    expect(r.stderr.join("\n")).toMatch(/全 exam が空/);
   });
 });

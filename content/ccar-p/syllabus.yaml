@@ -1,0 +1,491 @@
+# CCAR-P トピックツリー(単一ソース)
+# 階層: exam > domain > task_statement > topic(specs/02 §トピックツリーの構造方針)
+# - task_statement 層は公式 Exam Guide v1.0 §6 の詳細目標 38 本と 1:1(原文: content/ccar-p/SOURCES.md §3)。
+#   Guide の目標は番号無しの bullet のため、列挙順に採番する(p-dn-tm)。name は §3 の英語原文そのまま
+# - topic = フラッシュ 3〜5 枚で覆える概念単位(task statement あたり 2〜3、全体 76〜114。SOURCES.md §9)。
+#   問題は primary_topic_id 1 つに帰属し、関連 topic は secondary
+# - ID 形式: p-d<n>-t<m>-<NN>(src/lib/bank/schema.ts の topicIdSchema と一致)
+# - name は英語(問題文が英語のため)、scope_ja は日本語で「この topic が問う範囲」を 1 行で示す
+# - P は architect 視点(ビジネス要件・トレードオフ・組織)で問う。F と重なる目標(SOURCES.md §8)も F のカードを再利用しない
+# - P の Guide には Out-of-Scope の Appendix が無く、F の Out-of-Scope は流用しない(specs/02 §CCAR-P 出題範囲)。
+#   制作方針として、価格・レート制限など改定の早い具体数値は暗記問題化せず、トレードオフ判断として問う(SOURCES.md §4)
+# - P 内で目標が重なるペア(SOURCES.md §9)は両側の scope_ja に【primary 境界】を書く
+# - form_questions(固定フォームのドメイン配分)は書かない。P の配分は T-pmock で確定する(停止条件: Mock のスコア)
+
+exam: ccar-p
+version: 1
+source: content/ccar-p/SOURCES.md  # Exam Guide v1.0 §6 の転記
+
+domains:
+  - id: p-d1
+    name: "Solution Design & Architecture"
+    weight: 17
+    task_statements:
+      - id: p-d1-t1
+        name: "Translate business problems into Claude-based AI solutions"
+        topics:
+          - id: p-d1-t1-01
+            name: "Framing business problems as LLM-suitable tasks"
+            scope_ja: "業務課題を入力・出力・判断に分解し、LLM が適する部分(非構造テキストの理解・判断・生成)と決定論的処理や既存システムで足りる部分を見極める"
+          - id: p-d1-t1-02
+            name: "Deriving success criteria and constraints from business requirements"
+            scope_ja: "要件から測定可能な成功基準(精度・レイテンシ・コスト・安全性)と制約(データの所在・規制・既存システム・予算)を導出してから設計に入る"
+          - id: p-d1-t1-03
+            name: "Starting with the simplest viable solution"
+            scope_ja: "単一の LLM 呼出しや単純な構成から始め、複雑さ(多段化・エージェント化)は評価で効果が確認できたときだけ足す"
+      - id: p-d1-t2
+        name: "Design end-to-end architectures (input → processing → output → feedback loops)"
+        topics:
+          - id: p-d1-t2-01
+            name: "Input handling and context assembly"
+            scope_ja: "入力の検証・正規化・分類によるルーティング、処理に必要なコンテキスト(retrieval 結果・メタデータ・ユーザー情報)の組み立て"
+          - id: p-d1-t2-02
+            name: "Output validation and downstream integration"
+            scope_ja: "構造化出力(tool use / JSON schema)の検証、下流システムへの受け渡し、検証失敗時のリトライ・フォールバック・人間への回付"
+          - id: p-d1-t2-03
+            name: "Closing the loop with feedback"
+            scope_ja: "ユーザーフィードバック・人間レビューの結果・本番ログを評価セットやプロンプト改善に還流させる閉ループをアーキテクチャに組み込む"
+      - id: p-d1-t3
+        name: "Select appropriate architectural patterns (workflow, agentic, augmented LLM)"
+        topics:
+          - id: p-d1-t3-01
+            name: "The augmented LLM as the basic building block"
+            scope_ja: "retrieval・tools・memory で拡張した単一 LLM 呼出し。多くの課題はこれで足り、workflow / agent もこの部品の組み合わせである"
+          - id: p-d1-t3-02
+            name: "Workflow patterns"
+            scope_ja: "事前定義のコードパスで LLM を編成する型(prompt chaining・routing・parallelization・orchestrator-workers・evaluator-optimizer)と各々の適用条件"
+          - id: p-d1-t3-03
+            name: "Choosing between workflows and autonomous agents"
+            scope_ja: "手順が予測でき一貫性が要るタスクは workflow、手順を事前に固定できないオープンエンドなタスクは agent。agent のコスト・レイテンシ・エラー累積とガードレールの必要性"
+      - id: p-d1-t4
+        name: "Design multi-agent systems and orchestration strategies"
+        topics:
+          - id: p-d1-t4-01
+            name: "When multi-agent systems pay off"
+            scope_ja: "並列化できる広い探索・コンテキスト分離の利点と、トークンコスト増・調整オーバーヘッド・密結合タスクへの不向きの比較。【primary 境界】複数エージェントの構成・役割分担・調整を問う場合はここ(1.4)、問題をどう分けるか(分解の技法そのもの)を問う場合は p-d1-t5"
+          - id: p-d1-t4-02
+            name: "Orchestrator-subagent coordination and context isolation"
+            scope_ja: "orchestrator が目標・出力形式・範囲を明示してサブエージェントに委任し結果を統合する構造、サブエージェントは親の文脈を継承しないため必要情報を明示的に渡す"
+          - id: p-d1-t4-03
+            name: "Failure handling and state in multi-agent orchestration"
+            scope_ja: "サブエージェントの部分失敗を構造化して報告・局所回復する、長時間実行の状態保存とチェックポイントからの再開、失敗の連鎖を防ぐ"
+      - id: p-d1-t5
+        name: "Apply decomposition techniques for complex problem solving"
+        topics:
+          - id: p-d1-t5-01
+            name: "Sequential and parallel decomposition"
+            scope_ja: "依存関係のあるサブタスクは直列(chaining)に中間検証ゲートを挟み、独立したサブタスクは並列化する。【primary 境界】分解の技法(どう分けるか)を問う場合はここ(1.5)、分けた仕事を複数エージェントでどう構成・調整するかを問う場合は p-d1-t4"
+          - id: p-d1-t5-02
+            name: "Static vs. dynamic decomposition"
+            scope_ja: "構造が予測できる処理は固定パイプライン、オープンエンドな調査は中間結果に基づく動的分解(計画 → 実行 → 再計画)"
+          - id: p-d1-t5-03
+            name: "Decomposition granularity and integration"
+            scope_ja: "分解が狭すぎるとカバレッジが欠け、粗すぎると 1 回の処理の品質が落ちる。個別パス + 統合パスで横断的な不整合を拾う"
+      - id: p-d1-t6
+        name: "Align solutions to business value pillars (efficiency, transformation, productivity, cost, performance SLAs)"
+        topics:
+          - id: p-d1-t6-01
+            name: "Mapping solutions to value pillars"
+            scope_ja: "効率化(既存業務の短縮)・変革(新しい能力)・生産性・コスト削減・性能 SLA のどれを狙うかで設計判断と KPI が変わる"
+          - id: p-d1-t6-02
+            name: "Quantifying ROI and total cost of ownership"
+            scope_ja: "トークン費用・インフラ・人間レビュー工数・保守を含む総コストと業務効果を比較し、パイロットで導入前のベースラインを測定する"
+          - id: p-d1-t6-03
+            name: "Performance SLAs as design constraints"
+            scope_ja: "レイテンシ・可用性・スループットの SLA からモデル選択・同期/非同期・フォールバック構成を逆算する"
+
+  - id: p-d2
+    name: "Claude Models, Prompting & Context Engineering"
+    weight: 13
+    task_statements:
+      - id: p-d2-t1
+        name: "Select appropriate Claude models based on trade-offs"
+        topics:
+          - id: p-d2-t1-01
+            name: "Capability, cost, and latency trade-offs across model tiers"
+            scope_ja: "大型・中型・小型モデルの能力・コスト・速度の関係、タスク難度に適合する最小のモデルを評価で確かめて選ぶ(「大きいモデルにすれば解決」は誤答側)"
+          - id: p-d2-t1-02
+            name: "Routing and tiered model strategies"
+            scope_ja: "分類・ルーティングで易しい要求を小型モデル、難しい要求を大型モデルへ振り分ける、サブエージェントや前処理に小型モデルを使う"
+          - id: p-d2-t1-03
+            name: "Feature requirements and model migration"
+            scope_ja: "extended thinking・コンテキスト長・tool use・vision 等の必要機能を選定条件にする、モデル更新・移行時は評価セットで再検証する"
+      - id: p-d2-t2
+        name: "Design system prompts, templates, and guardrails"
+        topics:
+          - id: p-d2-t2-01
+            name: "System prompt design with roles and explicit criteria"
+            scope_ja: "役割の付与、目的と背景の説明、曖昧な指示(「慎重に」等)ではなく明示的な判断基準、XML タグによる構造化"
+          - id: p-d2-t2-02
+            name: "Prompt templates separating static instructions from dynamic input"
+            scope_ja: "静的な指示と可変の入力を分離したテンプレート、変数の差し込み、外部入力をタグで区切り指示ではなくデータとして扱わせる"
+          - id: p-d2-t2-03
+            name: "Prompt-level guardrails"
+            scope_ja: "範囲外要求の扱い・出力形式の制約・根拠が無いとき「わからない」と答える許可をプロンプトで定める。【primary 境界】プロンプト内の指示としての guardrail はここ(2.2)、プロンプトの外で強制する統制(入出力フィルタ・権限・hooks・分類器)は p-d5-t1"
+      - id: p-d2-t3
+        name: "Apply prompt engineering techniques (zero-shot, few-shot, chain-of-thought)"
+        topics:
+          - id: p-d2-t3-01
+            name: "Zero-shot vs. few-shot prompting"
+            scope_ja: "明確なタスクは zero-shot、形式や判断基準の伝達には多様でエッジケースを含む few-shot 例、例への過適合と例の選び方"
+          - id: p-d2-t3-02
+            name: "Chain-of-thought and extended thinking"
+            scope_ja: "段階的推論による多段問題の精度向上、思考と最終回答の分離、extended thinking の利点とトークン・レイテンシの代償"
+          - id: p-d2-t3-03
+            name: "Matching techniques to task types"
+            scope_ja: "分類・抽出・推論・生成などタスク種別ごとの技法選択と組み合わせ、効果を評価で確かめてから採用する"
+      - id: p-d2-t4
+        name: "Optimize context windows and manage token usage"
+        topics:
+          - id: p-d2-t4-01
+            name: "Context selection and placement"
+            scope_ja: "関連情報の選別、長文書を先頭・質問を末尾に置く配置、lost-in-the-middle、冗長なツール出力のトリミング"
+          - id: p-d2-t4-02
+            name: "Long-running context: compaction and external memory"
+            scope_ja: "長い会話・エージェント実行での要約・compaction と、要約で数値や事実が失われないための状態の外部化(ファイル・構造化メモ)"
+          - id: p-d2-t4-03
+            name: "Managing token usage within the context budget"
+            scope_ja: "max_tokens と出力の長さ制御、コンテキスト予算の配分と計測。【primary 境界】コンテキストに何をどう入れるか(品質・収まり)の判断はここ(2.4)、コスト・レイテンシ削減を目的とする最適化は p-d4-t5"
+      - id: p-d2-t5
+        name: "Implement prompt reuse strategies (caching, modular prompts, Skills)"
+        topics:
+          - id: p-d2-t5-01
+            name: "Prompt caching for repeated prefixes"
+            scope_ja: "変わらない system prompt・文書を先頭に置き cache breakpoint を設定して再利用する、prefix が変わるとキャッシュが効かない、TTFT とコストの同時削減"
+          - id: p-d2-t5-02
+            name: "Modular and versioned prompts"
+            scope_ja: "共通指示の部品化と組み立て、プロンプトのバージョン管理、変更を評価付きで反映する"
+          - id: p-d2-t5-03
+            name: "Agent Skills as reusable packaged expertise"
+            scope_ja: "SKILL.md(name / description の frontmatter)と付属ファイルによる再利用、メタデータ → 本文 → 追加ファイルの段階的な読み込み、チーム横断での共有"
+
+  - id: p-d3
+    name: "Integration"
+    weight: 19
+    task_statements:
+      - id: p-d3-t1
+        name: "Evaluate tool/agent configuration for capability bloat"
+        topics:
+          - id: p-d3-t1-01
+            name: "Least-privilege tool sets per role"
+            scope_ja: "役割が必要としないツールは構成から外す。ログ・確認プロンプト・大きいモデルによる補償ではなく権限そのものを除く"
+          - id: p-d3-t1-02
+            name: "Tool overload and selection accuracy"
+            scope_ja: "ツール数の過多や説明の重複が選択精度とコンテキストを劣化させる、ツールの統合・分割、サブエージェントへの分配"
+          - id: p-d3-t1-03
+            name: "Auditing agent and MCP configurations"
+            scope_ja: "追加された MCP サーバー・ツール・権限の棚卸し、使われていない能力の除去、構成変更時の影響確認"
+      - id: p-d3-t2
+        name: "Analyze authentication and authorization requirements to identify security gaps"
+        topics:
+          - id: p-d3-t2-01
+            name: "Identity propagation and delegated authorization"
+            scope_ja: "エージェントがエンドユーザーの権限で動くか共有サービスアカウントで動くか、confused deputy、ユーザー単位のアクセス制御をツール・データ側で強制する"
+          - id: p-d3-t2-02
+            name: "Credential handling and scoped access"
+            scope_ja: "API キー・トークンをプロンプトやコンテキストに置かない、スコープと有効期限を絞ったトークン、リモート MCP サーバー接続の認証・認可要件"
+          - id: p-d3-t2-03
+            name: "Untrusted content as an authorization gap"
+            scope_ja: "文書・Web・ツール結果に含まれる指示(prompt injection)が権限外の操作につながる経路を要件分析で見つける。【primary 境界】認証・認可上の穴を見つける分析はここ(3.2)、防御策の実装は p-d5-t1"
+      - id: p-d3-t3
+        name: "Evaluate accuracy-latency trade-offs and justify configuration decisions"
+        topics:
+          - id: p-d3-t3-01
+            name: "Latency levers and their accuracy cost"
+            scope_ja: "小型モデル・thinking の削減・出力の短縮・並列化・streaming が精度に与える影響を評価して構成を選ぶ。【primary 境界】ユーザー要件(SLA・体験)を満たす精度とレイテンシの構成判断はここ(3.3)、コスト対性能の最適化は p-d4-t5"
+          - id: p-d3-t3-02
+            name: "Synchronous vs. asynchronous processing"
+            scope_ja: "即時応答が要る処理は同期、待てる大量処理は Message Batches 等の非同期処理(低コスト・処理時間の保証なし)"
+          - id: p-d3-t3-03
+            name: "Justifying configuration decisions with measurements"
+            scope_ja: "評価セット上の精度とレイテンシの計測結果で構成を選び、トレードオフを数値で説明する"
+      - id: p-d3-t4
+        name: "Analyze observability challenges and select monitoring strategies at scale"
+        topics:
+          - id: p-d3-t4-01
+            name: "Observability challenges of LLM systems"
+            scope_ja: "非決定的な出力、多段のエージェント・ツール呼出し、品質劣化が例外として現れないこと、ログに含まれる個人情報"
+          - id: p-d3-t4-02
+            name: "Selecting monitoring strategies at scale"
+            scope_ja: "多段呼出しのトレーシング、サンプリングによる品質評価(LLM-as-judge 等)、ドリフト検知、アラート設計の選定。【primary 境界】規模・アーキテクチャに応じた監視戦略の選定はここ(3.4)、稼働中システムの性能をログ・ツールで追う運用は p-d4-t6"
+      - id: p-d3-t5
+        name: "Design a RAG pipeline with appropriate chunking and indexing strategies"
+        topics:
+          - id: p-d3-t5-01
+            name: "Chunking strategies"
+            scope_ja: "固定長・文書構造ベース・意味単位のチャンク、オーバーラップ、チャンクサイズと文脈喪失、チャンクに文書文脈を付与する手法"
+          - id: p-d3-t5-02
+            name: "Indexing, embeddings, and index freshness"
+            scope_ja: "embedding モデルの選択、メタデータ付与、文書更新時の再インデックス、クエリと文書で embedding が不一致になる障害"
+          - id: p-d3-t5-03
+            name: "RAG vs. placing knowledge in context"
+            scope_ja: "小さな知識ベースは全文をコンテキストに置き prompt caching と組み合わせる、大きな知識ベースは RAG"
+      - id: p-d3-t6
+        name: "Apply retrieval strategies matched to data shape and query pattern"
+        topics:
+          - id: p-d3-t6-01
+            name: "Semantic, lexical, and hybrid retrieval"
+            scope_ja: "意味検索(embedding)と語彙検索(BM25 等)の得手不得手、固有名詞・コード・型番を含むクエリでのハイブリッド検索"
+          - id: p-d3-t6-02
+            name: "Reranking and query transformation"
+            scope_ja: "候補を多めに取って reranking で絞る、クエリの書き換え・分解、top-k と精度・コストの関係"
+          - id: p-d3-t6-03
+            name: "Structured data and agentic retrieval"
+            scope_ja: "表・DB など構造化データは SQL / API ツールで引く、エージェントが検索を反復して情報を集める方式"
+      - id: p-d3-t7
+        name: "Evaluate connection protocols and select the appropriate integration mechanism (MCP, API/CLI, agent-to-agent)"
+        topics:
+          - id: p-d3-t7-01
+            name: "MCP for reusable tool and data integration"
+            scope_ja: "MCP の tools / resources / prompts、複数のクライアント・エージェントから再利用する統合の標準化、ローカル接続とリモート接続"
+          - id: p-d3-t7-02
+            name: "Direct API and CLI integration"
+            scope_ja: "単一アプリ内で完結する固定の連携は直接の API 呼出し・tool use で足りる、既存 CLI をエージェントから使う"
+          - id: p-d3-t7-03
+            name: "Agent-to-agent communication"
+            scope_ja: "別システム・別組織のエージェントへの委任、インターフェースと信頼境界の定義"
+      - id: p-d3-t8
+        name: "Evaluate progressive discovery vs. monolithic context strategy"
+        topics:
+          - id: p-d3-t8-01
+            name: "Monolithic context and its limits"
+            scope_ja: "全ツール定義・全文書・全指示を最初からコンテキストに載せる方式の単純さと、コンテキスト消費・注意の分散・コスト"
+          - id: p-d3-t8-02
+            name: "Progressive discovery mechanisms"
+            scope_ja: "Skills の段階的開示、ツールの検索・遅延ロード、必要時の retrieval、サブエージェントに探索させ要約だけ受け取る方式"
+          - id: p-d3-t8-03
+            name: "Choosing a context strategy"
+            scope_ja: "ツール・知識の規模、必要情報の予測可能性、レイテンシ要件から一括ロードと段階的開示を選ぶ"
+
+  - id: p-d4
+    name: "Evaluation, Testing & Optimization"
+    weight: 16
+    task_statements:
+      - id: p-d4-t1
+        name: "Define evaluation metrics (accuracy, latency, cost, safety, security)"
+        topics:
+          - id: p-d4-t1-01
+            name: "Task quality metrics"
+            scope_ja: "正答率・F1・完全一致・rubric スコアなど、タスクの性質と業務上の成功基準に合う品質指標を選ぶ"
+          - id: p-d4-t1-02
+            name: "Operational metrics: latency, cost, and throughput"
+            scope_ja: "TTFT・パーセンタイルのレイテンシ・リクエストあたりコスト・スループットを品質指標と併せて定義する"
+          - id: p-d4-t1-03
+            name: "Safety and security metrics"
+            scope_ja: "有害出力の率、過剰拒否を含む拒否率、prompt injection・情報漏えいへの耐性を測る指標"
+      - id: p-d4-t2
+        name: "Design evaluation datasets and test frameworks using mixed methodologies"
+        topics:
+          - id: p-d4-t2-01
+            name: "Building representative evaluation datasets"
+            scope_ja: "本番の分布を反映した事例・エッジケース・敵対的事例の収集とラベル付け、層化による偏りの抑制"
+          - id: p-d4-t2-02
+            name: "Mixed grading methods"
+            scope_ja: "コードによる自動採点・LLM-as-judge(rubric と人手ラベルでの較正)・人間評価を、速度・コスト・信頼性で使い分けて組み合わせる"
+          - id: p-d4-t2-03
+            name: "Automated evaluation harnesses and regression testing"
+            scope_ja: "プロンプト・モデル・構成の変更ごとに評価を自動実行し、改善と回帰を検出する"
+      - id: p-d4-t3
+        name: "Conduct A/B testing and iterative improvements"
+        topics:
+          - id: p-d4-t3-01
+            name: "Designing A/B tests for LLM changes"
+            scope_ja: "1 度に変える要素を絞る、十分なサンプル、オフライン評価とオンライン指標の両方で判定する"
+          - id: p-d4-t3-02
+            name: "Iterative improvement cycles"
+            scope_ja: "失敗事例の分析 → 仮説 → 変更 → 評価の反復。【primary 境界】評価に基づく改善の手法はここ(4.3)、プロジェクトのライフサイクル上の iteration フェーズの運営(関係者・引継ぎ・体制)は p-d6-t5"
+      - id: p-d4-t4
+        name: "Diagnose system issues (prompt failure, hallucinations, model mismatch)"
+        topics:
+          - id: p-d4-t4-01
+            name: "Diagnosing prompt failures"
+            scope_ja: "指示の曖昧さ・矛盾・例への過適合・形式指定の欠落を失敗事例から特定する"
+          - id: p-d4-t4-02
+            name: "Diagnosing and mitigating hallucinations"
+            scope_ja: "根拠となる文脈の欠落・retrieval の不良を切り分け、根拠付き回答・引用・「わからない」の許可で抑える"
+          - id: p-d4-t4-03
+            name: "Model mismatch and change-correlated regressions"
+            scope_ja: "直近の変化(モデル切替・文書更新・プロンプト変更)と症状を結び付け、変わっていない要素を除外して最初の調査箇所を選ぶ"
+      - id: p-d4-t5
+        name: "Optimize token usage, latency, and cost-performance trade-offs"
+        topics:
+          - id: p-d4-t5-01
+            name: "Token and cost reduction techniques"
+            scope_ja: "prompt caching・batch 処理・小型モデルへの振り分け・出力とコンテキストの削減で、必要な品質を保ったままコストを下げる"
+          - id: p-d4-t5-02
+            name: "Latency optimization"
+            scope_ja: "streaming・並列化・呼出し回数の削減・キャッシュで応答時間を短縮する"
+          - id: p-d4-t5-03
+            name: "Cost-performance trade-off analysis"
+            scope_ja: "評価で品質を確認しながら最小コストの構成を探す。【primary 境界】コスト・レイテンシ削減を目的とする最適化はここ(4.5)。コンテキストの中身・配置の判断は p-d2-t4、ユーザー要件を満たす精度とレイテンシの構成判断は p-d3-t3"
+      - id: p-d4-t6
+        name: "Monitor system performance using logging and observability tools"
+        topics:
+          - id: p-d4-t6-01
+            name: "Logging for LLM applications"
+            scope_ja: "プロンプト・応答・ツール呼出し・トークン数・レイテンシの記録、個人情報のマスキングと保持期間"
+          - id: p-d4-t6-02
+            name: "Tracking production performance"
+            scope_ja: "ダッシュボード、本番出力の定期サンプリング評価、品質・コスト・レイテンシのアラートと劣化の調査。【primary 境界】稼働中システムをログ・ツールで追う運用はここ(4.6)、規模に応じた監視戦略の選定は p-d3-t4、ライフサイクル上の monitoring フェーズの運営は p-d6-t5"
+
+  - id: p-d5
+    name: "Governance, Safety & Risk Management"
+    weight: 14
+    task_statements:
+      - id: p-d5-t1
+        name: "Implement guardrails and safety controls"
+        topics:
+          - id: p-d5-t1-01
+            name: "Input and output screening"
+            scope_ja: "入力の分類(範囲外・jailbreak の検出)、出力の検査、個人情報の除去をモデルの外で行う。【primary 境界】プロンプトの外で強制する統制はここ(5.1)、プロンプト内の指示としての guardrail は p-d2-t2"
+          - id: p-d5-t1-02
+            name: "Deterministic controls around agent actions"
+            scope_ja: "権限の制限、hooks による呼出しの遮断、不可逆操作の承認ゲート、sandbox。プロンプト指示は確率的でありゼロにはならない"
+          - id: p-d5-t1-03
+            name: "Layered defenses against prompt injection"
+            scope_ja: "信頼できない入力の隔離、権限の最小化、出力・操作の検証を重ねる多層防御"
+      - id: p-d5-t2
+        name: "Identify risks, limitations, and failure modes of LLM systems"
+        topics:
+          - id: p-d5-t2-01
+            name: "Common LLM failure modes"
+            scope_ja: "hallucination、非決定性、指示への不追従、迎合、知識カットオフ、長いコンテキストでの情報の見落とし"
+          - id: p-d5-t2-02
+            name: "Agent-specific risks"
+            scope_ja: "多段実行でのエラー累積、意図しない操作・暴走、不可逆な副作用、自己レビューの限界"
+          - id: p-d5-t2-03
+            name: "Risk assessment and mitigation planning"
+            scope_ja: "影響度と発生可能性の評価、リスクに応じた統制の選択、LLM を使わない・自動化しない判断を含める"
+      - id: p-d5-t3
+        name: "Apply human-in-the-loop validation strategies"
+        topics:
+          - id: p-d5-t3-01
+            name: "Where to place human review"
+            scope_ja: "影響の大きい判断・不可逆な操作・規制対象の出力に人間の承認を置き、低リスクは自動化する"
+          - id: p-d5-t3-02
+            name: "Calibrated routing and sampling for review"
+            scope_ja: "モデルの自己申告の確信度をそのまま信じず、ラベル付きデータで閾値を較正する、層化抽出による継続的な品質確認"
+          - id: p-d5-t3-03
+            name: "Designing reviewer workflows"
+            scope_ja: "レビュアーに判断材料(根拠・出典・不確実な箇所)を提示する、レビュー結果を改善に還流する"
+      - id: p-d5-t4
+        name: "Ensure compliance with regulations (e.g., GDPR, HIPAA, FedRAMP)"
+        topics:
+          - id: p-d5-t4-01
+            name: "Personal data protection (GDPR)"
+            scope_ja: "データ最小化・目的の限定・削除要求への対応・データの越境移転と所在、処理契約"
+          - id: p-d5-t4-02
+            name: "Health data (HIPAA)"
+            scope_ja: "保護対象の健康情報の扱い、契約上の要件(BAA)、アクセス制御と監査ログ"
+          - id: p-d5-t4-03
+            name: "Government deployments (FedRAMP) and deployment choices"
+            scope_ja: "要求される認可水準を満たす提供経路・クラウド環境の選択、データの所在とアクセス統制を規制要件から逆算する"
+      - id: p-d5-t5
+        name: "Address ethical AI considerations (bias, fairness, transparency)"
+        topics:
+          - id: p-d5-t5-01
+            name: "Bias and fairness evaluation"
+            scope_ja: "属性間の出力の差を評価セットで測る、偏りの緩和と継続的な監視"
+          - id: p-d5-t5-02
+            name: "Transparency and explainability"
+            scope_ja: "AI の利用をユーザーに開示する、判断の根拠・出典の提示、限界の説明"
+          - id: p-d5-t5-03
+            name: "Accountability and responsible use"
+            scope_ja: "判断の責任を人間・組織に置く、利用ポリシーと影響の大きい用途の扱い"
+
+  - id: p-d6
+    name: "Stakeholder Communication & Lifecycle Management"
+    weight: 14
+    task_statements:
+      - id: p-d6-t1
+        name: "Conduct structured discovery and requirement gathering"
+        topics:
+          - id: p-d6-t1-01
+            name: "Structured discovery and workflow mapping"
+            scope_ja: "関係者へのインタビューと現行業務フローの可視化で、課題・ボトルネック・判断点を特定する"
+          - id: p-d6-t1-02
+            name: "Eliciting functional and non-functional requirements"
+            scope_ja: "機能要件に加え、精度・レイテンシ・コスト・セキュリティ・規制などの非機能要件と成功基準を合意する"
+          - id: p-d6-t1-03
+            name: "Assessing feasibility and data readiness"
+            scope_ja: "必要なデータの有無・品質・アクセス可否、組織の準備状況を評価し、着手範囲を決める"
+      - id: p-d6-t2
+        name: "Communicate architectural decisions and trade-offs"
+        topics:
+          - id: p-d6-t2-01
+            name: "Tailoring trade-off communication to audiences"
+            scope_ja: "経営層にはビジネス影響・リスク・コスト、技術者には構成と根拠と、相手に応じて同じ判断を伝え分ける"
+          - id: p-d6-t2-02
+            name: "Presenting options with evidence"
+            scope_ja: "選択肢を並べ、評価結果・コスト見積り・リスクを根拠に推奨と却下理由を示す"
+      - id: p-d6-t3
+        name: "Manage stakeholder feedback loops and expectation alignment (including SLAs)"
+        topics:
+          - id: p-d6-t3-01
+            name: "Setting realistic expectations for LLM behavior"
+            scope_ja: "非決定性や誤りがゼロにならないことを前提に、期待値と誤りの扱い(人間の確認・フォールバック)を合意する"
+          - id: p-d6-t3-02
+            name: "Defining and negotiating SLAs"
+            scope_ja: "品質・レイテンシ・可用性の SLA を測定可能な形で定め、コストとのトレードオフを関係者と調整する"
+          - id: p-d6-t3-03
+            name: "Running stakeholder feedback loops"
+            scope_ja: "定期的なレビューと指標の共有でフィードバックを集め、優先度と期待値を更新する"
+      - id: p-d6-t4
+        name: "Document architectures and provide implementation guidance"
+        topics:
+          - id: p-d6-t4-01
+            name: "Architecture documentation and decision records"
+            scope_ja: "構成図・データフロー・プロンプトと評価の構成、判断の理由と却下案の記録"
+          - id: p-d6-t4-02
+            name: "Implementation guidance and runbooks"
+            scope_ja: "実装チーム向けの手順・規約、運用向けの障害対応手順と評価の実行方法"
+      - id: p-d6-t5
+        name: "Support lifecycle phases (discovery, design, handoff, monitoring, iteration)"
+        topics:
+          - id: p-d6-t5-01
+            name: "Phase gates from discovery to production"
+            scope_ja: "discovery → 設計 → パイロット → 本番の各段階で、評価結果と成功基準に基づく移行判断を置く"
+          - id: p-d6-t5-02
+            name: "Handoff to operating teams"
+            scope_ja: "運用チームへの引継ぎ(文書・評価・監視・責任分担)、引継ぎ後の支援"
+          - id: p-d6-t5-03
+            name: "Sustaining monitoring and iteration after launch"
+            scope_ja: "本番後の監視と改善を継続する体制と周期、モデル更新や業務変化への追従。【primary 境界】ライフサイクル上の monitoring / iteration フェーズの運営はここ(6.5)、評価に基づく改善の手法は p-d4-t3、ログ・ツールによる監視の運用は p-d4-t6"
+
+  - id: p-d7
+    name: "Developer Productivity & Operational Enablement"
+    weight: 7
+    task_statements:
+      - id: p-d7-t1
+        name: "Configure Claude tools and environments for teams (e.g., Claude Code)"
+        topics:
+          - id: p-d7-t1-01
+            name: "Team-shared Claude Code configuration"
+            scope_ja: "リポジトリに置く共有の CLAUDE.md と設定ファイル、個人設定との分離、権限設定"
+          - id: p-d7-t1-02
+            name: "Shared commands, skills, and MCP servers"
+            scope_ja: "チームで共有するスラッシュコマンド・skills・プロジェクト単位の MCP サーバー設定(.mcp.json)"
+          - id: p-d7-t1-03
+            name: "Organization-wide policies and access control"
+            scope_ja: "組織として強制する設定・許可するツールと権限、利用状況の把握"
+      - id: p-d7-t2
+        name: "Improve developer workflows using AI-assisted tooling"
+        topics:
+          - id: p-d7-t2-01
+            name: "AI-assisted development loops"
+            scope_ja: "plan → 実装 → テストの反復、テスト先行、変更の規模に応じて plan mode と直接実行を使い分ける"
+          - id: p-d7-t2-02
+            name: "Automation in CI/CD"
+            scope_ja: "非対話モードによる自動コードレビュー・テスト生成、独立したレビューインスタンス"
+          - id: p-d7-t2-03
+            name: "Adoption and productivity measurement"
+            scope_ja: "導入の段階的展開・ガイドライン整備、生産性の効果を測る指標"
+      - id: p-d7-t3
+        name: "Support debugging and operational issue resolution"
+        topics:
+          - id: p-d7-t3-01
+            name: "AI-assisted debugging"
+            scope_ja: "ログ・スタックトレース・再現手順を渡して原因を絞る、大規模コードベースの探索をサブエージェントに委ねる"
+          - id: p-d7-t3-02
+            name: "Operational incident resolution"
+            scope_ja: "本番障害時にログ・監視データ・runbook を使って原因を特定し、修正と再発防止を進める"

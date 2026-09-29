@@ -1,7 +1,5 @@
-import path from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { mcq, pmcq, pSyllabus, syllabus } from "@/lib/queue/test-fixtures";
-import { bankDir } from "./load";
 import { combineExamBanks, loadExamBank, scopeBank } from "./runtime";
 
 // T-exam: 実行時の多試験バンク(exam ごとのディレクトリを和集合にし、新規出題はスコープで絞る)
@@ -47,13 +45,11 @@ describe("scopeBank(出題プール段 0)", () => {
 });
 
 describe("loadExamBank(content/<exam>)", () => {
-  afterEach(() => vi.unstubAllEnvs());
-
-  it("P のバンクが未整備(syllabus 無し)でも空バンクとして読める", () => {
+  it("P は syllabus のみ・問題なしでも読める(空の問題集合、syllabus は P)", () => {
     const p = loadExamBank("ccar-p");
     expect(p.questions).toEqual([]);
     expect(p.forms).toEqual([]);
-    expect(p.syllabus).toBeNull();
+    expect(p.syllabus?.exam).toBe("ccar-p");
   });
 
   it("F は従来どおり読める(全問 exam = ccar-f、syllabus あり)", () => {
@@ -61,12 +57,5 @@ describe("loadExamBank(content/<exam>)", () => {
     expect(f.questions.length).toBeGreaterThan(0);
     expect(f.questions.every((q) => q.exam === "ccar-f")).toBe(true);
     expect(f.syllabus?.exam).toBe("ccar-f");
-  });
-
-  it("BANK_DIR override は ccar-f にだけ効く(P に F のフィクスチャを読ませない)", () => {
-    vi.stubEnv("NODE_ENV", "development");
-    vi.stubEnv("BANK_DIR", "/tmp/fixture-bank/ccar-f");
-    expect(bankDir("ccar-f")).toBe(path.resolve("/tmp/fixture-bank/ccar-f"));
-    expect(bankDir("ccar-p")).toBe(path.join(process.cwd(), "content", "ccar-p"));
   });
 });

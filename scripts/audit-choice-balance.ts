@@ -1,4 +1,6 @@
-// MCQ 選択肢バランス監査 `npm run audit:choices -- [--dir <path>] [--file <name.json>] [--status active]`
+// MCQ 選択肢バランス監査 `npm run audit:choices -- [--exam <exam> | --dir <path>] [--file <name.json>] [--status active]`
+// --exam / --dir とも無ければ content/<exam>/ を全 exam について監査する(D6-3。aggregate は exam ごとで合算しない。
+// questions/*.json の無い exam は SKIP、全 exam SKIP なら失敗)。--file だけ指定したときは従来どおり ccar-f。
 // 正解の選択肢だけが「明らかに長い」「独特の記法(コロン・セミコロン・カンマ・括弧)を含む」と、
 // 内容ではなく形で正解が推測できてしまい学習にならない(オーナー指摘 2026-09-19)。
 // validate-bank(Zod スキーマ検証)は形の偏りを見ないので、別スクリプトで fail closed にする
@@ -18,7 +20,10 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import {
+  EXAMS,
+  examSchema,
   questionStatusSchema,
+  type Exam,
   questionsFileSchema,
   type Question,
   type QuestionStatus,
@@ -200,8 +205,37 @@ export function runAuditChoiceBalance(dir: string, opts: ChoiceBalanceOptions): 
   return { errors, warnings, total: target.length, longestIsCorrect };
 }
 
-export function parseArgs(argv: readonly string[]): { dir: string; opts: ChoiceBalanceOptions } {
-  let dir = path.join(process.cwd(), "content", "ccar-f");
+export interface ExamChoiceBalance {
+  exam: Exam;
+  /** questions/*.json が無く監査しなかった */
+  skipped: boolean;
+  result: ChoiceBalanceResult | null;
+}
+
+/** 全 exam(<root>/<exam>/)を exam ごとに監査する。aggregate 閾値は exam 単位で判定する */
+export function runAuditChoiceBalanceAll(
+  root: string,
+  exams: readonly Exam[],
+  opts: ChoiceBalanceOptions,
+): ExamChoiceBalance[] {
+  return exams.map((exam) => {
+    const dir = path.join(root, exam);
+    const qDir = path.join(dir, "questions");
+    const hasQuestions = existsSync(qDir) && readdirSync(qDir).some((n) => n.endsWith(".json"));
+    if (!hasQuestions && opts.file === null) return { exam, skipped: true, result: null };
+    return { exam, skipped: false, result: runAuditChoiceBalance(dir, opts) };
+  });
+}
+
+export function parseArgs(argv: readonly string[]): {
+  /** --dir 指定時のみ(単一ディレクトリの従来モード) */
+  dir: string | null;
+  /** --dir 未指定時の対象 exam */
+  exams: readonly Exam[];
+  opts: ChoiceBalanceOptions;
+} {
+  let dir: string | null = null;
+  let exam: Exam | null = null;
   let status: QuestionStatus = "active";
   let file: string | null = null;
 
@@ -213,7 +247,12 @@ export function parseArgs(argv: readonly string[]): { dir: string; opts: ChoiceB
 
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--dir") dir = path.resolve(readValue(i++, "--dir"));
-    else if (argv[i] === "--status") {
+    else if (argv[i] === "--exam") {
+      const value = readValue(i++, "--exam");
+      const parsed = examSchema.safeParse(value);
+      if (!parsed.success) throw new Error(`--exam の値が不正です: ${value} (${EXAMS.join(" / ")})`);
+      exam = parsed.data;
+    } else if (argv[i] === "--status") {
       const value = readValue(i++, "--status");
       const parsed = questionStatusSchema.safeParse(value);
       if (!parsed.success) throw new Error(`--status の値が不正です: ${value} (active / flagged / retired のいずれかを指定)`);
@@ -221,22 +260,44 @@ export function parseArgs(argv: readonly string[]): { dir: string; opts: ChoiceB
     } else if (argv[i] === "--file") file = readValue(i++, "--file");
     else throw new Error(`未知の引数: ${argv[i]}`);
   }
-  return { dir, opts: { status, file } };
+  if (dir !== null && exam !== null) throw new Error("--dir と --exam は併用できません");
+  // --file は 1 ファイル指定なので、exam 未指定なら従来どおり ccar-f
+  const exams: readonly Exam[] = exam ? [exam] : file !== null ? ["ccar-f"] : EXAMS;
+  return { dir, exams, opts: { status, file } };
+}
+
+/** 1 監査結果を出力し、失敗なら true */
+function report(r: ChoiceBalanceResult, opts: ChoiceBalanceOptions, tag: string): boolean {
+  for (const w of r.warnings) console.error(`audit-choice-balance WARN${tag} ${w}`);
+  for (const e of r.errors) console.error(`audit-choice-balance NG${tag} ${e}`);
+  const scope = opts.file ? `file=${opts.file}` : "all";
+  if (r.errors.length > 0) {
+    console.error(`audit-choice-balance 失敗${tag}: ${r.errors.length} 件(warnings ${r.warnings.length}, MCQ ${r.total}, ${scope})`);
+    return true;
+  }
+  console.log(
+    `audit-choice-balance OK${tag} (MCQ ${r.total}, 最長=正解 ${r.longestIsCorrect}, status=${opts.status}, ${scope}, warnings ${r.warnings.length})`,
+  );
+  return false;
 }
 
 function main(): void {
-  const { dir, opts } = parseArgs(process.argv.slice(2));
-  const r = runAuditChoiceBalance(dir, opts);
-  for (const w of r.warnings) console.error(`audit-choice-balance WARN ${w}`);
-  for (const e of r.errors) console.error(`audit-choice-balance NG ${e}`);
-  const scope = opts.file ? `file=${opts.file}` : "all";
-  if (r.errors.length > 0) {
-    console.error(`audit-choice-balance 失敗: ${r.errors.length} 件(warnings ${r.warnings.length}, MCQ ${r.total}, ${scope})`);
-    process.exit(1);
+  const { dir, exams, opts } = parseArgs(process.argv.slice(2));
+  if (dir !== null) {
+    if (report(runAuditChoiceBalance(dir, opts), opts, "")) process.exit(1);
+    return;
   }
-  console.log(
-    `audit-choice-balance OK (MCQ ${r.total}, 最長=正解 ${r.longestIsCorrect}, status=${opts.status}, ${scope}, warnings ${r.warnings.length})`,
-  );
+  const results = runAuditChoiceBalanceAll(path.join(process.cwd(), "content"), exams, opts);
+  let failed = false;
+  for (const x of results) {
+    if (x.skipped) console.log(`audit-choice-balance SKIP [${x.exam}] questions/*.json が無い`);
+    else if (x.result && report(x.result, opts, ` [${x.exam}]`)) failed = true;
+  }
+  if (results.every((x) => x.skipped)) {
+    console.error("audit-choice-balance 失敗: 対象 exam の questions/*.json が全て無い(content root の取り違え?)");
+    failed = true;
+  }
+  if (failed) process.exit(1);
 }
 
 if (process.argv[1] && /audit-choice-balance\.ts$/.test(process.argv[1])) {

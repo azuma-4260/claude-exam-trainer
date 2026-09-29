@@ -214,8 +214,53 @@ describe("sentenceCount / parseLedgerUrls / parseArgs", () => {
     expect(d).toBe(path.resolve("/x"));
     expect(opts.counts).toEqual([40, 27, 30, 30, 23]);
     expect(opts.status).toBe("active");
-    expect(parseArgs([]).opts).toEqual({ counts: null, status: "flagged", batchIds: null });
+    expect(parseArgs([]).opts).toEqual({ exam: "ccar-f", counts: null, status: "flagged", batchIds: null });
     expect(parseArgs(["--batch-ids", "f-d1-q003,f-d2-q004"]).opts.batchIds).toEqual(new Set(["f-d1-q003", "f-d2-q004"]));
     expect(() => parseArgs(["--counts", "a,b"])).toThrow(/不正/);
+  });
+});
+
+// D6-3: --exam ccar-p(P の flash を p-dN の番号順 counts で監査)
+describe("runAuditFlash(exam=ccar-p)", () => {
+  const P_SYLLABUS = `
+exam: ccar-p
+version: 1
+source: content/ccar-p/SOURCES.md
+domains:
+  - id: p-d6
+    name: "D6"
+    weight: 100
+    task_statements:
+      - id: p-d6-t1
+        name: "TS1"
+        topics:
+          - { id: p-d6-t1-01, name: "T1", scope_ja: "範囲" }
+`;
+  const pcard = (n: number, over: Record<string, unknown> = {}) =>
+    card(n, "p-d6-t1-01", { id: `p-d6-q${String(n).padStart(3, "0")}`, exam: "ccar-p", domain_id: "p-d6", ...over });
+
+  beforeEach(() => writeFileSync(path.join(dir, "syllabus.yaml"), P_SYLLABUS));
+
+  it("P の flash を p-d6 の件数で監査し green", () => {
+    write("p.json", [pcard(1), pcard(2)]);
+    const r = runAuditFlash(dir, { exam: "ccar-p", counts: [0, 0, 0, 0, 0, 2], status: "flagged" });
+    expect(r.errors).toEqual([]);
+    expect(r.total).toBe(2);
+  });
+
+  it("件数違反を p-dN で検出し、既定 exam(ccar-f)で監査すると exam 不一致", () => {
+    write("p.json", [pcard(1)]);
+    const p = runAuditFlash(dir, { exam: "ccar-p", counts: [0, 0, 0, 0, 0, 2], status: "flagged" }).errors;
+    expect(p.some((e) => e.includes("p-d6: flash 件数 1(期待 2)"))).toBe(true);
+    const f = runAuditFlash(dir, { counts: null, status: "flagged" }).errors;
+    expect(f.some((e) => e.includes("syllabus.yaml: exam=ccar-p(期待 ccar-f)"))).toBe(true);
+    expect(f.some((e) => e.includes("p-d6-q001: exam ccar-p(期待 ccar-f)"))).toBe(true);
+  });
+
+  it("--exam ccar-p は既定ディレクトリを content/ccar-p にする。不正値は throw", () => {
+    const a = parseArgs(["--exam", "ccar-p"]);
+    expect(a.dir).toBe(path.join(process.cwd(), "content", "ccar-p"));
+    expect(a.opts.exam).toBe("ccar-p");
+    expect(() => parseArgs(["--exam", "ccar-x"])).toThrow(/--exam/);
   });
 });

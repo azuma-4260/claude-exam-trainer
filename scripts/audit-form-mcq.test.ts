@@ -145,16 +145,84 @@ describe("runAuditFormMcq", () => {
 describe("parseArgs", () => {
   it("既定は status=active・全 form", () => {
     const { opts } = parseArgs([]);
-    expect(opts).toEqual({ formId: null, status: "active" });
+    expect(opts).toEqual({ exam: "ccar-f", formId: null, status: "active" });
   });
 
   it("--form / --status / --dir を解釈する", () => {
     const { dir: d, opts } = parseArgs(["--dir", "/tmp/x", "--form", "form-a", "--status", "flagged"]);
     expect(d).toBe(path.resolve("/tmp/x"));
-    expect(opts).toEqual({ formId: "form-a", status: "flagged" });
+    expect(opts).toEqual({ exam: "ccar-f", formId: "form-a", status: "flagged" });
   });
 
   it("未知の引数は fail closed", () => {
     expect(() => parseArgs(["--nope"])).toThrow("未知の引数");
+  });
+});
+
+// D6-3: --exam ccar-p。フィクスチャは現行 mockFormSchema(60 問)を満たす暫定形(P の実フォーム構造は T-pmock / D6-4 で検証)
+describe("runAuditFormMcq(exam=ccar-p)", () => {
+  const P_SYLLABUS = `
+exam: ccar-p
+version: 1
+source: content/ccar-p/SOURCES.md
+domains:
+  - id: p-d1
+    name: "D1"
+    weight: 100
+    task_statements:
+      - id: p-d1-t1
+        name: "TS1"
+        topics:
+          - { id: p-d1-t1-01, name: "T1", scope_ja: "範囲" }
+`;
+  const P_SCENARIOS = `
+scenarios:
+  - id: sc-p
+    title_en: "P scenario"
+    context_en: "Context."
+    refs: [${URL_A}]
+`;
+  const pq = (n: number) =>
+    mcq(n, {
+      id: `p-d1-q${String(n).padStart(3, "0")}`,
+      exam: "ccar-p",
+      domain_id: "p-d1",
+      primary_topic_id: "p-d1-t1-01",
+      scenario_id: "sc-p",
+      answer: [["A", "B", "C", "D"][n % 4]],
+    });
+
+  beforeEach(() => {
+    writeFileSync(path.join(dir, "syllabus.yaml"), P_SYLLABUS);
+    writeFileSync(path.join(dir, "scenarios.yaml"), P_SCENARIOS);
+    const qs = Array.from({ length: 60 }, (_, i) => pq(i + 1));
+    writeFileSync(path.join(dir, "questions", "form-a.json"), JSON.stringify(qs));
+    writeFileSync(
+      path.join(dir, "mock_forms.yaml"),
+      `forms:\n  - id: form-a\n    exam: ccar-p\n    scenario_ids: [sc-p]\n    question_ids: [${qs.map((q) => q.id).join(", ")}]\n`,
+    );
+  });
+
+  it("P ではシナリオ件数(F の設計指針 12〜18)の warning を出さない", () => {
+    const r = runAuditFormMcq(dir, { exam: "ccar-p", formId: null, status: "flagged" });
+    expect(r.errors).toEqual([]);
+    expect(r.warnings).toEqual([]);
+    expect(r.total).toBe(60);
+  });
+
+  it("既定 exam(ccar-f)で P の form を監査すると exam 不一致", () => {
+    const r = runAuditFormMcq(dir, { formId: null, status: "flagged" });
+    expect(r.errors).toContain("form-a: exam ccar-p(期待 ccar-f)");
+  });
+
+  it("P でもフォーム収載の標準値(srs_eligible=false)は検査する", () => {
+    const qs = Array.from({ length: 60 }, (_, i) => (i === 0 ? { ...pq(1), srs_eligible: true } : pq(i + 1)));
+    writeFileSync(path.join(dir, "questions", "form-a.json"), JSON.stringify(qs));
+    const r = runAuditFormMcq(dir, { exam: "ccar-p", formId: null, status: "flagged" });
+    expect(r.errors).toContain("p-d1-q001: srs_eligible が false でない");
+  });
+
+  it("--exam ccar-p は既定ディレクトリを content/ccar-p にする", () => {
+    expect(parseArgs(["--exam", "ccar-p"]).dir).toBe(path.join(process.cwd(), "content", "ccar-p"));
   });
 });

@@ -2,12 +2,14 @@
 id: B-T-exam-1
 origin: T-exam
 created: 2026-09-30
-status: open
+status: closed
 related_tasks: [D6-3]
 related_specs: ["03#1-問題バンクcontent", "06#バンク静的検証"]
 related_paths: [src/lib/bank/load.ts, src/lib/bank/runtime.ts]
 related_backlog: [B-S-3-1]
 stop_condition: none
+decisions:
+  - { at: 2026-09-30, by: T-exam, action: close, note: "並行して merge された D6-3 が BANK_DIR をコンテンツルート(<root>/<exam>/)に一般化したため解消。T-exam の ccar-f 専用分岐は merge 時に D6-3 側を採用して撤回" }
 ---
 # BANK_DIR override が ccar-f 専用で、P のフィクスチャバンクを dev で差し込めない
 

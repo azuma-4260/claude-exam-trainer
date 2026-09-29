@@ -9,6 +9,7 @@ import {
   LENGTH_RATIO_MAX,
   parseArgs,
   runAuditChoiceBalance,
+  runAuditChoiceBalanceAll,
 } from "./audit-choice-balance";
 import type { Question } from "../src/lib/bank/schema";
 
@@ -154,6 +155,9 @@ describe("parseArgs", () => {
   it("既定値と --dir / --file / --status", () => {
     const d = parseArgs([]);
     expect(d.opts).toEqual({ status: "active", file: null });
+    // D6-3: --dir / --exam とも無ければ全 exam
+    expect(d.dir).toBeNull();
+    expect(d.exams).toEqual(["ccar-f", "ccar-p"]);
     const p = parseArgs(["--dir", "/tmp/x", "--file", "d1-mcq.json", "--status", "flagged"]);
     expect(p.dir).toBe(path.resolve("/tmp/x"));
     expect(p.opts).toEqual({ status: "flagged", file: "d1-mcq.json" });
@@ -171,5 +175,61 @@ describe("parseArgs", () => {
 
   it.each(["--dir", "--status", "--file"])("%s の次のオプションを値として読まない", (option) => {
     expect(() => parseArgs([option, "--file", "d1-mcq.json"])).toThrow(new RegExp(`${option} には値が必要です`));
+  });
+});
+
+// D6-3: 全 exam の監査(specs/06 §バンク静的検証)。aggregate は exam ごと(合算しない)
+describe("runAuditChoiceBalanceAll", () => {
+  let root: string;
+  beforeEach(() => {
+    root = mkdtempSync(path.join(os.tmpdir(), "audit-choice-all-"));
+  });
+  afterEach(() => rmSync(root, { recursive: true, force: true }));
+
+  function write(exam: string, qs: Question[]): void {
+    mkdirSync(path.join(root, exam, "questions"), { recursive: true });
+    writeFileSync(path.join(root, exam, "questions", "all.json"), JSON.stringify(qs));
+  }
+  const pmcq = (n: number, texts: readonly [string, string, string, string]) =>
+    ({ ...mcq(`p-d1-q${500 + n}`, texts), exam: "ccar-p", domain_id: "p-d1", primary_topic_id: "p-d1-t1-01" }) as Question;
+  const longest: readonly [string, string, string, string] = ["a".repeat(80), "b".repeat(80), "c".repeat(80), "d".repeat(90)];
+
+  it("P に questions が無ければ SKIP、F は通常どおり", () => {
+    write("ccar-f", [mcq("f-d1-q501", BALANCED)]);
+    mkdirSync(path.join(root, "ccar-p"));
+    const r = runAuditChoiceBalanceAll(root, ["ccar-f", "ccar-p"], { status: "active", file: null });
+    expect(r.map((x) => [x.exam, x.skipped, x.result?.total])).toEqual([
+      ["ccar-f", false, 1],
+      ["ccar-p", true, undefined],
+    ]);
+  });
+
+  it("aggregate は exam ごと: F と P を合算すれば閾値超えでも、各 exam が AGGREGATE_MIN_ITEMS 未満なら error なし", () => {
+    const half = Math.ceil(AGGREGATE_MIN_ITEMS / 2);
+    write("ccar-f", Array.from({ length: half }, (_, i) => mcq(`f-d1-q${500 + i}`, longest)));
+    write("ccar-p", Array.from({ length: half }, (_, i) => pmcq(i, longest)));
+    const r = runAuditChoiceBalanceAll(root, ["ccar-f", "ccar-p"], { status: "active", file: null });
+    expect(r.flatMap((x) => x.result?.errors ?? [])).toEqual([]);
+  });
+
+  it("P 側の aggregate 違反は P にだけ出る", () => {
+    write("ccar-f", [mcq("f-d1-q501", BALANCED)]);
+    write("ccar-p", Array.from({ length: AGGREGATE_MIN_ITEMS }, (_, i) => pmcq(i, longest)));
+    const r = runAuditChoiceBalanceAll(root, ["ccar-f", "ccar-p"], { status: "active", file: null });
+    expect(r[0].result?.errors).toEqual([]);
+    expect(r[1].result?.errors[0]).toMatch(/最長の選択肢が正解/);
+  });
+});
+
+describe("parseArgs(--exam)", () => {
+  it("--exam で 1 exam に絞る。不正値は拒否", () => {
+    expect(parseArgs(["--exam", "ccar-p"]).exams).toEqual(["ccar-p"]);
+    expect(() => parseArgs(["--exam", "ccar-x"])).toThrow(/--exam/);
+  });
+  it("--file だけなら従来どおり ccar-f", () => {
+    expect(parseArgs(["--file", "d1-mcq.json"]).exams).toEqual(["ccar-f"]);
+  });
+  it("--dir と --exam の併用は拒否", () => {
+    expect(() => parseArgs(["--dir", "/tmp/x", "--exam", "ccar-f"])).toThrow(/併用/);
   });
 });
