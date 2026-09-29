@@ -1,4 +1,6 @@
-# 03. データモデル(v1.2)
+# 03. データモデル(v1.3)
+
+**v1.3(2026-09-29, S-3)**: `content/ccar-p/`、出題プール判定の学習スコープ段、フォームの `(exam, form_id)` 識別、進行中セッションのスコープ非依存、`study_setting` テーブル、間違いノート・export の exam 絞り込みを追加。mock_forms の件数・配分は CCAR-F 固有と明記。
 
 バンク = Git 内静的ファイル(ビルド時取込)、進捗 = Neon Postgres。スキーマの単一ソースは `src/lib/bank/schema.ts` の Zod discriminated union(TypeScript 型は z.infer、validate-bank.ts も同 schema を import)。本書の JSON/SQL は説明例。
 
@@ -8,7 +10,12 @@
 content/ccar-f/
   syllabus.yaml / scenarios.yaml / mock_forms.yaml / SOURCES.md
   questions/*.json (例: d1-flash.json / d1-agentic.json。ローダーはファイル名非依存)
+content/ccar-p/              # v1.3。構成は ccar-f と同じ(ファイルの有無・シナリオ有無は CP0 / T-pmock で確定)
 ```
+
+- exam ごとにディレクトリを分ける。**問題・syllabus(domain / task statement / topic)の ID** は exam 接頭辞(`f-` / `p-`)で全体一意(`src/lib/bank/schema.ts` の `EXAM_PREFIX`)。F からの流用は新 ID(`07`)
+- **シナリオ ID(`sc-*`)とフォーム ID(`form-*`)は exam 内で一意**(接頭辞なし。F と P に同名の `form-a` があってよい)。フォームは常に `(exam, form_id)`、シナリオは `(exam, scenario_id)` で解釈する
+- 各 question の `exam` はそのディレクトリの exam と一致する(validator で検証)
 
 ### question オブジェクト
 
@@ -32,7 +39,8 @@ content/ccar-f/
 
 ### 出題プールの判定順序(全モード共通)
 
-1. **holdout ゲート(最優先)**: 未提出(submitted な exam_session が存在しない)full form に収載された問題は、その正確な full form の実施以外では出題しない。Practice / Drill / domain mini / 間違いノートを含む
+0. **学習スコープ(v1.3)**: question.exam ∈ 現在の学習スコープ(§study_setting)。**新規の出題選定にのみ適用**する(日次キュー・Drill / Practice の出題・間違いノート・full / domain mini の**開始候補**)。**進行中の exam_session には適用しない**(下記 §exam_session)
+1. **holdout ゲート(最優先の出題可否判定)**: 未提出(同じ `(exam, form_id)` を持つ submitted な full exam_session が存在しない)full form に収載された問題は、その正確な full form の実施以外では出題しない。Practice / Drill / domain mini / 間違いノートを含む。**フォームは常に `(exam, form_id)` で識別する**: 提出済み判定だけでなく、中間集計(未提出フォームの集合、holdout 対象問題集合)と新規ペースの `remaining_new` 算出でも `(exam, form_id)` をキーにする(F と P に同名の `form-a` があり片方だけ提出済みの場合に、もう片方の提出状態を取り違えないため。v1.3)
 2. status = 'active'
 3. 現行 rev の未解決フラグが存在しない(下記)
 4. eligible_modes に当該 mode が含まれる
@@ -63,6 +71,8 @@ scenarios:
 
 ### mock_forms.yaml と validator 条件
 
+以下の件数・配分・シナリオ条件は **CCAR-F 固有値**。CCAR-P の構造(問題数・フォーム数・ドメイン配分・シナリオ有無・multiple-response の選択数)は T-pmock の冒頭で CP0 の記録をもとに本節へ追記する(停止条件: Mock のスコア)。exam 共通の条件は「form 間の問題重複なし(同一 exam 内)/ 全問 eligible_modes に mock を含む / 全問 form.exam と同じ exam / form の `(exam, id)` が一意」。
+
 ```yaml
 forms:
   - id: form-a
@@ -71,7 +81,7 @@ forms:
     question_ids: [ ...60 件、出題順 ]
 ```
 
-validator: 60 問 / ドメイン配分 16-11-12-12-9 / form 間の問題重複なし / 全問 eligible_modes に mock を含む / **全問 scenario_id != null** / **各問の scenario_id ∈ form.scenario_ids** / **実使用 scenario_id 集合 = form.scenario_ids(完全一致)** / Step 0 で「各 15 問」が公式確認できた場合のみ各シナリオ 15 問も検証(未確認なら件数を固定しない)。
+validator(CCAR-F): 60 問 / ドメイン配分 16-11-12-12-9 / form 間の問題重複なし / 全問 eligible_modes に mock を含む / **全問 scenario_id != null** / **各問の scenario_id ∈ form.scenario_ids** / **実使用 scenario_id 集合 = form.scenario_ids(完全一致)** / Step 0 で「各 15 問」が公式確認できた場合のみ各シナリオ 15 問も検証(未確認なら件数を固定しない)。
 
 **Step 0 判定(2026-08-23, C0)**: Exam Guide v1.0 に各シナリオの問題数の記述は**なし**(`content/ccar-f/SOURCES.md` §1.1)。したがって各シナリオ 15 問検証は **OFF で確定**。validator はシナリオ内件数を検証せず、上記の scenario_id 整合のみ検証する。
 
@@ -162,6 +172,8 @@ create table exam_session_answer (
 - **セッション開始時に全問題分の行を一括生成**し、question_rev をその時点でスナップショット(模試中の deploy に影響されない)
 - full は abandon 不可(manual / timeout 提出のみ)。domain mini のみ abandon 可
 - deadline 超過の検知時は submission_reason='timeout' で提出処理(独立した expired 状態は持たない)
+- **進行中セッションは学習スコープに依存しない(v1.3)**: 復元・回答保存・見直しフラグ・位置保存・manual / timeout 提出・attempt 一括生成は、セッションの `exam` と開始時に固定した `question_ids` / snapshot `question_rev` だけを使い、出題プールの判定(スコープ・holdout・flag・eligible_modes)を再評価しない。スコープ切替で進行中セッションが除外・再開不能になってはならない。新規開始の候補にだけスコープを適用する
+- exam_session.exam は開始したフォーム(またはミニのドメイン)の exam。full の form_id は常に exam と組で解釈する
 
 ### Mock の attempt 生成(提出時一括)
 
@@ -197,8 +209,27 @@ create unique index question_flag_one_open
 - 対象 mode: practice / mock
 - 問題ごとに answered_at 順で走査し、is_correct=false が 1 回以上かつ最新の連続正解数 < 3 のものを掲載。3 連続正解で自然消滅、再誤答で自然復帰(状態レス)
 - holdout は attempt 生成タイミング(mock 提出時)により自動的に守られる
+- 表示対象は学習スコープ内の exam の attempt のみ(v1.3)。連続正解の判定は問題ごとなので exam をまたがない
+
+### study_setting(v1.3 / オーナー決定 2026-09-29)
+
+学習スコープを保持する単一行テーブル。追加のみの migration で導入する(`06` cutover ルール)。
+
+```sql
+create table study_setting (
+  id smallint primary key default 1 check (id = 1),   -- 単一行
+  scope text not null,                                -- ccar-f | ccar-p | both
+  updated_at timestamptz not null default now()
+);
+```
+
+- 行が無い場合の実効値は `ccar-f`(S-3 以前の挙動と同一)。初回切替時に INSERT、以後 UPDATE
+- scope の変更は本テーブルの 1 行のみを書く。srs_state / attempt / exam_session / exam_session_answer / question_flag は一切変更しない
+- scope に含まれる各 exam は試験日(exam ごとのコード定数)を持たなければならない。未設定の exam を含む scope への変更はサーバーで拒否する(fail closed)
+- 認証済みセッションのみ変更可(他の write API と同じ境界)
 
 ## 3. 併行利用・エクスポート
 
 - PC/スマホは逐次利用前提。複数端末からの同時回答送信はサポート外(競合制御は実装しない)
-- `/api/export`: 全テーブル + 未解決フラグ(現行 rev のみ)を JSON 出力
+- `/api/export`: 全テーブル + 未解決フラグ(現行 rev のみ)を JSON 出力。既定は全 exam(study_setting を含む)
+- `/api/export?exam=ccar-f|ccar-p`(v1.3): exam 列を持つ全テーブルをその exam の行に絞り(exam_session_answer は親 session の exam、question_flag は question_id の exam 接頭辞で判定)、study_setting は含めない。学習スコープの切替前後で同じ exam の export が一致することを検証に使う(`09` M9)
