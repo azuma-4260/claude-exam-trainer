@@ -304,3 +304,4 @@ P の 38 目標を F の task statement(`content/ccar-f/SOURCES.md` §3、ID `f-
 | 日付 | 内容 |
 |---|---|
 | 2026-09-29 | 初版(CP0)。Exam Guide v1.0 を転記 |
+| 2026-09-30 | CP1: §3 の 38 目標と 1:1 の `syllabus.yaml`(108 topics)を作成。§9 の P 内重なり 6 ペアは両側の scope_ja に【primary 境界】を記載。`form_questions` は T-pmock 確定まで書かない |
