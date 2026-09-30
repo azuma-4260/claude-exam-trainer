@@ -45,3 +45,7 @@ next-env.d.ts
 
 # /task-session のセッション状態(worktree ごと、commit しない。specs/10 §4)
 .task-session-state
+
+# ローカル専用(個人の権限設定・dev DB 用スクリプト)
+.claude/settings.local.json
+.claude/local/
