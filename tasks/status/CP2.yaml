@@ -1,2 +1,3 @@
-state: merged
-recorded: 2026-09-30
+state: done
+evidence: "CI・本番 deploy 成功: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/36733366351(main 2bf52b3、merge db71733、ci / deploy success)。CI ログで validate-bank OK [ccar-p](questions 226、warnings 0 = 重み乖離警告なし)。DoD: P 最小フラッシュ 150 枚(26/19/29/24/21/21/10、全 108 topic 被覆、drill / srs_eligible true)を active で本番反映(期限 10/23 以前)。07 Step 4 全工程: カード単位の refs 本文突合、独立レビュー 6 周(全件 2 周 + 修正カードのみ 4 周、最終周 blocking 0)、P 内・F・CP3 MCQ との重複統合、全件 active 化、audit-flash --exam ccar-p --status active OK。Codex レビュー P1 0。main で npm test 747 件 green。オーナー抜き取り(各ドメイン 5 枚・計 35 枚)は承認依頼で提示し /task-session approved で承認(2026-10-01)"
+recorded: 2026-10-01
