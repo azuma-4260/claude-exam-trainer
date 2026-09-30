@@ -1,2 +1,3 @@
-state: merged
+state: done
+evidence: "CI・本番 deploy 成功: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/36736309681(main 5d9a911、merge 2c051ed、ci / deploy success)。DoD: specs/01 FR-3 に供給不足時の例外を追記(spec 先行)、planSession の状態遷移テスト(1〜4 件で全件セッション・キュー全体 4 問の日に開始可・予算消化後の残り)green、main で npm test 758 件 green。実機(dev サーバー + dev DB、P のみスコープ・実 P バンク): Home「Drill 4 問」、/drill が持ち越しにならず P カード 4 問のセッションを表示、p-d3-q001 を Again で回答 → 再読込で残り 3 問から継続。検証行は ID 限定で削除し dev DB を検証前に復元。本番でも deploy 後に /drill が持ち越し表示でなく P カードのセッションを返すことを確認(回答なし)。Codex レビュー P1 0"
 recorded: 2026-10-01
