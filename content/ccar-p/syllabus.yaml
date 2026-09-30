@@ -118,7 +118,7 @@ domains:
             scope_ja: "役割の付与、目的と背景の説明、曖昧な指示(「慎重に」等)ではなく明示的な判断基準、XML タグによる構造化"
           - id: p-d2-t2-02
             name: "Prompt templates separating static instructions from dynamic input"
-            scope_ja: "静的な指示と可変の入力を分離したテンプレート、変数の差し込み、外部入力をタグで区切り指示ではなくデータとして扱わせる"
+            scope_ja: "静的な指示と可変の入力を分離したテンプレート、変数の差し込み、外部入力をタグで区切り指示ではなくデータとして扱わせる。【primary 境界】1 本のプロンプト内のテンプレート設計はここ(2.2)、複数のプロンプト・呼出しをまたぐ部品の再利用は p-d2-t5-02"
           - id: p-d2-t2-03
             name: "Prompt-level guardrails"
             scope_ja: "範囲外要求の扱い・出力形式の制約・根拠が無いとき「わからない」と答える許可をプロンプトで定める。【primary 境界】プロンプト内の指示としての guardrail はここ(2.2)、プロンプトの外で強制する統制(入出力フィルタ・権限・hooks・分類器)は p-d5-t1"
@@ -153,8 +153,8 @@ domains:
             name: "Prompt caching for repeated prefixes"
             scope_ja: "変わらない system prompt・文書を先頭に置き cache breakpoint を設定して再利用する、prefix が変わるとキャッシュが効かない、TTFT とコストの同時削減"
           - id: p-d2-t5-02
-            name: "Modular and versioned prompts"
-            scope_ja: "共通指示の部品化と組み立て、プロンプトのバージョン管理、変更を評価付きで反映する"
+            name: "Reusable prompt components and choosing a reuse mechanism"
+            scope_ja: "指示・文脈・例・可変入力をタグで分けた再利用可能な部品として組み立て、タグ名をプロンプト間で一貫させる。変わらない共通部分は prompt caching、手順や専門知識のパッケージは Skills と、再利用の仕組みを使い分ける(バージョン管理は主題にしない。CP2 でオーナー決定 2026-09-30)。【primary 境界】1 本のプロンプト内で静的な指示と可変入力を分けるテンプレート設計は p-d2-t2-02、複数のプロンプト・呼出しをまたぐ再利用はここ(2.5)"
           - id: p-d2-t5-03
             name: "Agent Skills as reusable packaged expertise"
             scope_ja: "SKILL.md(name / description の frontmatter)と付属ファイルによる再利用、メタデータ → 本文 → 追加ファイルの段階的な読み込み、チーム横断での共有"

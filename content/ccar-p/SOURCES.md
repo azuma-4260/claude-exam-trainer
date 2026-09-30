@@ -24,7 +24,7 @@
 | Anthropic Academy(公式コース) | 2026-09-29 | 解説の補助参照 |
 | Anthropic engineering ブログ | 2026-09-29 | 解説 refs の一次参照先 |
 
-refs ソース台帳(F の §10 に相当)は CP2 で本ファイルに追加する。サードパーティ問題集は参照・転記禁止(`07` 原則)。
+refs ソース台帳(F の §10 に相当)は CP2 で §12 に追加した。サードパーティ問題集は参照・転記禁止(`07` 原則)。
 
 ## 1. 試験構造(Exam Details at a Glance §5 / Scoring §9 転記)
 
@@ -297,7 +297,7 @@ P の 38 目標を F の task statement(`content/ccar-f/SOURCES.md` §3、ID `f-
 | `07` | §CCAR-P フェーズ(Step 2 / Step 3a の行) | Step 2 の優先根拠を「F に無い 3 ドメイン(計 35%)」から §8 の重なりマップへ。Step 3a 不適用の根拠を「独立問題形式」の断定から「Guide にシナリオ記述が無いための暫定制作方針(T-pmock で見直し)」へ |
 | `README` | 試験表・未確定事項 | 試験表の「独立問題」を「シナリオ記述なし」に。未確定事項に CP0 完了分と T-pmock の確認事項を反映 |
 
-`09` CP2 行と `08` の「F に無い 3 ドメイン」表現は CP0 の spec 範囲外のため `tasks/backlog/B-CP0-1.md` に起票。
+`09` CP2 行と `08` の「F に無い 3 ドメイン」表現は CP0 の spec 範囲外のため `tasks/backlog/B-CP0-1.md` に起票し、CP2 で §8 基準に書き換えた(B-CP0-1 を absorb)。
 
 ## 11. 改訂履歴
 
@@ -307,6 +307,117 @@ P の 38 目標を F の task statement(`content/ccar-f/SOURCES.md` §3、ID `f-
 | 2026-09-30 | CP1: §3 の 38 目標と 1:1 の `syllabus.yaml`(108 topics)を作成。§9 の P 内重なり 6 ペアは両側の scope_ja に【primary 境界】を記載。`form_questions` は T-pmock 確定まで書かない |
 | 2026-09-30 | CP3: 独立 MCQ の ID 帯(q501〜q599・ドメイン内連番)と CP3 の refs 台帳 88 URL(#301〜#388、curl で 200 確認)を §13(CP3 節)に追加。独立 MCQ 76 問(12/10/13/11/10/10/10、mcq_single のみ)を flagged で生成。配分根拠は `content/ccar-p/CP3-allocation.md`。Step 4 は別セッション(step4-review)で実施 |
 | 2026-09-30 | CP3 Step 4: 独立レビュー 2 周(1 周目 P1 1 / P2 21、2 周目 P1 0 / P2 8 を修正)、refs 突合(使用 52 URL)、P 内・F バンクとの重複統合。許可ソースで裏付けられない 3 topic(B-CP2-1)に割り当てていた p-d2-q510 / p-d3-q512 / p-d6-q503 を同じ task statement 内の topic へ差し替え。全 76 問を active 化。記録は `content/ccar-p/CP3-allocation.md` §Step 4 |
+| 2026-09-30 | CP2: §12 refs ソース台帳と topic 対応表 `CP2-refs-map.md` を追加。オーナー決定で syllabus の p-d2-t5-02 を改訂(p-d2-t2-02 に境界注記)、p-d3-t7-03 / p-d6-t2-01 はカードの論点を絞る(B-CP2-1) |
+| 2026-09-30 | CP2 Step 4: 独立レビュー 6 周(全 150 枚 × 2 周 + 修正したカードのみ 4 周〔51 → 25 → 9 → 4 枚〕。各周で生成・修正に関わらない新しいレビュアーがカードの refs 本文を取得して文ごとに突合)、P 内・F フラッシュ・CP3 MCQ との重複統合(stem+answer の Jaccard と目視)。出典より強い表現・裏付けの無い解説文・列挙型・廃止機能(temperature / budget_tokens / Priority Tier)中心のカードを修正または論点差し替え。p-d1-q019 を p-d1-t3-03、p-d6-q009 を p-d6-t5-01 へ移動(topic 被覆は不変)。全 150 枚を active 化。残課題は B-CP2-2 |
+
+## 12. refs ソース台帳(CP2・2026-09-30)
+
+カードの `refs` は本台帳の「ref URL」列の URL **のみ**を使用する(`07` 原則・Step 2、CP2 プラン)。許可ソースは `07` 原則の 4 つ(公式 Exam Guide / docs.claude.com / Anthropic Academy / Anthropic 公式ブログ)に限り、Exam Guide は URL を持たないため台帳には載らない。Trust Center・support 記事・法令原文・サードパーティ資料は載せない。
+
+- 全 URL は 2026-09-30 に `curl -sL` で HTTP 200 と最終到達先を確認し、本文を取得して topic の主張を裏付ける箇所を引用で記録した(`CP2-refs-map.md`)。全 352 引用は curl で取得した生の本文と機械照合済み。docs.claude.com は platform.claude.com / code.claude.com / modelcontextprotocol.io へ、一部の anthropic.com/news は claude.com/blog へ 301 される(「正規 URL」列が最終到達先)
+- #1〜26 は F 台帳(`content/ccar-f/SOURCES.md` §10)と同じ URL。最終到達先が同じ URL は F の表記に統一した(`test-and-evaluate/develop-tests` → `define-success`、`engineering/multi-agent-research-system` → `built-multi-agent-research-system`)
+- 「主な対応目標」は §3 の目標番号。topic 単位の対応と根拠の強さ(direct / partial)は `CP2-refs-map.md` が正本
+- **範囲調整(オーナー決定 2026-09-30、B-CP2-1)**: 許可ソースで中核を裏付けられなかった 3 topic を次のとおり扱う。p-d2-t5-02 は syllabus を「再利用可能なプロンプト部品と再利用の仕組みの使い分け」に改訂(バージョン管理は主題にしない)。p-d3-t7-03 は連携方式(API / MCP / 自律エージェントへの委任)の選択と信頼境界に絞る(A2A プロトコル仕様は扱わない)。p-d6-t2-01 は相手の意思決定に必要な形で判断を示す骨格に絞る(経営層 / 技術者の対比は扱わない)
+- 「Anthropic 公式ブログ」には anthropic.com の news / engineering / research と claude.com/blog を含める(オーナー決定 2026-09-30。anthropic.com/news の一部が claude.com/blog へ 301 されるため)
+
+| # | ref URL | 正規 URL(最終到達先) | 主な対応目標 |
+|---|---|---|---|
+| 1 | https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview | platform.claude.com/docs/en/agents-and-tools/tool-use/overview | 3.7 |
+| 2 | https://docs.claude.com/en/docs/agents-and-tools/mcp | modelcontextprotocol.io/docs/2026-07-28/getting-started/intro | 3.7 |
+| 3 | https://docs.claude.com/en/docs/claude-code/memory | code.claude.com/docs/en/memory | 6.4, 7.1 |
+| 4 | https://docs.claude.com/en/docs/claude-code/skills | code.claude.com/docs/en/skills | 7.1 |
+| 5 | https://docs.claude.com/en/docs/claude-code/mcp | code.claude.com/docs/en/mcp | 3.2, 3.7, 7.1 |
+| 6 | https://docs.claude.com/en/docs/claude-code/common-workflows | code.claude.com/docs/en/common-workflows | 7.2, 7.3 |
+| 7 | https://docs.claude.com/en/docs/claude-code/github-actions | code.claude.com/docs/en/github-actions | 7.2 |
+| 8 | https://docs.claude.com/en/docs/claude-code/settings | code.claude.com/docs/en/settings | 7.1 |
+| 9 | https://docs.claude.com/en/docs/claude-code/headless | code.claude.com/docs/en/headless | 7.2 |
+| 10 | https://docs.claude.com/en/docs/claude-code/hooks | code.claude.com/docs/en/hooks | 5.1 |
+| 11 | https://docs.claude.com/en/docs/claude-code/sub-agents | code.claude.com/docs/en/sub-agents | 3.1, 3.8 |
+| 12 | https://docs.claude.com/en/api/agent-sdk/subagents | code.claude.com/docs/en/agent-sdk/subagents | 1.4, 3.1, 3.8 |
+| 13 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview | platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview | 4.3 |
+| 14 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#use-examples-effectively | 2.3 |
+| 15 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#be-clear-and-direct | 2.2, 4.4 |
+| 16 | https://docs.claude.com/en/docs/build-with-claude/batch-processing | platform.claude.com/docs/en/build-with-claude/batch-processing | 1.6, 3.3 |
+| 17 | https://docs.claude.com/en/docs/build-with-claude/context-windows | platform.claude.com/docs/en/build-with-claude/context-windows | 2.4, 3.8, 5.2 |
+| 18 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#long-context-prompting | 2.4 |
+| 19 | https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations | platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-hallucinations | 2.2, 4.4, 5.2, 5.5, 6.3 |
+| 20 | https://docs.claude.com/en/docs/test-and-evaluate/define-success | platform.claude.com/docs/en/test-and-evaluate/develop-tests | 1.1, 2.3, 3.3, 4.1, 4.2, 4.3, 6.1, 6.3 |
+| 21 | https://www.anthropic.com/engineering/building-effective-agents | (直接) | 1.1, 1.2, 1.3, 1.5, 2.1, 3.7, 5.2 |
+| 22 | https://www.anthropic.com/engineering/built-multi-agent-research-system | www.anthropic.com/engineering/multi-agent-research-system | 1.4, 1.5, 3.3, 3.4, 3.6, 3.7, 4.3, 4.4, 4.5, 4.6, 5.2 |
+| 23 | https://www.anthropic.com/engineering/writing-tools-for-agents | (直接) | 3.1 |
+| 24 | https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents | (直接) | 2.4, 3.5, 3.6, 3.8 |
+| 25 | https://docs.claude.com/en/docs/build-with-claude/structured-outputs | platform.claude.com/docs/en/build-with-claude/structured-outputs | 1.2 |
+| 26 | https://docs.claude.com/en/docs/claude-code/costs | code.claude.com/docs/en/costs | 3.1, 3.7, 4.5 |
+| 27 | https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing | platform.claude.com/docs/en/about-claude/use-case-guides/ticket-routing | 1.1, 1.2, 2.1, 2.2 |
+| 28 | https://www.anthropic.com/news/contextual-retrieval | www.anthropic.com/engineering/contextual-retrieval | 1.2, 3.5, 3.6, 3.8, 4.4, 4.5 |
+| 29 | https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents | (直接) | 1.2, 3.4, 4.1, 4.2, 4.3, 4.4, 4.6, 5.3, 6.1, 6.3, 6.4, 6.5 |
+| 30 | https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them | (直接) | 1.4, 1.5 |
+| 31 | https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence | platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence | 1.4, 2.1, 3.3, 4.1, 4.2, 4.4, 4.5 |
+| 32 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices | 1.5, 2.4 |
+| 33 | https://www.anthropic.com/news/driving-ai-transformation-with-claude | claude.com/blog/driving-ai-transformation-with-claude | 1.6 |
+| 34 | https://claude.com/blog/a-guide-to-cost-visibility-and-control-in-claude | (直接) | 1.6 |
+| 35 | https://www.anthropic.com/research/estimating-productivity-gains | (直接) | 1.6 |
+| 36 | https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency | platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/reduce-latency | 1.6, 2.4, 3.3, 4.1, 4.5 |
+| 37 | https://docs.claude.com/en/docs/about-claude/models/choosing-a-model | platform.claude.com/docs/en/about-claude/models/choosing-a-model | 2.1, 3.3, 4.5, 6.2, 6.3 |
+| 38 | https://docs.claude.com/en/docs/about-claude/models/overview | platform.claude.com/docs/en/models/overview | 2.1, 5.2 |
+| 39 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/system-prompts | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role | 2.2 |
+| 40 | https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags | platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#structure-prompts-with-xml-tags | 2.2, 2.5 |
+| 41 | https://docs.claude.com/en/docs/build-with-claude/thinking | platform.claude.com/docs/en/build-with-claude/thinking | 2.3 |
+| 42 | https://docs.claude.com/en/docs/build-with-claude/extended-thinking | platform.claude.com/docs/en/build-with-claude/extended-thinking | 2.3, 3.3 |
+| 43 | https://docs.claude.com/en/docs/build-with-claude/effort | platform.claude.com/docs/en/build-with-claude/effort | 2.3 |
+| 44 | https://docs.claude.com/en/docs/build-with-claude/compaction | platform.claude.com/docs/en/build-with-claude/compaction | 2.4 |
+| 45 | https://docs.claude.com/en/docs/build-with-claude/prompt-caching | platform.claude.com/docs/en/build-with-claude/prompt-caching | 2.5, 4.5 |
+| 46 | https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview | platform.claude.com/docs/en/agents-and-tools/agent-skills/overview | 2.5, 3.8 |
+| 47 | https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills | (直接) | 2.5 |
+| 48 | https://docs.claude.com/en/docs/agents-and-tools/tool-use/tool-search-tool | platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool | 3.1, 3.8 |
+| 49 | https://www.anthropic.com/engineering/advanced-tool-use | (直接) | 3.1, 3.8 |
+| 50 | https://docs.claude.com/en/docs/claude-code/security | code.claude.com/docs/en/security | 3.1, 5.1, 7.1 |
+| 51 | https://docs.claude.com/en/docs/claude-code/monitoring-usage | code.claude.com/docs/en/monitoring-usage | 3.2, 3.4, 4.6, 7.1 |
+| 52 | https://docs.claude.com/en/docs/build-with-claude/files | platform.claude.com/docs/en/build-with-claude/files | 3.2 |
+| 53 | https://docs.claude.com/en/docs/agents-and-tools/mcp-connector | platform.claude.com/docs/en/agents-and-tools/mcp-connector | 3.2 |
+| 54 | https://docs.claude.com/en/docs/agents-and-tools/remote-mcp-servers | platform.claude.com/docs/en/agents-and-tools/remote-mcp-servers | 3.2 |
+| 55 | https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks | platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks | 3.2, 5.1 |
+| 56 | https://www.anthropic.com/research/prompt-injection-defenses | (直接) | 3.2, 4.1 |
+| 57 | https://www.anthropic.com/engineering/claude-code-sandboxing | (直接) | 3.2 |
+| 58 | https://www.anthropic.com/news/message-batches-api | claude.com/blog/message-batches-api | 3.3 |
+| 59 | https://anthropic.skilljar.com/claude-with-the-anthropic-api | (直接) | 3.5 |
+| 60 | https://docs.claude.com/en/docs/build-with-claude/embeddings | platform.claude.com/docs/en/build-with-claude/embeddings | 3.5 |
+| 61 | https://www.anthropic.com/news/model-context-protocol | (直接) | 3.7 |
+| 62 | https://anthropic.skilljar.com/introduction-to-model-context-protocol | (直接) | 3.7 |
+| 63 | https://docs.claude.com/en/api/agent-sdk/secure-deployment | code.claude.com/docs/en/agent-sdk/secure-deployment | 3.7 |
+| 64 | https://www.anthropic.com/engineering/code-execution-with-mcp | (直接) | 3.8 |
+| 65 | https://anthropic.skilljar.com/introduction-to-agent-skills | (直接) | 3.8 |
+| 66 | https://docs.claude.com/en/docs/agents-and-tools/tool-use/programmatic-tool-calling | platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling | 4.5 |
+| 67 | https://docs.claude.com/en/docs/manage-claude/usage-cost-api | platform.claude.com/docs/en/manage-claude/usage-cost-api | 4.6 |
+| 68 | https://docs.claude.com/en/docs/claude-code/analytics | code.claude.com/docs/en/analytics | 4.6, 7.2 |
+| 69 | https://docs.claude.com/en/docs/claude-code/sandboxing | code.claude.com/docs/en/sandboxing | 5.1 |
+| 70 | https://docs.claude.com/en/docs/claude-code/hooks-guide | code.claude.com/docs/en/hooks-guide | 5.1 |
+| 71 | https://docs.claude.com/en/docs/claude-code/permissions | code.claude.com/docs/en/permissions | 5.1, 7.1 |
+| 72 | https://claude.com/blog/ciso-guide-to-agentic-ai | (直接) | 5.1, 5.2, 5.5, 6.2 |
+| 73 | https://www.anthropic.com/research/trustworthy-agents | (直接) | 5.1, 5.2 |
+| 74 | https://docs.claude.com/en/api/messages | platform.claude.com/docs/en/api/messages | 5.2, 6.3 |
+| 75 | https://www.anthropic.com/research/towards-understanding-sycophancy-in-language-models | (直接) | 5.2 |
+| 76 | https://docs.claude.com/en/docs/claude-code/best-practices | code.claude.com/docs/en/best-practices | 5.2, 7.2 |
+| 77 | https://claude.com/blog/deploying-ai-from-pilot-to-production | (直接) | 5.3, 5.5, 6.1, 6.2, 6.3, 6.5 |
+| 78 | https://www.anthropic.com/news/our-framework-for-developing-safe-and-trustworthy-agents | (直接) | 5.3, 5.5 |
+| 79 | https://claude.com/blog/the-ai-native-sdlc-playbook | (直接) | 5.3, 6.4, 6.5, 7.3 |
+| 80 | https://docs.claude.com/en/docs/about-claude/use-case-guides/customer-support-chat | platform.claude.com/docs/en/about-claude/use-case-guides/customer-support-chat | 5.3 |
+| 81 | https://docs.claude.com/en/docs/build-with-claude/citations | platform.claude.com/docs/en/build-with-claude/citations | 5.3, 5.5 |
+| 82 | https://docs.claude.com/en/docs/claude-code/code-review | code.claude.com/docs/en/code-review | 5.3 |
+| 83 | https://claude.com/blog/how-to-prepare-for-ai-driven-code-modernization-projects | (直接) | 5.3, 6.1, 6.2, 6.5 |
+| 84 | https://docs.claude.com/en/docs/build-with-claude/api-and-data-retention | platform.claude.com/docs/en/manage-claude/api-and-data-retention | 5.4 |
+| 85 | https://docs.claude.com/en/docs/build-with-claude/data-residency | platform.claude.com/docs/en/manage-claude/data-residency | 5.4 |
+| 86 | https://www.anthropic.com/news/claude-in-amazon-bedrock-fedramp-high | (直接) | 5.4 |
+| 87 | https://www.anthropic.com/news/claude-on-google-cloud-fedramp-high | claude.com/blog/claude-on-google-cloud-fedramp-high | 5.4 |
+| 88 | https://www.anthropic.com/research/evaluating-and-mitigating-discrimination-in-language-model-decisions | (直接) | 5.5 |
+| 89 | https://claude.com/blog/how-claude-code-works-in-large-codebases-best-practices-and-where-to-start | (直接) | 6.1, 6.5, 7.2 |
+| 90 | https://docs.claude.com/en/docs/api/service-tiers | platform.claude.com/docs/en/api/service-tiers | 6.3 |
+| 91 | https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues | (直接) | 6.3, 7.3 |
+| 92 | https://claude.com/blog/how-anthropic-teams-use-claude-code | (直接) | 6.4, 7.3 |
+| 93 | https://docs.claude.com/en/docs/about-claude/model-deprecations | platform.claude.com/docs/en/about-claude/model-deprecations | 6.5 |
+| 94 | https://www.anthropic.com/research/measuring-agent-autonomy | (直接) | 6.5 |
+| 95 | https://docs.claude.com/en/docs/claude-code/managed-settings | code.claude.com/docs/en/managed-settings | 7.1 |
+| 96 | https://docs.claude.com/en/docs/claude-code/admin-setup | code.claude.com/docs/en/admin-setup | 7.1 |
 
 ## 13. CP3: 独立 MCQ の ID 帯と refs ソース台帳(2026-09-30)
 

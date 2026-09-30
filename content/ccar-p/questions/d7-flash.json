@@ -1,0 +1,245 @@
+[
+  {
+    "id": "p-d7-q001",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team wants permission rules shared by everyone in a repository while each developer keeps personal overrides, so which settings files should hold each?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Shared rules go in .claude/settings.json, which the team checks into source control.\nPersonal project-specific overrides go in .claude/settings.local.json.",
+    "explanation_ja": "Claude Code の共有プロジェクト設定は .claude/settings.json に置き、チームがソース管理にチェックインして全員に同じ許可・拒否の規則を適用する。個人だけに効かせたいプロジェクト単位の上書きは .claude/settings.local.json に置く。承認済みの権限構成はバージョン管理で共有することが勧められており、リポジトリを clone した全員が同じ permissions・hooks・plugins を得られる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/settings",
+      "https://docs.claude.com/en/docs/claude-code/security"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q002",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A repository ships a project-scoped .mcp.json, so why should the team review that file before running claude -p in CI?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "In claude -p runs Claude Code cannot show the approval prompt and loads project-scoped servers without asking.\nInteractive sessions do ask for approval before using them.",
+    "explanation_ja": ".mcp.json をリポジトリにチェックインすると、チーム全員が同じ MCP サーバーを使えるようになる。対話セッションでは、プロジェクトスコープのサーバーを使う前に承認を求める仕組みがセキュリティ上用意されている。一方、claude -p の実行ではそのプロンプトを表示できず、プロジェクトスコープのサーバーを確認なしで読み込むため、CI で使う前にファイルの内容を審査しておくのが望ましい。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q003",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A security team needs a tool denied for every developer even if some projects or command-line flags allow it, so which mechanism should it use?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Managed settings deployed to every developer's machine.\nThey apply above every other level, and a deny at any level cannot be overridden by another level.",
+    "explanation_ja": "managed settings はユーザー・プロジェクト・ローカル・--settings のどの値にも上書きされず、組織のポリシーを強制できる。権限の deny はどのレベルでも他のレベルから allow できず、たとえば managed の deny は --allowedTools でも覆せない。リポジトリにチェックインする共有設定は、より優先度の高い設定に上書きされうるため、強制力が必要な統制の置き場所としては劣る。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/managed-settings",
+      "https://docs.claude.com/en/docs/claude-code/permissions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q004",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An administrator wants organization-wide visibility into Claude Code usage, costs, and tool activity, so which capability provides machine-readable telemetry?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Exporting telemetry through OpenTelemetry (OTel).\nIt carries metrics as time series and events through the logs and events protocol.",
+    "explanation_ja": "Claude Code は OpenTelemetry で利用状況・コスト・ツールのアクティビティを組織横断でエクスポートできる。メトリクスは時系列データとして、イベントはログとイベントのプロトコルで出力され、任意で分散トレースも扱える。組織として設定を強制するだけでなく、こうしたテレメトリで利用の実態を把握する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/monitoring-usage"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q005",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which practice most lets a developer walk away from a Claude Code session instead of watching every step?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Give Claude a check it can run, such as tests, a build or a screenshot to compare.\nWithout one, 'looks done' is the only signal and the developer becomes the verifier.",
+    "explanation_ja": "Claude は作業が完了したように見えた時点で止まるため、実行できる検証手段が無いと「完了に見える」ことしか判断材料が無い。テスト、ビルド、比較用のスクリーンショットのように Claude 自身が走らせられるチェックを渡すと、見守り続けるセッションから任せて離れられるセッションに変わる。検証を人間が毎回担う運用は、開発ループの速度を人間の確認待ちに縛る。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q006",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which claude -p option pre-approves specific tools so that a non-interactive CI run needs no permission prompt?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Pre-approve the specific tools the job needs with --allowedTools.\nPre-approved tools let the non-interactive call complete without a permission prompt.",
+    "explanation_ja": "非対話モード(claude -p)は CI パイプラインや自動化されたワークフローに Claude を組み込む方法である。ジョブに必要なツールを --allowedTools などで事前に許可しておくと、権限の確認を待たずに呼出しが完了する。なお dontAsk モードは、プロンプトになるはずの呼出しをすべて拒否するため、ロックダウンした CI 実行に向く。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/headless",
+      "https://docs.claude.com/en/docs/claude-code/best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q007",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An engineering VP wants to know whether Claude Code adoption improved delivery, so which measures should the analytics data be compared with?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Use the analytics data alongside DORA metrics, sprint velocity, or other engineering KPIs.\nTrack changes such as pull requests per user as adoption increases.",
+    "explanation_ja": "分析ダッシュボードの利用状況や貢献指標は、DORA 指標やスプリントベロシティなど既存のエンジニアリング KPI と併用して、導入による変化を読み取る。ユーザーあたりの PR 数の推移を導入の進み具合に合わせて追うのも有効である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/analytics"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q008",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When asking Claude Code to fix a bug, what should the developer say about how often the error occurs?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Whether the error is intermittent or consistent.",
+    "explanation_ja": "エラーが断続的か常時かを Claude に伝えることは、バグ修正のヒントとして挙げられている。あわせて、再現するコマンドとスタックトレースを伝えること、再現手順を示すことも推奨されている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q009",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How did Anthropic's Data Infrastructure team find the cause when their Kubernetes clusters stopped scheduling pods?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "They fed Claude Code dashboard screenshots, and it guided them menu by menu through the cloud console until they found pod IP address exhaustion.\nClaude then provided the exact commands to add a new IP pool.",
+    "explanation_ja": "障害時は、ダッシュボードのスクリーンショットのような観測データを渡して原因の特定を進められる。Claude はメニュー単位で画面を案内して pod の IP アドレス枯渇を突き止め、新しい IP プールを追加する具体的なコマンドも示した。セキュリティ部門が複数のドキュメントから runbook を作らせ、障害対応の文脈として使う運用も紹介されている。",
+    "refs": [
+      "https://claude.com/blog/how-anthropic-teams-use-claude-code"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q010",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An agent that responds to metric anomalies works in graduated response tiers (log only, read-only diagnosis, act only through a PR), so how should the architect enforce that the lower tiers cannot touch production?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Define the tiers in version-controlled config and enforce them with permissions and managed settings that deny production access.",
+    "explanation_ja": "tier は異常の大きさに応じた対応段階で、ログのみ、読み取り専用での診断、PR か承認済み runbook 経由の提案のみ、と段階的に許される操作が広がる。この境界はバージョン管理された設定で定義し、本番アクセスを deny する権限・managed settings で強制する。起動・所見・トリアージの判断はタイムスタンプ付きで記録し、修正は通常の PR レビューを通して、サービスオーナーが承認する。",
+    "refs": [
+      "https://claude.com/blog/the-ai-native-sdlc-playbook"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]

@@ -1,0 +1,509 @@
+[
+  {
+    "id": "p-d6-q001",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What is often a good first step for defining the target of an AI-driven modernization?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Map the codebase and inventory what the old system actually does today, which shows whether the project is a transform or a reimagine.\nThis also often reveals unknown business logic and edge cases.",
+    "explanation_ja": "現行システムの理解は、目標を定める最初の一歩として有効なことが多いです。現行挙動の棚卸しをすると、どの部分を変更・廃止するか、単なる変換(transform)か作り直し(reimagine)かを判断しやすくなります。棚卸しは未知の業務ロジックやエッジケースも明らかにすることが多いです。この種の案件の主な課題は、システムを所有するチームと依存するチームの合意形成であることが多いです。",
+    "refs": [
+      "https://claude.com/blog/how-to-prepare-for-ai-driven-code-modernization-projects"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q002",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Before a pilot begins, which four parts should define the job the AI will do?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "User, task, output and a measurable quality threshold.\nThe guide pairs this with a lightweight total cost of ownership model built before the pilot.",
+    "explanation_ja": "パイロット前に、誰が使い(user)、何をさせ(task)、何を出力させ(output)、品質をどの閾値で測るか(measurable quality threshold)の 4 点でジョブを定義します。ガイドはこれと並べて、パイロット前に軽量な総保有コスト(TCO)のモデルを作ることを挙げています。",
+    "refs": [
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q003",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "According to Anthropic, what does defining eval tasks help stress-test before you start building?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Whether the product requirements are concrete enough to start building.\nIt is described as one of the best ways to do this.",
+    "explanation_ja": "eval タスクの定義は、要件が着手できるほど具体的かを試す最良の方法の 1 つとされています。eval が無いと、テストは通っても暗黙の期待を満たさない問題が開発後に発覚しがちで、よく設計された eval なら早期に表に出せます。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q004",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which success criterion in Anthropic's guide asks how similar the model's responses need to be for similar types of input?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Consistency.\nThe guide's list of criteria is non-exhaustive, and each criterion should be specific and measurable.",
+    "explanation_ja": "成功基準の一覧には、タスクへの忠実さ、一貫性(類似入力への応答がどれだけ似ている必要があるか)、関連性と一貫した流れ、トーン、個人情報の扱い、レイテンシ、価格などがあり、この一覧は網羅的ではありません。精度だけでなく複数の次元で基準を決めます。基準は「よい性能」のような曖昧な表現ではなく、具体的で測定可能な形にして初めて評価できます。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q005",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A legacy system has thin test coverage, flaky tests and little telemetry, so what should be done about these gaps before scaling AI-driven changes?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Identify the gaps up front as part of defining what counts as correct evidence for a change.\nIf strong evidence is hard to produce, use Claude to build the missing pieces, such as a replay harness or more tests.",
+    "explanation_ja": "テストやテレメトリの欠落は着手前に洗い出し、変更の正しさを示す証拠(certificate)の定義に含めます。強い証拠を作れないなら、prod 並行環境や replay harness、追加テストといった不足分をまず Claude に作らせるのが有用です。Claude Code の展開でも、広い提供の前に専用のインフラ投資があった例が報告されています。",
+    "refs": [
+      "https://claude.com/blog/how-to-prepare-for-ai-driven-code-modernization-projects",
+      "https://claude.com/blog/how-claude-code-works-in-large-codebases-best-practices-and-where-to-start"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q006",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What does Anthropic's pilot-to-production guide say its transition blueprint should lay out?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "What to decide, when to decide it, and who needs to own each decision.",
+    "explanation_ja": "Anthropic のパイロットから本番への移行ガイドは、移行の青写真(transition blueprint)として、何を決めるか・いつ決めるか・各判断を誰が所有するかを示すとしています。これはガイドが示す成果物の一つです。",
+    "refs": [
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q007",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team proposes a cheaper model that escalates to a stronger one whenever it fails, so which pilot measurement should the option be presented with?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Retry rates, because several cheap attempts can cost more than one expensive attempt.\nThey should be analyzed carefully while piloting.",
+    "explanation_ja": "安価なモデルから高性能なモデルへエスカレーションする案は、パイロット中に再試行率を注意深く分析して示します。安価な試行を複数回重ねると 1 回の高価な試行より高くつくことがあるためです。エスカレーション案は、安価な試行の再試行回数まで含めた総コストで評価します。",
+    "refs": [
+      "https://claude.com/blog/how-to-prepare-for-ai-driven-code-modernization-projects"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q008",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A stakeholder asks for a guarantee of zero hallucinations once the recommended techniques are applied, so what expectation should you set?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The techniques significantly reduce hallucinations but do not eliminate them entirely.\nCritical information must always be validated, especially for high-stakes decisions.",
+    "explanation_ja": "hallucination 対策の技法は誤りを大きく減らしますが、完全には消せません。そのため、重要な情報は必ず検証する運用を期待値として合意し、特に高リスクの判断では検証を必ず行います。「技法を入れたからゼロになる」という約束は、守れない約束になります。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q009",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In an AI-driven code modernization, what does Anthropic suggest as a good check on a finished certificate before changes are promoted to production?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Ask whether the people who will review and promote the changes would be comfortable merging on the certificate's evidence alone.\nIf they see their own bar in it, the promotion policy can be lighter.",
+    "explanation_ja": "certificate は、変更が目標状態で正しいとみなされるために満たすべき条件の集合で、変更をレビューし本番へ昇格させる人たちと一緒に書く。完成した certificate の良い確認方法は、その人たちが certificate の証拠だけでマージしてよいと思えるかどうかである。自分たちの基準がそこに反映されていると見なせるなら、本番への反映経路である promotion policy は軽くできる。",
+    "refs": [
+      "https://claude.com/blog/how-to-prepare-for-ai-driven-code-modernization-projects"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q010",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why should success-metric targets, such as those in an SLA, be based on benchmarks, prior experiments or expert knowledge rather than aspiration?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Targets should be achievable, not unrealistic for current frontier model capabilities.\nBase them on industry benchmarks, prior experiments, AI research or expert knowledge.",
+    "explanation_ja": "SLA などの成功指標の目標は、現行の最先端モデルの能力に対して非現実的であってはならず、達成可能であることが条件です。そのため、業界のベンチマーク、過去の実験、AI 研究、専門家の知見に基づいて設定します。願望だけで決めた目標は、この条件を満たしません。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q011",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When writing measurable success targets such as SLAs, how can a team state how severe the tolerable failures are, not only how often they occur?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Set a target for the share of errors that may cause mere inconvenience rather than egregious errors.\nAlso define what inconvenience and egregious mean for your application.",
+    "explanation_ja": "SLA では、失敗の頻度だけでなく重大度も目標にできます。define-success の例では、誤りのうち一定割合は「不便」にとどまり、深刻な誤りにはならないことを基準に含めています。同じ例は、実際には「不便」と「深刻」が何を指すかも自社で定義する必要があると注記しています。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q012",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Evals and monitoring are in place but users report degraded quality that the evals do not capture, so which additional input should the team treat as a standing practice?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Continuous signal from users, such as reports of specific changes, examples of unexpected behavior and patterns across use cases.\nUser feedback and transcript review are ongoing practices that fill the gaps left by automated evals.",
+    "explanation_ja": "Anthropic の事後検証では、実行していた evals が利用者の報告する劣化を捉えられず、利用者からの継続的なシグナルが原因の切り分けに役立ちました。具体的な変化の報告、予期しない挙動の例、ユースケースをまたぐパターンが有用でした。フィードバックの受付と transcript のレビューを継続的な習慣にします。evals と監視は重要だが、それだけでは足りず、ユーザーからの継続的なシグナルも必要だとされています。",
+    "refs": [
+      "https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q013",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In Anthropic's AI-native SDLC playbook, how does each stage hand its work to the next stage?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Each stage ends by writing a committed artifact to version control, such as intent.md, spec.md or plan.md.\nThe commit initiates the next stage, which begins by reading that artifact.",
+    "explanation_ja": "playbook では、各段階は成果物(intent.md・spec.md・plan.md・差分とテスト・レビュー所見付きの PR・インシデント記録など)をバージョン管理に書いて終わります。段階はその成果物のコミットで終わり、そのコミットが次の段階を始めます。これらの成果物の連なりが監査証跡になります。",
+    "refs": [
+      "https://claude.com/blog/the-ai-native-sdlc-playbook"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q014",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How can a team turn scattered operational documentation into context for debugging real production issues?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Have Claude ingest multiple documentation sources and condense them into markdown runbooks and troubleshooting guides.\nThese condensed documents become context for debugging real production issues, often more efficient than searching full knowledge bases.",
+    "explanation_ja": "複数のドキュメントを Claude に取り込ませ、markdown の runbook とトラブルシューティングガイドに凝縮します。凝縮した文書は本番障害のデバッグで文脈として使え、全文の知識ベースを検索するより効率的になることが多いです。これはブログが紹介する Anthropic のセキュリティエンジニアリングチームの事例です。",
+    "refs": [
+      "https://claude.com/blog/how-anthropic-teams-use-claude-code"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q015",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "According to Anthropic's AI-native SDLC playbook, how are deployment and rollback handled in a traditional pipeline?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "As runbooks a human follows under pressure.\nPipelines run deterministic scripts, and anything that needs judgment waits for a human.",
+    "explanation_ja": "playbook は従来型のパイプラインを、決定的なスクリプトを走らせ、判断が要るものは人間を待つ形として描き、デプロイとロールバックは人間が切迫した状況で従う runbook だとしています。AI-native の形では、判断が要る手順を Claude がパイプラインの中で非対話で実行する点が対比されています。",
+    "refs": [
+      "https://claude.com/blog/the-ai-native-sdlc-playbook"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q016",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why is a successful pilot not sufficient evidence to approve a production rollout?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Pilots are designed for success, with handpicked teams, a defined scope and protected budgets, so they are unrepresentative of production conditions.",
+    "explanation_ja": "パイロットは成功するよう設計され、選抜されたチーム・限定した範囲・保護された予算という本番とは異なる条件で動きます。そのため成功はそのまま本番の根拠にならず、ガイドはパイロット前・中・本番の順に決めるべき 7 つの考慮事項と、プログラムを進める前の責任者の決定を示しています。",
+    "refs": [
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q017",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Before scaling an AI-driven modernization to the full codebase, what should be proven first?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The workflow end to end on a small part of the codebase, including reviewing and landing the changes through the promotion policy.\nFix issues in the workflow while it is cheap, repeat until confident, then scale.",
+    "explanation_ja": "まず小さな区画でワークフローを end to end で完了させ、レビューと本番への反映まで promotion policy に沿って通します。問題が出たら個々の変更ではなくワークフローを直し、安いうちに直して確信が持てるまで繰り返してから全体に拡大します。小さな区画で end to end を通してから拡大する、という順序が要点です。",
+    "refs": [
+      "https://claude.com/blog/how-to-prepare-for-ai-driven-code-modernization-projects"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q018",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An organization has no dedicated team to own its Claude Code rollout, so what is the minimum viable owner to hand it to?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A DRI, one person who owns the Claude Code configuration.\nThey have authority over settings, permissions policy, the plugin marketplace and CLAUDE.md conventions, and keep them current.",
+    "explanation_ja": "専任チームが無い組織での最小構成は、Claude Code の設定を所有する DRI(責任者 1 名)です。設定、権限ポリシー、プラグインマーケットプレイス、CLAUDE.md の規約について判断する権限を持ち、それらを最新に保つ責任を負います。専任の agent manager という役割が現れつつある組織もありますが、所有者がいないと、現場発の活用が断片化し、知見が属人的なままになるとされています。",
+    "refs": [
+      "https://claude.com/blog/how-claude-code-works-in-large-codebases-best-practices-and-where-to-start"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q019",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When should an operating team schedule a review of its Claude Code configuration, beyond a regular cadence?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Whenever performance feels plateaued after a major model release.",
+    "explanation_ja": "設定の見直しは 3〜6 か月ごとに定期的に行い、さらに大きなモデルリリースの後に性能が頭打ちに感じられるときにも行います。監視と改善を一度きりの作業にせず、周期と契機を決めた体制として継続するのが運用の基本です。",
+    "refs": [
+      "https://claude.com/blog/how-claude-code-works-in-large-codebases-best-practices-and-where-to-start"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q020",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A model your production system depends on is deprecated, so what must the operating team plan before the retirement date?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Migrate all usage to a suitable replacement before the retirement date.\nRequests to models past the retirement date will fail.",
+    "explanation_ja": "非推奨になったモデルは、廃止日より前に、すべての利用を適切な後継モデルへ移行します。廃止日を過ぎたモデルへのリクエストは失敗するため、移行計画を期限付きで運用に組み込みます。モデル更新への追従は、ライフサイクル上の monitoring と iteration を回す体制の一部です。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/model-deprecations"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q021",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why must the operating team keep production monitoring running after launch even when pre-launch evals passed?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Pre-launch evals test capability in controlled settings, while production monitoring detects distribution drift and unanticipated real-world failures.\nMany findings about how agents are actually used cannot be observed through pre-deployment testing alone.",
+    "explanation_ja": "ローンチ前の評価は管理された環境で能力を測り、ローンチ後の本番監視が分布のドリフトや想定外の実世界の失敗を検出します。エージェントが実際にどう使われるかは、展開前のテストだけでは観測できない知見が多いです。したがって運用フェーズでは、監視を回し続ける体制と周期を引継ぎ時に決めておきます。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://www.anthropic.com/research/measuring-agent-autonomy"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

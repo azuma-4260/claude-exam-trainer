@@ -1,0 +1,630 @@
+[
+  {
+    "id": "p-d1-q001",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why is an LLM classifier a reasonable fit for ticket routing when the routing classes are defined by conditions on ticket meaning rather than by labeled examples?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Claude excels at understanding and applying underlying rules when classes are defined by conditions rather than examples.\nTraditional ML approaches often rely on bag-of-words models or simple pattern matching.",
+    "explanation_ja": "ルールが「条件」で定義されていて意味理解が要る分類は、LLM が力を発揮しやすい領域である。従来の ML は bag-of-words モデルや単純なパターンマッチに頼ることが多く、条件で定義されたクラスを理解して適用する点で Claude と対照的である。公式ガイドはこの違いを、ticket routing に LLM を使う根拠の 1 つとして挙げている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q002",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A product owner asks for a summarization feature that is fast, cheap, and good, so what should the architect do before choosing a design?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Turn each wish into a measurable success criterion using quantitative metrics or well-defined qualitative scales.\nQualitative measures can be valuable if they are applied consistently along with quantitative ones.",
+    "explanation_ja": "成功基準は具体的かつ測定可能でなければ、設計やモデル選択の良し悪しを比較できない。「速い」「安い」を遅延の許容時間や予算の上限などの数値に落とし、品質は明確な尺度で測る。公式ガイドは、数値の指標か明確に定義した定性尺度を使うよう述べている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q003",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A requirement says an AI feature must stay within budget, so what should the architect estimate to turn that into a price criterion?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Estimate running cost from the cost of each API call, the size of the model, and how often it will be used.\nPrice is one measurable criterion to weigh alongside the other success criteria.",
+    "explanation_ja": "「予算内で」という要件は、そのままでは設計案を比べる基準にならない。1 回の API 呼出しのコスト・モデルの大きさ・利用頻度から運用費を見積もると、価格を測定可能な成功基準に置き換えられる。価格は成功基準の 1 つであり、他の基準と併せて設計を評価する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q004",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team wants to start a new feature with a multi-agent pipeline before measuring even one simple prompt, so what does Anthropic recommend instead?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Find the simplest solution possible and increase complexity only when needed.\nStart with simple prompts, optimize them with evaluation, and add agentic systems only when simpler solutions fall short.",
+    "explanation_ja": "成功は最も高度なシステムを作ることではなく、必要に合った適切なシステムを作ることで決まる。複雑さは評価で効果が示されたときだけ足し、エージェント化はレイテンシとコストを犠牲にする判断であると認識する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q005",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When a RAG system builds the generation prompt at query time, which retrieved chunks are added to it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The most relevant chunks, found by semantic similarity to the query.\nThey are added to the prompt sent to the generative model.",
+    "explanation_ja": "実行時にはユーザーのクエリに対し、ベクトルデータベースで意味的な類似度により最も関連する chunk を探す。その関連度の高い chunk が、生成モデルに送るプロンプトへ加えられる。全候補を渡すのではなく関連度で絞る点が、検索を挟む設計の要点である。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q006",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A billing system parses Claude's schema-constrained JSON, so which responses must the integration still be prepared to handle?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Responses that may not match the schema, such as a refusal or an output cut off at max_tokens.\nA refusal has stop_reason \"refusal\"; a cut-off has stop_reason \"max_tokens\".",
+    "explanation_ja": "構造化出力でも、安全上の拒否(stop_reason が refusal)では拒否メッセージがスキーマ制約より優先され、出力がスキーマに一致しないことがある。max_tokens で打ち切られた場合も出力は不完全になり、より大きな max_tokens で再試行すると完全な出力が得られる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q007",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which design element keeps a human in control when an agent hits a blocker it cannot resolve on its own?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Checkpoints where the agent pauses for human feedback or judgement, including when it encounters blockers.\nStopping conditions such as a maximum number of iterations also maintain control.",
+    "explanation_ja": "エージェントは人間の指示から始まり、必要に応じて人間に判断を仰ぐために戻れるよう設計する。チェックポイントやブロッカー発生時に一時停止して人間のフィードバックを受ける設計にする。最大反復回数などの停止条件を併せて置くと、制御を保てる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q008",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Users report failures in a deployed agent that the pre-launch test suite never caught, so which feedback loop should the architecture include?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Turn user-reported failures from the bug tracker and support queue into test cases.\nPrioritize them by user impact so effort goes where it counts.",
+    "explanation_ja": "本番の失敗をテストケースに変えれば、テストが回帰を防ぎ、指標が推測に取って代わるという好循環が生まれる。ユーザーへの影響の大きさで優先順位を付けると、労力を効果の大きい所に集中できる。ユーザーフィードバックの振り分けとトランスクリプトの定期的な確認も継続的な補完策になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q009",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team assumes every AI feature needs an agent loop, so what simpler building block does Anthropic say is usually enough?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A single LLM call optimized with retrieval and in-context examples.\nFor many applications, nothing more complex is needed.",
+    "explanation_ja": "多くのアプリケーションでは、retrieval や in-context の例で最適化した単一の LLM 呼出しで十分な性能が得られる。workflow や agent は性能とコスト・レイテンシを引き換えにするため、効果が確認できたときだけ採用する。最初からエージェントループを前提にするのは、不要なコストと複雑さを招く誤りである。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q010",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which augmentations turn a single LLM call into Anthropic's basic building block, the augmented LLM?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Retrieval, tools and memory.\nTailor these capabilities to your use case and give the LLM an easy, well-documented interface.",
+    "explanation_ja": "Anthropic はエージェント的システムの基本部品を、retrieval・tools・memory で拡張した LLM(augmented LLM)と位置付けている。この部品は、複雑さを段階的に上げていく設計の出発点になる。実装では、拡張機能を用途に合わせて整え、LLM が使いやすく十分に文書化されたインターフェースを用意することが重視されている。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q011",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A support platform receives refund requests, technical questions, and general inquiries that need different prompts and tools, so which workflow pattern fits?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Routing: classify the input and direct it to a specialized follow-up task.\nIt works when categories are distinct and classification can be done accurately.",
+    "explanation_ja": "routing は入力を分類して専門化した後続処理に振り分けるため、関心事を分離して特化したプロンプトを作れる。ルーティングがないと、ある種類の入力に最適化した結果が他の入力の性能を落とすことがある。orchestrator-workers は必要なサブタスクを事前に予測できない場合の型であり、カテゴリが明確なこの状況には当てはまらない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q012",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A coding assistant must change an unpredictable number of files per request, so why does orchestrator-workers fit better than parallelization?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The orchestrator determines the subtasks dynamically from the specific input.\nIn parallelization the subtasks are predefined.",
+    "explanation_ja": "orchestrator-workers は構造が parallelization と似ているが、サブタスクを事前定義せず orchestrator が入力に応じて決める柔軟性が本質的な違いである。変更すべきファイル数や内容が課題ごとに変わるコーディングのように、必要なサブタスクを予測できないタスクに適する。固定のサブタスクを並列に流す構成では、この不確定さに対応できない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q013",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When does the extra cost of an evaluator-optimizer loop pay off?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "When there are clear evaluation criteria and iterative refinement provides measurable value.\nGood fit means responses improve with feedback and the LLM can supply that feedback.",
+    "explanation_ja": "evaluator-optimizer は生成と評価を別の LLM 呼出しに分けて反復するため、評価基準が明確で反復による改善に測定可能な価値があるときに有効である。適合の目安は、人間がフィードバックを言語化すると応答が実際に良くなること、そして LLM 自身がそのフィードバックを出せることの 2 点である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q014",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An invoice-processing task has fixed, well-understood steps and the business demands consistent results, so should the architect choose a workflow or an autonomous agent?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A workflow, because it offers predictability and consistency for well-defined tasks.\nAgents are better when flexibility and model-driven decision-making are needed.",
+    "explanation_ja": "手順が予測でき一貫性が求められるタスクは、事前定義のコードパスで LLM を編成する workflow が適する。agent は自律性の代償としてコストが高く、エラーが累積する可能性がある。agentic システムはレイテンシとコストを犠牲にして性能を上げるため、そのトレードオフに見合うときだけ選ぶ。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q015",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which safeguards does Anthropic recommend when an open-ended task justifies an autonomous agent despite its compounding-error risk?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Extensive testing in sandboxed environments along with appropriate guardrails.\nThe agent may operate for many turns, and compounding errors are possible.",
+    "explanation_ja": "agent は手順を固定できないオープンエンドな課題に向くが、自律的に多数のターンを動くため誤りが積み重なりやすい。そこでサンドボックス環境での十分なテストと適切なガードレールを前提にする。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q016",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A workload exceeds one context window and cost matters, so how does the orchestrator strategy reduce spend?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The frontier model holds the loop, decomposes the task, and dispatches subtasks to lower-cost worker models.\nMost tokens are billed at worker rates while planning and synthesis stay with the frontier model.",
+    "explanation_ja": "orchestrator 戦略では、トークン消費の大きい探索を安価な worker モデルが吸収し、orchestrator 自身の transcript は短く保たれる。計画と統合は最上位モデルが担うので、品質の要所は維持したままコストを下げられる。全工程を最上位モデルで実行する構成や、全工程を安価なモデルに任せる構成は、それぞれコストか品質のどちらかを失う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q017",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "For which kind of task does a multi-agent architecture justify its much higher token consumption?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Valuable breadth-first tasks with heavy parallelization, where the task value is high enough to pay for the extra performance.\nIt is a poor fit when agents must share the same context or have many dependencies.",
+    "explanation_ja": "multi-agent は複数の独立した方向を同時に調べる広い探索で効果が大きい一方、通常のチャットより大幅に多くのトークンを使う。そのため経済的に成り立つのは、タスクの価値が増加コストを上回る場合に限られる。全エージェントが同じ文脈を共有する、あるいは相互依存が多い領域には現状向かない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q018",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "For large structured outputs such as code or reports, why can subagents store results in an external system and pass only lightweight references back to the lead agent?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It avoids the 'game of telephone' of copying everything through the coordinator.\nIt prevents information loss and reduces token overhead from copying large outputs.",
+    "explanation_ja": "サブエージェントの成果物をすべて lead agent の会話経由で受け渡すと、多段の受け渡しでいわゆる伝言ゲームが起き、情報が失われ、大きな出力のコピーでトークンも嵩む。成果物を外部のシステムに保存し軽量な参照だけを coordinator に返す方式は、コードやレポートのような構造化された出力で特に有効とされる。coordinator は参照を通じて統合と調整の役割を保つ。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q019",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A sponsor asks why an agentic design costs more than the workflow it would replace, so what trade-off should the architect state?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Agentic systems often trade latency and cost for better task performance.\nThe trade is worth making only when the task needs the flexibility an agent provides.",
+    "explanation_ja": "エージェント型の構成は、レイテンシとコストを払ってタスクの性能を得る設計である。手順が決まっていて予測可能性と一貫性が求められるタスクなら workflow の方が適しており、追加コストに見合わない。スポンサーには、柔軟性が必要なタスクかどうかを判断の分かれ目として示す。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q020",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How can a team ship a new version of a long-running, stateful agent system without disrupting the agents already running?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Use rainbow deployments to gradually shift traffic from old to new versions.\nBoth versions keep running simultaneously.",
+    "explanation_ja": "エージェントのシステムは、プロンプト・ツール・実行ロジックが絡み合った状態を持ち、ほぼ常時動いている。そのため更新を出すとき、エージェントは処理のどの段階にいるか分からず、全エージェントを一斉に新版へ切り替えることはできない。そこで Anthropic は rainbow deployment を使い、旧版と新版を同時に動かしながらトラフィックを徐々に新版へ移している。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q021",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Between the outline and the final document in a prompt chain, what can be added to check that the process is still on track?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A programmatic check (a gate) on the intermediate step.\nIt catches a bad outline before the later steps build on it.",
+    "explanation_ja": "prompt chaining は、各 LLM 呼出しが前の出力を処理する直列の構成である。中間ステップにプログラムによるゲートを置けば、処理が軌道に乗っているかを確認できる。アウトラインの段階で基準を満たさないものを弾けば、後続のステップがそれを土台にして進むのを防げる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q022",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team proposes a hardcoded plan-then-execute pipeline for a competitive-landscape research agent whose sources are unknown up front, so what design flaw should the architect point out?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The path depends on what each step finds, so a fixed path cannot be hardcoded for it.\nThe subtasks cannot be predicted in advance, which is the case an orchestrator that decomposes them dynamically is suited for.",
+    "explanation_ja": "情報源が事前に分からない調査では、各段階で何が見つかるかによって次に調べることが変わり、過程が動的で経路に依存する。そのため固定の経路をあらかじめ組むことはできない。必要なサブタスクを予測できない複雑なタスクには、orchestrator がサブタスクを動的に分解してワーカーに委任する構成が適している。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q023",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An architect is deciding whether to split a feature's implementation and its tests between two agents, so what criterion should govern the split?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Split work only when context can be truly isolated.\nAn agent handling a feature should also handle its tests because it already holds the needed context.",
+    "explanation_ja": "仕事の種類で分けると、引き継ぎのたびに文脈が失われ、調整にトークンを使いすぎる。頻繁に理解を同期する必要があるものは同じエージェントにまとめる。また分けた後も、サブタスクの記述が粗いと重複や抜けが生じるため、十分に詳しい指示が必要になる。",
+    "refs": [
+      "https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q024",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A pilot impresses in demos but leadership hesitates to fund it, so what should the team track to build a defensible business case?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Concrete metrics such as productivity gains, time savings, and quality improvements.\nThis turns impressive demos into defensible business cases.",
+    "explanation_ja": "デモの印象だけでは投資判断の根拠にならず、生産性向上・時間短縮・品質改善といった具体的な指標で測って初めて事業上の根拠になる。この証拠に基づくアプローチは、継続的な改善と関係者への ROI の説明につながる。",
+    "refs": [
+      "https://www.anthropic.com/news/driving-ai-transformation-with-claude"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q025",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A finance team wants to judge an AI project by monthly token consumption, so what should they measure instead?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Cost per outcome, compared with what the work would have cost without AI.\nTime-saving estimates may omit the extra human work to refine outputs, so account for it.",
+    "explanation_ja": "トークン消費そのものではなく成果あたりのコストを価値の主指標にする。複雑な推論に安価なモデルを当てると、人手による修正が増えて完成までのコストがかえって上がることがある。時間短縮の推定には出力を仕上げる追加作業が含まれない場合があるため、効果の見積もりではその工数を別途考慮する。",
+    "refs": [
+      "https://claude.com/blog/a-guide-to-cost-visibility-and-control-in-claude",
+      "https://www.anthropic.com/research/estimating-productivity-gains"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q026",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t6-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An interactive assistant must meet a strict response-time SLA, so how should that SLA shape which Claude model the team deploys?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Choose the model that best fits the use case in terms of speed and output quality.\nSelecting the appropriate model is one of the most direct ways to reduce latency.",
+    "explanation_ja": "Anthropic のレイテンシ対策ガイドは、ユースケースに合ったモデルの選択を、レイテンシを下げる最も直接的な方法の一つとして最初に挙げている。モデルごとに能力と性能特性が異なるため、速度と出力品質の両面で要件に最も合うものを選ぶ。応答時間の SLA は、この選択で満たすべき速度の条件になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]
