@@ -1,0 +1,591 @@
+[
+  {
+    "id": "p-d4-q001",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why should the quality criteria for an LLM feature be several specific, measurable, application-relevant metrics rather than one generic accuracy figure?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Most use cases need multidimensional evaluation, for example F1 plus non-toxicity plus response time.\nEach metric should be specific, measurable and tied to the application's success criteria.",
+    "explanation_ja": "成功基準は具体的で測定可能、かつアプリの目的に関連している必要があり、ほとんどのユースケースは複数の基準で多面的に評価する。カテゴリ回答のタスクなら完全一致、分類なら F1 のようにタスクの性質に合う指標を選ぶ。単一の汎用的な正答率だけでは、用途にとって重要な失敗を見落とす。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q002",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why can the same quality metric, such as citation accuracy, deserve very different weight in two different applications?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Metric weights follow each application's success criteria.\nCitation accuracy may be critical for a medical app but less so for a casual chatbot.",
+    "explanation_ja": "評価指標は汎用の一覧から機械的に選ぶのではなく、その用途の成功基準に照らして重み付けする。引用の正確さは医療向けアプリでは決定的に重要になりうるが、雑談向けのチャットボットではそれほどではない。同じ指標を全用途で同じ重みにすると、重要な失敗を見逃すか、重要でない指標に工数を使ってしまう。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q003",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which latency metric is particularly relevant when a chat application streams its responses?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Time to first token (TTFT), measured from when the prompt was sent to the first generated token.\nIt is particularly relevant when streaming is used.",
+    "explanation_ja": "TTFT はプロンプト送信から最初のトークンが生成されるまでの時間で、ストリーミングを使って応答性の高い体験を提供したいときに特に関係する。許容できる応答時間はアプリのリアルタイム要件とユーザーの期待で決まるため、品質指標と並べて基準を定義する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q004",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When choosing or switching models, why compare cost per completed task rather than price per token?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "You pay for completed tasks, and a more capable model often finishes with less work.\nFewer turns, less searching and less backtracking can outweigh a higher per-token price.",
+    "explanation_ja": "料金表はトークン単位だが、実際に支払うのは完了したタスクに対してであり、高性能なモデルは少ないターン数・少ない探索・少ない手戻りで終える。そのためトークン単価の高さは、作業量の少なさで相殺されることがある。ただし常に有利とは限らず、結果はワークロード次第なので、自社のトラフィックでタスクあたりコストを測って比較する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q005",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A requirement says only that outputs must be safe, so how should it be restated to gate a release?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "State a quantified threshold on a defined trial set, for example under 0.1 percent of 10,000 trials flagged for toxicity.\nAlso quantify the other safety behaviors you care about, such as following instructions not to share personal information.",
+    "explanation_ja": "「安全な出力」のような曖昧な要件は、定義した試行セットに対する閾値(例として 1 万試行中の有害判定が 0.1% 未満)のように定量化して初めてリリース判定に使える。個人情報や機密情報を共有しない指示に従えるかなど、重視する他の安全上の振る舞いも同様に測定対象にできる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q006",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team delays building evaluations because it believes it needs hundreds of tasks first, so what does Anthropic's guidance recommend instead?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Start now with 20 to 50 simple tasks drawn from real failures.\nEarly changes have large effects, so small samples suffice, and the set can grow later.",
+    "explanation_ja": "初期のエージェント開発では変更の効果が大きく、小さなサンプルでも違いが見えるため、実際の失敗から取った 20〜50 件の単純なタスクで十分な出発点になる。評価は後回しにするほど作りにくくなり、稼働中システムから成功基準を逆算することになる。事例は本番トラフィックの分布とエッジケースを反映するように集め、成熟するにつれて難しく大きなセットへ拡張する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q007",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An eval for when an agent should search the web contains only queries that require searching, so what is wrong with it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It is class-imbalanced: it tests only where the behavior should occur.\nAdd cases where the behavior should not occur, or the agent may learn to search for almost everything.",
+    "explanation_ja": "片側だけのテストは片側だけの最適化を生み、検索すべき場合だけを評価すると何でも検索するエージェントになりかねない。検索すべき問いと既存知識で答えるべき問いの両方を含む、クラス不均衡のない問題セットを作る。過剰な発動と未発動のバランスは難しく、調整にも反復が必要だった。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q008",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How should a team combine code-based, LLM-based and human grading for an agent evaluation?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Use deterministic code graders where possible and LLM graders where necessary or for flexibility.\nCalibrate LLM graders against human experts, and use human graders judiciously for validation.",
+    "explanation_ja": "コードによる採点は最も速く信頼でき拡張しやすい一方、微妙な判断には向かない。LLM 採点は柔軟で複雑な判断に向くが、詳細な rubric を用意し、人間の専門家との較正で信頼性を確かめる必要がある。人間による採点は最も柔軟で品質が高い反面、遅く高価なので、検証や較正のために控えめに使う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q009",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What pass rate is expected for a regression eval suite, so that a decline signals something broke?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A nearly 100 percent pass rate.\nAutomated evals can run on every commit, and a decline signals that something broke.",
+    "explanation_ja": "回帰評価は「以前できたタスクを今もこなせるか」を問い、ほぼ 100% の合格率が期待されるため、低下は何かが壊れた合図になる。評価がなければデバッグは苦情を待ち、手で再現し、修正して他が壊れないよう祈る反応的なものになる。評価があればベースラインと回帰テストが手に入り、変更ごとの自動実行が最初の防衛線になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q010",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An eval already passes 100 percent of its tasks, so what does it still provide, and what does it no longer provide?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It still tracks regressions.\nIt gives no signal for improvement, since the agent passes all solvable tasks.",
+    "explanation_ja": "100% の評価は回帰の検出には使えるが、改善のシグナルは与えない。これは評価の飽和で、解ける問題をすべて通した状態のため、大きな能力向上も小さなスコア差にしか見えなくなる。能力評価で合格率が高くなったタスクは、継続実行する回帰スイートに移行させ、新しい難しい問題で改善を測る。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q011",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team's offline evals show a prompt change is better, so why might it still A/B test a significant change before full rollout?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Offline evals can create false confidence when they do not match real usage patterns.\nA/B tests on real traffic measure actual user outcomes, but need sufficient traffic and days or weeks.",
+    "explanation_ja": "自動評価は再現性が高く本番展開なしに回せる反面、実際の利用パターンと合わないと誤った自信を生む。A/B テストは実ユーザーのトラフィックで継続率やタスク完了のような実際の成果を測り、交絡を抑えられるが、有意差に届くまで数日から数週間と十分なトラフィックを要する。オフライン評価で素早く反復し、大きな変更はオンライン指標でも確かめる二段構えにする。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q012",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An A/B test shows a variant has lower task completion but the team cannot tell why, so which practice should complement the test?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Manual transcript review of sampled conversations.\nA/B tests give little signal on the underlying why without thorough transcript review.",
+    "explanation_ja": "A/B テストは指標の変化を示すが、その理由についてのシグナルは弱く、トランスクリプトを丁寧に読まない限り原因が分からない。さらに、展開した変更しか検証できない。ユーザーフィードバックとトランスクリプトのレビューは継続的な補完手段で、サンプルを定期的に読んで変更が何を変えたかを確かめる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q013",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When an eval task fails, what should a team check before changing the prompt?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Read the transcript to see whether the agent made a genuine mistake.\nThe failure may instead come from a grader that rejected a valid solution.",
+    "explanation_ja": "失敗したタスクのトランスクリプトを読むと、エージェントの真の誤りか、採点側が有効な解を不合格にしたのかが分かる。失敗は公正に見えるべきで、スコアが伸びないときは評価ではなくエージェントの性能が原因だと確信できる必要がある。そのうえで失敗事例の分析 → 変更 → 評価を回し、成功基準を早く定義して継続的に反復する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q014",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "According to Anthropic's golden rule for clear prompts, how can you check whether a prompt is clear enough for Claude?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Show the prompt to a colleague with minimal context on the task and ask them to follow it.\nIf they would be confused, Claude will be too.",
+    "explanation_ja": "タスクについての文脈をほとんど持たない同僚がそのプロンプトに従おうとして混乱するなら、Claude も同じく混乱するという黄金ルールで、指示の曖昧さや欠落を早く見つけられる。出力形式と制約を具体的に書くことも、結果の改善に役立つ。例が偏ると意図しないパターンまで拾うため、例はエッジケースを含めて多様にする。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q015",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How can a response be made auditable so that unsupported claims are removed?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Have it cite a supporting quote for each claim after drafting.\nIf no quote is found, it must retract the claim.",
+    "explanation_ja": "回答を監査可能にするには、下書きの後で各主張を裏付ける引用を探させ、見つからない主張は撤回させる。各主張に引用と出典を付けさせることでも出力を確認できる。長い文書では先に原文の引用を抜き出させる方法もある。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q016",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t4-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "After a model upgrade, an agent takes more tool rounds and writes more text with no accuracy gain, so what should the team audit first?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The prompt, which may carry over-specific instructions written for the older model, such as verify twice.\nAudit prompts against the current model and re-check them against your own evals.",
+    "explanation_ja": "世代ごとにモデルのプロンプトへの反応は異なり、旧モデルを補うために足した過剰に具体的な指示(「二度確認せよ」「徹底的に」など)を新しいモデルは文字どおり実行して、追加のツール往復と文章を生む。モデルを替えても旧モデル向けのプロンプトはそのままなので、過剰に具体的な指示が新モデルで文字どおり実行されていないかを先に監査する。モデルを変えるたびにプロンプトを監査し、自社の評価で確認し直すのは追加コストのかからない改善である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q017",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "To cut an agent's spend, a team plans to lower max_tokens, so why does Anthropic's cost guidance say this does not lower cost per solved task?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "max_tokens caps a response invisibly to the model, so the model does not economize.\nCut-off attempts are discarded but still billed, so fewer tasks get solved for the money.",
+    "explanation_ja": "max_tokens はモデルから見えない安全上の上限なので、下げてもモデルが出力を節約するわけではない。上限で打ち切られた試行は捨てられるが課金はされ、解けたタスクあたりのコストはほとんど変わらない。コストを節約させるには、モデルから見える予算など別の手段が必要である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q018",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why does Anthropic's cost guidance say to turn on prompt caching before other cost levers for an agentic workload?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Every turn resends the entire growing conversation, so cost grows roughly with the square of turn count.\nCaching makes each resend cheaper and faster, and was the largest lever measured.",
+    "explanation_ja": "エージェントは毎ターン、system prompt・ツール定義・過去の全ターンを送り直すため、タスクコストはターン数のほぼ 2 乗で増える。キャッシュは再送自体は止めないが、再送分の費用を大幅に下げ処理も速める。品質に影響しない無料の施策で、キャッシュはモデル選択の多くの判断より価値が大きい。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-caching"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q019",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A multi-tool workflow is slow because every tool call needs a model round trip, so which mechanism reduces latency and token use?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Programmatic tool calling, where Claude writes code that calls tools inside a code execution container.\nThe model is not re-sampled between calls, and results can be filtered before reaching context.",
+    "explanation_ja": "プログラマティックなツール呼出しでは、Claude がコードを書いてコード実行コンテナ内からツールを呼び、ツール呼出しごとのモデル往復を省く。ツール結果はコンテキストに入る前にフィルタや集計ができるため、マルチツールのワークフローでレイテンシとトークン消費が下がる。ほかにストリーミング、適切なモデル選択、サブエージェントやツールの並列化も有効で、モデル選択はレイテンシを下げる最も直接的な方法の一つである。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/programmatic-tool-calling",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q020",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A multi-model setup looks cheaper than the default single model, so what must it beat before being adopted?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The single model's whole effort-versus-score curve, not just its default setting.\nSweep effort on the current model first, since it is the cheapest experiment.",
+    "explanation_ja": "複数モデル構成は、単一モデルの effort を変えたときのスコアとコストの曲線全体を上回って初めて採用する価値がある。測定では、既定の単一モデルより安く見えた構成が、同じモデルを低い effort で使うより高くついた例があった。まず現行モデルで effort を掃引し、ギャップが残る場合に限って、その構成に合う戦略を追加して評価を回し直す。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q021",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When outputs can be checked automatically and quality is acceptable, how can a team cut cost along the effort dimension?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Run every task at low effort and re-run only the failures at higher effort.\nThis needs a reliable failure signal and pays for the saving in latency on failures.",
+    "explanation_ja": "結果を自動で検査できるなら、全タスクを低い effort で実行し、失敗したものだけ高い effort で再実行する方針が最も安くなり得る。測定では、失敗した低 effort の試行を含めても、常に高 effort で回すより少し高い合格率を約半分の費用で得た。ただし不良品を通してしまう検査器では失敗が漏れ、初回失敗のタスクは 2 回分の時間がかかるため、節約はレイテンシで支払う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q022",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "By default, what does Claude Code telemetry do with prompt text, tool inputs and tool content?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "They are redacted by default.\nThey are logged only when the corresponding opt-in gate is set, such as OTEL_LOG_USER_PROMPTS=1.",
+    "explanation_ja": "ユーザーのプロンプト本文のログは既定で無効で、スパンでもプロンプト、ツール入力、ツール内容は既定でマスクされる。含めるには OTEL_LOG_USER_PROMPTS=1、OTEL_LOG_TOOL_DETAILS=1、OTEL_LOG_TOOL_CONTENT=1 のように対応するゲートを明示的に設定する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/monitoring-usage"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q023",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Beyond the final answer, what should a complete trace of each agent run record so failures can be diagnosed later?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The full transcript: outputs, tool calls, reasoning, intermediate results and other interactions.\nThis shows why a run failed, not just that it failed.",
+    "explanation_ja": "トランスクリプト(trace)は試行の完全な記録で、出力・ツール呼出し・推論・中間結果などを含む。最終回答だけを残すと、失敗がどの段階で起きたかを後から切り分けられない。Anthropic は本番の完全なトレースを追加したことで、エージェントが失敗した理由を診断し体系的に直せるようになったと述べている。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q024",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A finance team needs to reconcile internal records with billing and the engineers want usage alerts, so which programmatic source fits?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The Usage and Cost Admin API, which gives granular historical usage and cost data.\nIt is an Admin API for organizations and is unavailable for individual accounts.",
+    "explanation_ja": "Usage and Cost Admin API は組織の過去の使用量とコストを詳細に取得でき、正確なトークン集計、請求との突合、製品の性能改善の測定、アラート設定に使える。Admin API なので、組織の設定が必要で個人アカウントでは使えない。Claude Code の分析ダッシュボードは開発者の利用パターンや貢献指標を把握する別の手段である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/manage-claude/usage-cost-api",
+      "https://docs.claude.com/en/docs/claude-code/analytics"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

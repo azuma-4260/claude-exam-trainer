@@ -2,11 +2,13 @@
 id: B-CP0-1
 origin: CP0
 created: 2026-09-29
-status: open
+status: absorbed-by CP2
 related_tasks: [CP2]
 related_specs: ["09#phase-7-1019-1128--p-バンクと模試", "08#p-フェーズ-928-1212v13"]
 related_paths: [specs/09_task-plan.md, specs/08_roadmap.md]
 stop_condition: none
+decisions:
+  - { at: 2026-09-30, by: CP2, action: absorb, note: "09 CP2 行と 08 P 成否判定の表現を CP0 重なりマップ(content/ccar-p/SOURCES.md §8)基準に書き換えた。優先付けの表現のみで DoD・日程は不変" }
 ---
 # `09` CP2 行と `08` P 成否判定の「F に無い 3 ドメイン」表現を CP0 の重なりマップに揃える
 

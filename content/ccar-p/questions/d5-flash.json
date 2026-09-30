@@ -1,0 +1,517 @@
+[
+  {
+    "id": "p-d5-q001",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which pattern does Anthropic's guidance recommend for screening both user input and tool output before the main model acts on it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Send the content to a lightweight model in a separate classification call, using structured output so the verdict is a parseable value.\nPass it on only if the screen finds no harmful content or injection attempt.",
+    "explanation_ja": "入力もツール出力も、メインのモデルに渡す前に軽量モデルで分類する「モデルの外の統制」を置くのが推奨パターンです。判定は structured outputs で boolean などの解釈可能な値にし、アプリ側のコードが通すか遮断するかを分岐させます。システムプロンプトでの拒否指示はプロンプト内の指示であり、この外部スクリーニングとは別の層なので、両者を重ねて使います。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q002",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A PreToolUse hook approves a tool call that matches an organization's deny rule, so what happens to the call?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The call is blocked, because hook decisions do not bypass permission rules and deny rules are evaluated regardless of the hook result.\nConversely, a hook that exits with code 2 blocks the call even when an allow rule would permit it.",
+    "explanation_ja": "deny と ask のルールは hook が allow を返しても評価されるため、一致した deny ルールが呼出しをブロックします。逆に exit code 2 の blocking hook は allow ルールより優先されるので、例外だけを確実に止める統制を hook で足せます。統制をプロンプトの指示に頼らず決定論的な層に置けるため、hook が誤って allow を返しても組織の deny ルールは維持されます。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/permissions",
+      "https://docs.claude.com/en/docs/claude-code/hooks",
+      "https://docs.claude.com/en/docs/claude-code/hooks-guide"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q003",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why does an OS-enforced sandbox give a stronger guarantee than relying on the model or per-command approval alone?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The operating system enforces the boundary on the running process, so it holds regardless of what the model chose to run.\nIt still applies even if an allowed command does more than its name suggests.",
+    "explanation_ja": "permission は実行前にコマンド文字列などを見て判定しますが、sandbox は OS が実行中のプロセスに境界を強制するため、モデルが何を実行しようとしたかに左右されません。許可済みのコマンドが名前以上のことをしても、ファイルとネットワークの境界はそのまま効きます。プロンプトでの指示はモデルが従うかどうかに依存するので、境界はモデルの外で強制する設計を選びます。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/sandboxing",
+      "https://docs.claude.com/en/docs/claude-code/hooks-guide"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q004",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why does Anthropic argue that no single line of defense is enough to guarantee protection against prompt injection?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The more open the environment and the more tools an agent has, the more entry points and damage potential exist.\nSo defenses are built at several layers, and customers are encouraged to think carefully about which tools, data, permissions and environments they give an agent.",
+    "explanation_ja": "環境が開かれているほど侵入経路が増え、使えるツールが多いほど侵入後にできることが増えるため、単一の防御では保護を保証できません。Anthropic はモデルの訓練、本番トラフィックの監視、外部 red team による検証など複数の層で防御し、それでも保証にはならないとしています。そのため利用側も、エージェントに渡すツール・データ・権限・実行環境を絞る設計が必要で、検出器を 1 つ足せば十分という考えは誤りです。",
+    "refs": [
+      "https://www.anthropic.com/research/trustworthy-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q005",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t1-03",
+    "secondary_topic_ids": [
+      "p-d5-t1-01"
+    ],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An agent summarizes third-party emails on a user's behalf, so what should you apply to limit the damage if an embedded instruction slips through?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Apply least privilege: no secrets it does not need, tools run in sandboxed environments, and permissions scoped as narrowly as possible.",
+    "explanation_ja": "間接的な prompt injection は完全には防げない前提で、成功しても被害が最小になるよう最小権限を適用します。不要な秘密を持たせず、ツールは sandbox で動かし、権限を最小限に絞ります。第三者コンテンツを tool_result で渡すことやツール出力のスクリーニングは、被害を抑える最小権限とは別に層を重ねる施策です。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q006",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why should an architect not treat a model's agreement with a user's stated belief as independent confirmation of that belief?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Models trained with human feedback show sycophancy, tending to prefer responses that match user beliefs over truthful ones.\nHuman preference judgments are likely one driver of this behavior.",
+    "explanation_ja": "Anthropic の研究は、迎合(sycophancy)が人間のフィードバックで学習したモデルに一般的な振る舞いであり、迎合的な応答を好む人間の選好判断がその一因とみられると報告している。そのため、ユーザーが示した見解にモデルが同意しても、それは事実の裏付けにはならない。",
+    "refs": [
+      "https://www.anthropic.com/research/towards-understanding-sycophancy-in-language-models"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q007",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why can one failed step in a multi-step agent run cause far worse outcomes than a minor bug in traditional software?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Errors compound across steps, and one failing step can send the agent down an entirely different trajectory with unpredictable outcomes.\nAgent autonomy also means higher costs, so test extensively in sandboxed environments with appropriate guardrails.",
+    "explanation_ja": "エージェントでは誤りが各ステップで累積し、1 つのステップの失敗が全く別の軌道につながって結果が予測できなくなります。従来のソフトウェアなら軽微な不具合で済む問題でも、エージェントでは全体を狂わせることがあります。対策は、自律性に伴うコストと誤りの累積を前提に、sandbox での十分なテストと適切な guardrails を用意することです。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q008",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which of the four risk questions in Anthropic's CISO guide asks whether you can tell agent actions from user actions?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "\"What observability do I have?\"\nIt asks whether agent actions can be told apart from user actions and whether they land in your SIEM.",
+    "explanation_ja": "ガイドの 4 つの質問は、信頼できない入力の有無、実行できる操作とその主体、誤動作時の影響範囲(範囲と深刻度)、観測可能性です。このうち観測可能性の質問は、エージェントの操作をユーザーの操作と区別でき、SIEM に記録されるかを問います。4 つの答えはリスクの全体像を示すだけで、どう対処するかは最小権限(least agency)の原則が決めます。目標はゼロリスクではなく、リスクを読み取れて範囲が限定された状態です。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q009",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-03",
+    "secondary_topic_ids": [
+      "p-d5-t1-02"
+    ],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An incident-response agent reads only in-house production logs and writes only new documents and Slack messages, so why did Anthropic judge its risk acceptable?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It ingests no untrusted content, has a bounded write surface with no edits or deletes, and its worst case was mildly sensitive log lines in a locked-down channel.\nEvery action landed in the SIEM, so anything unexpected would surface in minutes rather than weeks.",
+    "explanation_ja": "4 つの質問に当てはめると、入力は社内ログと社内 Slack だけで信頼境界の内側にあり、書込みは新規文書とメッセージに限られ、最悪のケースも限定的で、全操作が SIEM に残る構成でした。リスクがゼロだからではなく、書込み面が限定され監査範囲が完全であるために受け入れ可能と判断しています。「モデルが賢くなれば統制は不要」は誤りで、同じエージェントでもモデル更新で新しい振る舞いが現れたため、能力の想定ではなくアクセスと操作を制限する設計が求められます。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q010",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Rather than reviewing every output the same way, how does Anthropic's pilot-to-production guide suggest matching human review to risk?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Use a four-tier oversight model (automated, sampled, reviewed and advisory) that matches human review to the risk of each output.\nEach tier has example tasks and a review cadence, and humans keep control before high-stakes decisions.",
+    "explanation_ja": "出力ごとのリスクに合わせ、automated・sampled・reviewed・advisory の 4 段階の監督モデルで人間のレビューの深さを決めます。各段階に例となるタスクとレビュー周期を置くので、影響の大きい判断の前には人間の承認を残しつつ、リスクに見合う範囲でレビューを配分できます。全件を同じ深さで人間が見る運用も、全件を自動化する運用も、リスクに見合った配分になりません。",
+    "refs": [
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production",
+      "https://www.anthropic.com/news/our-framework-for-developing-safe-and-trustworthy-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q011",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What should an LLM-as-judge grader be closely calibrated against before you trust it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Human experts, so that there is little divergence between human grading and model grading.\nThat calibration is what gives confidence in the judge's scores.",
+    "explanation_ja": "LLM-as-judge は人間の専門家と十分に較正し、人間の採点とモデルの採点の乖離が小さいことを確認してから信頼します。仕組みが安定した後は人間のレビューは時々で足ります。較正せずに judge の点数をそのまま品質指標にすると、人間の評価とずれたまま判断することになります。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q012",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Reviewers keep seeing the same kind of flag from an agentic workflow, so what should the team do instead of reviewing each flagged change individually?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Group and analyze the flagged changes over time, then fix the cause in the agentic workflow or in the certificate (the conditions a change must meet to count as correct).",
+    "explanation_ja": "同じ種類のフラグが繰り返し出るなら、フラグを時系列で集計して分析し、個別に見るのではなく agentic workflow か判定基準(certificate)の原因を直します。問題が表面化したときは、個々の変更ではなく workflow を直します。",
+    "refs": [
+      "https://claude.com/blog/how-to-prepare-for-ai-driven-code-modernization-projects"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q013",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which Claude API feature lets a reviewer verify each claim without re-reading the whole source document?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Citations, which return the exact passages that support each claim.\nThe reviewer can then verify answers, and users can be shown the sources.",
+    "explanation_ja": "Citations は各主張を裏付ける正確な箇所を返すので、レビュアーは原文全体を読み直さずに各主張の根拠を確認でき、利用者にも出典を示せます。主張ごとに裏付けの箇所が付くため、回答の検証と出典の提示に同じ仕組みを使えます。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/citations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q014",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "For a regulated workload, which party is the data processor when Claude is used through the first-party API versus through Amazon Bedrock or Google Cloud?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "On the Claude API, Claude Platform on AWS and Claude in Microsoft Foundry, Anthropic is the data processor.\nOn Amazon Bedrock and Google Cloud's Agent Platform, the cloud provider is the processor, so use that platform's retention and compliance documentation.",
+    "explanation_ja": "データ処理者(processor)は提供経路で変わり、Claude API などでは Anthropic、Bedrock や Google Cloud ではそのクラウド事業者です。したがって保持期間や契約の確認先も経路ごとに変わり、同じ Claude を使っていても Anthropic の保持ポリシーのページだけでは足りません。Anthropic の API では機能に技術的に必要なものだけを保持し、会話内容は既定では保持されない(Covered Models を除く)とされており、データ最小化を検討する材料になります。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/api-and-data-retention"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q015",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What must be in place before an organization can process protected health information through the Claude API?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A signed BAA and a HIPAA-enabled organization, using only supported API features.\nThe signed BAA is the official source of truth for which features are covered.",
+    "explanation_ja": "PHI を扱うには BAA の締結と HIPAA 対応を有効にした組織が必要で、使える機能は対応機能に限られます。どの機能が対象かは署名済みの BAA が正本で、非対応機能を含むリクエストは原則として 400 エラーで拒否されます(一部のクライアント側ツールは受け付けられても HIPAA readiness の対象外です)。HIPAA readiness は暗号化・アクセス制御・監査ログなど PHI をライフサイクル全体で守る広い安全策で、PHI を扱う場合は ZDR を別途必要としません。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/api-and-data-retention"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q016",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A hospital team wants to use Claude Code or Amazon Bedrock for workloads that involve PHI, so is that covered by the Claude API's HIPAA readiness?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "No, Claude Code and partner-operated platforms such as Amazon Bedrock and Google Cloud's Agent Platform are outside the Claude API's HIPAA readiness.\nFor partner platforms, refer to their own compliance documentation, and beta features are generally not covered unless explicitly listed as eligible.",
+    "explanation_ja": "HIPAA readiness の対象は Claude API(api.anthropic.com)の対応機能で、Claude Code とパートナー運営のプラットフォームは対象外です。Bedrock などを使う場合は、そのプラットフォーム側のコンプライアンス文書で確認する必要があります。beta 機能も、対応機能の表に明記されていない限り原則として BAA の対象外なので、新機能を採用するときは PHI を通す前に対応可否を確かめます。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/api-and-data-retention"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q017",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t4-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An agency needs Claude for DoD Impact Level 4 and 5 workloads, so which delivery route does Anthropic's announcement name?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "As announced, Amazon Bedrock in AWS GovCloud (US) regions, approved for FedRAMP High and DoD IL4 and IL5.\nThe Google Cloud Vertex AI route was announced for FedRAMP High and IL2.",
+    "explanation_ja": "要求される認可水準から提供経路を逆算します。IL4 と IL5 が必要なら、発表で FedRAMP High と DoD IL4/5 の承認が示された AWS GovCloud (US) リージョンの Amazon Bedrock が候補です。Vertex AI の発表は FedRAMP High と IL2 なので、発表時点では IL4/5 の要件を満たす経路として扱えず、同じ Claude でも経路によって認可水準が異なります。",
+    "refs": [
+      "https://www.anthropic.com/news/claude-in-amazon-bedrock-fedramp-high",
+      "https://www.anthropic.com/news/claude-on-google-cloud-fedramp-high"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q018",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t4-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team must keep model inference in US infrastructure per request and separately control where data is stored at rest, so which two settings apply?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Inference geo (the inference_geo parameter, for example us) controls where inference runs, per request or as a workspace default.\nWorkspace geo controls where data is stored at rest and where endpoint processing happens.",
+    "explanation_ja": "データの所在は独立した 2 つの設定で決まり、推論の場所は inference geo(リクエスト単位またはワークスペース既定)、保存時のデータと endpoint 処理の場所は workspace geo です。推論を US に限定しても保存場所は別の設定なので、規制要件から所在とアクセス統制を逆算するときは両方を確認します。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/data-residency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q019",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How can a team proactively evaluate whether an LLM's decisions discriminate across demographic groups, even for a use case not yet deployed?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Generate a wide range of realistic decision prompts across many scenarios and systematically vary the demographic information in each one.\nThen compare outputs across attributes to measure positive and negative discrimination.",
+    "explanation_ja": "研究手法は、多様な意思決定シナリオのプロンプトを LM で大量に生成し、各プロンプトの属性情報を体系的に変えて出力の差を測るものです。未展開の用途でも事前に評価でき、肯定的・否定的の両方の差別パターンを検出できます。属性を変えた比較をせずに公平性を主張すると、根拠が不足します。さらに、慎重なプロンプト設計で差別を大きく減らせることも示されています。",
+    "refs": [
+      "https://www.anthropic.com/research/evaluating-and-mitigating-discrimination-in-language-model-decisions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q020",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why does Anthropic say humans need visibility into an agent's problem-solving process, for instance when asked to reduce customer churn?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Without it a human cannot tell why the agent acts as it does, such as contacting the facilities team about office layouts when asked to reduce churn.\nWith transparency the agent explains its logic, letting people fact-check its data and redirect it.",
+    "explanation_ja": "エージェントの問題解決の過程が見えないと、churn 削減を頼んだのに施設チームへ連絡するような動きの理由が分からず、人間は正しい方向へ誘導できません。ロジックを説明させれば、データの事実確認や使う情報源の調整もできます。ただし詳細が少なすぎると進捗を判断できず、多すぎると無関係な情報で人間を圧倒するので、適切な粒度を探る必要があります。",
+    "refs": [
+      "https://www.anthropic.com/news/our-framework-for-developing-safe-and-trustworthy-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q021",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When an employee runs a personal agent with their own credentials, who is accountable for the outcome?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The person at the keyboard is accountable, as with anything else done with their credentials.",
+    "explanation_ja": "人間の資格情報で動くエージェントでは、キーボードの前の本人が結果に責任を負います。もう一方の端は単一目的で最小権限の system service account で、人間の ID は付きません。両端の中間、つまりエージェントが本人の委任された ID を本人が見ていないシステムに持ち込む領域では責任が曖昧になり、インシデントが説明不能になります。リスクを受け入れる判断も、それを受け入れる権限を持つ人間が行う行為です。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

@@ -1,0 +1,466 @@
+[
+  {
+    "id": "p-d2-q001",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When a team builds a high-volume, straightforward feature with tight latency and cost limits, which model tier should it start with, and when should it move up?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Start with the small, fast, cost-effective tier and test thoroughly.\nUpgrade only if evals show specific capability gaps.",
+    "explanation_ja": "効率優先のアプローチでは、軽量モデルで実装して評価し、特定の能力不足が確認できたときだけ上位モデルへ移る。高ボリュームで単純なタスクやレイテンシ・コストに厳しい用途に向く方法で、試作や反復も速い。最初から最大モデルを選び「大きいモデルにすれば解決」と考えるのは、評価で不足を確認していない点で劣る。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q002",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team is building a complex reasoning application where accuracy outweighs cost, so what starting strategy does Anthropic's model-selection guidance describe?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Start capability-first with the strongest suitable model, optimize prompts for it, and evaluate.\nThen lower effort or move to more efficient models over time as the workflow is optimized.",
+    "explanation_ja": "能力優先のアプローチでは、最も強力なモデルで実装し、そのモデル向けにプロンプトを最適化して評価したうえで、ワークフローの最適化が進むにつれて effort を下げるかモデルを下げて効率化を検討する。複雑な推論や精度がコストに優先する用途に向く。能力優先で始めても、そのまま固定せず評価に基づいて効率化を探る点が要点である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q003",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A support product receives mostly routine questions plus a few hard ones, so how can routing cut cost without hurting quality on the hard cases?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Classify each input, then send easy, common questions to a smaller cost-efficient model.\nSend hard or unusual questions to a more capable model.",
+    "explanation_ja": "ルーティングは、入力を分類して専用の後続処理へ振り分けるワークフローで、易しい質問は小型モデル、難しい質問は高性能モデルに送る使い方がある。明確に異なるカテゴリがあり、分類を LLM や従来型の分類器で正確に行えることが前提になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q004",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "For the classification step at the front of a ticket-routing system, which model tier do many customers find ideal, and when is a larger model justified?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The fastest, most cost-effective tier is often ideal for routing classification.\nA larger model fits when classification needs deep expertise, many intent categories or complex reasoning.",
+    "explanation_ja": "モデルの選択はコスト・精度・応答時間のトレードオフで決まり、振り分けの分類段には最速で最も費用対効果の高い層が理想的だと多くの顧客が評価している。分類に深い専門知識が要る場合、意図カテゴリが非常に多い場合、複雑な推論が要る場合は、より大きなモデルを選ぶ。より大きなモデルは、深い専門知識や複雑な推論が要る分類に限って選ぶ。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q005",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Before migrating an existing application to a newer model, what is the most important preparation step?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Build benchmark tests specific to your use case and run them on your actual prompts and data.\nCompare accuracy, response quality and edge cases, then weigh performance against cost.",
+    "explanation_ja": "モデル選定では必要な機能(capabilities)・速度・コストなどの基準を先に確認し、乗り換えの判断には自社ユースケース専用の評価セットが最も重要とされる。実際のプロンプトとデータで精度・品質・エッジケースの扱いを比較し、性能とコストのトレードオフを見る。カタログ上の印象や価格だけで切り替えると、自社の要件を満たすか確認できない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q006",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why does stating the purpose behind a formatting rule, such as output being read aloud by a text-to-speech engine, work better than a bare prohibition like NEVER use ellipses?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The stated reason lets Claude generalize to the goal and handle cases the rule never listed.\nExplaining why helps Claude better understand your goals.",
+    "explanation_ja": "指示の背景や動機を説明すると、Claude は目的を理解してより的確な出力を返せる。説明から Claude が目的を一般化できるため、ルールに書いていない場合にも目的に沿って判断しやすくなる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q007",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In a ticket-classification prompt template, how is the variable ticket text placed into the otherwise fixed instructions?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The template is a string with a placeholder (a Python f-string), so ticket_contents is inserted into the <request> tags.\nThe instructions and the valid intent list stay fixed across tickets.",
+    "explanation_ja": "プロンプトはテンプレートとして持ち、変数の差し込み位置を決めておく。チケット分類の例では f-string の ticket_contents を request タグの中へ入れる。固定の指示や有効な intent の一覧は、どのチケットでも同じ文面のまま使う。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags",
+      "https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q008",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An assistant that answers from supplied reports sometimes invents details when the report is silent, so which prompt-level changes reduce this?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Explicitly permit it to say it does not know or lacks enough information.\nInstruct it to use only the provided documents and not its general knowledge.",
+    "explanation_ja": "プロンプトで不確実性を認める許可を明示すると、誤情報を大きく減らせる。あわせて回答を提供文書の情報だけに限定し、一般知識を使わないよう指示する。これらは幻覚を完全には消さないため、重要な判断では出力を検証する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q009",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "How can a team sanity-check and expand a small few-shot example set?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Ask Claude to evaluate the examples for relevance and diversity.\nOr ask it to generate additional examples from the initial set.",
+    "explanation_ja": "例は出力の形式・トーン・構造を導く最も信頼できる手段の 1 つだが、偏った例は意図しないパターンまで学習させる。例の関連性と多様性は Claude 自身に評価させることができる。最初の例をもとに追加の例を生成させれば、エッジケースを含めて例を増やせる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q010",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why should an architect not treat thinking as free on a high-volume workload?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Thinking tokens are billed as output tokens, even if the thinking text is not returned.\nThey also count toward max_tokens alongside the response text.",
+    "explanation_ja": "思考は数学・コーディング・分析などの精度を上げるが、その分のトークンは出力トークンとして課金され、思考テキストが返却されなくても課金される。思考トークンは max_tokens にも含まれるため、応答のための余白も考えて設定する。大量の処理では、この代償を織り込んで採否を決める。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/thinking"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q011",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team applies one low effort level to classification, extraction and complex reasoning after a single benchmark run, so what should it do before deploying?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Evaluate each task type on your own use cases, because the impact of effort varies by task type.\nUse evals that mirror the real task distribution, including edge cases.",
+    "explanation_ja": "effort の効果はタスク種別で異なるため、展開前に自社のユースケースごとに性能を評価する。評価は実運用のタスク分布を反映させ、エッジケースも含める。単発のベンチマーク結果を全タスクに当てはめず、自社のタスクごとに評価する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/effort",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q012",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An agent's history is full of raw results from tool calls made long ago, so what is one of the safest, lightest-touch ways to free context?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Tool result clearing: drop old raw tool results once the tool was called deep in the message history.\nIt is one of the safest lightest-touch forms of compaction.",
+    "explanation_ja": "深い履歴にある古いツール呼出しの生の結果を、エージェントが再び見る必要は乏しい。そのため古いツール結果を消す tool result clearing は、最も手軽で安全な compaction の一つとされる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q013",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team proposes curing weak answers by putting every available document into a very large context window, so why is this unreliable?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "More context is not automatically better, because accuracy and recall degrade as token count grows.\nThis context rot means curating what is in context matters as much as available space.",
+    "explanation_ja": "トークン数が増えると精度と再現性が落ちる現象は context rot と呼ばれ、大きなウィンドウでも入れる内容の選別が重要になる。関連情報を選び、古いツール結果のような不要な内容を外すことが品質を守る手段で、ツール結果のクリアは最も手軽で安全な compaction の一つとされる。ウィンドウの容量が大きいことを理由に全件投入する設計は、収まるかどうかと品質が保たれるかどうかを混同している。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q014",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Which context-management technique suits iterative development with clear milestones, and which suits tasks with extensive back-and-forth?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Structured note-taking excels for iterative development with clear milestones.\nCompaction maintains conversational flow for tasks requiring extensive back-and-forth.",
+    "explanation_ja": "compaction は上限近い会話を要約して新しいコンテキストで再開する手法で、往復の多い会話の流れを保つのに向く。構造化ノートテイキングは、エージェントがコンテキスト外へ定期的にメモを書き、あとで呼び戻す手法で、マイルストーンのある反復作業に向く。どちらも万能ではなく、作業の形で使い分ける。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q015",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t4-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Before shipping a prompt that combines a long system prompt, many tool definitions and large tool results, how can a team verify it fits the context budget?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Count everything: system prompt, all messages including tool results, images and documents, tool definitions, and output.\nEstimate the request before sending it with the token counting API.",
+    "explanation_ja": "コンテキストには system prompt、tool results・画像・文書を含む全メッセージ、ツール定義が含まれ、出力(思考を含む)も消費する。送信前の見積もりにはトークンカウント API を使い、実際の消費は各レスポンスの usage で確認する。max_tokens は出力の長さを硬く制限できるが、応答が途中で切れることがあるため、収まり方の調整には鈍い手段である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q016",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An application marks its long prompt with a cache breakpoint but gets no cache reads after a per-request timestamp was added near the top, so why?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The cache key is a cumulative prefix hash, so changing any block at or before the breakpoint changes the hash.\nPut static content first and variable content such as timestamps after the breakpoint.",
+    "explanation_ja": "キャッシュの書き込みは breakpoint でのみ行われ、ハッシュは breakpoint までの全ブロックを含む累積値なので、手前のブロックが 1 つ変わるだけで次のリクエストのハッシュが変わる。遡り検索は過去に書き込まれたエントリを探すだけで、安定した内容を探すわけではないため、毎回新規の書き込みになり読み取りは起きない。変わらない内容を先頭に置いて breakpoint を設定すると、処理時間とコストを同時に下げられる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-caching"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q017",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "What happens to the cache of one long conversation when a team edits tool definitions between requests?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Modifying tool definitions (names, descriptions, parameters) invalidates the entire cache.\nThe cache follows the tools, system, messages hierarchy, and a change invalidates its level and all later levels.",
+    "explanation_ja": "キャッシュは tools → system → messages の階層で、各階層の変更はその階層以降を無効化する。ツール定義の名前・説明・パラメータの変更は全キャッシュを無効化する。そのため、キャッシュに頼る会話の途中でツール定義を頻繁に変えない設計が妥当である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-caching"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q018",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A large unchanging reference block opens every request to the API, so which reuse mechanism cuts the repeated processing cost: prompt caching or an Agent Skill?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Prompt caching: place the static content at the start of the prompt and set a cache breakpoint.\nSkills package procedures or expertise, not repeated prefixes.",
+    "explanation_ja": "変わらない共通部分を毎回の先頭に置くなら、prompt caching で再利用するのが合う。静的な内容を先頭に置き、cache breakpoint を設定すると、繰り返しのリクエストの処理時間とコストを下げられる。手順や専門知識をパッケージにして必要なときに使わせる用途は Skills で、再利用の仕組みは用途で使い分ける。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-caching",
+      "https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q019",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Why can an organization install many Agent Skills without a large context penalty?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Only each Skill's name and description are loaded at startup.\nThe SKILL.md body loads when triggered, and bundled files only when accessed.",
+    "explanation_ja": "Skill は段階的な読み込み(progressive disclosure)を採用し、常時読み込まれるのは frontmatter の name と description だけである。トリガーされると SKILL.md の本文が、参照されると付属ファイルが初めてコンテキストに入る。description は発動判断の根拠になるため、何をするか・いつ使うかの両方を書く必要があり、会話単位の一回限りの指示であるプロンプトとは読み込み方が異なる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview",
+      "https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  }
+]

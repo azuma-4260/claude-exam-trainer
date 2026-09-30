@@ -1,0 +1,714 @@
+[
+  {
+    "id": "p-d3-q001",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A review agent only needs to read and analyze documents, so should the architect remove its write tools or keep them and rely on logging and confirmation prompts?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Remove the write tools so the role cannot modify files through its own tool list.\nA read-only tool list (for example Read and Grep) means the agent can analyze but never accidentally modify the files.",
+    "explanation_ja": "役割に不要なツールは構成から外すのが確実で、Read と Grep だけを持つレビュー担当はドキュメントを分析できても誤って変更することがない。サブエージェントのツール制限は、意図しない操作のリスクを下げる機能として説明されている。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://docs.claude.com/en/docs/claude-code/sub-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q002",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An agent connected to several MCP servers keeps choosing the wrong tool among similarly named ones, so what should the architect change in the tool catalog?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Namespace overlapping tools with service or resource prefixes, or load them on demand with tool search.\nToo many or overlapping tools distract agents; wrong tool selection and incorrect parameters are the most common failures.",
+    "explanation_ja": "ツールが多すぎたり機能が重なったりすると、エージェントはどれを使うべきか混乱し、誤ったツール選択や誤ったパラメータが最も多い失敗になる。対策は、サービスやリソースごとの名前空間(接頭辞)の付与や、Tool Search による必要時のみの読み込みといったカタログ側の整理である。命名方式の効果はモデルによって異なるため、自社の評価で選ぶ。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://www.anthropic.com/engineering/advanced-tool-use",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/tool-search-tool"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q003",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t1-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Anthropic lists connectors in its directory, so does that listing mean an engineering team can skip its own security vetting of an MCP server?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "No; Anthropic reviews connectors against listing criteria but does not security-audit or manage any MCP server.\nThe team should write its own servers or use servers from providers it trusts.",
+    "explanation_ja": "Anthropic はディレクトリに載せる前にコネクタを掲載基準で確認するが、MCP サーバーのセキュリティ監査や管理は行わない。したがって掲載されているからといって、チーム自身による確認を省略できるわけではない。Claude Code のドキュメントは、自前で MCP サーバーを書くか、信頼できるプロバイダーのサーバーを使うことを勧めている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/security"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q004",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A multi-tenant app stores each customer's documents with the Files API and assumes the file ID alone keeps customers separated, so what is wrong with this assumption?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Uploaded files are accessible to the whole workspace, not scoped to an end user.\nPer-user access control must be enforced by the app, or separated files need separate workspaces.",
+    "explanation_ja": "Files API にアップロードしたファイルは、エンドユーザー・会話・セッション単位ではなく workspace 全体からアクセスできる。そのため workspace の API キーを持つ主体は誰でも他の顧客のファイルを参照でき、file_id を知っていることがユーザー分離の仕組みにはならない。ユーザー単位の制御はアプリケーション側で強制するか、分離が必要なファイルを別の workspace に置く必要がある。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/files"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q005",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When the Claude API connects to a remote MCP server that requires OAuth through the MCP connector, who is responsible for obtaining and refreshing the access token?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "The API consumer, meaning your application.\nIt completes the OAuth flow first and passes the token in authorization_token.",
+    "explanation_ja": "MCP コネクタは authorization_token パラメータで渡されたトークンを使うだけで、OAuth フローの実行やトークンの更新は API を呼び出す側の責任とされている。取得・更新したトークンは authorization_token として MCP サーバー定義に渡す。リモート MCP サーバーへ接続する前に必要な認証情報を揃えておくことも、接続手順の前提として示されている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp-connector",
+      "https://docs.claude.com/en/docs/agents-and-tools/remote-mcp-servers"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q006",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "In a requirements review, an agent that reads inbound emails can also send emails, so what authorization gap should the analysis flag?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Untrusted email text can inject instructions that steer the agent into using its send permission.\nThe email example shows an attacker gaining influence over the agent's behavior through content it processes.",
+    "explanation_ja": "メール本文のような第三者が影響できるコンテンツには、Claude を別の動作へ誘導する指示が埋め込まれる可能性がある。公式の例では、隠された指示によってエージェントが機密メールを外部アドレスへ転送させられる。エージェントは多くの操作を実行できるため、攻撃者が振る舞いに影響を持つと、その権限がそのまま悪用される経路になる。要件分析では、メールを読む入力側と送信できる権限が同じエージェントに同居している点を穴として洗い出す。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks",
+      "https://www.anthropic.com/research/prompt-injection-defenses"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q007",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A customer-facing chat feature must feel responsive to users, so which latency lever most directly improves perceived responsiveness?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Stream the response so users see output before it is complete.\nStreaming lets the model start sending its response before the full output is complete, which improves perceived responsiveness.",
+    "explanation_ja": "ストリーミングはモデルが全体の出力を終える前に応答を返し始める機能で、ユーザーが感じる応答性を大きく改善できる。小型モデルの選択や出力の短縮もレイテンシ削減の手段だが、出力品質とのバランスを実験で見極める必要がある。また、まず制約なしで十分な品質のプロンプトを作り、その後にレイテンシ削減策を試すのが順序として望ましい。早すぎる削減は本来の最高品質を見えなくしてしまう。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q008",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team meets its response-time target only by switching to a weaker model, so what lever should it try first within the same model?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Tune the effort parameter, which trades intelligence for latency and cost inside one model.\nAdjust it up or down based on evals before switching models.",
+    "explanation_ja": "effort パラメータは、単一のモデルの中で知性とレイテンシ・コストを交換できる調整手段であり、モデルを切り替えるよりも良いレバーであることが多いとされている。既定値から始めて、自社の評価結果に応じて上下に調整するのが基本の進め方である。モデルを弱くする前に effort を試せば、SLA を満たしつつ精度低下を最小限にできる可能性がある。ただし効果はタスクによって異なるため、評価なしに決めてはならない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model",
+      "https://docs.claude.com/en/docs/build-with-claude/extended-thinking"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q009",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A nightly job already uses prompt caching, so does moving it to the Message Batches API still lower its cost?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Yes; the batch discount applies to every token of a request, including cached ones.\nBatching combines with the other cost levers, and what it gives up is interactivity.",
+    "explanation_ja": "Batch API の割引はリクエストのすべてのトークンに適用され、キャッシュから読まれたトークンも対象になる。そのためキャッシュ済みの定期ジョブでも、バッチに移せばさらにコストが下がる。バッチはほかのコスト削減策と組み合わせられるが、対話性とは両立しないため、即時応答が要る経路には使えない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q010",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team proposes moving to a cheaper model to hit a latency target, so what evidence should the architect require before approving?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Accuracy and latency measured on an evaluation set built from the team's own use case.\nTest with your actual prompts and data, then weigh performance and cost trade-offs.",
+    "explanation_ja": "構成変更の根拠は、自社のユースケースに特化した評価セットで精度とレイテンシを実測した結果でなければならない。評価セットを整備することが最も重要な手順とされ、性能とコストのトレードオフを比較して判断する。成功基準も例えば応答時間の目標値のように数値で定義しておくと、採否を客観的に説明できる。実際のプロンプトとデータでテストし、応答の正確さ・品質・エッジケース対応を比較する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model",
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q011",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Users report that a production agent is \"not finding obvious information\" but no error is ever raised, so what observability capability lets the team diagnose the cause?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Full production tracing of the agent's steps such as queries, source choices, and tool calls.\nAgents are non-deterministic between runs, which makes debugging harder; the cause is not visible from reports alone.",
+    "explanation_ja": "エージェントは動的に判断し、同一のプロンプトでも実行ごとに結果が変わるため、デバッグが難しくなる。品質の劣化は例外として現れず、検索クエリが悪いのか、情報源の選択が悪いのか、ツールの失敗なのかがユーザーの報告だけでは分からない。本番のトレースを取ることで、失敗の理由を特定し体系的に修正できるようになる。出典は full production tracing で失敗理由を診断し体系的に修正できたと述べている。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q012",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t4-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A compliance team wants agent monitoring but forbids storing user conversation content, so what can still be monitored?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Agent decision patterns and interaction structures, without the contents of individual conversations.\nTelemetry can also redact prompt text by default.",
+    "explanation_ja": "エージェントの意思決定のパターンや相互作用の構造を監視すれば、個々の会話の内容を見なくても、根本原因の診断や予期しない挙動の発見ができる。Anthropic 自身のマルチエージェントシステムでも、ユーザーのプライバシーを守るためにこの方式を取っている。Claude Code のテレメトリでも、トレースのスパンは既定でユーザーのプロンプト本文やツール入力を伏せる設定になっている。テレメトリは既定でプロンプト本文などを含めず、明示的に有効化した場合だけ含まれる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/docs/claude-code/monitoring-usage"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q013",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team plans to monitor a large deployed agent using only its pre-release automated evals, so what monitoring strategy should the architect recommend instead?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Layer production monitoring, user feedback, transcript review, and human evaluation on top of automated evals.\nAutomated evals alone can create false confidence when they do not match real usage patterns.",
+    "explanation_ja": "自動評価は再現性が高く何度でも回せるが、実際の利用パターンと合っていないと誤った安心感を生み、製品やモデルの変化に合わせた保守も要る。完全な像を得るには、本番の監視、ユーザーからのフィードバック、A/B テスト、手動のトランスクリプトレビュー、体系的な人手評価を組み合わせる。規模が大きい場合は LLM-as-judge による評価が、うまく設計すればスケールする手段になる。能力評価は合格率が高くなれば回帰テストとして走らせ続けてドリフトを検知できる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q014",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A RAG system fails to retrieve a chunk that says \"The company's revenue grew by 3% over the previous quarter\", so what chunk-level fix addresses the root cause?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Prepend chunk-specific explanatory context to each chunk before embedding and before building the BM25 index.\nThe chunk alone does not say which company or period it covers.",
+    "explanation_ja": "チャンクを切り出すと、どの会社のどの期間の話かといった文脈が失われ、正しいチャンクを検索できなくなる。Contextual Retrieval は、各チャンクに固有の説明文を埋め込みの前と BM25 インデックス作成の前に付け足すことでこの問題を解く。この説明文は Claude に文書全体を渡して生成させ、prompt caching を使えば低コストで実行できる。チャンクのサイズ・境界・オーバーラップも検索性能に影響するとされる。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q015",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t5-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When adding document context to chunks, why is a generic document summary attached to every chunk a weaker choice than chunk-specific context?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Generic document summaries gave only very limited gains in Anthropic's experiments.\nChunk-specific context that situates each chunk within the whole document is the approach Contextual Retrieval uses.",
+    "explanation_ja": "文書全体の汎用的な要約を各チャンクに付ける方法は、試した結果、得られた改善が非常に限られていた。効果があったのは、そのチャンクが文書全体のどこに位置し何を指すのかを短く説明する、チャンク固有の文脈を前置する方法である。文書の要約ベースのインデックスや仮説的文書の埋め込みといった他の提案も、この手法とは別物として扱われている。Anthropic の実験では汎用の文書要約は改善が非常に限られていた。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q016",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When selecting an embeddings provider, which factor covers options for continued training on private data or specialization for a very specific domain?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Customization.\nIt can improve performance on unique vocabularies.",
+    "explanation_ja": "embedding プロバイダーの選定で挙げられる要素は、学習データの規模とドメインへの適合度、推論性能、カスタマイズの 3 つである。このうち継続学習や特定ドメインへの特化といった選択肢を指すのがカスタマイズで、独自の語彙を扱う場合に性能を高められる。学習データの規模・適合度は汎用モデルがそのドメインにどれだけ合うかの話であり、私的データでの追加学習の可否とは別の観点である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/embeddings",
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q017",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t5-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A support bot's whole knowledge base easily fits in the context window, so should the team build a RAG pipeline?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Not necessarily; a knowledge base that fits in the context window can simply be included in the prompt, made faster and cheaper with prompt caching.\nAs the knowledge base grows, RAG becomes the more scalable solution.",
+    "explanation_ja": "知識ベースがコンテキストウィンドウに収まる程度に小さいなら、全文をプロンプトに入れれば RAG は不要で、最も単純な解が最良になることがある。prompt caching と組み合わせると、繰り返し使う内容のレイテンシとコストを大きく下げられる。知識ベースが大きくなったら、より拡張しやすい解として RAG(Contextual Retrieval)を使う。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q018",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A technical support search must find the exact error code \"TS-999\" in documentation, so why can embedding-only retrieval fail and what complements it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Embeddings capture semantic similarity and can miss exact matches such as unique identifiers.\nBM25 lexical matching finds the exact string.",
+    "explanation_ja": "埋め込みモデルは意味的な関係の捕捉に優れる一方で、固有の識別子やエラーコードのような厳密な一致を見逃すことがある。エラーコード全般の文書は見つけても、TS-999 そのものの文書を外しうる。BM25 は語彙の一致で正確な語句を探すため、固有名詞・コード・型番を含むクエリに向いている。そのため意味検索だけに頼るのは誤りで、両者を補完的に使う。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q019",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "After running both BM25 and embedding searches for a query, how does a hybrid retrieval pipeline produce the final context for the model?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It merges and deduplicates the two result lists with a rank fusion technique.\nThen it passes the top-K chunks to the model.",
+    "explanation_ja": "ハイブリッド検索では、BM25 による完全一致の上位と、埋め込みによる意味的類似の上位をそれぞれ取得する。両者の結果はランク融合の手法で統合し重複を除いてから、上位 K 件のチャンクをプロンプトに加える。この構成は、正確な語句の一致と広い意味理解のバランスを取れるため、埋め込みだけの場合より包括的で正確になる。実験でも埋め込みに BM25 を加えたほうが埋め込み単独より良い結果だった。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q020",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A RAG system retrieves hundreds of candidate chunks of mixed relevance, so why add a reranking step instead of sending them all to the model?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Reranking selects only the most relevant chunks, which improves responses and cuts cost and latency.\nThe model then processes less information.",
+    "explanation_ja": "初期検索では関連度のまちまちなチャンクが数百件返ることがあり、全部を渡すとモデルが処理する情報が増えてコストもレイテンシも上がる。リランキングは候補を多めに取ってから、リランカーで各チャンクの関連度を採点して上位 K 件だけに絞る手法である。これにより回答の質が上がり、同時に処理量が減るのでコストとレイテンシも下がる。ただし追加の実行時ステップになるため、わずかな遅延は生じる。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q021",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A reranker adds latency on a latency-sensitive path, so how should the architect decide how many chunks to rerank?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Treat it as a trade-off between better accuracy and lower latency and cost, and experiment on your own use case.\nReranking more chunks can improve accuracy, but the extra runtime step adds latency and cost.",
+    "explanation_ja": "より多くのチャンクをリランクするほど性能は上がりうるが、少なくすれば遅延とコストは下がるという本質的なトレードオフがあり、最適点は自社のユースケースで実験して決める。したがって固定の正解を暗記するのではなく、評価で精度とレイテンシの両方を測って設定する。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q022",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When a research task is open-ended and the needed information cannot be predicted in advance, why is single-pass static RAG a poor fit compared with agentic retrieval?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Static RAG fetches the chunks most similar to the query once.\nAgentic retrieval searches iteratively, adapts to new findings, and filters results.",
+    "explanation_ja": "従来の RAG は静的な検索で、入力クエリに最も近いチャンクを一度取得してそれを元に回答を作る。オープンエンドな調査では、見つかった情報によって次に探すべきものが変わるため、これでは不足しやすい。エージェント型の検索では、サブエージェントが検索ツールを反復して使う知的なフィルターとして働き、新しい発見に適応しながら結果を分析する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q023",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t7-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Four different AI applications in a company each need access to the same business systems, so why would an architect build MCP servers instead of four custom integrations?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "MCP is an open standard that replaces fragmented integrations with a single protocol.\nOne server per system can be reused by many clients.",
+    "explanation_ja": "MCP は AI アプリケーションを外部システムにつなぐためのオープンな標準で、断片化した個別の統合を単一のプロトコルに置き換えることを目指している。複数のクライアントやエージェントが同じシステムを使う場合、MCP サーバーを一度作れば再利用でき、開発時間と複雑さを減らせる。アプリごとに独自の連携を作ると、保守する統合がアプリ数の分だけ増える。開発者は各データソースごとの個別コネクタを保守する代わりに、標準プロトコルに対して構築できる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp",
+      "https://www.anthropic.com/news/model-context-protocol"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q024",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t7-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A Claude Code workflow only needs standard GitHub operations that the gh CLI already provides, so why prefer the CLI over adding an MCP server?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "CLI tools add no per-tool listing to context and Claude can run them directly.\nThey are more context-efficient than MCP servers.",
+    "explanation_ja": "gh のような既存の CLI は、ツールごとの定義リストをコンテキストに追加せず、Claude がコマンドを直接実行できるため、MCP サーバーより文脈の効率がよい。Anthropic は最も単純な解から始め、必要になったときだけ複雑さを増やすよう勧めている。既存の手段で足りるのに MCP サーバーを足すと、コンテキスト負荷と管理する統合が増える。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/costs",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q025",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t7-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "When delegating an open-ended task to an autonomous agent, where can sensitive resources such as credentials be placed so they stay protected if something goes wrong in the agent's environment?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Outside the security boundary that contains the agent.\nFor high-security deployments, sensitive resources such as credentials can be placed there.",
+    "explanation_ja": "エージェントはファイルや Web ページなど処理する内容に影響されうるので、信頼レベルの異なるコンポーネントはセキュリティ境界で分ける。高セキュリティのデプロイでは、認証情報のような機密資源をエージェントを含む境界の外側に置くことができる。そうすればエージェントの環境で問題が起きても、境界の外にある資源は保護されたままになる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/api/agent-sdk/secure-deployment",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q026",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t8-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team loads every tool definition from many MCP servers into each request, so what happens to the model's tool selection as the tool library grows?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Tool selection accuracy degrades once many tools are available.\nThe definitions also consume many tokens before any work starts.",
+    "explanation_ja": "すべてのツール定義を最初から読み込む方式は単純だが、ツールが増えるほどモデルが正しいツールを選ぶ精度が落ちる。あわせて、定義だけでコンテキストを大量に消費するという問題も大きくなる。ツール検索で必要なツールだけを必要なときに読み込めば、この両方を抑えられる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/tool-search-tool",
+      "https://www.anthropic.com/engineering/code-execution-with-mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q027",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t8-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An agent works over a document store far too large to fit in context, so how does the just-in-time approach let it find the relevant material?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Keep lightweight references such as file paths or links and load data just in time with tools.\nThe agent then discovers relevant context incrementally through exploration.",
+    "explanation_ja": "必要になりそうな資料を最初からすべて文脈に入れるのではなく、ファイルパスやリンクのような軽い参照だけを持ち、実行時にツールで必要なデータを読み込む。エージェントが自分で探索して取得することで、関連する文脈を段階的に見つけられる(progressive disclosure)。出典では、事前処理で全データを入れる代わりに、軽い識別子だけを保持する方式が挙げられている。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q028",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t8-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A product has a small, stable set of tools that are all used in every request, so should the architect add tool search for on-demand loading?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "No; standard tool calling fits when you have a small tool set, every tool is used in every request, or your definitions are small.\nTool search pays off when the catalog is large, costly in tokens, or growing.",
+    "explanation_ja": "ツールの数が少ない、どのリクエストでもすべて使う、定義が小さい、のいずれかに当てはまるなら、Tool Search を使わない標準のツール呼出しのほうが適している。Tool Search が有効なのは、ツール数が多い、定義がコンテキストを大きく消費する、ツール選択の精度が落ちる、複数の MCP サーバーを集約する、ツール群が時間とともに増える、といった場合である。判断の軸は、ツールの規模と使用の予測可能性である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/tool-search-tool"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q029",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t8-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A legal research agent has a slowly changing corpus and needs both fast first answers and the ability to dig deeper, so which context strategy fits?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "A hybrid: retrieve some data up front for speed and let the agent explore further on its own.\nThe hybrid might be better suited to contexts with less dynamic content.",
+    "explanation_ja": "最も効果的なエージェントは、一部のデータを最初に読み込んで速度を確保し、その先は自律的な探索に任せるハイブリッド戦略を取ることがある。Claude Code も CLAUDE.md を最初に文脈へ入れ、glob や grep で必要なファイルをその場で取りに行く構成になっている。動的なコンテンツが少ない法務や金融のような領域にこのハイブリッドが向くとされる。決定境界はタスクによって変わるため、単純な方式から始めて、必要に応じて自律探索の幅を広げる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]
