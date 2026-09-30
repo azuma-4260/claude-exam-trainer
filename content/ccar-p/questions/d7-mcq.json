@@ -1,0 +1,446 @@
+[
+  {
+    "id": "p-d7-q501",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A platform team is standardizing Claude Code for 40 engineers who work in one monorepo. The repository needs shared permission deny rules for secrets files and a formatting hook on every edit, yet engineers must stay free to set personal model and UI preferences for themselves. Where should the configuration live?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Commit .claude/settings.json with the shared deny rules and hooks, and let engineers keep personal preferences in their untracked .claude/settings.local.json."
+      },
+      {
+        "label": "B",
+        "text_en": "Deliver the deny rules and hooks as managed settings, so that nothing an engineer sets locally can differ from the organization baseline in any repository."
+      },
+      {
+        "label": "C",
+        "text_en": "Keep the rules in each engineer's ~/.claude/settings.json, populated by an onboarding script that the platform team reruns whenever the policy changes."
+      },
+      {
+        "label": "D",
+        "text_en": "Write the deny rules and hook requirements as instructions in the root CLAUDE.md, and have reviewers check that sessions followed them before merging."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "チームで共有する権限・hook は、リポジトリにコミットする .claude/settings.json に置くのが設定 docs の推奨で、clone した全員が同じ設定を得られ、個人の例外は git 管理外の .claude/settings.local.json で上書きできる。よって A が正解。B の managed settings はセキュリティポリシーやコンプライアンス用の最上位層で、個人の上書きを一切許さないため、個人の好みを残す要件と合わない。C は各自の user settings に配るためバージョン管理されず、スクリプトの再実行漏れで設定がずれる。D の CLAUDE.md は助言的な指示にすぎず、deny 規則や hook のように決定論的に強制されない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/settings"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q502",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A platform team maintains an incident-tracker MCP server, a triage skill, and a runbook subagent that dozens of the company's repositories should all use. The team wants to ship bug fixes as versioned releases that teams can adopt. How should it distribute them?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Package the server, skill, and subagent as one plugin and publish it through a company plugin marketplace, so teams install it and receive updates."
+      },
+      {
+        "label": "B",
+        "text_en": "Copy the server entry, the skill folder, and the subagent file into every repository's .mcp.json and .claude directory, and re-copy them whenever a release ships."
+      },
+      {
+        "label": "C",
+        "text_en": "Write wiki steps so each engineer registers the server at user scope and copies the skill folder into ~/.claude/skills on their own laptop, repeating after each release."
+      },
+      {
+        "label": "D",
+        "text_en": "Push the server entry through managed settings to every Claude Code user in the organization, and leave the skill and subagent for each team to copy by hand."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "plugin は skills・subagents・hooks・MCP サーバーを 1 つの単位にまとめて配布するもので、docs は「チームメイトに自分のセットアップを渡す、多くのプロジェクトにインストールする、バージョン付きリリースを公開する」場合に plugin を使うと述べ、plugin が同梱した MCP サーバーは有効化時に自動で起動する(MCP docs の Plugin-provided MCP servers)。複数リポジトリに共通のツール一式を更新付きで配るので A が正解。B はリポジトリごとにファイルを複製するため、リリースのたびに全リポジトリでコピーが必要になり、版のずれが生じる(これは plugin の利点が無い場合の推論)。C は各自の手作業に依存し、登録漏れや版のずれが起きやすい。D は MCP サーバーだけを全ユーザーに配り、skill と subagent は同梱されず、必要としない部署にも配布されるため範囲も合わない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/plugins",
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q503",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A security team must centrally enforce that Claude Code in every repository denies reads of secrets files and cannot run in bypass-permissions mode. The company uses Claude for Teams, and many developers are contractors on personal laptops that have no device management. Which mechanism is the most appropriate way to enforce this policy?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Commit deny rules for the secrets paths to each repository's .claude/settings.json, and require a pull-request review for any change to that file."
+      },
+      {
+        "label": "B",
+        "text_en": "Push a managed-settings.json file to laptops through the company's MDM, since managed settings files sit at the top of the settings hierarchy and cannot be overridden locally."
+      },
+      {
+        "label": "C",
+        "text_en": "Add a PreToolUse hook to each engineer's user settings during onboarding, and audit the hook's presence during quarterly access reviews."
+      },
+      {
+        "label": "D",
+        "text_en": "Deliver the deny rules and the bypass-mode lock through server-managed settings in the admin console, which apply once a developer signs in to the organization."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "MDM などのデバイス管理がない組織や管理されていない端末のユーザーには、claude.ai の管理画面から配信する server-managed settings が docs の推奨で、MDM なしで全員に配信できる。server-managed settings は設定階層の最上位にあり、ユーザー設定・プロジェクト設定・コマンドライン引数からは上書きできない。deny 規則と disableBypassPermissionsMode を置けば要件に沿うので D が正解。ただし docs は、これがクライアント側の制御でありセキュリティ境界ではなく、未管理端末では改変や古いバージョンの利用で回避され得るとも述べており、完全な防御ではなく、この前提で最適な手段という位置づけである。A はリポジトリ単位の設定で、そのリポジトリ外には効かず、最上位の階層でもない。B の MDM 配布は端末レベルで強い保証を与えるが、管理されていない個人ノート PC には届かず前提が成り立たない。C は各自の user settings に依存する任意の運用で、強制されず、四半期の監査は事後の検知にとどまる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/server-managed-settings",
+      "https://docs.claude.com/en/docs/claude-code/settings"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q504",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Finance wants per-user token and cost data for Claude Code chargeback across engineering teams. Security forbids collecting prompt or response text. Which setup meets both requirements?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Enable OpenTelemetry export with prompt and response logging turned on, pointed at the company's own collector, so finance can reconcile spend against the prompt content."
+      },
+      {
+        "label": "B",
+        "text_en": "Export OpenTelemetry metrics to the company's collector through managed settings, leaving prompt and response content logging at its default of disabled."
+      },
+      {
+        "label": "C",
+        "text_en": "Read per-user cost from the analytics dashboard's contribution metrics, which report lines of code accepted and pull requests shipped with Claude Code."
+      },
+      {
+        "label": "D",
+        "text_en": "Ask each engineer to run /cost at the end of every session, and post the number in a shared spreadsheet that finance totals each month."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "利用状況の把握には OpenTelemetry のエクスポートを managed settings で全員に配信するのが docs の管理者向け構成で、プロンプト本文とアシスタント応答は既定で収集されず(長さのみ)、cost.usage や token.usage のメトリクスでユーザー別のコストを取れる。よって B が正解。A はプロンプト・応答のログ出力を有効にするため、「本文を収集しない」要件に反する。C のダッシュボードの貢献メトリクスは受け入れ行数や PR 数で、トークン数やコストの指標ではない。D は自己申告で漏れやすく、集計も手作業になり、組織的な把握の仕組みにならない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/monitoring-usage",
+      "https://docs.claude.com/en/docs/claude-code/analytics"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q505",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team's reviewers keep finding logic bugs in Claude-generated changes to pricing rules, after the code already looks finished in the pull request. The team is writing a workflow guideline for the next quarter. Which guideline most directly addresses the problem?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Require plan mode for every task, including one-line fixes, so that each change is reviewed as a written plan before any file is edited."
+      },
+      {
+        "label": "B",
+        "text_en": "Add a CLAUDE.md rule telling Claude to consider edge cases carefully, and move the pricing rules to the top of the file so that it reads them first."
+      },
+      {
+        "label": "C",
+        "text_en": "Have Claude write tests from the pricing spec first, then run the suite after each change and iterate until it passes, before opening the pull request."
+      },
+      {
+        "label": "D",
+        "text_en": "Standardize on the most capable available model for every pricing task, and keep the existing human review as the only check on correctness."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Claude Code のベストプラクティスは、Claude が自分で実行できる検証手段(テスト・ビルド・linter など)を与えると、Claude が作業→検証→結果の読み取り→修正を自力で回して閉ループになる、とする。仕様からテストを先に書かせ、通るまで反復させる C が、問題(完成に見えて論理バグが残る)に最も直接効く。A はスコープが明確な小修正では plan mode のオーバーヘッドが大きく、しかも検証手段を与えない。B の CLAUDE.md は助言的で、ファイルを長くするほど規則が埋もれる。D はモデルを上げるだけで検証ループがなく、人のレビューが唯一のチェックのままになる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q506",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A platform group is rolling the Claude Code GitHub Action out to 80 repositories for automated pull-request review. It wants one place to manage the credential and a hard ceiling on what a runaway run can cost. Which design fits?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Have each repository owner run claude setup-token and store the result as a repository secret, so every team controls its own credential."
+      },
+      {
+        "label": "B",
+        "text_en": "Store one Console API key as an organization-level Actions secret, leave runs uncapped, and watch the analytics dashboard for cost spikes after the fact."
+      },
+      {
+        "label": "C",
+        "text_en": "Store a Console API key as an organization-level Actions secret, and cap each run with --max-turns, a workflow timeout, and concurrency limits."
+      },
+      {
+        "label": "D",
+        "text_en": "Give each repository its own Console API key with a spend alert, and let the workflow run until Claude decides that the review is complete."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "docs は、組織展開では認証 secret を organization レベルの Actions secret として 1 か所に置くこと、共有する secret には OAuth トークンでなく Console の API キーを使うことを述べ、コスト管理として --max-turns、workflow のタイムアウト、concurrency の制限を挙げる。両方を満たす C が正解。A の setup-token の OAuth トークンは実行した個人のサブスクリプションに紐づき、リポジトリごとに認証情報が分散する。B は 1 か所管理はできるが上限がなく、ダッシュボードの監視は事後の検知でコストの上限にならない。D はリポジトリごとに鍵が分かれ、アラートも事後で、実行の打ち切り条件がない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/github-actions"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q507",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "After a pilot with three teams, leadership asks whether Claude Code is paying off before funding a wider rollout. The analytics dashboard is enabled, with GitHub contribution metrics connected. Which approach gives the most defensible answer?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Report the total lines of code accepted from Claude Code suggestions, since a higher line count shows that developers ship more work."
+      },
+      {
+        "label": "B",
+        "text_en": "Compare the pilot teams' PRs per user against their own pre-rollout baseline, alongside delivery KPIs such as DORA metrics."
+      },
+      {
+        "label": "C",
+        "text_en": "Rank engineers on the leaderboard by Claude Code usage, and set a minimum usage target for every team in the wider rollout."
+      },
+      {
+        "label": "D",
+        "text_en": "Survey the pilot engineers about how productive they feel, and treat a majority of positive answers as the measure of return."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "analytics の docs は、導入が進むにつれて 1 人あたりの PR 数がどう変わるかを追い、DORA 指標やスプリントのベロシティなど既存のエンジニアリング KPI と併せて見ることで ROI を判断するよう述べている。導入前のベースラインとの比較を組み合わせた B が最も説得力がある。A の受け入れ行数は作業量であって成果ではなく、行数が多いことが価値を示すとは限らない。C のリーダーボードは利用量の順位で、利用ノルマは成果の測定にならず、数値を目的化する恐れがある。D のアンケートだけでは主観的で、成果指標による裏付けがない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/analytics"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q508",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An on-call engineer asks Claude Code to fix the flaky checkout test and pastes only the last line of the CI output. Claude proposes several unrelated guesses. The team wants a standard way to hand failures to Claude. What should the guideline tell engineers to provide?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The complete raw CI log for the whole pipeline run, pasted in one piece, so that no potentially relevant line is left out of the conversation."
+      },
+      {
+        "label": "B",
+        "text_en": "The command that reproduces the failure, the full stack trace, and whether it is intermittent, so Claude can run it and narrow the cause."
+      },
+      {
+        "label": "C",
+        "text_en": "A written hypothesis of the root cause, so that Claude spends its effort confirming the theory and applying the matching fix."
+      },
+      {
+        "label": "D",
+        "text_en": "The name of the suspected file with an instruction to rewrite it, since a clean rewrite removes the flakiness regardless of cause."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "common-workflows のバグ修正の項は、再現するコマンドとスタックトレースを Claude に渡し、再現手順や、エラーが断続的か常に起きるかも伝えるよう勧めている。Claude が自分で再現して原因を絞り込めるので B が正解。A は無関係な行まで流し込んで文脈を消費し、重要な手掛かりが埋もれる。C は先入観を与えるため、仮説の確認に偏って本当の原因を見逃しやすい。D は原因を特定しないまま書き直すことで、断続的な不具合の根本原因が残るか新たな不具合を生む恐れがある。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q509",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Claude's third attempted fix for a race condition has just failed. The session now holds two earlier failed patches, several corrections from the engineer, and long tool output. The engineer's instinct is to keep correcting in the same session. What is the better move?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Clear the session and restart with a prompt that holds the reproduction steps, the stack trace, and what the failed patches revealed."
+      },
+      {
+        "label": "B",
+        "text_en": "Continue in the same session, because the failed patches in context help Claude avoid repeating them, and add a fourth correction."
+      },
+      {
+        "label": "C",
+        "text_en": "Switch to the largest available model within the same session, since repeated failures indicate a capability limit of the current one."
+      },
+      {
+        "label": "D",
+        "text_en": "Enter plan mode inside the same session and ask Claude to re-plan, keeping the earlier attempts visible as reference material."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "best-practices は「修正を繰り返す」失敗パターンを挙げ、失敗した試行で文脈が汚れるため、2 回修正して直らなければ /clear し、そこまでで分かったことを織り込んだより良い最初のプロンプトで始め直すよう勧める。A が正解。B は失敗した試行が文脈に残り続けるため、同じ方向の誤りに引きずられ、修正を重ねても改善しにくい。C は「モデルを変えれば解決」型で、原因は能力でなく汚れた文脈と情報不足にあり、同じセッションでは解消しない。D は plan mode に切り替えても同じ汚れた文脈を引き継ぐので、根本の問題が残る。",
+    "refs": [
+      "https://www.anthropic.com/engineering/claude-code-best-practices"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d7-q510",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Checkout error rates spiked twenty minutes after a deployment, and the on-call engineer is using Claude Code with the team's runbook. Which approach best combines fast diagnosis with prevention of a repeat?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Ask Claude to revert the newest commits and redeploy with permission checks skipped, and schedule the investigation for the next working day."
+      },
+      {
+        "label": "B",
+        "text_en": "Give Claude write credentials to production so it can patch the running service directly while the engineer monitors the error dashboard."
+      },
+      {
+        "label": "C",
+        "text_en": "Have Claude review the source code for likely bugs without any logs, since production data should stay out of the session entirely."
+      },
+      {
+        "label": "D",
+        "text_en": "Give Claude the logs and metrics from the spike window plus the deploy diff, follow the runbook to link the symptom to the change, then fix it with a test and an alert."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "MCP docs は、課題管理や監視ダッシュボードのデータを手で貼り付けている場合にサーバーを接続すると、Claude がそのシステムを直接読めると述べ、監視データの分析(Sentry などの確認)を例に挙げている。したがって、スパイク時のログとメトリクス、デプロイ差分を Claude に渡して症状と変更を結び付け、修正を再現テストとアラートで再発防止にする D が正解(この手順の組み立ては推論)。postmortem は、標準的なロードバランシング変更と否定的な報告の急増をすぐ結び付けられず診断が遅れた事例で、変更と症状を関連付ける重要性を示す間接的な裏付けである。A は権限確認を外した復旧で、原因調査を先送りし再発を防げない。B は本番への書き込み権限を与えるため本番データを壊すリスクが高く、検証のない直接修正になる。C はログなしのコード読みだけでは、実際に起きた症状とのつながりを確認できない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]

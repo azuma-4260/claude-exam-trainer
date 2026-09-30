@@ -1,0 +1,585 @@
+[
+  {
+    "id": "p-d3-q501",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A help-desk agent is connected to four MCP servers that together expose about 70 tools, several with near-identical names and descriptions (for example, ticket_update and ticket_modify). Traces show the agent picking the wrong tool or wrong parameters, and the tool definitions take a large share of the context before the user's message arrives. What should the architect change first?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a long decision table to the system prompt that maps each type of request to exactly one of the 70 tool names."
+      },
+      {
+        "label": "B",
+        "text_en": "Consolidate the overlapping tools into fewer distinct ones, and namespace the remaining tools by service."
+      },
+      {
+        "label": "C",
+        "text_en": "Move the agent to a larger model, since stronger models choose among similar tools more reliably."
+      },
+      {
+        "label": "D",
+        "text_en": "Add a worked few-shot example for every tool, so the agent can see when each one should be called."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ツールが多すぎる・役割が重なっている状態は、エージェントを惑わせて選択精度を下げ、定義がコンテキストも圧迫する。機能が重なるツールを少数の明確に異なるツールへ統合し、残りをサービス単位で名前空間化する B が、原因(過多と重複)を直接減らすので正解。A の対応表は 70 個分の定義に加えてさらにコンテキストを消費し、重複そのものは解消しない。C は「モデルを変えれば解決」型で、重複した説明という構成上の問題を残す。D は全ツール分の例を足すのでコンテキスト消費を悪化させ、紛らわしい名前の区別も根本的には改善しない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "https://www.anthropic.com/engineering/advanced-tool-use"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q502",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t2-01",
+    "secondary_topic_ids": [
+      "p-d3-t2-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An HR assistant answers employee questions by calling a tool that queries the HR database. The tool currently connects with one shared service account that can read every employee record, so any employee could ask about a colleague's salary. Which design closes the gap?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Pass the signed-in employee's identity to the tool, and have the data layer enforce that employee's access rights."
+      },
+      {
+        "label": "B",
+        "text_en": "Instruct the assistant in the system prompt to refuse any question about another employee's pay or personal records."
+      },
+      {
+        "label": "C",
+        "text_en": "Scan each draft answer for salary figures and redact them before display, because output filtering is simple to add."
+      },
+      {
+        "label": "D",
+        "text_en": "Create one shared service account per department with a narrower read scope, and route each employee to their department's account."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "エージェントが共有サービスアカウントで動くと、呼び出した個人の権限とは無関係に全データへ届く(confused deputy)。ユーザーの身元(ユーザー単位のトークン)をツールに伝え、データ側でそのユーザーの権限を強制する A が正解。MCP コネクタの authorization_token も、呼び出し側が OAuth で取得したトークンをサーバーへ渡す仕組みである。B はプロンプト上のお願いで、強制力のある統制ではない。C は出力後の事後的な検閲で、権限外のデータ取得自体は起きてしまう。D はアカウントを部門単位に分けても共有アカウントのままで、同じ部門内の他人の記録には届く。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp-connector"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q503",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A procurement agent summarizes inbound vendor PDFs and also has a tool that approves purchase orders under a spending limit, using the agent's own credentials. During a requirements review, which gap should the architect flag as the most serious?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The agent keeps no audit log of approvals, so a fraudulent approval would be noticed only after the fact."
+      },
+      {
+        "label": "B",
+        "text_en": "The vendor PDFs may exceed the context window, so some pages of an invoice could be dropped before approval."
+      },
+      {
+        "label": "C",
+        "text_en": "The system prompt does not yet tell the model to ignore instructions found in documents, so a hidden command might be followed."
+      },
+      {
+        "label": "D",
+        "text_en": "Text inside an untrusted document can steer the agent into the approval tool, since both share one context."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "信頼できない文書の本文に含まれる指示が、エージェント自身の権限で承認ツールを呼ばせる経路が、認可上の最大の穴である。取り込みと承認権限が同じコンテキストに同居していることを問題として捉えるのが D。公式ドキュメントも、外部コンテンツを取得するサーバーは prompt injection のリスクを持ち、機微な操作には明示的な承認が要るとしている。A は検知的統制で、不正な承認そのものを防がない。B はセキュリティではなく精度の問題で、権限外の操作につながる経路ではない。C はプロンプト上の注意書きだけで、指示が従われる可能性を構造的には排除できない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/security",
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q504",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A code editor offers inline completions. Each suggestion is shown as one complete block only after it is fully generated, and users ignore suggestions that take longer than about one second in total. The current setup uses the largest model at its highest effort setting, and suggestions score well on the 300-case eval set, but each one takes several seconds. Which configuration change best fits the requirement?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Stream the suggestion token by token to the editor, since streaming shortens the total time needed to generate the whole suggestion."
+      },
+      {
+        "label": "B",
+        "text_en": "Set max_tokens to a very small value so every response finishes quickly, even if some suggestions are cut off."
+      },
+      {
+        "label": "C",
+        "text_en": "Move the requests to the Message Batches API, which has higher throughput and a lower cost per request."
+      },
+      {
+        "label": "D",
+        "text_en": "Test a lower effort setting and shorter output on the eval set, and keep the fastest configuration that still holds accuracy."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "要件は提案全体が約 1 秒以内に出ることで、品質は評価セットで確認済みなので、遅延を下げる手段を評価で検証しながら選ぶ D が正しい。reduce-latency の docs は遅延を下げる手段としてプロンプト・出力トークンの削減を挙げ、effort の docs は、遅延に敏感な用途では evals で品質が保てることを確認したうえで medium や low に下げてよいとする。A のストリーミングは、docs の通り利用者が出力を逐次見られることで体感の応答性を高める手段であり、総生成時間は縮めない。この設問は提案を丸ごと 1 つ表示するため、逐次表示の利点がそもそも生きない。B は max_tokens を極端に小さくして提案が途中で切れる粗い手段。C の Batches は非同期処理で、即時に返す必要がある用途に合わない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency",
+      "https://docs.claude.com/en/docs/build-with-claude/effort",
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q505",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A law firm must tag 400,000 archived contracts with clause types for a compliance project due at the end of the month. No user is waiting on individual results, and the budget is tight. Which integration fits?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Call the real-time Messages API with many parallel workers and streaming enabled, so the whole archive is tagged within a day."
+      },
+      {
+        "label": "B",
+        "text_en": "Submit the contracts to the Message Batches API in chunks, poll for completion, and resubmit any requests that expire."
+      },
+      {
+        "label": "C",
+        "text_en": "Run the real-time API overnight with prompt caching on the clause taxonomy, which avoids building a separate batch pipeline."
+      },
+      {
+        "label": "D",
+        "text_en": "Use the Message Batches API but schedule the project around every batch finishing within one hour, treating that as a fixed dependency."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "待てる大量処理は Message Batches による非同期処理が適する(低コスト・高スループット)。1 バッチの上限があるため分割して投入し、完了をポーリングして、24 時間以内に終わらず期限切れになったリクエストは再投入する B が正解。A は誰も待っていない処理に同期 API の料金と並列度管理を使い、ストリーミングは総コストを下げない。C も同期料金のままで、バッチ向きの用途に別の構成を選ぶ理由がない。D はバッチの完了時間が保証されないことを無視している(多くは 1 時間以内だが、保証ではない)。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q506",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A support agent chains retrieval, three tools, and a drafting step across about 2 million conversations a month. Reviewers can see that final answers are sometimes wrong, but cannot tell whether retrieval, tool choice, or drafting is responsible, and regressions after prompt changes go unnoticed for weeks. Which monitoring strategy should the architect select?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Alert on HTTP error rates and latency percentiles, which would reveal any quality regression as it occurs."
+      },
+      {
+        "label": "B",
+        "text_en": "Assign reviewers to read every conversation each day, so that no low-quality answer goes unseen."
+      },
+      {
+        "label": "C",
+        "text_en": "Trace each run with spans per model and tool call, and score sampled traces with an LLM judge, alerting on drift."
+      },
+      {
+        "label": "D",
+        "text_en": "Log only the final answers, and search them for phrases such as \"sorry\" or \"I cannot\" to estimate answer quality."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "多段呼出しでは、誤答の原因が検索・ツール選択・回答作成のどこにあるかが最終出力だけでは分からない。呼出し単位のトレーシングで原因を切り分け(Anthropic の multi-agent 研究システムも full production tracing で失敗原因を診断した)、品質そのものは LLM-as-judge によるサンプル採点で継続的に見てスコアのドリフトにアラートを張る C が規模に耐える戦略。A は HTTP エラー率とレイテンシで、品質劣化は例外として現れないため検知できない。B は 200 万件規模に対し全件の人手読みは現実的でなく、個人情報を人が広く見ることにもなる。D は最終回答だけのキーワード検索で、誤りを自信ありげに述べる失敗を拾えず、原因の切り分けもできない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q507",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A support knowledge base is split into chunks of about 300 tokens. One chunk reads \"Restart the unit and wait two minutes before retrying,\" which never names the product, so queries about a specific device return chunks about the wrong products. The team wants to keep the chunk size. What should they change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Raise the overlap between neighboring chunks to half a chunk, so each chunk repeats more of its neighbors' text."
+      },
+      {
+        "label": "B",
+        "text_en": "Swap in a larger embedding model, since a stronger model can infer the missing product from the chunk alone."
+      },
+      {
+        "label": "C",
+        "text_en": "Prepend a short generated description of where the chunk sits in its source document, then embed and index the result."
+      },
+      {
+        "label": "D",
+        "text_en": "Pass the top 50 retrieved chunks to Claude and let it work out which product each one is about."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "チャンク化で文書の文脈が失われ、単体では「どの製品の話か」が分からなくなることが検索失敗の原因。各チャンクの前に、元文書内での位置づけを示す短い文脈(Contextual Retrieval)を付けて embedding と索引を作る C が、チャンクサイズを保ったまま解決する。A のオーバーラップ増は隣接テキストを繰り返すだけで、製品名が出てこない限り欠けた文脈を補えない。B は大きい embedding モデルでも、チャンクに無い情報は推論できない。D は上位 50 件を渡す方式で、最初の検索が外れた後にモデルへ負担を押し付け、コンテキストも浪費する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/contextual-retrieval"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q508",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "After a rewrite of the nightly ingestion job, retrieval recall dropped across the whole corpus, although the documents, the embedding model, and the chunking are unchanged. The new job embeds chunks without setting input_type, while the query service still embeds queries with input_type set to query. What is the right fix?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Lower the similarity threshold so that more chunks pass, compensating for the weaker matches."
+      },
+      {
+        "label": "B",
+        "text_en": "Raise top-k sharply so the relevant chunks reappear among the results passed to the model."
+      },
+      {
+        "label": "C",
+        "text_en": "Add a BM25 index next to the vectors so that lexical matches offset the degraded semantic ranking of chunks."
+      },
+      {
+        "label": "D",
+        "text_en": "Re-embed the chunks with input_type set to document, keep queries as query, and rebuild the index."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "検索タスクでは、文書側は document、クエリ側は query と input_type を指定して embedding を作る必要があり、省略してはならない(指定に応じた接頭プロンプトが付く)。ジョブの書き換えでこの対応が崩れたことが原因なので、チャンクを document で再 embedding し、索引を作り直す D が正しい。A は閾値を下げるだけで、ずれたベクトル空間はそのまま残る。B は top-k を増やしてもコンテキスト消費とノイズが増えるだけで、原因を直さない。C の BM25 追加は有用な手法だが、今回は index 内ベクトルの不整合という原因に対する症状の覆い隠しになる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/embeddings"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q509",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A hardware maker's support search covers thousands of manual pages. Most queries contain exact part numbers or error codes such as XR-4471-B or E-217, but the vector-only search keeps returning general pages about similar products. What should the architect change?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add lexical BM25 retrieval next to the embedding search, then merge both result lists with rank fusion."
+      },
+      {
+        "label": "B",
+        "text_en": "Move to a larger embedding model, which should place exact identifiers closer to the queries that mention them."
+      },
+      {
+        "label": "C",
+        "text_en": "Shrink the chunks to one sentence each so that every identifier stands out in its own vector."
+      },
+      {
+        "label": "D",
+        "text_en": "Have Claude paraphrase each query into plain language first, so the embeddings capture the meaning of the code."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "embedding は意味的な近さに強い一方、型番やエラーコードのような固有の文字列の完全一致を取りこぼしやすい。BM25 は一意の識別子や技術用語を含むクエリに有効で、両者の結果を rank fusion で統合する A が正解。B は大きいモデルでも、識別子の完全一致を保証するものではない。C は文を細かくして文脈を失い、検索の別の問題を招く。D は識別子を言い換えると、まさに一致させたい文字列を消してしまう。",
+    "refs": [
+      "https://www.anthropic.com/engineering/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q510",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A RAG assistant passes the top 5 vector-search chunks to Claude. Evaluation shows the needed chunk is usually ranked somewhere in the top 50 but seldom in the top 5, and the latency budget allows one more lightweight step. Which change is the best fit?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Send all 50 chunks to Claude and let it find the relevant one, which avoids adding a retrieval stage."
+      },
+      {
+        "label": "B",
+        "text_en": "Retrieve a larger candidate set, score it with a reranking model, and pass only the best 15 to 20 chunks."
+      },
+      {
+        "label": "C",
+        "text_en": "Cut the chunk size in half so that more of the relevant passages can fit inside the top 5 results."
+      },
+      {
+        "label": "D",
+        "text_en": "Increase chunk overlap so neighboring chunks repeat each other, which raises the odds that the needed text lands in the top 5."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "必要なチャンクが上位 50 件には入るのに上位 5 件に入らないなら、候補を多めに取って reranking で絞る B が最適。Anthropic の検証でも reranking で検索失敗率が下がり、上位 20 件程度をモデルに渡す構成が有効で、reranking は少量のレイテンシを足す代わりに精度を上げる。A は 50 件を全部渡すのでコンテキストとコストが増え、関係ない情報がモデルの注意も散らす。C はチャンクを小さくしても順位付けの質は変わらず、文脈も失う。D のオーバーラップ増は重複を増やすだけで、関連度の順位付けを改善しない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/contextual-retrieval"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q511",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t7-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A single internal web application needs Claude to look up order status through one function that already exists in the application's codebase. One team owns the app, and no other agent or client will use this lookup. Which integration is most appropriate?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Build and deploy a standalone MCP server that wraps the function, so the integration is standardized for future clients."
+      },
+      {
+        "label": "B",
+        "text_en": "Expose the lookup as a separate agent service, and have the main agent delegate to it over an agent-to-agent protocol."
+      },
+      {
+        "label": "C",
+        "text_en": "Define the function as a tool in the Messages API request, and run it in the application when Claude calls it."
+      },
+      {
+        "label": "D",
+        "text_en": "Wrap the function in a shell script and let Claude run it through a general-purpose bash tool."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "単一アプリ内で完結する固定の連携は、Messages API に tool を定義し、Claude が tool_use を返したらアプリ側で関数を実行する直接の tool use で足りる。Anthropic も、まず LLM API を直接使い、必要になるまで複雑さを足さないことを勧める。A は他のクライアントが使う見込みがない統合に MCP サーバーの運用を足す。B は別組織でも別システムでもない委任先を作る過剰設計。D はアプリ内の関数をシェル経由にして、型付きの入力や実行の制御を失う。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q512",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t7-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An airline has three Claude-based applications built by different teams in Python, TypeScript, and a desktop assistant: a booking chatbot, a crew-scheduling assistant, and an internal analyst tool. Each one ships its own hand-written function-calling code for the same flight-status and booking-lookup systems, and the schemas have drifted apart. The platform team wants one integration that current and future agents and clients can all reuse. What should they build?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "One MCP server that exposes flight status and booking lookup as tools, with each application connecting to it as an MCP client."
+      },
+      {
+        "label": "B",
+        "text_en": "A shared library of function definitions that each team copies into its own application, refreshed at every release."
+      },
+      {
+        "label": "C",
+        "text_en": "One combined agent that serves all three applications, so that only a single tool integration needs to be maintained."
+      },
+      {
+        "label": "D",
+        "text_en": "Longer tool descriptions pasted into each application's system prompt, so that the three implementations behave alike."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "複数のクライアントやエージェントで再利用する統合は、MCP(AI アプリケーションを外部システムにつなぐオープンソースの標準)のサーバーとして 1 か所に作り、各アプリが MCP クライアントとして接続する A が正しい。MCP は「一度作ればどこでも統合できる」ことを狙った標準で、ツール(フライト状況・予約照会)とリソース(読み取り専用の参照データ)の両方を公開できる。B は関数定義をコピー配布するだけで、言語が違えば実装が分かれてスキーマのドリフトが再発する。C は 3 アプリを 1 つのエージェントに束ねて結合を強めるだけで、将来の別クライアントの再利用も解決しない。D は説明文で挙動を揃えようとするだけで、スキーマの不一致そのものを直さない。単一アプリだけが使う連携であれば直接の tool use で足りるが、この設問は複数のアプリと将来のクライアントが再利用する前提なので、標準化された MCP サーバーが適する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q513",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t8-03",
+    "secondary_topic_ids": [
+      "p-d3-t1-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A platform team gives one agent about 150 tools from many MCP servers. Any single request typically needs three to five of them, and which ones depends on the request. Tool definitions already take a large share of the context, and tool-selection errors are rising. Which strategy fits?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep a few core tools loaded and defer the rest behind a tool-search tool, so definitions load only when a request needs them."
+      },
+      {
+        "label": "B",
+        "text_en": "Load every definition up front and enable prompt caching, so the repeated prefix costs less on each request."
+      },
+      {
+        "label": "C",
+        "text_en": "Split the tools into fixed groups by team, and let a keyword router decide which group each request receives."
+      },
+      {
+        "label": "D",
+        "text_en": "Shorten every tool description to a few words, so that all 150 definitions take a smaller share of the context."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ツールの規模が大きく、リクエストごとに必要なツールが予測できない場合は、段階的開示(ツール検索による遅延ロード)が向く。よく使う少数だけを常時ロードし、残りは tool search で必要時に展開する A が正解。公式 docs も、ツールが多いと選択精度が下がり、定義がコンテキストを大きく占めるときに tool search を勧める。B のキャッシュは費用を下げても、コンテキストの占有と選択精度の低下は解決しない。C の固定グループは、必要なツールの組合せが予測できないのでキーワード振り分けが外れやすい。D は説明を削ると選択に必要な情報が減り、かえって誤選択を招く。",
+    "refs": [
+      "https://www.anthropic.com/engineering/advanced-tool-use",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/tool-search-tool"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]

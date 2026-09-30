@@ -1,0 +1,467 @@
+[
+  {
+    "id": "p-d6-q501",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A freight forwarder's customs-compliance team reviews about 400 shipping declarations a day. The VP of Operations wants Claude to take over the review and asks the architect for a working prototype within a week. What should the architect do first?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Write the review prompt from the written compliance manual and test it on declarations Claude generates, so the prototype can be demonstrated on schedule."
+      },
+      {
+        "label": "B",
+        "text_en": "Sit with the reviewers to map how declarations are handled today, including where the current checks fail and how edge cases are resolved, then scope the automation from that map."
+      },
+      {
+        "label": "C",
+        "text_en": "Benchmark several Claude models on a public document-classification dataset to choose the model before any process details are gathered from the team."
+      },
+      {
+        "label": "D",
+        "text_en": "Circulate a questionnaire asking each reviewer to rank which steps they would most like automated, and build the top-ranked step first."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Claude の活用を設計する前に、現行の業務をどう処理しているかを把握することが出発点になる。ticket-routing ガイドは、自動化の前に現行の担当者のやり方、既存ルールが失敗する場面、エッジケースの扱いを調べるよう述べており、人間の判断を知るほど Claude を適切に使えるとする。したがって B が正解。A はマニュアルの建前と生成データだけに依存し、実際の判断点やボトルネックを見逃す。C は公開データセットでの性能比較が先行し、自社業務の課題が未特定のままである。D は希望の順位付けであり、実際の失敗箇所や判断点を可視化しないため、自動化の範囲を誤る恐れがある。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q502",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-03",
+    "secondary_topic_ids": [
+      "p-d6-t1-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A sponsor wants a contract-clause extraction assistant for the legal department within a quarter. The clause examples exist only as scanned PDFs, no one has recorded what the correct extraction looks like, and access to the document repository has not been approved. What should the architect recommend?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Commit to the quarter-end full rollout, since Claude is pre-trained and does not need the department's data, and refine the prompt during production use."
+      },
+      {
+        "label": "B",
+        "text_en": "Generate synthetic contracts with Claude and use them as the test set, so the pilot does not depend on repository access or on lawyers' time."
+      },
+      {
+        "label": "C",
+        "text_en": "Postpone the project until the department has accumulated several thousand expert-labeled contracts, because smaller samples cannot evaluate an LLM system."
+      },
+      {
+        "label": "D",
+        "text_en": "Secure access first, then assemble a sample of real contracts with expert-labeled expected outputs, and size the pilot to what that data can measure."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "着手範囲は、必要なデータの有無・品質・アクセス可否で決まる。ticket-routing ガイドは事前条件として実際の過去事例のサンプルを挙げ、Claude は数十件のラベル付き例でも分類できると述べる。develop-tests は実タスクの分布を反映した評価セットを求めている。したがって D が正解。A は評価の基準も正解データもないまま全面展開し、品質を測れない。B は生成データが実際の契約の分布や難しい例を反映せず、合格基準の根拠にならない。C は LLM には大量のラベルが必須という誤った前提で、ガイドの述べる少数例での実用性と矛盾し、不要に延期してしまう。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing",
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q503",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An evaluation of a contract-review feature shows a two-stage design (a small model triages, a larger model handles hard cases) scoring 3 points higher in accuracy than the single-call design, at about twice the cost per request. The evaluation set has only 120 items, so the gap may be noise. How should the architect present the recommendation to the executive committee?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Apply the accuracy, cost, and latency criteria agreed before the results, report the gap with its uncertainty given the small set, and name when the rejected design would win."
+      },
+      {
+        "label": "B",
+        "text_en": "Report the 3-point accuracy gain and recommend the two-stage design, because a higher score on the agreed evaluation set is the most objective basis for the decision and needs no further caveats."
+      },
+      {
+        "label": "C",
+        "text_en": "Review the results first, then emphasize whichever criterion favors the preferred design, because the committee needs one clear message rather than a long list of qualifications."
+      },
+      {
+        "label": "D",
+        "text_en": "Project each design's cost from list prices and the size of the evaluation set alone, without measuring real token use in a pilot, and recommend whichever projection comes out lower."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "develop-tests は、成功基準を先に具体的かつ測定可能に定め、それに対して評価を設計する流れを述べ、多くの用途では複数の基準での評価が必要だとする。building-effective-agents は、より複雑な構成は性能と引き換えにレイテンシとコストを払うことが多く、そのトレードオフが見合う場面を考えるべきだとする。したがって、結果を見る前に合意した基準で比較して推奨を示す A が正解。差が 120 件では誤差かもしれないという不確実性の併記と、却下案が優位になる条件の提示は、意思決定者に判断材料を渡すための推論である(ref の字句ではない)。B は点差だけで推奨し、2 倍のコストと差の不確実性を示さない。C は結果を見てから基準を選び直すため、結論ありきの比較になり信頼を失う。D は実測のトークン量を使わず、コストの見積りが実態と乖離しうる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q504",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t2-02",
+    "secondary_topic_ids": [
+      "p-d6-t3-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A steering committee must choose between three designs for an internal research-assistant feature: one prompt with retrieval and in-context examples, a fixed multi-step prompt chain, or an autonomous multi-agent system. The team favors the most capable design. How should the architect present the options?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Recommend the multi-agent system because it handles the widest range of future requests, and keep the other two designs as fallbacks that the team can adopt if it underperforms after launch."
+      },
+      {
+        "label": "B",
+        "text_en": "Recommend the design that most closely matches the vendor's published reference architecture, and summarize the other two as unsupported patterns that carry higher maintenance risk."
+      },
+      {
+        "label": "C",
+        "text_en": "Run all three on one held-out evaluation set, show accuracy, cost, and latency for each, and recommend the simplest design that meets the agreed criteria, with reasons for rejecting the rest."
+      },
+      {
+        "label": "D",
+        "text_en": "Recommend the single prompt with retrieval because simpler designs are easier to maintain, and present the other two only as options to reconsider in a later phase, without testing them."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "選択肢は評価結果・コスト・リスクを根拠に並べ、推奨と却下理由を示す。building-effective-agents は、可能な限り単純な解を探し、必要なときにだけ複雑さを増やすことを勧め、エージェント的な構成はレイテンシとコストを払うことが多いと述べる。ref が支持するのは「単純さを既定にし、必要性が示されたときに複雑化する」であり、C はそれを同じ評価セットでの比較として示す形である。A は能力の高さだけを理由に、評価なしでコストとレイテンシの増加を正当化する。B は参照アーキテクチャへの適合を根拠にしており、自社のタスクでの性能を示さない。D は単純案を既定にする方針自体は ref と整合するが、他の 2 案を未検証のまま除外するため、単純案で基準を満たすか、複雑化が必要かを委員会が評価で判断できない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q505",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t3-01",
+    "secondary_topic_ids": [
+      "p-d6-t1-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A bank's compliance lead will only approve a policy question-answering assistant if it \"never gives a wrong answer.\" The architect knows the assistant will occasionally produce incorrect statements even after prompt tuning. What should the architect propose to align expectations?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Promise zero errors after a final round of prompt tuning, and add a corrective release process so any error found later can be handled quickly."
+      },
+      {
+        "label": "B",
+        "text_en": "Lower the sampling temperature to make outputs deterministic, and present the resulting consistency as evidence that wrong answers will not occur."
+      },
+      {
+        "label": "C",
+        "text_en": "Launch with a disclaimer stating that answers may be inaccurate, and treat each customer complaint that arrives after release as an acceptable signal for later fixes."
+      },
+      {
+        "label": "D",
+        "text_en": "Agree on measurable error targets split by severity, ground answers in cited source passages, and route high-impact or low-confidence questions to a human reviewer."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "LLM は誤りをゼロにはできないため、期待値は誤りの扱いを含めて合意する。reduce-hallucinations は、最先端のモデルでも事実と異なる出力を生成しうると述べ、「わからない」の許可、直接引用による根拠付け、引用による検証を挙げる。develop-tests は、成功基準を具体的かつ測定可能にすることを求める。これらに沿って、測定可能な誤り目標、出典の提示、人間の確認を備えた D が正解。重大度別の目標設定や高影響の質問を人間に回す設計は、誤りゼロを約束できないという前提からの推論である。A は達成できないゼロ誤りを約束し、信頼を損ねる。B は temperature を下げても出力が揃うだけで、一貫性と正確性は別物という推論から、誤りがないことの証拠にならない。C は免責文だけで、誤りの許容水準も高影響の質問への対応も定めておらず、利用者にリスクを転嫁する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations",
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q506",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t3-02",
+    "secondary_topic_ids": [
+      "p-d6-t1-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An operations director asks for one contractual SLA on a new Claude-based tool: 99.99% availability and a two-second response for every request. The tool serves interactive analyst queries on the standard API tier and also runs a nightly 50,000-document enrichment job. How should the architect negotiate the SLA?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Define separate measurable targets per workload, with a latency percentile and availability for the interactive path plus retry and fallback behavior, and a completion window for the batch job."
+      },
+      {
+        "label": "B",
+        "text_en": "Accept the 99.99% figure by pointing to the provider's own availability, and absorb any shortfall by adding more automatic retries to every request that fails, including the nightly batch job."
+      },
+      {
+        "label": "C",
+        "text_en": "Set a single average-latency target across both workloads to keep the agreement simple, and revisit the target only if the monthly cost rises noticeably."
+      },
+      {
+        "label": "D",
+        "text_en": "Agree to the requested terms in full but exclude errors caused by rate limiting and overload, so the team is protected if the targets are missed."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "service-tiers は、Standard が既定のティアで best-effort の可用性であり、Batch は待てる非同期処理向けであると述べる。提供元が保証しない best-effort の上に自社が 99.99% を約束する根拠はないため、対話用と夜間バッチで目標を分けて定める A が正解。rate-limits は上限超過で 429 が返ることを示しており、再試行やフォールバックを設計項目として明記する根拠になる。対話とバッチで指標を分けることは、ref の字句ではなく SLA 設計上の推論である。B は best-effort の可用性をそのまま自社の約束にしており、再試行を増やしても保証にはならない。C は性質の異なる処理を平均値でまとめ、遅い要求を隠してしまう。D は主要な障害要因を除外して数値だけ満たす形にすると SLA の意味が失われる、という推論で退けられる。",
+    "refs": [
+      "https://docs.claude.com/en/api/service-tiers",
+      "https://docs.claude.com/en/api/rate-limits"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q507",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t4-01",
+    "secondary_topic_ids": [
+      "p-d6-t5-03"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Six months after launch, a new engineer proposes replacing a single-prompt-with-retrieval design with a multi-agent system. The original team chose the simple design after comparing both on an evaluation set, but the repository holds only the final prompt and a diagram. What should the decision record have captured to let the team revisit the question cheaply?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The final prompt text and the model identifier, since together they let anyone reproduce the production behavior of the chosen design exactly as it runs today."
+      },
+      {
+        "label": "B",
+        "text_en": "The architecture diagram with component owners and data flows, since it shows which team would be affected by any redesign."
+      },
+      {
+        "label": "C",
+        "text_en": "The evaluation set and results behind the choice, the alternatives that were rejected and why, and the conditions that would justify reopening the decision."
+      },
+      {
+        "label": "D",
+        "text_en": "The meeting minutes of the design discussion, since they show who favored each option and what concerns were raised."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "building-effective-agents は、単純な構成から始め、必要が示されたときにだけ複雑さを増やすとする。demystifying-evals は、評価スイートは継続的に手入れされる living artifact であり、評価があればモデル更新などの判断を速く行えると述べる。ref が支持するのは「評価があれば再検討が速い」という点であり、決定記録に何を残すか(評価データ・却下案と理由・再開条件)はそこからの推論である。この推論に沿う C が正解。A は構成を再現できるが、なぜ選んだかが分からず、提案を評価できない。B は影響範囲は示すが、判断の根拠となる比較結果を含まない。D は議論の経緯であり、再評価に使える測定値や見直しの基準を残さない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q508",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t4-02",
+    "secondary_topic_ids": [
+      "p-d6-t5-03"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An operations team will own a Claude-based summarization service, and the original developers will move to other projects. Business users occasionally report that summaries have recently become worse. What should the architect's runbook contain so operations can act on such a report and know when to involve the developers?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A detailed design document that records the developers' best guesses about likely causes of quality problems, so operations can read it and decide on a fix in each individual case."
+      },
+      {
+        "label": "B",
+        "text_en": "A rule that every report is forwarded to the developers with the user's message attached, and that operations takes no other action until a diagnosis comes back."
+      },
+      {
+        "label": "C",
+        "text_en": "First checks by symptom, the steps to run the regression evaluation suite, who may approve a rollback, and the conditions for escalating an issue to the developers."
+      },
+      {
+        "label": "D",
+        "text_en": "A list of links to the monitoring dashboards and the evaluation suite repository, so operations can find the relevant data on their own whenever a report comes in."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "demystifying-evals は、自動評価が変更やモデル更新のたびに走る最初の防衛線であり、本番監視とユーザーフィードバックなどが補うと述べる。運用チームが劣化報告に自力で対応するには、この評価を実行できる手順が必要である。よって、症状別の一次確認、回帰評価の実行手順、ロールバックの承認者、エスカレーション条件を含む C が正解。ロールバックの権限やエスカレーション条件の内容は ref に記述がなく、運用を引き継ぐための設計上の推論である。A は推測中心の設計書で、運用者が手順として実行できない。B は運用チームが一次対応できず、復旧が遅れる。D はデータの所在だけで、何を見て、いつ開発側に上げるかの判断基準がない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q509",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-02",
+    "secondary_topic_ids": [
+      "p-d6-t4-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A consulting architect is ending an engagement on a Claude-based claims-triage system that the client's operations team will run. Which handoff package best lets the operations team keep the system healthy without the architect?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The prompts and architecture documents, with the evaluation work left for the operations team to build once problems appear in production."
+      },
+      {
+        "label": "B",
+        "text_en": "A one-time launch report of accuracy results, plus a standing arrangement for the architect to answer operational questions after the engagement."
+      },
+      {
+        "label": "C",
+        "text_en": "A runnable evaluation suite with baseline scores, monitoring dashboards with alert thresholds, and named owners for maintaining the evals and responding to alerts."
+      },
+      {
+        "label": "D",
+        "text_en": "A complete archive of the development transcripts and experiment notes, so the team can reconstruct any design decision from the original context whenever a question arises."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "引継ぎでは、文書に加えて評価・監視・責任分担を運用チームへ渡す。demystifying-evals は、自動評価が変更とモデル更新の最初の防衛線で、本番の監視が分布の変化を検出すること、評価スイートは明確な担当者による継続的な保守が必要な生きた成果物であることを述べる。したがって C が正解。A は評価を後回しにし、問題が起きてから測る状態で引き継ぐ。B は静的な報告書で、以後の劣化を検出する基準も手段も渡さず、依存が残る。D は情報量が多いだけで、実行可能な評価・監視・担当の形になっておらず、日常の運用に使えない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q510",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-03",
+    "secondary_topic_ids": [
+      "p-d6-t3-03"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A production classification service runs on a model that Anthropic has just marked deprecated, with retirement about four months away. The business asks for no changes during its busy season. What should the architect do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Wait until shortly before the retirement date, since Anthropic gives at least 60 days of notice and migration only means changing the model name."
+      },
+      {
+        "label": "B",
+        "text_en": "Run the existing evaluation suite on the recommended replacement now, compare it with the baseline, adjust prompts where needed, and schedule the cutover well before retirement."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask the business to freeze the current model indefinitely, since requests to a deprecated model keep working as before."
+      },
+      {
+        "label": "D",
+        "text_en": "Move all traffic to the newest model immediately, since newer models are more capable and re-evaluating the service would delay the migration."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "本番後の運用では、モデルの更新と業務の変化に追従する周期を持つ。model-deprecations ページは、deprecated のモデルは信頼性が下がりうること、廃止日までに移行すべきこと、廃止日の十分前に新しいモデルで十分にテストすることを述べる。評価スイートがあれば、基準との比較と移行判断が速くなる。したがって B が正解。A は通知期間を余裕と誤解し、プロンプト調整や回帰の検証時間を残さない。C は deprecated のモデルの信頼性低下と、廃止日以降に要求が失敗する点を無視している。D は評価なしで全量を切り替え、品質やコストの変化に気付けず、業務繁忙期に障害を招く恐れがある。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/model-deprecations",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]
