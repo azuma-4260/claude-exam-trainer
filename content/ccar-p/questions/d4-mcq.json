@@ -1,0 +1,503 @@
+[
+  {
+    "id": "p-d4-q501",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A finance team uses Claude to extract the invoice total, currency, and due date into JSON that feeds automatic payment scheduling, where a wrong amount triggers a wrong payment. The architect must define the primary quality metric for release sign-off. Which metric fits?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Average coherence score (1-5) from an LLM judge on the model's written explanation of each extraction, tracked release over release on a fixed dashboard."
+      },
+      {
+        "label": "B",
+        "text_en": "Share of outputs that reviewers mark as helpful in a weekly survey, with the target set at the previous release's level."
+      },
+      {
+        "label": "C",
+        "text_en": "Perplexity of the extraction prompt on a sample of invoices, reported next to the average response time per request."
+      },
+      {
+        "label": "D",
+        "text_en": "Field-level exact match on amount, currency, and due date against a held-out labeled set, with a threshold tied to acceptable payment errors."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "指標は業務上の成功基準に合わせ、具体的かつ測定可能にする。金額・通貨・期日のように正解が一意なフィールド抽出では、ラベル付きの held-out セットに対する完全一致が最も信頼でき、閾値を許容できる誤払い率に結び付けられるため D が正解。A は説明文の一貫性を測っており、支払いに直結する抽出の正しさを測っていない。B は主観的で定量化されず、基準も前回リリースに依存して成功基準の定義になっていない。C の perplexity は抽出タスクの正確性と無関係な指標で、応答時間と併記しても品質判定の根拠にならない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q502",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A bank deploys an HR-policy assistant for employees. After adding strict safety instructions, the team reports a 100% refusal rate on its red-team prompts and proposes to release. Which metric set should the architect require before sign-off?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The refusal rate on red-team prompts alone, since a higher rate on harmful requests always means a safer system."
+      },
+      {
+        "label": "B",
+        "text_en": "The harmful-output rate on adversarial prompts plus the refusal rate on a benign, in-scope question set, each with its own target."
+      },
+      {
+        "label": "C",
+        "text_en": "The average employee satisfaction score from a post-launch survey, since safety problems will show up as low ratings."
+      },
+      {
+        "label": "D",
+        "text_en": "A manual review of a few dozen flagged conversations per month, with findings summarized for the compliance team."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "安全性も「有害(toxicity)と判定される出力が 10,000 件中 0.1% 未満」のように定量化でき、かつ「起こすべき場合」と「起こしてはならない場合」の両方を含む均衡した評価セットで測る必要がある。敵対的プロンプトでの有害出力率と、正当な質問に対する拒否率(過剰拒否)を別々の目標で測る B が正解。A は拒否率だけを最大化する一方向の評価で、正当な業務質問まで断るシステムを見逃す。C は事後の満足度に依存し、リリース前の判定基準にならず具体的な安全目標もない。D は少数の手動レビューで、母集団に対する率を測れず再現性も低い。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q503",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An eval set of 200 support tickets was written by engineers in clean, well-formed English, and the classifier scores 97% on it. In production, tickets arrive with typos, long email threads, and several languages, and complaints about misrouting keep coming. How should the architect rebuild the dataset?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Generate 2,000 more tickets in the engineers' style so that the larger volume reduces the noise in the score."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep the set at 200 but have domain experts hand-grade every output, so the signal from each individual case is as high as it can be for the team."
+      },
+      {
+        "label": "C",
+        "text_en": "Sample logged production tickets stratified by category and language, and add edge cases such as empty, overlong, and ambiguous inputs."
+      },
+      {
+        "label": "D",
+        "text_en": "Adopt a public text-classification benchmark as the release gate, since it is independent and widely accepted."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "評価セットは本番のタスク分布を反映し、エッジケース(空入力・極端に長い入力・人間でも判断が割れる曖昧な入力)も含める必要がある。本番ログから層化抽出し、エッジケースを足す C が正解。A は同じ偏った分布を増やすだけで、量が増えても本番との乖離は解消しない。B は件数も分布も変えず、採点の質を上げても代表性の問題が残る。D の公開ベンチマークは自社のチケット分布・言語・ラベル体系を反映せず、独立していても業務上の成功基準の代わりにならない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q504",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A support-reply drafter must always cite the correct refund-policy ID (objectively checkable) and sound empathetic (subjective). The regression suite has 5,000 cases and must run on every prompt change. Which grading design best balances speed, cost, and reliability?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Code-based string checks for the policy ID, an LLM judge with a clear rubric for tone calibrated on human labels, and periodic human spot checks."
+      },
+      {
+        "label": "B",
+        "text_en": "Human reviewers grade all 5,000 outputs on every change, because human judgment is the gold standard for both criteria."
+      },
+      {
+        "label": "C",
+        "text_en": "A single LLM judge scores both criteria in one pass, including whether the ID is present, without any comparison to human labels."
+      },
+      {
+        "label": "D",
+        "text_en": "Exact match of each reply against a stored reference reply, since deterministic grading is the fastest and most reliable option."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "採点は最も速く信頼でき拡張できる方法を選ぶのが原則で、客観的に判定できる項目はコード、主観的な項目は明確な rubric の LLM 採点、人手は較正と抜き取りに限る。ID はコードで確実に検査し、トーンは人手ラベルで較正した LLM 採点で見る A が正解。B は 5,000 件を変更のたびに人手で採点する遅さとコストで運用できない。C は ID の有無のような決定論的に検査できる項目まで非決定的な採点に任せ、人手との較正もないため信頼性が下がる。D は正当な言い換えを不合格にする脆い採点で、共感のような主観項目を評価できない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q505",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team has an offline eval showing gains from a revised prompt. Before rollout, engineers also want to try a newer model and new retrieval settings in the same release. The product has enough live traffic for a controlled test. How should the architect design the A/B test?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Put the prompt, model, and retrieval changes together into the treatment arm so the test finishes sooner and the release date is not delayed by extra experiments."
+      },
+      {
+        "label": "B",
+        "text_en": "Route internal employees to the new version for a week and compare the team's subjective impressions with the old one."
+      },
+      {
+        "label": "C",
+        "text_en": "Vary only the prompt in the treatment arm with random traffic assignment and enough volume, and judge by offline eval and online outcomes."
+      },
+      {
+        "label": "D",
+        "text_en": "Drop the offline eval and decide on live outcomes only, since production traffic is the only real ground truth."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "A/B テストは実ユーザーのトラフィックで変種を比較し、交絡を制御できるが、有意差に達するまで日数〜週を要し十分なトラフィックが必要で、デプロイした変更しか検証できない。変更を 1 つに絞り、ランダム割当と十分な件数で、オフライン評価とオンライン成果の両方で判定する C が正解。A は 3 要素を同時に変えるため、差の原因を切り分けられない。B は割当がランダムでなく主観に依存し、統計的な判定にならない。D はオフライン評価を捨てて、本番を壊すリスクのある変更を先にユーザーへ出すことになり、評価層を重ねる考え方に反する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q506",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t3-02",
+    "secondary_topic_ids": [
+      "p-d4-t2-03"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A contract-summarization prompt passes 78% of a 150-case eval, and the target is 90%. The team has a week. What is the most effective next step?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Copy the failing eval cases into the prompt as few-shot examples until they all pass, then report the new score."
+      },
+      {
+        "label": "B",
+        "text_en": "Move to the largest available model and ship if the average score rises, without examining why the cases failed."
+      },
+      {
+        "label": "C",
+        "text_en": "Read the transcripts of failed cases, group them by cause, fix the largest group in the prompt, and re-run the full eval including regression cases."
+      },
+      {
+        "label": "D",
+        "text_en": "Rewrite the prompt against a best-practices checklist, then judge the result by having the team read a handful of outputs and agree in the review meeting that it looks better."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "改善は「失敗事例の分析 → 仮説 → 変更 → 評価」の反復で進める。失敗のトランスクリプトを読んで原因別に分類し、最大の群を直して回帰ケースを含む全評価を再実行する C が正解で、評価が本当に測るべきものを測っているかの確認にもなる。A は評価セット自体を例に混ぜるため、スコアが汚染され汎化を測れなくなる。B は原因を調べずにモデルだけ変えるもので、変化の理由が説明できず回帰も見逃す。D は定量評価を捨て、数件の目視という弱い検証で判断しており、反復サイクルが閉じていない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q507",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A legal assistant receives a 60-page contract in the prompt and sometimes cites clauses that do not exist in it, even though the relevant clause is present in the text. Which mitigation should the architect try first?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Switch to a larger model tier, because fabricated citations mainly come from insufficient model capability at this document length and task difficulty."
+      },
+      {
+        "label": "B",
+        "text_en": "Have Claude first extract word-for-word quotes, answer only from those quotes, and allow a reply that the contract does not say."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask Claude to attach a confidence score to each answer and show the answer to the user even when the score is low."
+      },
+      {
+        "label": "D",
+        "text_en": "Set the temperature to 0 and rely on deterministic decoding to keep the answers tied to the contract text."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "長い文書では、先に逐語の引用を抽出してから引用だけを根拠に答えさせ、「文書に記載がない」と答える許可を与えることで、回答を実際のテキストに結び付けて幻覚を減らせる。B が正解。A はモデルを大きくしても根拠付けの手順がなければ存在しない条項の引用は防げない。C の信頼度スコアは根拠の裏付けを作らず、低スコアの回答もそのまま見せるため被害を減らさない。D の temperature 0 は出力のばらつきを減らすだけで、文書に存在しない内容を作る問題は解消しない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q508",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t4-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Invoice-extraction accuracy on the nightly eval fell from 96% to 88% on Wednesday. Since the previous week, the only change shipped was Tuesday's edit to the output-format section of the system prompt. Model ID, input volume, and latency are unchanged. Where should the team investigate first?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Assume a silent change in the provider's model and pin the pipeline to an older snapshot before examining any of the changes the team itself deployed."
+      },
+      {
+        "label": "B",
+        "text_en": "Re-label the evaluation set, because a sudden drop usually means the ground-truth labels have drifted."
+      },
+      {
+        "label": "C",
+        "text_en": "Increase max_tokens across the pipeline, because truncated outputs are the most common cause of accuracy drops."
+      },
+      {
+        "label": "D",
+        "text_en": "Diff Tuesday's prompt edit and re-run the eval with the old and new prompts to isolate its effect, leaving the unchanged components alone."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "症状(精度低下)を直近の変化(火曜のプロンプト編集)に結び付け、変わっていない要素(モデル ID・入力量・レイテンシ)を除外して最初の調査箇所を選ぶのが定石。旧版と新版のプロンプトで同じ評価を回して差を切り分ける D が正解。障害事後分析でも、直近の変更と症状を結び付けられなかったことが検出を遅らせた。A は変更のない要素を先に疑っており、根拠なく固定先を変えると原因も隠れる。B はラベルが前日まで問題なく使えていた証拠があり、変化と無関係。C は変更されていない設定を疑う推測で、プロンプト編集との関連が示されていない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q509",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t5-03",
+    "secondary_topic_ids": [
+      "p-d4-t1-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An IT help desk lets Claude resolve password and access tickets, and unresolved tickets go to a human technician. A small-model configuration costs far less per call but fails more often, which triggers retries and technician work, while a larger model costs more per call. How should the architect compare the two configurations for the cost decision?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Compare the total cost per successfully resolved ticket, counting retries and technician time, alongside the quality each one reaches on the eval set and production logs."
+      },
+      {
+        "label": "B",
+        "text_en": "Compare the list price per call, and pick the cheaper configuration because that is the only cost line that appears on the model invoice."
+      },
+      {
+        "label": "C",
+        "text_en": "Compare the average number of tokens per request, and pick the configuration that uses fewer tokens, since token counts drive the model bill."
+      },
+      {
+        "label": "D",
+        "text_en": "Pick the largest model on quality alone, because technician time belongs to a separate budget and has no place in this decision."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "choosing-a-model のガイドは、実際のプロンプトとデータで精度・品質・エッジケースの扱いを比べたうえで性能とコストのトレードオフを考量するよう述べ、evals でもタスクあたりのコストを追跡できる。A は、構成間の比較単位を「解決できた 1 件あたりの総コスト」(再試行と技術者の工数を含む)に置き、評価セットと本番ログで品質も並べて見るので正しい(呼出し単価ではなく成果単位で比べるという点は、この設問での推論)。B は 1 呼出しの単価だけを見るため、失敗による再試行と人手の対応コストが見えず、安い構成ほど割高になりうる。C は平均トークン数だけを比べ、品質と失敗時の追加コストを無視する。D は品質だけで最大モデルを選び、コストを意思決定から外してしまう。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q510",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t6-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A customer-facing assistant built on Claude handles messages that contain personal data. Engineers need to debug quality complaints, while the privacy team restricts access to user content. Which logging design should the architect choose?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Log only token counts and latency for each request, which keeps personal data out of the store entirely."
+      },
+      {
+        "label": "B",
+        "text_en": "Log raw prompts and responses indefinitely to a shared bucket that every engineer can query, so nothing is ever missing."
+      },
+      {
+        "label": "C",
+        "text_en": "Log no user content at all and rely on customers' bug reports and screenshots to reproduce problems."
+      },
+      {
+        "label": "D",
+        "text_en": "Log prompts, responses, tool calls, tokens, and latency under a trace ID, masking personal data before storage and enforcing a retention period."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "運用で品質問題を調べるには、プロンプト・応答・ツール呼出し・トークン数・レイテンシをトレース ID 付きで記録し、個人情報は保存前にマスクして保持期間を設けるのが適切で、D が正解。障害事後分析では、プライバシー統制のために問題のあるやり取りを調べにくく原因特定が遅れたこと、そして「プライバシーを損なわずにデバッグできるツール」を整える方針が述べられており、評価ガイドも transcript を読むことを品質改善の要としている。保存前マスキングと保持期間の設定は、これらを踏まえた一般的なプライバシー統制の原則に基づく設計判断(推論)である。A はトークン数とレイテンシだけでは品質劣化の中身を再現できない。B は無期限・全員参照で個人情報の露出と保持のリスクが大きい。C は顧客の申告頼みで再現性がなく、原因調査が遅れる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q511",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t6-02",
+    "secondary_topic_ids": [
+      "p-d4-t2-03"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "Sampled production responses are graded daily, and an alert fires when the overall average score falls below target. Complaints from one customer segment keep rising, yet the overall average stays above target because that segment is under 3% of traffic. How should the architect change the alerting?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Lower the overall-average threshold until the alert fires, since even a small segment's drop moves the aggregate score a little."
+      },
+      {
+        "label": "B",
+        "text_en": "Page the on-call engineer whenever any single graded response scores below target, so that no poor answer is ever missed."
+      },
+      {
+        "label": "C",
+        "text_en": "Report scores per slice such as customer segment, platform, and release, alerting when a slice falls below its own baseline."
+      },
+      {
+        "label": "D",
+        "text_en": "Grade ten times as many sampled responses each day, keeping one alert on the overall average for a more precise aggregate estimate."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "全体平均は小さなセグメントの劣化を薄めてしまうため、顧客セグメント・プラットフォーム・リリースなどのスライスごとにスコアを集計し、各スライス自身のベースラインを下回ったらアラートを出す C が正解。障害事後分析では、同じ不具合でもプラットフォームごとに症状と発生率が異なり、ルーティングが sticky なため一部のユーザーが特に深刻な影響を受け、全体として「ランダムで一貫しない劣化」に見えたと述べられ、評価ガイドも本番監視を分布のドリフトや想定外の失敗の検知に位置付けている。スライス単位の閾値設計はこれらを踏まえた推論である。A は閾値を下げても全体平均では希釈が残り、正常時の揺らぎによる誤報が増える。B は 1 応答ごとのページングで、採点のばらつきにより誤報が多くなり運用が持たない。D はサンプル数を増やしても集計対象は全体平均のままで、3% 未満のセグメントの劣化は薄まったまま残る。",
+    "refs": [
+      "https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]

@@ -1,0 +1,545 @@
+[
+  {
+    "id": "p-d1-q501",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An insurer wants to automate claims intake. Each claim needs two things: checking the policy number format and computing the deductible from a fixed rate table, and classifying the free-text incident description (written in several languages) into claim categories that the business revises every quarter. Only a few dozen labeled claims exist. How should the architect assign the work?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Send both steps to one Claude call with the rate table in the prompt, so a single component owns intake and the categories live in one place."
+      },
+      {
+        "label": "B",
+        "text_en": "Give the deductible arithmetic to Claude with the rate table in context, and keep the classification in the existing keyword rules engine."
+      },
+      {
+        "label": "C",
+        "text_en": "Use Claude to classify the free-text descriptions, and keep policy-number validation and the deductible arithmetic in deterministic code."
+      },
+      {
+        "label": "D",
+        "text_en": "Train a supervised classifier per language for the descriptions first, and bring in Claude only after enough labeled claims accumulate."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "業務課題を分解し、LLM が効く部分と決定論的処理で足りる部分を分けるのが設計の出発点。非構造・多言語のテキストを、頻繁に変わるカテゴリへ少数のラベルで分類するのは LLM が従来の ML より適する典型条件であり、書式検証と表引きの計算はコードの方が安く確実なので C が正解。A は決定論的に解ける計算まで LLM に任せ、コストと誤りの余地を増やす。B は役割が逆で、計算を LLM に、意味理解が要る分類をキーワード規則に割り当てている。D の言語別の教師あり分類器は大量のラベルと再学習を要し、四半期ごとのカテゴリ変更に追従しにくい。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q502",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A retailer wants an assistant that answers employee questions about HR policy. The team has proposed a planner agent, a retrieval agent, and a verification agent from day one, although no prototype exists and no quality measurements have been taken. What should the architect recommend?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Build the three-agent design now, because reworking a simple prototype into a multi-agent system later costs more than designing for scale up front, and the extra agents add coverage."
+      },
+      {
+        "label": "B",
+        "text_en": "Start with one Claude call that receives retrieved policy passages, measure it on real employee questions, and add stages only where the results show a specific gap."
+      },
+      {
+        "label": "C",
+        "text_en": "Adopt a full agent framework first, so routing, retries, and memory come prebuilt, and postpone prompt quality checks until the framework is in place."
+      },
+      {
+        "label": "D",
+        "text_en": "Select the most capable model with one very long prompt covering every policy, and skip measurement until launch, since real users will reveal the failures."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "最も単純な解から始め、評価で効果が確認できたときだけ複雑さを足すのが原則であり、多くの用途は検索と例を加えた単一呼出しで足りる。B は単一呼出しで実問い合わせを測り、欠陥が見つかった箇所にだけ段階を足すので正しい。A は計測前に多段エージェントを固定し、コストとレイテンシを払うだけで効果が未確認。C はフレームワークが下層のプロンプトを見えにくくし、不要な複雑さを誘う上、品質確認も後回しにしている。D は最大モデルと長大プロンプトを選んだ上で計測も省くため、失敗を本番で初めて知ることになる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q503",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An insurer extracts fields from benefit statements with Claude and feeds the result straight into its claims-payment system. Occasionally the JSON is malformed, a field is missing, or the benefit total does not equal the sum of the itemized amounts. Which design best protects the payment system?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Instruct the model to reply with valid JSON only, let the payment system accept whatever parses, and have auditors review the paid claims each month."
+      },
+      {
+        "label": "B",
+        "text_en": "Add a second Claude call that re-reads each statement and approves the first result, then pay approved records without further code-level checks, which keeps the pipeline fast and simple."
+      },
+      {
+        "label": "C",
+        "text_en": "Enable schema-constrained output and treat the response as trusted, since the schema guarantees every field and the arithmetic relationships between them."
+      },
+      {
+        "label": "D",
+        "text_en": "Use schema-constrained output, verify the totals in code before payment, retry once with the error details, and send repeat failures to a human review queue."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "出力検証は下流に渡す前の予防的な統制として置く。構造化出力は schema に沿った形式を返すが、refusal や max_tokens 到達のときは出力が schema に一致しない場合があると docs に明記されている。また、schema は形式の制約であり、給付合計が内訳の和に等しいといった業務上の整合までは表現できない(この点は docs の記述からの推論)。D はコードで整合を検証し、失敗時はエラー内容付きで再試行し、なお失敗なら人に回すので正しい。A は検出が月次監査に寄り、誤データが支払システムに入った後の検知的統制にとどまる。B は同じモデルの再読で承認するだけで、決定論的に判定できる合計の検査を省いている。C は schema が算術関係まで保証すると誤解しており、refusal などの例外経路も扱えない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q504",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A support-routing assistant has run in production for three months, and agents manually correct about one routed ticket in twelve. Prompt changes are currently made from anecdotes and nobody can show whether they help. Which addition best closes the feedback loop?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Append every agent correction to the live prompt as a new example each night, and watch the correction rate over the following weeks."
+      },
+      {
+        "label": "B",
+        "text_en": "Collect a thumbs-up or thumbs-down rating on each routing decision, and publish a monthly dashboard so leadership can decide when to revise the prompt."
+      },
+      {
+        "label": "C",
+        "text_en": "Have a second Claude instance read each night's transcripts and rewrite the production prompt directly, based on the patterns it finds."
+      },
+      {
+        "label": "D",
+        "text_en": "Log each correction with the input, model output, and final label, add real failures to an eval set, and require each prompt change to pass that set before release."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "本番ログ・人間の訂正・実際の失敗を評価セットへ還流し、プロンプト変更を評価で判断する閉ループが必要で、実際の失敗から作る少数のタスクでも評価の出発点になる。D は訂正を入力・出力・正解ラベルと対で蓄積し、リリース前ゲートに使うので正しい。A は検証なしで本番プロンプトを毎晩変えるため、悪化しても原因を特定できない。B は評価セットがなく、評価値が出てもどの変更が効いたかを言えず、改善に結び付かない。C はモデルの自己判断だけで本番プロンプトを書き換え、人間の訂正という正解を使わず、検証ゲートも置いていない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q505",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A legal-operations team wants single-turn question answering about its contracts. Answers need clause wording from about two thousand static contract documents and each customer's current contract status and latest clause version, which live in a contract-management system that changes daily. Which set of augmentations should the single Claude call use?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Give the call a memory store that saves each answered question with its status lookup, and serve repeat questions from that saved memory first."
+      },
+      {
+        "label": "B",
+        "text_en": "Load the full contract corpus and a nightly export of the status table into every prompt, so the model has complete context and no retrieval or lookup component is needed."
+      },
+      {
+        "label": "C",
+        "text_en": "Use one Claude call with retrieval over the contract text and a lookup tool that queries the contract-management system for the current status and clause version."
+      },
+      {
+        "label": "D",
+        "text_en": "Index the contract text and the status records together in a single retrieval index that is rebuilt every night, so one retrieval step supplies everything."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Anthropic は、エージェント的システムの基本部品を、検索・ツール・メモリで拡張した LLM(augmented LLM)と説明し、モデルが自ら検索クエリを生成しツールを選べるとする。C は、量が多く静的な契約本文を検索で、毎日変わる契約状態と最新の条項版を業務システムへ照会するツールで取得する、単一の拡張呼出しなので正しい(どのデータにどの拡張を当てるかの対応付けは、この設問での推論)。A は、メモリに過去の回答と照会結果を保存して再利用するため、毎日変わる契約状態について古い内容を返しうる。メモリは会話や作業の継続のための拡張で、変化する業務データの正本の代わりにはならない(この点も推論)。B は、二千件の全文を毎回入れるとコンテキストに収まらず、夜間エクスポートの状態表は最新でもない。D は、状態レコードを夜間再構築の索引に混ぜるため、日中に変わった契約状態を返せず、古い回答の原因になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q506",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-03",
+    "secondary_topic_ids": [
+      "p-d1-t3-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A bank handles card disputes with the same steps every time: verify identity, fetch the transaction, assign a reason code, and draft a letter. Compliance requires a consistent, auditable order, and volume is high. Which architecture fits best?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Build an autonomous agent with all four tools, and let Claude decide the order per case so edge cases get flexible handling."
+      },
+      {
+        "label": "B",
+        "text_en": "Write the four steps as a code-defined workflow, with Claude classifying the reason and drafting the letter inside the relevant steps."
+      },
+      {
+        "label": "C",
+        "text_en": "Build an autonomous agent, and describe the required order in its system prompt, relying on the instruction alone to keep every case in the required order for compliance."
+      },
+      {
+        "label": "D",
+        "text_en": "Add a second agent that watches the first agent at runtime and reports any step taken out of order, for later review."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "手順が予測でき一貫性が要るタスクには、事前に定義したコードパスで LLM を編成する workflow が向き、agent はオープンエンドで手順を固定できない課題に使う。B は順序をコードで固定し、理解と生成が必要な部分にだけ Claude を使うので監査にも耐える。A は手順が固定できる業務にモデル主導の順序を持ち込み、コスト・レイテンシ・誤りの累積を負う。C は順序の遵守がプロンプト指示に依存し、コードで強制していない。D は逸脱を後から検知するだけの補償的な統制で、順序の予防にならず、エージェントも増える。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q507",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A consultancy has budget for one multi-agent system, and the value of each deliverable is high. Which candidate workload is the best fit for multiple cooperating agents?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Refactoring a tightly coupled module, where each edit depends on the result of the previous one and all edits share one codebase view."
+      },
+      {
+        "label": "B",
+        "text_en": "Answering routine product FAQs at very high volume, where each question is small and each answer is worth little."
+      },
+      {
+        "label": "C",
+        "text_en": "Summarizing one report that fits comfortably in a single context window, where the output is needed in a single pass."
+      },
+      {
+        "label": "D",
+        "text_en": "Surveying hundreds of independent company sources, where the material exceeds one context window and directions can be explored in parallel."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "マルチエージェントは、強く並列化でき、情報が単一のコンテキストに収まらず、タスクの価値がトークン増加(チャットの十数倍)を上回る場合に効く。D は独立した多数の情報源を並列に探索でき、各サブエージェントが自分の文脈で圧縮して返せるので正しい。A は全員が同じ文脈を共有し依存が多い密結合タスクで、協調の負担が利益を上回る。B は 1 件あたりの価値が低く、増えるトークンコストを回収できない。C は単一の文脈で済み、並列化の余地もないので、単一の呼出しで足りる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q508",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-03",
+    "secondary_topic_ids": [
+      "p-d1-t4-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A lead agent and several subagents run a research task for hours. When one subagent's data source times out late in the run, the whole job fails and restarts from scratch at high cost. What is the best redesign?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Wrap the entire run in an automatic retry from the start, up to three attempts, because identical restarts keep the system state consistent and predictable."
+      },
+      {
+        "label": "B",
+        "text_en": "Drop the unreliable source from the design, and have the lead skip any unavailable source silently so every run completes on time."
+      },
+      {
+        "label": "C",
+        "text_en": "Checkpoint the plan and finished results, tell a failing subagent what went wrong so it can try another route, and reuse the others' saved work."
+      },
+      {
+        "label": "D",
+        "text_en": "Give every subagent the full shared history, so any of them can take over a sibling's unfinished work when that sibling fails."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "エージェントは状態を持ち、軽微な障害でも致命的になり得るため、失敗時に最初からやり直すのではなく、止まった地点から再開できるようにする。Anthropic のマルチエージェント研究システムの記事は、ツールが失敗していることをエージェントに伝えて適応させる方法がうまく働くと述べ、リトライのような決定論的な安全策と定期的なチェックポイントを組み合わせている。C は計画と完了結果を保存し、失敗したサブエージェントだけに失敗内容を伝えて別の方法を試させ、完了済みの結果は再利用するので正しい(失敗分だけの再実行という具体形は、この記述からの適用)。A は毎回全体をやり直すため、高コストな再実行を繰り返すだけ。B は失敗を黙って捨てるので、結果の欠落が利用者に伝わらない。D は全履歴の共有でコンテキストを膨らませ、局所回復にもならない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q509",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t5-02",
+    "secondary_topic_ids": [
+      "p-d1-t4-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A compliance team wants Claude to investigate a suspicious vendor payment. It is not known in advance which records matter, and each finding determines what to check next. Which decomposition approach fits this task?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Run the same six-step pipeline, fixed in advance from past cases, so that every investigation follows an identical path and any auditor can reproduce it later."
+      },
+      {
+        "label": "B",
+        "text_en": "Plan initial subtasks, execute them, then revise the plan from intermediate findings, so the next subtask depends on what was found."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask for every subtask in a single pass, execute them all without revisiting the list, and keep the token cost low."
+      },
+      {
+        "label": "D",
+        "text_en": "Divide the records into equal batches by count, summarize each batch in parallel, and concatenate the summaries."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "構造が予測できる処理は固定パイプライン、オープンエンドな調査は中間結果に基づく動的分解(計画 → 実行 → 再計画)が向く。必要な部分課題を事前に予測できないとき、オーケストレーターが入力に応じて課題を決める。B は発見に応じて計画を更新するので正しい。A は過去事例から固定した手順で、今回の調査で必要になる確認が手順に含まれない恐れがある。C は最初に全課題を列挙して再検討しないため、途中の発見が反映されない。D は件数で機械的に分けるだけで、調査の依存関係を捉えていない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q510",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t6-01",
+    "secondary_topic_ids": [
+      "p-d1-t6-03"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A logistics firm will use Claude to draft customs documents that staff now write by hand. The sponsor's stated goal is efficiency of existing work. Which set of success metrics best matches that value pillar?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The number of new service lines launched on top of the capability, and the revenue attributed to those new lines over the following two fiscal years."
+      },
+      {
+        "label": "B",
+        "text_en": "Median handling time per document and the share of drafts accepted without edits, both compared with the pre-deployment baseline."
+      },
+      {
+        "label": "C",
+        "text_en": "Peak requests per second and 99th-percentile response time under load, reported against a contractual availability target."
+      },
+      {
+        "label": "D",
+        "text_en": "The month-over-month change in the total token bill, since lower spend shows the assistant is working efficiently."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "価値の柱(効率化・変革・コスト・性能 SLA など)のどれを狙うかで KPI が変わり、成功基準は目的に関連し測定可能であるべきだ。既存業務の短縮という効率化には、処理時間と修正なしの採用率を導入前のベースラインと比べるのが合う。B が正しい。A は新しい能力を狙う変革の指標であり、既存業務の短縮を測らない。C は性能 SLA の指標で、業務時間の短縮を示さない。D はトークン費用だけを見る指標で、利用が増えれば悪化して見え、業務効果も示さない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/use-case-guides/customer-support-chat",
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q511",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t6-02",
+    "secondary_topic_ids": [
+      "p-d1-t6-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A hospital billing department wants approval to use Claude for coding review. Leadership asks for the expected return before a full rollout. The projected token cost looks small. How should the architect estimate the return?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Run a pilot on real volume, record current handling time and error rates as a baseline, then compare them against total cost including review effort and maintenance."
+      },
+      {
+        "label": "B",
+        "text_en": "Compare the projected monthly token bill with the salaries of the staff involved, and approve the rollout whenever the bill is lower."
+      },
+      {
+        "label": "C",
+        "text_en": "Roll out to everyone first, and infer the savings from the department's overall budget change in the following quarter."
+      },
+      {
+        "label": "D",
+        "text_en": "Take the model's published benchmark results as a proxy for accuracy, and extrapolate the savings without any pilot on hospital data."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "ROI は、トークン費用だけでなく、人間レビュー工数・保守などを含む総コストと、業務上の効果を比べて判断する(総コストの枠組みは設計上の推論)。docs は、成功基準を測定可能にし、現状のベースラインや過去版との比較で評価するよう述べているため、導入前の現状を測ったうえで実データのパイロットを行うのが筋である。A が正しい。B は費用をトークン代だけに絞り、レビューや保守の工数を落とす。C は全面展開してからでは、効果と他の要因を切り分けられず、判断にも間に合わない。D は公開ベンチマークが自社データでの精度や効果を表さず、ベースラインもない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q512",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t6-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A bank gives branch staff a Claude assistant that summarizes a customer's account history while the customer waits at the desk. The SLA requires the first words to appear within about two seconds at the 95th percentile. Which design best meets this SLA?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep the most capable model and the full-length summary format, and renegotiate the SLA to an average instead of a 95th percentile."
+      },
+      {
+        "label": "B",
+        "text_en": "Keep a large model and a long prompt, but retry any request that takes over two seconds, so that slow cases are attempted again."
+      },
+      {
+        "label": "C",
+        "text_en": "Enable extended reasoning and raise max_tokens so the opening sentences are more accurate, accepting a longer wait before anything is shown on screen."
+      },
+      {
+        "label": "D",
+        "text_en": "Use a faster model, stream the summary as it is generated, and shorten the prompt and output, then track time to first token against the SLA."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "SLA は設計を制約する要件なので、手段は遅延を下げる方向から選ぶ。reduce-latency のドキュメントは、より速いモデルの選択、プロンプトと出力トークンの削減、ストリーミングを挙げ、ストリーミング時は最初のトークンまでの時間(TTFT)が重要な指標になると述べる。D はこれらを組み合わせ、TTFT で SLA を測るので正しい(ただし品質を先に確認してから遅延を削るべきと docs も注意している)。A は要件である p95 を平均に置き換えて問題を回避するだけで、最大モデルのままでは遅さも解消しない。B は遅い要求を再試行すると待ち時間がさらに延び、p95 を悪化させる。C は拡張推論と長い出力で最初の文字が出るまでの時間を延ばし、SLA の方向と逆になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  }
+]
