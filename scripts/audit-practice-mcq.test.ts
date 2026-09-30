@@ -246,11 +246,12 @@ ${P_WEIGHTS.map(
 ).join("\n")}
 `;
   const P_COUNTS = [2, 1, 2, 1, 1, 1, 1];
-  // ID は帯の外(q001〜)。P の ID 規則は未定義なので帯 error が出ないことも確認する
+  // ID は独立 MCQ 帯 q501〜(CP3 で確定。B-D6-3-3)。n は帯内の通し番号(1 → q501)
   let seq = 0;
+  const pid = (domain: number, n: number) => `p-d${domain}-q${String(500 + n).padStart(3, "0")}`;
   const pmcq = (domain: number, n: number, over: Record<string, unknown> = {}) =>
     mcq(domain, n, {
-      id: `p-d${domain}-q${String(n).padStart(3, "0")}`,
+      id: pid(domain, n),
       exam: "ccar-p",
       domain_id: `p-d${domain}`,
       primary_topic_id: `p-d${domain}-t1-01`,
@@ -266,7 +267,7 @@ ${P_WEIGHTS.map(
     writeFileSync(path.join(dir, "syllabus.yaml"), P_SYLLABUS);
   });
 
-  it("正常な P 独立 MCQ(帯の外の ID・7 ドメイン配分)は green", () => {
+  it("正常な P 独立 MCQ(q501 帯・7 ドメイン配分)は green", () => {
     write("p.json", pBank());
     const r = runAuditPracticeMcq(dir, pOpts());
     expect(r.errors).toEqual([]);
@@ -283,7 +284,7 @@ ${P_WEIGHTS.map(
   ])("違反を検出: %s", (_, over, msg) => {
     write("p.json", pBank((d, n) => (d === 1 && n === 1 ? over : {})));
     const r = runAuditPracticeMcq(dir, pOpts());
-    expect(r.errors.some((e) => e.startsWith("p-d1-q001") && e.includes(msg))).toBe(true);
+    expect(r.errors.some((e) => e.startsWith("p-d1-q501") && e.includes(msg))).toBe(true);
   });
 
   it("配分違いと --counts の値数不一致を検出する", () => {
@@ -294,10 +295,28 @@ ${P_WEIGHTS.map(
     expect(short.errors.some((e) => e.includes("--counts は 7 値"))).toBe(true);
   });
 
+  it("独立 MCQ 帯の外の ID を検出する(form 非収載の MCQ は q501〜q599 のみ)", () => {
+    write("p.json", pBank((d, n) => (d === 1 && n === 1 ? { id: "p-d1-q001" } : {})));
+    const r = runAuditPracticeMcq(dir, pOpts());
+    expect(r.errors.some((e) => e.startsWith("p-d1-q001") && e.includes("q501〜q599 帯でない"))).toBe(true);
+  });
+
+  it("ドメインごとの連番の欠番・重複を検出し、retired は連番に含める", () => {
+    const gap = pBank((d, n) => (d === 1 && n === 2 ? { id: pid(1, 3) } : {}));
+    write("p.json", gap);
+    const r = runAuditPracticeMcq(dir, pOpts());
+    expect(r.errors.some((e) => e.startsWith("p-d1 独立 MCQ 帯: question id が連番でない"))).toBe(true);
+
+    // q501 が retired でも q502・q503 が live なら連番は満たし、live 件数は 2
+    write("p.json", [pmcq(1, 1, { status: "retired" }), pmcq(1, 2), pmcq(1, 3), ...pBank().filter((q) => q.domain_id !== "p-d1")]);
+    const withRetired = runAuditPracticeMcq(dir, pOpts());
+    expect(withRetired.errors).toEqual([]);
+  });
+
   it("form 収載問題と flash は対象外", () => {
-    const flash = { ...pmcq(1, 99), type: "flash", choices: null, answer: null, answer_en: "a", eligible_modes: ["drill"] };
-    // form 収載(srs_eligible=false)は独立 MCQ 条件に掛けない。暫定 60 問 form(現行 mockFormSchema)
-    const formQs = Array.from({ length: 60 }, (_, i) => pmcq(2, 101 + i, { srs_eligible: false }));
+    const flash = { ...pmcq(1, 99), id: "p-d1-q001", type: "flash", choices: null, answer: null, answer_en: "a", eligible_modes: ["drill"] };
+    // form 収載(srs_eligible=false)は独立 MCQ 条件・帯に掛けない。暫定 60 問 form(現行 mockFormSchema)
+    const formQs = Array.from({ length: 60 }, (_, i) => pmcq(2, 101 + i, { id: `p-d2-q${101 + i}`, srs_eligible: false }));
     write("p.json", [...pBank(), flash, ...formQs]);
     writeFileSync(
       path.join(dir, "mock_forms.yaml"),

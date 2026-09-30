@@ -3,8 +3,10 @@
 //   ccar-f: 以下の C3a / C5 帯プロファイル(従来どおり)
 //   ccar-p: 独立 MCQ プロファイル(specs/07 §CCAR-P: Step 3a は P に適用しない、CP3 = Step 5 相当)。
 //           対象 = どの form にも収載されていない mcq_single / mcq_multi 全件。C5 と同じ固定値・配分・lifecycle・
-//           正解ラベル偏り warning を検査し、F 固有の帯(q101 / q501)・ID 連番・C3a 条件は適用しない。
-//           --counts は syllabus のドメイン順(値の数 = ドメイン数)。P の ID 帯・連番規則は CP3 で決める(B-D6-3-3)
+//           正解ラベル偏り warning を検査し、C3a 条件は適用しない。
+//           ID は独立 MCQ 帯 q501〜q599(BAND_P_INDEPENDENT。CP3 で確定、帯割当は content/ccar-p/SOURCES.md §13 CP3 節)で、
+//           ドメインごとに q501 からの連番(retired も履歴として含む。F の C5 帯と同じ規則)。
+//           --counts は syllabus のドメイン順(値の数 = ドメイン数)
 // validate-bank(Zod スキーマ検証)が見ない C3a / C5 固有の要件を検査する(B-C3a-1 の恒久化。
 // 汎用 validator に足すと受理集合が変わるため別スクリプトにする。specs/07 Step 3a / Step 5)。
 // 帯は ID 番号で識別する(ファイル名非依存。帯割当は SOURCES.md §9 改訂履歴 2026-09-03 C5):
@@ -34,6 +36,8 @@ export interface Band {
 }
 export const BAND_C3A: Band = { key: "c3a", min: 101, max: 199 };
 export const BAND_C5: Band = { key: "c5", min: 501, max: 599 };
+/** P の独立 MCQ 帯(CP3。F の C5 帯と同じ番号域。form 非収載の P MCQ はすべてこの帯) */
+export const BAND_P_INDEPENDENT = { min: 501, max: 599 } as const;
 export const C3A_COUNT_RANGE = { min: 15, max: 20 } as const;
 export const C3A_SCENARIO_COUNT = 2;
 export const C3A_MIN_PER_DOMAIN = 2;
@@ -199,7 +203,7 @@ export function runAuditPracticeMcq(dir: string, opts: PracticeAuditOptions): Pr
 
 /**
  * 独立 MCQ プロファイル(ccar-p)。form 非収載の MCQ 全件を C5 相当の条件で監査する。
- * 帯・ID 連番・C3a 条件は F 固有なので適用しない(P の ID 規則は CP3 で決める)
+ * C3a 条件は F 固有なので適用しない。ID は q501〜q599 帯・ドメインごとの連番(CP3)
  */
 function auditIndependent(
   input: ReturnType<typeof loadBankForValidation>["input"],
@@ -217,6 +221,29 @@ function auditIndependent(
     errors.push(`--counts は ${domainIds.length} 値(syllabus のドメイン順 ${domainIds.join(",")})を期待(実際 ${opts.counts.length} 値)`);
 
   const inForm = new Set(input.forms.flatMap((f) => f.question_ids));
+
+  // 帯と連番(form 非収載の MCQ 全件。retired も履歴として含む)
+  const allByDomain = new Map<string, Question[]>();
+  for (const q of input.questions) {
+    if (q.type === "flash" || inForm.has(q.id)) continue;
+    const n = Number(/-q(\d+)$/.exec(q.id)?.[1]);
+    if (!(n >= BAND_P_INDEPENDENT.min && n <= BAND_P_INDEPENDENT.max)) {
+      errors.push(`${q.id}: form 非収載の MCQ の ID が独立 MCQ の q${BAND_P_INDEPENDENT.min}〜q${BAND_P_INDEPENDENT.max} 帯でない`);
+      continue;
+    }
+    const arr = allByDomain.get(q.domain_id) ?? [];
+    arr.push(q);
+    allByDomain.set(q.domain_id, arr);
+  }
+  for (const [domainId, qs] of [...allByDomain.entries()].sort()) {
+    const ids = qs.map((q) => q.id).sort();
+    const want = qs.map((_, i) => `${domainId}-q${String(BAND_P_INDEPENDENT.min + i).padStart(3, "0")}`);
+    if (ids.some((id, i) => id !== want[i]))
+      errors.push(
+        `${domainId} 独立 MCQ 帯: question id が連番でない(実際 [${ids.join(", ")}] / 期待 q${BAND_P_INDEPENDENT.min}〜q${BAND_P_INDEPENDENT.min + qs.length - 1})`,
+      );
+  }
+
   const lifecycleIds = opts.batchIds ?? null;
   const seenLifecycleIds = new Set<string>();
   const perDomain = new Map<string, number>();
