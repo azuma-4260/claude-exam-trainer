@@ -172,7 +172,6 @@ describe("D-1 は単独スコープのときだけ、その exam の試験日前
       srsRows: [],
       correctQuestionIds: new Set<string>(),
       consumption: { spentTodaySec: 0, introducedTodayCount: 0, introducedTodayByExam: {} },
-      startedToday: false,
     };
     expect(assembleQueueView({ ...base, scope: "both" }).kind).toBe("ok");
     expect(assembleQueueView({ ...base, scope: "ccar-p" }).kind).toBe("d_minus_1_unavailable");
@@ -191,7 +190,6 @@ describe("カウントダウンはスコープ内の exam ごと(試験日通過
       srsRows: [],
       correctQuestionIds: new Set(),
       consumption: { spentTodaySec: 0, introducedTodayCount: 0, introducedTodayByExam: {} },
-      startedToday: false,
     });
     expect(v.countdowns).toEqual([
       { exam: "ccar-f", examDateJst: "2026-09-27", daysLeft: -4 },

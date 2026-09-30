@@ -24,7 +24,6 @@ const view = (questions: Question[], over: Partial<Parameters<typeof assembleQue
     srsRows: [],
     correctQuestionIds: new Set(),
     consumption: { spentTodaySec: 0, introducedTodayCount: 0, introducedTodayByExam: {} },
-    startedToday: false,
     ...over,
   });
 
@@ -46,30 +45,26 @@ describe("planSession(FR-3: 1 セッション 5〜20 問・残骸なし分割)",
   const items = (n: number) => Array.from({ length: n }, (_, i) => item(i + 1));
 
   it("0 件 → none", () => {
-    expect(planSession([], false)).toEqual({ kind: "none" });
+    expect(planSession([])).toEqual({ kind: "none" });
   });
 
-  it("未開始で 1〜4 件 → below_session_min(持ち越し)", () => {
-    expect(planSession(items(4), false)).toEqual({ kind: "below_session_min", count: 4 });
-  });
-
-  it("開始済み(startedToday)なら 5 問未満でも同一セッションの継続として提供する", () => {
-    const plan = planSession(items(4), true);
-    expect(plan.kind).toBe("ok");
-    if (plan.kind === "ok") {
-      expect(plan.items).toHaveLength(4);
+  it("1〜4 件 → 供給不足時の例外(FR-3、D6-7)で全件を 1 セッションにする(持ち越さない)", () => {
+    for (const total of [1, 2, 3, 4]) {
+      const plan = planSession(items(total));
+      if (plan.kind !== "ok") throw new Error(plan.kind);
+      expect(plan.items).toHaveLength(total);
       expect(plan.remainingAfterSession).toBe(0);
     }
   });
 
   it("5 件 → 全件(下限ちょうど)", () => {
-    const plan = planSession(items(SESSION_MIN), false);
+    const plan = planSession(items(SESSION_MIN));
     if (plan.kind !== "ok") throw new Error(plan.kind);
     expect(plan.items).toHaveLength(5);
   });
 
   it("20 件 → 全件(上限ちょうど)", () => {
-    const plan = planSession(items(SESSION_MAX), false);
+    const plan = planSession(items(SESSION_MAX));
     if (plan.kind !== "ok") throw new Error(plan.kind);
     expect(plan.items).toHaveLength(20);
     expect(plan.remainingAfterSession).toBe(0);
@@ -77,7 +72,7 @@ describe("planSession(FR-3: 1 セッション 5〜20 問・残骸なし分割)",
 
   it("21〜24 件 → total-5 に縮めて残 5 を保証(次セッション導線が壊れない)", () => {
     for (const total of [21, 22, 23, 24]) {
-      const plan = planSession(items(total), false);
+      const plan = planSession(items(total));
       if (plan.kind !== "ok") throw new Error(plan.kind);
       expect(plan.items).toHaveLength(total - 5);
       expect(plan.remainingAfterSession).toBe(5);
@@ -85,11 +80,11 @@ describe("planSession(FR-3: 1 セッション 5〜20 問・残骸なし分割)",
   });
 
   it("25 件以上 → 20 件(残りは必ず 5 以上)", () => {
-    const plan = planSession(items(25), false);
+    const plan = planSession(items(25));
     if (plan.kind !== "ok") throw new Error(plan.kind);
     expect(plan.items).toHaveLength(20);
     expect(plan.remainingAfterSession).toBe(5);
-    const plan40 = planSession(items(40), false);
+    const plan40 = planSession(items(40));
     if (plan40.kind !== "ok") throw new Error(plan40.kind);
     expect(plan40.items).toHaveLength(20);
     expect(plan40.remainingAfterSession).toBe(20);
@@ -97,7 +92,7 @@ describe("planSession(FR-3: 1 セッション 5〜20 問・残骸なし分割)",
 
   it("どの総数でも 1〜4 件の残骸を作らない(全網羅)", () => {
     for (let total = SESSION_MIN; total <= 60; total++) {
-      const plan = planSession(items(total), false);
+      const plan = planSession(items(total));
       if (plan.kind !== "ok") throw new Error(plan.kind);
       expect(plan.items.length).toBeGreaterThanOrEqual(SESSION_MIN);
       expect(plan.items.length).toBeLessThanOrEqual(SESSION_MAX);
@@ -161,17 +156,19 @@ describe("assembleQueueView", () => {
     expect(full.drillTotal).toBe(30);
     expect(spent.drillTotal).toBe(2);
     expect(spent.dueBacklogCount).toBe(28);
-    expect(spent.session).toEqual({ kind: "below_session_min", count: 2 });
+    // 予算消化後の残 2 問も持ち越さずに提供する(FR-3 供給不足時の例外、D6-7)
+    if (spent.session.kind !== "ok") throw new Error(spent.session.kind);
+    expect(spent.session.items).toHaveLength(2);
+    expect(spent.session.remainingAfterSession).toBe(0);
   });
 
-  it("startedToday なら予算消化後の残 1〜4 問も継続セッションとして提供する", () => {
-    const qs = Array.from({ length: 30 }, (_, i) => flash(id3(i + 1)));
-    const v = view(qs, {
-      srsRows: qs.map((q) => srsRow(q.id)),
-      consumption: { spentTodaySec: 2700 - 40, introducedTodayCount: 0, introducedTodayByExam: {} },
-      startedToday: true,
-    });
-    expect(v.session.kind).toBe("ok");
+  it("キュー全体が 4 問しか無い日(P 導入直後の新規枠 4 枚など)でも Drill セッションを開始できる", () => {
+    // キュー全体が 4 問 = 下限 5 未満。以前は持ち越しで開始不可だった(B-D1-5-3)
+    const qs = Array.from({ length: 4 }, (_, i) => flash(id3(i + 1)));
+    const v = view(qs, { srsRows: qs.map((q) => srsRow(q.id)) });
+    expect(v.drillTotal).toBe(4);
+    if (v.session.kind !== "ok") throw new Error(v.session.kind);
+    expect(v.session.items.map((i) => i.questionId)).toEqual(qs.map((q) => q.id));
   });
 
   it("D-1(試験前日)はセレクタ未実装のため d_minus_1_unavailable(throw しない)", () => {

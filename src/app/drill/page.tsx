@@ -32,9 +32,7 @@ export default async function DrillPage() {
       ? "前日(D-1)メニューは準備中です(D5-1)。今日は通常キューを配信しません。"
       : view.bankEmpty
         ? "問題バンクがまだ登録されていません。"
-        : view.session.kind === "below_session_min"
-          ? `残り ${view.session.count} 問は 5 問に満たないため、次回のキューに持ち越します。`
-          : "今日の Drill は完了しました。";
+        : "今日の Drill は完了しました。";
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col items-center justify-center gap-6 px-5">
