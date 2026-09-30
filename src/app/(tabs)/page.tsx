@@ -158,9 +158,7 @@ export default async function HomePage() {
                 今日のキューを始める
               </span>
               <p className="text-center text-xs text-muted-foreground">
-                {view.session.kind === "below_session_min"
-                  ? `残り ${view.session.count} 問は 5 問に満たないため、次回のキューに持ち越します`
-                  : view.drillTotal === 0 && view.deferredPracticeCount > 0
+                {view.drillTotal === 0 && view.deferredPracticeCount > 0
                     ? "今日の Drill 分は完了しています(残りはシナリオ演習のみ)"
                     : "今日の Drill は完了しました"}
               </p>

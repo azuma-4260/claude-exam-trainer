@@ -49,8 +49,6 @@ export type DrillItem = {
 export type SessionPlan =
   /** 今日の drill は完了(または供給なし) */
   | { kind: "none" }
-  /** 未開始でキュー残が 1〜4 問 → FR-3 の下限により持ち越し(B-D1-5-3) */
-  | { kind: "below_session_min"; count: number }
   | { kind: "ok"; items: DrillItem[]; remainingAfterSession: number };
 
 /** スコープ内 exam の試験日カウントダウン(daysLeft < 0 は受験済み。01 FR-6) */
@@ -90,21 +88,19 @@ export type AssembleInputs = {
   srsRows: readonly SrsStateUpsert[];
   correctQuestionIds: ReadonlySet<string>;
   consumption: Consumption;
-  /** 当日(00:00 JST 以降)に drill attempt が存在するか(開始済みセッションの継続シグナル) */
-  startedToday: boolean;
   examDates?: ExamDates;
 };
 
 /**
  * FR-3(5〜20 問)を守るセッションサイズ。1〜4 問の残骸を作らない分割:
  *   total <= 20 → 全件 / 21〜24 → total - 5(残 5)/ 25 以上 → 20
- * 未開始で total が 1〜4 のときだけ開始不可(持ち越し)。開始済み(startedToday)の残りは
- * 同一セッションの継続として 5 問未満でも提供する(DoD「保存→再読込で復元」との両立)。
+ * total が 1〜4 のときは FR-3 の供給不足時の例外(D6-7)により、その全件で 1 セッションにする。
+ * 分割は残りを 0 か 5 以上にするので、1〜4 問になるのはキュー全体が細いとき(新規枠 < 5 の exam・直前期)
+ * か、予算消化・回答済みで当日の残りが減ったときに限られる。どちらも持ち越さずに提供する。
  */
-export function planSession(items: readonly DrillItem[], startedToday: boolean): SessionPlan {
+export function planSession(items: readonly DrillItem[]): SessionPlan {
   const total = items.length;
   if (total === 0) return { kind: "none" };
-  if (total < SESSION_MIN && !startedToday) return { kind: "below_session_min", count: total };
   const size = total <= SESSION_MAX ? total : total - SESSION_MIN <= SESSION_MAX ? total - SESSION_MIN : SESSION_MAX;
   return { kind: "ok", items: items.slice(0, size), remainingAfterSession: total - size };
 }
@@ -189,7 +185,7 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
     practiceItems,
     queueQuestionIds: queue.items.map((i) => i.questionId),
     drillTotal: drillItems.length,
-    session: planSession(drillItems, inputs.startedToday),
+    session: planSession(drillItems),
   };
 }
 
@@ -220,7 +216,7 @@ export async function loadQueueInputs(db: Db, now: Date) {
 
 /** RSC から呼ぶ I/O 合成(Home / Drill ページ共用)。specs/05: Study 進入時のキュー取得が Neon warm-up */
 export async function loadQueueView(db: Db, now: Date): Promise<QueueView> {
-  const { scope, scoped, poolCtx, signals, consumption, consumptionRows } = await loadQueueInputs(db, now);
+  const { scope, scoped, poolCtx, signals, consumption } = await loadQueueInputs(db, now);
   return assembleQueueView({
     now,
     scope,
@@ -230,6 +226,5 @@ export async function loadQueueView(db: Db, now: Date): Promise<QueueView> {
     srsRows: signals.srsRows,
     correctQuestionIds: signals.correctQuestionIds,
     consumption,
-    startedToday: consumptionRows.todayRows.some((r) => r.mode === "drill"),
   });
 }

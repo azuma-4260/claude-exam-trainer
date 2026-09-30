@@ -140,7 +140,6 @@ export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView 
     srsRows: signals.srsRows,
     correctQuestionIds: signals.correctQuestionIds,
     consumption,
-    startedToday: consumptionRows.todayRows.some((r) => r.mode === "drill"),
   });
   // D-1(d_minus_1_unavailable)は practiceItems / queueQuestionIds が空 = 第 2 層のみで通常どおり動く
   // (04 §D-1 が止めるのは日次キューの選定であって Practice 画面ではない)
