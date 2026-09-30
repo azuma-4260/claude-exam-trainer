@@ -156,7 +156,7 @@ S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、
 
 | ID | Tr | タスク | depends | spec | DoD |
 |---|---|---|---|---|---|
-| CP2 | C | P 最小フラッシュ 150(weight 比例、F に無い 3 ドメインを優先。F からの流用は新 ID 採番)→ Step 4 全工程 → deploy | CP1, D6-1, D6-3 | 07 Step 2, 4, CCAR-P フェーズ | **10/23** までに本番 active 150 件、validator 重み乖離警告なし |
+| CP2 | C | P 最小フラッシュ 150(weight 比例、ドメイン内では CP0 重なりマップ(`content/ccar-p/SOURCES.md` §8)で F と重ならない目標を優先。F からの流用は新 ID 採番)→ Step 4 全工程 → deploy | CP1, D6-1, D6-3 | 07 Step 2, 4, CCAR-P フェーズ | **10/23** までに本番 active 150 件、validator 重み乖離警告なし |
 | CP3 | C | P 独立 MCQ 60〜100(Practice / ドメイン別ミニ模試用、フォーム非収載)→ Step 4 全工程 → deploy | CP1, D6-1, D6-3 | 07 Step 5 | **10/30** 本番反映、全ドメインに収録 |
 | T-pmock | T | P 模試テスト: CP0 の模試構造でのフォーム schema・開始時全行生成・提出時 attempt 一括・レポートのドメイン別集計(P のドメイン数・重み) | CP0, S-3 | 03 §mock_forms, §exam_session, §Mock の attempt 生成 | 冒頭で CP0 の記録から `03` §mock_forms に P の構造(問題数・ドメイン配分・選択数)を追記しオーナー承認(停止条件: Mock のスコア)。テストが存在し D6-4 で green |
 | D6-4 | D | P 模試対応: `mock_forms` の P 構造、開始・提出・レポート・rehearsal 判定を exam 別に | T-pmock, D6-1, D6-3 | 03, 05 S-5, S-6 | T-pmock green。F form の開始可否・レポートが不変 |
