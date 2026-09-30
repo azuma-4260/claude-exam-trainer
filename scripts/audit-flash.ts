@@ -6,7 +6,8 @@
 //   1. domain_id 単位の flash 件数が --counts のドメイン配分(d1..d5 順)どおり
 //   2. 各 domain の全 flash id が f-dN-q001 からの連番(欠番・重複なし。retired も履歴として含む)
 //   3. syllabus.yaml の全 topic に primary_topic_id で最低 1 枚
-//   4. 形式: stem_en 1 文 / answer_en 3 行以内 / explanation_ja 2〜4 文(「。」数)
+//   4. 形式: stem_en は状況設定 0〜3 文 + 最後に問い 1 文(checkStemForm)/ answer_en 3 行以内 /
+//      explanation_ja 2〜4 文(「。」数)
 //   5. refs が SOURCES.md「refs ソース台帳」記載 URL のみ
 //   6. 固定値: exam=--exam(syllabus.exam も一致), scenario_id=null, srs_eligible=true,
 //      eligible_modes=["drill"]。status=--status は --batch-ids 指定時はその新規バッチだけ、
@@ -36,13 +37,37 @@ export function parseLedgerUrls(sourcesMd: string): Set<string> {
   return urls;
 }
 
-/** stem_en の英語文数。略語・引用符を考慮し、1文だけでも文末記号が無ければ0とする。 */
-export function sentenceCount(text: string): number {
-  const segments = [...new Intl.Segmenter("en", { granularity: "sentence" }).segment(text.trim())]
+/** stem_en を英語の文に分割する(略語・引用符は Intl.Segmenter に任せる) */
+export function stemSentences(text: string): string[] {
+  return [...new Intl.Segmenter("en", { granularity: "sentence" }).segment(text.trim())]
     .map(({ segment }) => segment.trim())
     .filter(Boolean);
-  if (segments.length !== 1) return segments.length;
-  return /[.?!]["'”’)}\]]*$/.test(segments[0]) ? 1 : 0;
+}
+
+/** 文末記号(後ろの閉じ引用符・括弧は許す) */
+const CLOSERS = `["'”’)}\\]]*$`;
+const TERMINAL = new RegExp(`[.?!]${CLOSERS}`);
+const QUESTION = new RegExp(`\\?${CLOSERS}`);
+const PERIOD = new RegExp(`\\.${CLOSERS}`);
+/** 問いとして許す指示文の先頭動詞(specs/07 Step 2) */
+const DIRECTIVE = /^(Describe|Explain|Name|List|Match|Identify|Compare|State|Give)\b/;
+const MAX_STEM_SENTENCES = 4;
+
+/**
+ * specs/07 Step 2 の表の形式: 状況設定 0〜3 文 + 最後に問い 1 文。
+ * 問いは `?` で終わる疑問文か、許可動詞で始まり `.` で終わる指示文。違反なら理由、適合なら null。
+ */
+export function checkStemForm(stem: string): string | null {
+  const sentences = stemSentences(stem);
+  if (sentences.length === 0) return "空";
+  if (sentences.length > MAX_STEM_SENTENCES) return `${sentences.length} 文(${MAX_STEM_SENTENCES} 文以内)`;
+  if (sentences.some((x) => !TERMINAL.test(x))) return "文末記号で終わらない文がある";
+  if (sentences.slice(0, -1).some((x) => QUESTION.test(x))) return "問いが複数(最終文以外が ? で終わる)";
+  const last = sentences[sentences.length - 1];
+  if (!QUESTION.test(last) && !(PERIOD.test(last) && DIRECTIVE.test(last))) {
+    return "最終文が問いでない(? の疑問文か Describe 等の指示文にする)";
+  }
+  return null;
 }
 
 export function runAuditFlash(dir: string, opts: AuditOptions): { errors: string[]; total: number } {
@@ -142,7 +167,8 @@ export function runAuditFlash(dir: string, opts: AuditOptions): { errors: string
       coveredTopics.add(q.primary_topic_id);
 
       // 4. 形式
-      if (sentenceCount(q.stem_en) !== 1) errors.push(`${q.id}: stem_en が 1 文でない(${sentenceCount(q.stem_en)} 文)`);
+      const stemError = checkStemForm(q.stem_en);
+      if (stemError) errors.push(`${q.id}: stem_en の形式違反: ${stemError}`);
       const lines = q.answer_en === null ? 0 : q.answer_en.split("\n").length;
       if (lines > 3) errors.push(`${q.id}: answer_en が ${lines} 行(3 行以内)`);
       const ja = (q.explanation_ja.match(/。/g) ?? []).length;

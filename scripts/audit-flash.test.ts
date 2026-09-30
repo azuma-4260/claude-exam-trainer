@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { parseArgs, parseLedgerUrls, runAuditFlash, sentenceCount } from "./audit-flash";
+import { checkStemForm, parseArgs, parseLedgerUrls, runAuditFlash, stemSentences } from "./audit-flash";
 
 const URL_A = "https://docs.claude.com/en/docs/claude-code/memory";
 const URL_B = "https://www.anthropic.com/engineering/building-effective-agents";
@@ -179,7 +179,7 @@ describe("runAuditFlash", () => {
     // domain_id と id/topic の不整合は Zod スキーマ(単一ソース)がファイル単位で弾く
     write("broken.json", [card(2, "f-d1-t1-02", { domain_id: "f-d2" })]);
     const errs = runAuditFlash(dir, { counts: [2, 0], status: "flagged" }).errors;
-    expect(errs.some((e) => e.includes("1 文でない(2 文)"))).toBe(true);
+    expect(errs.some((e) => e.includes("stem_en の形式違反: 最終文が問いでない"))).toBe(true);
     expect(errs.some((e) => e.includes("answer_en が 4 行"))).toBe(true);
     expect(errs.some((e) => e.includes("explanation_ja が 1 文"))).toBe(true);
     expect(errs.some((e) => e.includes("broken.json: 読込/スキーマ失敗"))).toBe(true);
@@ -194,16 +194,38 @@ describe("runAuditFlash", () => {
   });
 });
 
-describe("sentenceCount / parseLedgerUrls / parseArgs", () => {
+describe("checkStemForm(specs/07 Step 2: 状況設定 0〜3 文 + 問い 1 文)", () => {
+  it.each([
+    ["1 文の疑問文", "What does CLAUDE.md do?"],
+    ["状況設定 2 文 + 疑問文", "A team runs six subagents on every request. Simple questions cost as much as deep ones. Why should it select subagents dynamically?"],
+    ["Describe で終わる 3 文", "You ask Claude Code for a parser. Each fix breaks another case. Describe the test-driven iteration loop."],
+    ["1 文の指示文", "Name the three appropriate escalation triggers for a support agent."],
+    ["閉じ引用符つきの疑問文", 'A reviewer keeps asking the same thing. How should you answer "Why did the run fail?"'],
+  ])("OK: %s", (_label, stem) => {
+    expect(checkStemForm(stem)).toBeNull();
+  });
+  it.each([
+    ["5 文", "One. Two. Three. Four. What next?", "5 文"],
+    ["途中に ?", "Is this a question? What next?", "問いが複数"],
+    ["1 文で文末記号なし", "A stem without terminal punctuation", "文末記号で終わらない"],
+    ["複数文で末尾に文末記号なし", "A team runs a pipeline. It is slow. Why is it slow", "文末記号で終わらない"],
+    ["宣言文で終わる複数文", "A team runs a pipeline. It is slow. The fix is caching.", "最終文が問いでない"],
+    ["許容外動詞の指示文", "A team runs a pipeline. Fix the slow step.", "最終文が問いでない"],
+    ["空", "   ", "空"],
+  ])("NG: %s", (_label, stem, reason) => {
+    expect(checkStemForm(stem)).toContain(reason);
+  });
+});
+
+describe("stemSentences / parseLedgerUrls / parseArgs", () => {
   it("中間ドット(CLAUDE.md / .mcp.json)を文末と数えない", () => {
-    expect(sentenceCount("What does CLAUDE.md do?")).toBe(1);
-    expect(sentenceCount("Use the .mcp.json file at the project root.")).toBe(1);
-    expect(sentenceCount("Which U.S. policy applies?")).toBe(1);
-    expect(sentenceCount("What does e.g. mean?")).toBe(1);
-    expect(sentenceCount("One. Two.")).toBe(2);
-    expect(sentenceCount("Which policy applies in the U.S. What changes?")).toBe(2);
-    expect(sentenceCount('Claude said "Done." What next?')).toBe(2);
-    expect(sentenceCount("A stem without terminal punctuation")).toBe(0);
+    expect(stemSentences("What does CLAUDE.md do?")).toHaveLength(1);
+    expect(stemSentences("Use the .mcp.json file at the project root.")).toHaveLength(1);
+    expect(stemSentences("Which U.S. policy applies?")).toHaveLength(1);
+    expect(stemSentences("What does e.g. mean?")).toHaveLength(1);
+    expect(stemSentences("One. Two.")).toHaveLength(2);
+    expect(stemSentences("Which policy applies in the U.S. What changes?")).toHaveLength(2);
+    expect(stemSentences('Claude said "Done." What next?')).toHaveLength(2);
   });
   it("台帳表から ref URL 列だけを抽出する", () => {
     const urls = parseLedgerUrls(SOURCES);
