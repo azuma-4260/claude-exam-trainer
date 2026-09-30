@@ -151,6 +151,7 @@ S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、
 | D6-1 | D | 多試験コア: 学習スコープの保持(`study_setting`、追加のみ migration)、`CCAR_F_EXAM_DATE_JST` 固定の解消(exam 別試験日・過去試験は上限なし)、holdout 中間集計の `(exam, form_id)` 化、queue / pool / proficiency / 間違いノート / Stats のスコープ絞り込み、`/api/export?exam=` | T-exam | 03, 04, 06 | T-exam green。本番 F データの export が deploy 前後で一致 |
 | D6-2 | D | 学習スコープ切替 UI(Home ヘッダ・S-9 設定。F のみ / P のみ / F+P、`both` では exam ラベル) | D6-1 | 05 | 実機: P のみに切替 → カウントダウン・キュー・Stats が P 基準、F+P で両方の due が出る、F のみに戻すと F の履歴と復習が使える |
 | D6-3 | D | バンクの複数試験対応: `bankDir` / load・`validate-bank`・audit 系スクリプトを `content/ccar-p/` に対応、CI で両 exam を検証 | S-3 | 03 §1, 06 §バンク静的検証 | 空(または fixture)の P バンクで CI 緑、F の検証結果が不変 |
+| D6-6 | D | flash 表の形式規則を「状況設定 0〜3 文 + 問い 1 文」に改め(spec 先行)、`audit:flash` 検査 4 を全 exam 共通で合わせる(B-CP2-3 から昇格) | D6-3 | 07 Step 2 | F / P とも `npm run audit:flash`(active)が OK。違反系のテストが存在し green |
 
 ### Phase 7: 10/19–11/28 — P バンクと模試
 
@@ -172,7 +173,7 @@ S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、
 | O-P4 | O | 12/5 P 凍結宣言(以後 bug fix のみ) | CP6, D5-1 | 08 | 宣言後の commit が fix のみ |
 | O-P5 | O | 12/11 P 間違いノート総ざらい(D-1 モード) | M14, D5-1 | 08, 04 §D-1 | 実施 |
 
-## 5. 依存グラフ(§4 の depends 列から機械生成・全 76 ノード)
+## 5. 依存グラフ(§4 の depends 列から機械生成・全 77 ノード)
 
 `X ← A, B` は「X は A と B の完了後に着手可能」。§4 を更新したら本節も再生成する(§4 との 1:1 を検証スクリプトで確認する)。
 
@@ -232,6 +233,7 @@ T-exam ← S-3
 D6-1 ← T-exam
 D6-2 ← D6-1
 D6-3 ← S-3
+D6-6 ← D6-3
 CP2 ← CP1, D6-1, D6-3
 CP3 ← CP1, D6-1, D6-3
 T-pmock ← CP0, S-3

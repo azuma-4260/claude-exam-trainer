@@ -2,7 +2,7 @@
 id: B-CP2-3
 origin: CP2
 created: 2026-09-30
-status: open
+status: promoted-to D6-6
 related_tasks: [CP6]
 related_specs: ["07#step-2-最小フラッシュ150-枚weight-比例-d1-40--d2-27--d3-30--d4-30--d5-23", "07#step-6-継続改訂ループ"]
 related_paths: [scripts/audit-flash.ts, content/ccar-f/questions]
