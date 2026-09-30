@@ -1,3 +1,6 @@
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { mcq, pmcq, pSyllabus, syllabus } from "@/lib/queue/test-fixtures";
 import { combineExamBanks, loadExamBank, scopeBank } from "./runtime";
@@ -45,9 +48,28 @@ describe("scopeBank(出題プール段 0)", () => {
 });
 
 describe("loadExamBank(content/<exam>)", () => {
-  it("P は syllabus のみ・問題なしでも読める(空の問題集合、syllabus は P)", () => {
+  it("syllabus のみ・問題なしの exam ディレクトリも読める(空の問題集合、syllabus あり)", () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), "bank-"));
+    const prev = process.env.BANK_DIR;
+    try {
+      mkdirSync(path.join(root, "ccar-p"));
+      copyFileSync(path.join(process.cwd(), "content", "ccar-p", "syllabus.yaml"), path.join(root, "ccar-p", "syllabus.yaml"));
+      process.env.BANK_DIR = root;
+      const p = loadExamBank("ccar-p");
+      expect(p.questions).toEqual([]);
+      expect(p.forms).toEqual([]);
+      expect(p.syllabus?.exam).toBe("ccar-p");
+    } finally {
+      if (prev === undefined) delete process.env.BANK_DIR;
+      else process.env.BANK_DIR = prev;
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  // 実バンクの P は CP2 / CP3 で問題が入るため件数に依存しない(空バンクは上の fixture で担保)
+  it("P を読める(全問 exam = ccar-p、form は T-pmock 確定まで無し、syllabus は P)", () => {
     const p = loadExamBank("ccar-p");
-    expect(p.questions).toEqual([]);
+    expect(p.questions.every((q) => q.exam === "ccar-p")).toBe(true);
     expect(p.forms).toEqual([]);
     expect(p.syllabus?.exam).toBe("ccar-p");
   });
