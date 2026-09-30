@@ -1,0 +1,3 @@
+state: done
+evidence: "オーナー指示(2026-10-01)で Claude が本番 https://claude-exam-trainer.vercel.app をブラウザで確認して記録。スコープ P のみ(/api/study-setting = ccar-p)で Home は CCAR-P 基準(試験日 2026-12-12・72 days to CCAR-P、キュー Drill 3 問・バックログ 0)。UI のスコープ切替で F+P(Home に F 受験済み / P 72 日、キュー Drill 97 問 + シナリオ 9 問・バックログ 26)→ P のみに戻す往復を実施し、各時点で /api/export?exam=ccar-f の 5 テーブル(srs_state 130 / attempt 370 / exam_session / exam_session_answer / question_flag 0)を PK 順に並べた行の中身の SHA-256 を比較し、3 時点すべて一致。F データ保全は D6-1 の deploy 前後比較(compare-export)でも確認済み。依存 S-3 / D6-1 / D6-2 / D6-3 は全て done 記録済み。確認後のスコープは元の P のみ"
+recorded: 2026-10-01
