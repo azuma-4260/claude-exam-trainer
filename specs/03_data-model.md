@@ -4,6 +4,8 @@
 
 **v1.3.2(2026-10-03, T-pmock)**: §mock_forms に CCAR-P の構造(63 問・配分 11-8-12-10-9-9-4・独立問題形式・問題形式の件数は不問)を追記し、full の開始リクエストを `{exam, form_id}` に変更(オーナー決定 2026-10-03)。
 
+**v1.3.3(2026-10-03, S-4)**: §1 の question に任意の構造化解説フィールド(`binding_constraint_ja` / `lifecycle_phase` / choice の `plausible_ja`・`not_best_ja`)と P の MCQ の不変条件(multi は Select TWO のみ・選択肢 4〜5 個・`difficulty` の再定義)を追加し、P のフォーム収載問題ではフィールドを必須にした(オーナー承認 2026-10-03。停止条件: 永続データの意味)。DB スキーマは変えない。実装は `09` D6-9。
+
 バンク = Git 内静的ファイル(ビルド時取込)、進捗 = Neon Postgres。スキーマの単一ソースは `src/lib/bank/schema.ts` の Zod discriminated union(TypeScript 型は z.infer、validate-bank.ts も同 schema を import)。本書の JSON/SQL は説明例。
 
 ## 1. 問題バンク(`content/`)
@@ -36,7 +38,41 @@ content/ccar-p/              # v1.3。syllabus.yaml / mock_forms.yaml / SOURCES.
 }
 ```
 
+P の MCQ の構造化解説フィールド(v1.3.3・S-4。任意):
+
+```jsonc
+{
+  "id": "p-d5-q6xx", "exam": "ccar-p", "type": "mcq_single",
+  "difficulty": 2,                                  // P の MCQ: 1 知識の適用 / 2 制約判断 / 3 アーキテクチャのトレードオフ
+  "binding_constraint_ja": "支払いは取り消せないため、実行前に誤りを止める必要がある",
+  "lifecycle_phase": null,                          // discovery | design | deployment | monitoring | iteration | null
+  "choices": [
+    { "label": "A", "text_en": "...",
+      "plausible_ja": "取り消せる操作の事後監査が目的なら妥当",   // どんな条件なら正解になるか
+      "not_best_ja": "支払いの後では手遅れで、自己レビューにも限界がある" },
+    { "label": "B", "text_en": "..." },             // 正解の選択肢には書かない(理由は explanation_ja)
+    ...
+  ],
+  "explanation_ja": "正解の理由 + 一般原則",
+  ...
+}
+```
+
 不変条件(Zod 強制): flash は choices/answer=null・answer_en 必須 / mcq_single は answer 1 件 / mcq_multi は 2 件以上・集合一致・部分点なし・"Select TWO" 明記 / scenario_id・topic・domain の整合 / refs >= 1。
+
+**構造化解説フィールド(v1.3.3・S-4。オーナー承認 2026-10-03)**: 利用者が「決め手になる制約」と「もっともらしい誤答がなぜ BEST でないか」を解説画面で直接見られるようにする(`05`、作り方は `07` §P 制作指針)。バンクは静的ファイルなので DB スキーマ・attempt の意味は変わらない。
+
+- `binding_constraint_ja`(question、非空文字列、任意): 決め手になる制約
+- `lifecycle_phase`(question、任意): `discovery` | `design` | `deployment`(handoff を含む)| `monitoring` | `iteration` | null。phase-gate 問題など、フェーズが判断を左右する問題だけに設定する
+- `plausible_ja` / `not_best_ja`(choice、非空文字列、任意): どんな条件なら正解になるか / このシナリオでなぜ BEST でないか
+- 不変条件(Zod 強制): MCQ のみ(flash は持たない)/ **書くなら全部書く**: `binding_constraint_ja` がある問題は、正解でない選択肢すべてに `plausible_ja` と `not_best_ja` を持ち、正解の選択肢は持たない。`binding_constraint_ja` が無い問題は choice の 2 フィールドを持たない / `lifecycle_phase` は単独で設定してよい
+- **P のフォーム収載問題は必須**(validator がファイル横断で検査し fail closed。§mock_forms §CCAR-P)。それ以外の P MCQ は任意(S-4 以後の新規分は `07` で書くと定める。既存 76 問は `09` CP7 で埋める)。F の問題は使わない(許容はする)
+- 値がある問題の `explanation_ja` は正解の理由と一般原則に絞る(誤答の説明はフィールド側)。値が無い問題は従来どおり `explanation_ja` に全選択肢の説明を書く
+- **正解の漏洩防止(停止条件: Mock のスコア)**: フィールドの有無で正解の選択肢が分かる(正解の選択肢だけ `plausible_ja` / `not_best_ja` を持たない)ため、構造化解説フィールドは `answer` / `explanation_ja` と同じ扱いにする。**Mock では提出まで(進行中セッションの DTO に)含めない**(`src/lib/mock/dto.ts` は選択肢を `label` / `text_en` だけに詰め直す現行方式を維持する)。Practice・Drill は採点の即時表示のため、回答前から `answer` と解説をクライアントに渡す現行設計(個人用アプリ)のままとし、画面は回答するまで表示しない(`05` §解説の表示)
+
+**P の MCQ の不変条件(v1.3.3・S-4。Zod / validator 強制)**: `mcq_multi` は "Select TWO" のみ(answer 2 件)/ 選択肢は 4〜5 個(フォーム収載に限らず全 P MCQ。既存 76 問は 4 択で適合)。問題形式・難易度の分布はどこでも強制しない(`07` の目安、`audit:form` が表示する)。
+
+**P の MCQ の `difficulty`(v1.3.3・S-4 で再定義)**: 1 = 知識の適用 / 2 = 制約判断 / 3 = アーキテクチャのトレードオフ(定義は `07` §P 制作指針)。flash と F の問題は従来の意味のまま。値はアプリのロジック(出題・SRS・採点)では使わない(SRS の `srs_state.difficulty` は FSRS の値で別物)。既存 76 問は付け替えだけのための改訂はせず、CP7 の再監査で付け直す。
 
 **フォーム収載問題の標準値**: `eligible_modes: ["mock", "practice"]`, `srs_eligible: false`(mock 提出後の Practice 解放を可能にするため。ただし出題可否は下記 holdout ゲートが優先)。
 
@@ -54,6 +90,7 @@ domain mini は上記に加え、full-form 収載問題を常に候補から除�
 ### rev のライフサイクル
 
 - 同一 ID + rev++ は editorial fix のみ。正解・選択肢の意味・前提・問う概念の変更は新 ID + 旧 ID retired
+- 構造化解説フィールドの追加・埋め戻しと、P の MCQ の `difficulty` の付け直しは editorial fix(rev++)。`07` Step 4 の active 化後の修正ループを通す(v1.3.3・S-4)
 - retired でも DB 履歴行は削除しない
 
 ### scenarios.yaml(形式は 2026-08-24, C3a で確定)
@@ -107,7 +144,7 @@ forms:
     question_ids: [ ...63 件、出題順 ]
 ```
 
-validator(CCAR-P): 63 問 / ドメイン配分 11-8-12-10-9-9-4 / form 間の問題重複なし / 全問 eligible_modes に mock を含む / **全問 scenario_id == null** / **form.scenario_ids は空** / **全問 MCQ で選択肢 4〜5 個**。問題形式の件数は検証しない。
+validator(CCAR-P): 63 問 / ドメイン配分 11-8-12-10-9-9-4 / form 間の問題重複なし / 全問 eligible_modes に mock を含む / **全問 scenario_id == null** / **form.scenario_ids は空** / **全問 MCQ で選択肢 4〜5 個** / **全問が構造化解説フィールド(`binding_constraint_ja` と正解でない選択肢の `plausible_ja`・`not_best_ja`)を持つ**(v1.3.3・S-4)。問題形式・難易度の件数は検証しない(`audit:form` が分布を表示する)。
 
 - まとめ形式(Yes/No Matrix・Drop-down Matching。受験記で報告された「共通の選択肢で複数の小問に答え、1 問として数える」形式)は取り入れる方針だが、**採点の一次情報が無い**ため本節の対象外。型・採点・保存は `09` の T-bundle / D6-8 で扱い、その冒頭で採点を確定する(停止条件: 採点)。それまで P フォームは `mcq_single` / `mcq_multi` のみで構成する
 

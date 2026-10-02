@@ -1,5 +1,7 @@
 # 07. 問題バンク生成パイプライン(v1.3)
 
+**v1.3.2(2026-10-03, S-4)**: §CCAR-P に「P 制作指針」を追加(binding constraint を先に決める作問手順、問題タイプ、誤答の推奨型と禁止パターン、難易度 3 段階、問題形式の比率の目安、Drill 短問 MCQ、構造化解説フィールドの書き方、Full Mock 品質チェックリスト)。根拠は Reddit 調査メモ(`ExamGuide/memo.md`)で、節ごとの区分・信頼度・振り分けは `content/ccar-p/SOURCES.md` §14(オーナー承認 2026-10-03)。
+
 **v1.3.1(2026-10-03, T-pmock)**: §CCAR-P の Step 3a 不適用・Step 3b のフォーム構造を確定値に更新。
 
 **v1.3(2026-09-29, S-3)**: CCAR-P フェーズを詳細化(ディレクトリ・Step ごとの差分・生成量サマリ P 版)。以下の Step 0〜6 本文は F で確定した手順で、P は §CCAR-P フェーズの差分を適用して再実行する。
@@ -72,11 +74,83 @@
 - **Step 0(CP0)**: Guide を `content/ccar-p/SOURCES.md` に転記し、`02` CCAR-P 節を公式優先で突合。模試構造(問題数・ドメイン配分・シナリオ有無・multiple-response の選択数)と In/Out-of-Scope は **Guide の事実として記録するまで**。`03` §mock_forms への仕様化は T-pmock(停止条件: Mock のスコア)
 - **Step 1(CP1)**: `content/ccar-p/syllabus.yaml`。task statement 層は Guide と 1:1、topic 数は CP0 で決めた範囲。オーナー粒度レビュー
 - **Step 2(CP2)**: 最小フラッシュ 150(ドメイン重み比例)。ドメイン内では CP0 の重なりマップ(`content/ccar-p/SOURCES.md` §8)で F と重ならない目標(「なし」「部分」)を優先し、重なる目標は F カードとの重複を避ける。D5 / D6 / D7 はドメインとしては F に無いが、目標単位では D7 と D5 の一部が F と重なる(CP0)
-- **Step 3a は P に適用しない(T-pmock で確定)**: P は独立問題形式(`03` §mock_forms §CCAR-P の構造。オーナー決定 2026-10-03)。Practice 用は Step 5 相当の独立 MCQ(CP3)で成立させる。状況説明は各問の stem に 2〜4 文で書く(受験記。`content/ccar-p/SOURCES.md` §1.1)。P の制作指針の詳細(binding constraint・誤答の作り方・難易度・問題タイプ)は S-4 で本節に追記する
-- **Step 3b(CP4-A / CP4-B)**: P の固定フォームは `03` §mock_forms §CCAR-P の構造(63 問・配分 11-8-12-10-9-9-4・全問 scenario_id null・`mcq_single` / `mcq_multi`)に従う(F 固有値を流用しない)。フォーム収載問題の標準値(`eligible_modes: ["mock", "practice"]` / `srs_eligible: false`)と holdout は F と同じ(`03`、フォームは `(exam, form_id)` で識別)
-- **Step 4**: F と同じ全工程(flagged で登録 → 2 周 → active、オーナー抜き取り各ドメイン 5 問、active 化後の修正ループ)。選択肢バランス監査も同じ基準で P に適用する
-- **Step 5(CP3)**: 独立 MCQ 60〜100(Practice / ドメイン別ミニ模試用、フォーム非収載、全ドメインに収録)
+- **Step 3a は P に適用しない(T-pmock で確定)**: P は独立問題形式(`03` §mock_forms §CCAR-P の構造。オーナー決定 2026-10-03)。Practice 用は Step 5 相当の独立 MCQ(CP3)で成立させる。状況説明は各問の stem に 2〜4 文で書く(受験記。`content/ccar-p/SOURCES.md` §1.1)。P の問題はすべて下記 §P 制作指針に従う(S-4)
+- **Step 3b(CP4-A / CP4-B)**: P の固定フォームは `03` §mock_forms §CCAR-P の構造(63 問・配分 11-8-12-10-9-9-4・全問 scenario_id null・`mcq_single` / `mcq_multi`)に従う(F 固有値を流用しない)。フォーム収載問題の標準値(`eligible_modes: ["mock", "practice"]` / `srs_eligible: false`)と holdout は F と同じ(`03`、フォームは `(exam, form_id)` で識別)。収載問題は構造化解説フィールドが必須(`03` §1、validator で fail closed)。問題形式・難易度の分布は §P 制作指針の目安に合わせる
+- **Step 4**: F と同じ全工程(flagged で登録 → 2 周 → active、オーナー抜き取り各ドメイン 5 問、active 化後の修正ループ)。選択肢バランス監査も同じ基準で P に適用する。P の独立レビューでは §P 制作指針の禁止パターン(ありえない誤答など)を観点に加え、フォームには Full Mock 品質チェックリストを適用する
+- **Step 5(CP3)**: 独立 MCQ 60〜100(Practice / ドメイン別ミニ模試用、フォーム非収載、全ドメインに収録)。S-4 以後に作る P の MCQ は §P 制作指針に従う。S-4 以前の 76 問は CP7 で指針に合わせて再監査する
 - **Step 6(CP6)**: P の現行 rev 未解決フラグを `/api/export?exam=ccar-p` から取得して改訂
+
+### P 制作指針(v1.3.2・S-4)
+
+CCAR-P は定義の暗記ではなく「不完全な enterprise シナリオから決め手になる制約を見抜き、どれももっともらしい選択肢から BEST を選ぶ」力を問う(受験者証言。`content/ccar-p/SOURCES.md` §14)。P の問題(フォーム・独立 MCQ・Drill 短問 MCQ)はすべて本節に従う。**品質の基準は「正解があるか」ではなく「正解以外も十分に魅力的だが、stem を正確に読めば BEST が一意に決まるか」**。
+
+**根拠の扱い**: 本節の根拠である Reddit 調査メモは形式・難易度・思考パターンの補助情報にとどめ、技術的事実の根拠(`refs`)には使わない(§原則の一次ソース主義)。市販・公開の模試を正解の根拠にしない。
+
+#### 作問手順(binding constraint を先に決める)
+
+1. stem の状況(2〜4 文。組織・現状の構成・症状または要件・制約・必要ならライフサイクルのフェーズ)を書く
+2. **binding constraint**(複数の制約のうち、最終判断を決める 1 つ)を決め、`binding_constraint_ja` に書く(`03` §1)
+3. binding constraint を直接満たし、追加の複雑さが最小の選択肢を正解にする
+4. 誤答は「**別の制約・別のフェーズ・別の目的なら正解になり得る**」形で作る。その条件を `plausible_ja` に、このシナリオで BEST でない理由を `not_best_ja` に書く(`03` §1)。`plausible_ja` が書けない誤答(どんな状況でも選ばない選択肢)は作り直す
+5. 問いは "What should the architect do FIRST / BEST / NEXT?" や "Which TWO actions ...? (Select TWO.)" の形にする
+
+#### 問題タイプ
+
+| タイプ | 内容 | 主なドメイン |
+|---|---|---|
+| 制約判断 | 技術的にはどれも可能な選択肢から、binding constraint を満たす BEST を選ぶ | 全ドメイン |
+| アーキテクチャ選択 | 決定的なソフトウェア / augmented LLM / workflow / single agent / multi-agent / RAG 併用から、要件・不確実性・自律性・レイテンシ・コスト・運用負荷で選ぶ。**最も高度なものではなく、制約を満たす最小十分なもの**が正解 | D1, D3 |
+| 障害診断 | 本番の症状 → 障害の層 → 見るべき証拠 → 最初の調査 → 修正、のいずれかを問う(RAG・エージェント・統合・評価)。「モデルの幻覚だからモデルを替える」と即断しない | D3, D4, D7 |
+| phase-gate | 現在のフェーズ(`lifecycle_phase`)を示し、今やるべき活動を選ばせる。後のフェーズの正しい活動を誤答に使う | D6, D1 |
+| ステークホルダー判断 | 要件の発見・期待値の調整・SLA・トレードオフの説明・handoff で、このフェーズに誰に何を確認するか | D6 |
+
+- 重点: Integration(19%、MCP・ツール設計・認証認可・identity・RAG・観測)、governance / security(法規制は暗記させず設計の制約として使う)、評価設計(golden set・offline / online・LLM-as-a-Judge・回帰・本番監視)、要件定義・期待値調整。**Claude 固有の API 知識だけに偏らせない**(syllabus の topic は変えない。出題の切り口の指針)
+- 定型表現(compensating control、binding constraint、least privilege など)は、本番の選択肢・解説で使われる言い回しに慣れるため、意味が合う箇所では言い換えずに使う(受験記。B-T-pmock-1)
+
+#### 誤答の推奨型と禁止パターン
+
+推奨する誤答の型(どれも「一般には正しい」ことが条件):
+
+1. 正しい施策だがフェーズが違う
+2. 正しい施策だが制約が違う
+3. 構造的な解決が要る場面での応急処置(ただしシナリオが即時の封じ込めを求めるなら応急処置が正解になり得る。機械的な規則にしない)
+4. 過剰設計(決定的な workflow で足りるのに multi-agent など)
+5. 設計不足
+6. 正しい技術だが障害の層が違う
+7. 予防でなく監視・ログ・事後確認(least privilege なら不要な能力そのものを外す)
+8. システム側で強制すべき統制をプロンプトでやる
+9. 本当の原因が caching / retrieval なのに小さいモデルへ切り替える(コスト・長いコンテキストを truncate だけで解く、も同類)
+10. 診断より先に部品を交換する(モデル変更・再学習など)
+
+禁止(Step 4 のレビューで blocking とする): 明らかに危険・無関係・ばかげた選択肢 / 現実には選ばない選択肢(「認証を無効化する」など)/ always・never などの断定語だけで消去できる選択肢 / 用語だけ違う同義の選択肢 / Select TWO で同じ意味の 2 つを選ばせる問題(2 つの正解はそれぞれ独立した理由で必要なこと)/ multi-agent や RAG を万能の上位解として扱う問題 / 業務要件を無視して技術だけを問う問題。正解だけ長い・具体的といった形の偏りは §Step 3b の選択肢バランス(`audit:choices`)で検査する。
+
+#### 形式・選択肢数・難易度
+
+- **形式**: `mcq_single` と `mcq_multi`。P の `mcq_multi` は **Select TWO のみ**(validator で強制。`03` §1)。選択肢は P の Practice・フォームの MCQ で **4〜5 個**(validator で強制)、multi は 5 択を推奨。Drill 短問 MCQ は 4 択でよい
+- **難易度**(P の MCQ。`03` §1): 1 = 知識の適用(必要な知識が分かれば直接解ける。ただし定義の想起にはしない)/ 2 = 制約判断(技術的に妥当な選択肢が 2 つ以上あり、binding constraint で BEST が決まる)/ 3 = アーキテクチャのトレードオフ(複数の制約を同時に示し、1 つの技術知識だけでは解けない)。flash の `difficulty` は従来の意味のまま
+- **フォームの目安**(validator では強制しない。`audit:form` が分布を表示する): 難易度 1 は 6 問以下、3 は 20 問以上(本番は模試より難しいという証言があるため、模試を本番と同等以上にする)。問題形式は、まとめ形式(T-bundle / D6-8)を使わない場合 single 43〜48 / multi 15〜20、CP4-A の着手前に D6-8 が merge 済みでまとめ形式を使う場合 single 30〜35 / multi 15〜20 / Yes/No Matrix 5〜8 / Drop-down Matching 5〜8(合計 63)。比率の公式値は無く(`content/ccar-p/SOURCES.md` §14 の LOW)、受験者の証言が増えたら見直す
+- **Drill 短問 MCQ(知識の適用型)**: 定義を思い出すだけのフラッシュの置き換え先(CP7)。1〜2 文の状況から、知識を当てはめて答える 4 択(例: 安定した長い prefix が繰り返し送られている → prompt caching)。`eligible_modes: ["drill"]` / `srs_eligible: true` / `difficulty: 1`。構造化解説フィールドは任意
+
+#### 構造化解説フィールドの書き方(`03` §1)
+
+- `binding_constraint_ja`: 決め手になる制約を 1 文で(例: 「支払いは取り消せないため、実行前に誤りを止める必要がある」)
+- `plausible_ja`(正解でない選択肢ごと): 「どんな条件なら正解になるか」を書く(例: 「取り消せる操作の事後監査が目的なら妥当」)。単に「一見よさそう」とは書かない
+- `not_best_ja`(同上): このシナリオでなぜ BEST でないかを、binding constraint か stem の事実に結びつけて書く
+- `lifecycle_phase`: phase-gate 問題とフェーズが判断を左右する問題だけに設定する
+- 値がある問題の `explanation_ja` は「正解がなぜ binding constraint を満たすか + 一般原則(例: 最も高度な構成ではなく、制約を満たす最小十分な構成を選ぶ)」に絞り、誤答の説明はフィールド側に書く(重複させない)
+- P のフォーム収載問題は必須、それ以外の P MCQ は S-4 以後の新規分で書く。既存 76 問は CP7 で埋める(editorial fix = rev++。§Step 4 の active 化後の修正ループを通し、Practice が空かないよう 1 ドメインずつ flagged にする)
+
+#### Full Mock 品質チェックリスト(Step 4 の P 版でフォーム単位に確認)
+
+- 全問が状況つき(stem に 2〜4 文の状況)で、binding constraint が存在する
+- 各問で 2 つ以上の選択肢が一見もっともらしく、かつ stem の情報で正解が一意に決まる
+- ばかげた誤答が無い(上記の禁止パターン)
+- 過剰設計に誘う選択肢を含む問題がある
+- ライフサイクルのタイミング(phase-gate)を問う問題、根本原因の診断を問う問題、業務と技術のトレードオフを問う問題がそれぞれ含まれる
+- governance / security が設計の制約として使われている
+- ステークホルダー判断の問題が含まれる
+- Claude 固有の知識だけに偏っていない
+- 難易度・問題形式の分布が上記の目安の範囲(外れる場合は理由を Step 4 の記録に残す)
 
 ### 生成量サマリ(P・v1.3)
 
