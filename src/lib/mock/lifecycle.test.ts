@@ -61,7 +61,7 @@ const deps = (store: FakeMockStore, now = NOW): MockDeps => ({
 });
 
 const startFull = async (store: FakeMockStore, now = NOW) => {
-  const r = await startFullMock("form-a", [FORM_A], [], [], deps(store, now));
+  const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], [], deps(store, now));
   if (r.status !== 201) throw new Error(`開始失敗: ${JSON.stringify(r)}`);
   return r.session;
 };
@@ -95,9 +95,9 @@ describe("開始: 全行一括生成と rev snapshot(03 §exam_session)", () => 
   });
   it("未知の form / バンクに無い問題は開始不可", async () => {
     const store = new FakeMockStore();
-    expect((await startFullMock("form-zz", [FORM_A], [], [], deps(store))).status).toBe(404);
+    expect((await startFullMock({ exam: "ccar-f", formId: "form-zz" }, [FORM_A], [], [], deps(store))).status).toBe(404);
     const broken = { ...FORM_A, question_ids: [...FORM_A.question_ids.slice(0, 59), "f-d1-q999"] };
-    const r = await startFullMock("form-a", [broken], [], [], deps(store));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [broken], [], [], deps(store));
     expect(r.status).toBe(404);
     expect(store.sessions.size).toBe(0);
   });
@@ -107,7 +107,7 @@ describe("単一進行中の強制(オーナー決定 2026-08-27: 全 kind で 1
   it("同 kind の再送・二重クリックは 409 + 既存セッション参照", async () => {
     const store = new FakeMockStore();
     const session = await startFull(store);
-    const r = await startFullMock("form-a", [FORM_A], [], [], deps(store));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], [], deps(store));
     expect(r).toMatchObject({ status: 409, error: "session_in_progress", session: { id: session.id } });
     expect(store.sessions.size).toBe(1);
   });
@@ -171,7 +171,7 @@ describe("availability 検証(D3-2, 01 FR-5)", () => {
 
   it("現行 rev の未解決フラグを持つ問題を含む form は 409 form_blocked でセッションを作らない(DoD)", async () => {
     const store = new FakeMockStore();
-    const r = await startFullMock("form-a", [FORM_A], [], [flagOn(FORM_QUESTIONS[0])], deps(store));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], [flagOn(FORM_QUESTIONS[0])], deps(store));
     expect(r).toEqual({ status: 409, error: "form_blocked", openFlagCount: 1, inactiveCount: 0 });
     expect(store.sessions.size).toBe(0);
   });
@@ -180,7 +180,7 @@ describe("availability 検証(D3-2, 01 FR-5)", () => {
     const store = new FakeMockStore();
     const retired: Question = { ...FORM_QUESTIONS[0], status: "retired" };
     const d: MockDeps = { ...deps(store), findQuestion: (id) => (id === retired.id ? retired : ALL.get(id) ?? null) };
-    const r = await startFullMock("form-a", [FORM_A], [], [], d);
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], [], d);
     expect(r).toEqual({ status: 409, error: "form_blocked", openFlagCount: 0, inactiveCount: 1 });
     expect(store.sessions.size).toBe(0);
   });
@@ -188,14 +188,14 @@ describe("availability 検証(D3-2, 01 FR-5)", () => {
   it("旧 rev のフラグは superseded として無視され開始できる", async () => {
     const store = new FakeMockStore();
     const stale: OpenFlag = { questionId: FORM_QUESTIONS[0].id, questionRev: FORM_QUESTIONS[0].rev - 1, resolvedAt: null };
-    expect((await startFullMock("form-a", [FORM_A], [], [stale], deps(store))).status).toBe(201);
+    expect((await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], [stale], deps(store))).status).toBe(201);
   });
 
   it("提出済み form の再受験(rehearsal)も明示 form_id なら 201 で開始できる", async () => {
     const store = new FakeMockStore();
     const first = await startFull(store);
     await submitSession(first.id, deps(store, LATER(10)));
-    const r = await startFullMock("form-a", [FORM_A], [SUBMITTED_A], [], deps(store, LATER(20)));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [SUBMITTED_A], [], deps(store, LATER(20)));
     expect(r.status).toBe(201);
   });
 
@@ -203,7 +203,7 @@ describe("availability 検証(D3-2, 01 FR-5)", () => {
     const store = new FakeMockStore();
     const flags = [flagOn(FORM_QUESTIONS[0]), flagOn(FORM_B_QUESTIONS[0])];
     for (const formId of ["form-a", "form-b"]) {
-      const r = await startFullMock(formId, [FORM_A, FORM_B], [], flags, depsAB(store));
+      const r = await startFullMock({ exam: "ccar-f", formId }, [FORM_A, FORM_B], [], flags, depsAB(store));
       expect(r, formId).toMatchObject({ status: 409, error: "form_blocked" });
     }
     expect(store.sessions.size).toBe(0);
@@ -213,7 +213,7 @@ describe("availability 検証(D3-2, 01 FR-5)", () => {
     const store = new FakeMockStore();
     const session = await startFull(store);
     // フラグ追加後の再送: availability より進行中セッションの解決が先(409 session_in_progress)
-    const r = await startFullMock("form-a", [FORM_A], [], [flagOn(FORM_QUESTIONS[0])], deps(store, LATER(5)));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], [flagOn(FORM_QUESTIONS[0])], deps(store, LATER(5)));
     expect(r).toMatchObject({ status: 409, error: "session_in_progress", session: { id: session.id } });
     expect((await store.findSession(session.id))?.questionIds).toEqual(FORM_A.question_ids);
   });
@@ -221,36 +221,36 @@ describe("availability 検証(D3-2, 01 FR-5)", () => {
   it("バンクに無い問題を含む form は flags があっても従来どおり 404 unknown_question(API 契約の回帰なし)", async () => {
     const store = new FakeMockStore();
     const broken: MockForm = { ...FORM_A, question_ids: [...FORM_A.question_ids.slice(0, 59), "f-d1-q999"] };
-    const r = await startFullMock("form-a", [broken], [], [flagOn(FORM_QUESTIONS[1])], deps(store));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [broken], [], [flagOn(FORM_QUESTIONS[1])], deps(store));
     expect(r).toMatchObject({ status: 404, error: "unknown_question" });
     expect(store.sessions.size).toBe(0);
   });
 
   it("未実施フォームは自動選択(定義順先頭の available)以外を開始できない(01 FR-5 の自動選択)", async () => {
     const store = new FakeMockStore();
-    const r = await startFullMock("form-b", [FORM_A, FORM_B], [], [], depsAB(store));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-b" }, [FORM_A, FORM_B], [], [], depsAB(store));
     expect(r).toEqual({ status: 409, error: "form_not_next", recommendedFormId: "form-a" });
     expect(store.sessions.size).toBe(0);
-    expect((await startFullMock("form-a", [FORM_A, FORM_B], [], [], depsAB(store))).status).toBe(201);
+    expect((await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A, FORM_B], [], [], depsAB(store))).status).toBe(201);
   });
 
   it("先頭フォームが block なら次の有効な未実施フォームが自動選択になる", async () => {
     const store = new FakeMockStore();
     const flags = [flagOn(FORM_QUESTIONS[0])];
-    expect((await startFullMock("form-b", [FORM_A, FORM_B], [], flags, depsAB(store))).status).toBe(201);
+    expect((await startFullMock({ exam: "ccar-f", formId: "form-b" }, [FORM_A, FORM_B], [], flags, depsAB(store))).status).toBe(201);
   });
 
   it("提出済みフォームの rehearsal は自動選択の対象外でも開始できる", async () => {
     const store = new FakeMockStore();
     // form-a 提出済み・form-b 未実施: 推奨は form-b だが form-a の再受験は許可
-    const r = await startFullMock("form-a", [FORM_A, FORM_B], [SUBMITTED_A], [], depsAB(store));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A, FORM_B], [SUBMITTED_A], [], depsAB(store));
     expect(r.status).toBe(201);
   });
 
   it("未実施かつ blocked のフォームは form_not_next ではなく form_blocked を返す(理由の明示)", async () => {
     const store = new FakeMockStore();
     const flags = [flagOn(FORM_B_QUESTIONS[0])];
-    const r = await startFullMock("form-b", [FORM_A, FORM_B], [], flags, depsAB(store));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-b" }, [FORM_A, FORM_B], [], flags, depsAB(store));
     expect(r).toMatchObject({ status: 409, error: "form_blocked", openFlagCount: 1 });
   });
 });

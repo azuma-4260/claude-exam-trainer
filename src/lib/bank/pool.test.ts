@@ -259,11 +259,12 @@ describe("1. holdout ゲート(最優先)", () => {
   });
 
   it("別試験(ccar-p)の同名 form が未提出でも、提出済み ccar-f form-a の解放を妨げない", () => {
+    // P のフォームは 63 問・独立問題形式(T-pmock)
     const formAp: MockForm = mockFormSchema.parse({
       id: "form-a",
       exam: "ccar-p",
-      scenario_ids: ["sc-1"],
-      question_ids: formAIds.map((id) => id.replace(/^f-/, "p-")),
+      scenario_ids: [],
+      question_ids: [...formAIds, "f-d1-q061", "f-d1-q062", "f-d1-q063"].map((id) => id.replace(/^f-/, "p-")),
     });
     const c = ctx({ forms: [formA, formB, formAp], sessions: [session()] });
     expect(allowed(inA, practice, c)).toBe(true);
@@ -433,10 +434,11 @@ describe("filterPool: 混合バンクで漏れ 0", () => {
 });
 
 describe("T-exam: フォームは (exam, form_id) で識別する(specs/03 §出題プール 1、B-S-3-1)", () => {
-  const pIds = formAIds.map((id) => id.replace(/^f-/, "p-"));
-  const formAp: MockForm = mockFormSchema.parse({ id: "form-a", exam: "ccar-p", scenario_ids: ["sc-1"], question_ids: pIds });
+  // P のフォームは 63 問・独立問題形式(T-pmock)
+  const pIds = [...formAIds, "f-d1-q061", "f-d1-q062", "f-d1-q063"].map((id) => id.replace(/^f-/, "p-"));
+  const formAp: MockForm = mockFormSchema.parse({ id: "form-a", exam: "ccar-p", scenario_ids: [], question_ids: pIds });
   const pQuestion = (id: string): Question =>
-    formQuestion(id, { exam: "ccar-p", domain_id: "p-d1", primary_topic_id: "p-d1-t1-01" });
+    formQuestion(id, { exam: "ccar-p", domain_id: "p-d1", primary_topic_id: "p-d1-t1-01", scenario_id: null });
   const inAp = pQuestion(pIds[0]);
   const inAf = formQuestion(formAIds[0]);
   const fullAp: PoolQuery = { mode: "mock", kind: "full", exam: "ccar-p", formId: "form-a" };

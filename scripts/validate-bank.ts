@@ -7,9 +7,9 @@ import { parse as parseYaml } from "yaml";
 import type { ZodError } from "zod";
 import {
   EXAMS,
+  FORM_CHOICE_RANGE,
   FORM_DOMAIN_QUOTA,
-  FORM_SCENARIO_COUNT,
-  MOCK_FORM_SIZE,
+  FORM_STRUCTURE,
   mockFormsFileSchema,
   questionsFileSchema,
   type MockForm,
@@ -196,11 +196,16 @@ export function validateBank(b: BankInput): ValidationResult {
     }
     formIds.add(f.id);
     if (f.exam !== syllabus.exam) errors.push(`${f.id}: exam=${f.exam} が syllabus(${syllabus.exam})と不一致`);
-    if (f.question_ids.length !== MOCK_FORM_SIZE)
-      errors.push(`${f.id}: 問題数 ${f.question_ids.length}(${MOCK_FORM_SIZE} 問必須)`);
+    // 問題数・シナリオ本数は exam ごと(FORM_STRUCTURE。F 60 問・4 シナリオ / P 63 問・独立問題形式)
+    const structure = FORM_STRUCTURE[f.exam];
+    const independent = structure.scenarioCount === 0;
+    if (f.question_ids.length !== structure.size)
+      errors.push(`${f.id}: 問題数 ${f.question_ids.length}(${structure.size} 問必須)`);
 
-    if (f.scenario_ids.length !== FORM_SCENARIO_COUNT)
-      errors.push(`${f.id}: シナリオ数 ${f.scenario_ids.length}(${FORM_SCENARIO_COUNT} 本必須)`);
+    if (independent) {
+      if (f.scenario_ids.length > 0) errors.push(`${f.id}: 独立問題形式のため scenario_ids は空(${f.scenario_ids.length} 件)`);
+    } else if (f.scenario_ids.length !== structure.scenarioCount)
+      errors.push(`${f.id}: シナリオ数 ${f.scenario_ids.length}(${structure.scenarioCount} 本必須)`);
     const formScenarios = new Set(f.scenario_ids);
     const usedInForm = new Set<string>();
     const perDomain = new Map<string, number>();
@@ -216,14 +221,25 @@ export function validateBank(b: BankInput): ValidationResult {
       }
       perDomain.set(q.domain_id, (perDomain.get(q.domain_id) ?? 0) + 1);
       if (!q.eligible_modes.includes("mock")) errors.push(`${f.id}: ${qid} の eligible_modes に mock が無い`);
-      if (q.scenario_id === null) errors.push(`${f.id}: ${qid} の scenario_id が null(フォーム収載問題は必須)`);
+      const choiceRange = FORM_CHOICE_RANGE[f.exam];
+      if (choiceRange) {
+        const n = q.choices?.length ?? 0;
+        if (q.type === "flash") errors.push(`${f.id}: ${qid} は flash(フォームは MCQ のみ)`);
+        else if (n < choiceRange.min || n > choiceRange.max)
+          errors.push(`${f.id}: ${qid} の選択肢 ${n} 個(${choiceRange.min}〜${choiceRange.max} 個)`);
+      }
+      // フォーム収載問題は FSRS カード化しない(03 §1 標準値・README 決定 6。B-D0-3-2 で CI に昇格)
+      if (q.srs_eligible) errors.push(`${f.id}: ${qid} の srs_eligible が false でない`);
+      if (independent) {
+        if (q.scenario_id !== null) errors.push(`${f.id}: ${qid} の scenario_id が null でない(独立問題形式)`);
+      } else if (q.scenario_id === null) errors.push(`${f.id}: ${qid} の scenario_id が null(フォーム収載問題は必須)`);
       else {
         usedInForm.add(q.scenario_id);
         if (!formScenarios.has(q.scenario_id))
           errors.push(`${f.id}: ${qid} の scenario_id ${q.scenario_id} が form.scenario_ids に無い`);
       }
     }
-    for (const s of f.scenario_ids) {
+    for (const s of independent ? [] : f.scenario_ids) {
       if (!usedInForm.has(s)) errors.push(`${f.id}: scenario_ids の ${s} を使う問題が無い(実使用集合と不一致)`);
     }
     // 注: 各シナリオ 15 問の検証は Step 0 判定で OFF 確定(specs/03)。シナリオ内件数は検証しない

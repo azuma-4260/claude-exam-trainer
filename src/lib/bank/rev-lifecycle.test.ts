@@ -155,7 +155,7 @@ describe("rev++(editorial fix)で旧 rev のフラグは superseded(03 §questio
 
   it("v1: 未解決一覧に載り、収載フォームは開始不可(form_blocked)", async () => {
     expect(unresolvedList(rev1Flags, V1).map((r) => r.questionId)).toEqual([STANDALONE_V1.id, FORMQ_V1.id]);
-    const r = await startFullMock("form-a", [FORM_A], [], asOpen(rev1Flags), mockDeps(new FakeMockStore(), V1));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], asOpen(rev1Flags), mockDeps(new FakeMockStore(), V1));
     expect(r).toEqual({ status: 409, error: "form_blocked", openFlagCount: 1, inactiveCount: 0 });
   });
 
@@ -170,7 +170,7 @@ describe("rev++(editorial fix)で旧 rev のフラグは superseded(03 §questio
 
   it("deploy v2: 未解決一覧から自動的に外れ、フォームは開始できる(resolved_at 更新は deploy の成功条件ではない)", async () => {
     expect(unresolvedList(rev1Flags, V2)).toEqual([]);
-    const r = await startFullMock("form-a", [FORM_A], [], asOpen(rev1Flags), mockDeps(new FakeMockStore(), V2));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], asOpen(rev1Flags), mockDeps(new FakeMockStore(), V2));
     expect(r.status).toBe(201);
   });
 
@@ -181,7 +181,7 @@ describe("rev++(editorial fix)で旧 rev のフラグは superseded(03 §questio
       [STANDALONE_V2.id, 2],
       [FORMQ_V2.id, 2],
     ]);
-    const r = await startFullMock("form-a", [FORM_A], [], asOpen(both), mockDeps(new FakeMockStore(), V2));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], asOpen(both), mockDeps(new FakeMockStore(), V2));
     expect(r).toEqual({ status: 409, error: "form_blocked", openFlagCount: 1, inactiveCount: 0 });
   });
 
@@ -231,7 +231,7 @@ describe("意味変更(新 ID + 旧 ID retired)で旧 ID は全モードで出�
   });
 
   it("収載問題が retired のフォームは開始不可(実行時の代替差し込みなし。07 Step 6)", async () => {
-    const r = await startFullMock("form-a", [FORM_A], [], [], mockDeps(new FakeMockStore(), V2));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], [], mockDeps(new FakeMockStore(), V2));
     expect(r).toEqual({ status: 409, error: "form_blocked", openFlagCount: 0, inactiveCount: 1 });
   });
 
@@ -294,7 +294,7 @@ describe("exam_session_answer の question_rev snapshot は deploy 後も不変(
   const V2_FLAGS = asOpen([flagRow(FORM_V1[0], 2), flagRow(MINI_V1[0], 2)]);
 
   const startFullV1 = async (store: FakeMockStore) => {
-    const r = await startFullMock("form-a", [FORM_A], [], [], mockDeps(store, V1));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], [], mockDeps(store, V1));
     if (r.status !== 201) throw new Error(`開始失敗: ${JSON.stringify(r)}`);
     return r.session;
   };
@@ -308,7 +308,7 @@ describe("exam_session_answer の question_rev snapshot は deploy 後も不変(
     // ここで deploy(store はそのまま、バンクだけ v2)
     const d = mockDeps(store, V2, LATER(10));
     // v2 のバンクではこのフォームは新規開始できない(= プールは v2 で評価されている)
-    expect(await startFullMock("form-a", [FORM_A], [], V2_FLAGS, mockDeps(new FakeMockStore(), V2))).toEqual({
+    expect(await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], V2_FLAGS, mockDeps(new FakeMockStore(), V2))).toEqual({
       status: 409,
       error: "form_blocked",
       openFlagCount: 1,
@@ -360,7 +360,7 @@ describe("exam_session_answer の question_rev snapshot は deploy 後も不変(
   it("deploy 後に新規開始したセッションは v2 の rev を snapshot する(対照)", async () => {
     const store = new FakeMockStore();
     const V2_ACTIVE = V1.map(bumpRev);
-    const r = await startFullMock("form-a", [FORM_A], [], [], mockDeps(store, V2_ACTIVE));
+    const r = await startFullMock({ exam: "ccar-f", formId: "form-a" }, [FORM_A], [], [], mockDeps(store, V2_ACTIVE));
     expect(r.status === 201 && revsOf(r.answers)).toEqual(new Set([2]));
   });
 });

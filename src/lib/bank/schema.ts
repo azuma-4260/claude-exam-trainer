@@ -150,20 +150,45 @@ export const questionsFileSchema = z.array(questionSchema).superRefine((qs, ctx)
   });
 });
 
-/** mock_forms.yaml の forms[] 1 件(specs/03 §mock_forms.yaml) */
-export const MOCK_FORM_SIZE = 60;
-/** full form のシナリオ本数(specs/01 FR-5: 各 60 問・4 シナリオ)。件数の整合は validate-bank が照合 */
-export const FORM_SCENARIO_COUNT = 4;
+/**
+ * 固定フォームの構造(specs/03 §mock_forms。exam ごと)。
+ * size = 1 フォームの問題数、scenarioCount = シナリオ本数(0 は独立問題形式で scenario_ids は空)。
+ * F: 60 問・4 シナリオ(01 FR-5)/ P: 63 問・独立問題形式(T-pmock、オーナー決定 2026-10-03)
+ */
+export const FORM_STRUCTURE: Readonly<Record<Exam, { readonly size: number; readonly scenarioCount: number }>> = {
+  "ccar-f": { size: 60, scenarioCount: 4 },
+  "ccar-p": { size: 63, scenarioCount: 0 },
+};
 
+/**
+ * フォーム収載問題の選択肢数(specs/03 §mock_forms §CCAR-P の構造: P は 4〜5 択の MCQ のみ)。
+ * 定義の無い exam(F)は検証しない(既存フォームの受理集合を変えない)
+ */
+export const FORM_CHOICE_RANGE: Partial<Record<Exam, { readonly min: number; readonly max: number }>> = {
+  "ccar-p": { min: 4, max: 5 },
+};
+
+/** mock_forms.yaml の forms[] 1 件(specs/03 §mock_forms.yaml)。問題数とシナリオ有無は exam ごと(FORM_STRUCTURE) */
 export const mockFormSchema = z
   .object({
     id: formIdSchema,
     exam: examSchema,
-    scenario_ids: z.array(scenarioIdSchema).min(1),
-    question_ids: z.array(questionIdSchema).length(MOCK_FORM_SIZE),
+    scenario_ids: z.array(scenarioIdSchema),
+    question_ids: z.array(questionIdSchema),
   })
   .strict()
   .superRefine((f, ctx) => {
+    const { size, scenarioCount } = FORM_STRUCTURE[f.exam];
+    if (f.question_ids.length !== size)
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["question_ids"],
+        message: `exam=${f.exam} の question_ids は ${size} 件(${f.question_ids.length} 件)`,
+      });
+    if (scenarioCount === 0 && f.scenario_ids.length > 0)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["scenario_ids"], message: `exam=${f.exam} は独立問題形式のため scenario_ids を空にする` });
+    if (scenarioCount > 0 && f.scenario_ids.length === 0)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["scenario_ids"], message: `exam=${f.exam} は scenario_ids が 1 件以上必要` });
     if (!uniqueArray(f.scenario_ids))
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["scenario_ids"], message: "重複がある" });
     if (!uniqueArray(f.question_ids))
@@ -184,12 +209,13 @@ export const mockFormsFileSchema = z
   });
 
 /**
- * 固定フォームのドメイン配分(specs/03 §mock_forms, 06 §バンク静的検証: 16-11-12-12-9)。
+ * 固定フォームのドメイン配分(specs/03 §mock_forms, 06 §バンク静的検証。F: 16-11-12-12-9 / P: 11-8-12-10-9-9-4)。
  * syllabus.yaml の form_questions はこの値と一致しなければならない(validate-bank が照合)。
  * 配分はリリースゲートなので、同じ deploy に入る content 側の値を正としない。
  */
 export const FORM_DOMAIN_QUOTA: Partial<Record<Exam, Readonly<Record<string, number>>>> = {
   "ccar-f": { "f-d1": 16, "f-d2": 11, "f-d3": 12, "f-d4": 12, "f-d5": 9 },
+  "ccar-p": { "p-d1": 11, "p-d2": 8, "p-d3": 12, "p-d4": 10, "p-d5": 9, "p-d6": 9, "p-d7": 4 },
 };
 
 // ---------------------------------------------------------------------------
@@ -227,7 +253,7 @@ const syllabusDomainSchema = z
  * syllabus.yaml(specs/02 §トピックツリー)。
  * 階層整合(task_statement / topic が自 domain 配下)・ID の全体一意性・
  * weight 合計 100 をここで強制する。form_questions は固定フォーム配分が確定した exam(FORM_DOMAIN_QUOTA あり)でのみ
- * 必須で合計 = MOCK_FORM_SIZE、未確定の exam(ccar-p は T-pmock / D6-4 まで)では書かない(specs/03 §1, D6-3)。
+ * 必須で合計 = その exam のフォーム問題数(FORM_STRUCTURE)、未確定の exam では書かない(specs/03 §1, D6-3 / T-pmock)。
  */
 export const syllabusFileSchema = z
   .object({
@@ -268,7 +294,8 @@ export const syllabusFileSchema = z
           issue(["domains", di, "form_questions"], `exam=${s.exam} は固定フォーム配分が確定しているため form_questions が必須`);
       });
       const fq = s.domains.reduce((a, d) => a + (d.form_questions ?? 0), 0);
-      if (fq !== MOCK_FORM_SIZE) issue(["domains"], `form_questions 合計が ${MOCK_FORM_SIZE} でない(${fq})`);
+      const size = FORM_STRUCTURE[s.exam].size;
+      if (fq !== size) issue(["domains"], `form_questions 合計が ${size} でない(${fq})`);
     } else {
       s.domains.forEach((d, di) => {
         if (d.form_questions !== undefined)

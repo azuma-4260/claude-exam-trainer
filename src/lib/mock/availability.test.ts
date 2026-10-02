@@ -7,9 +7,9 @@ import { buildMockFormOptions, formStartability } from "./availability";
 // D3-2: S-5 開始画面のフォーム選択肢(01 FR-5、05 S-5)。
 // availability・submitted(rehearsal)・推奨フォームは DB に保存せず都度導出する。
 
-// mockFormSchema は question_ids を 60 問固定で要求する(03 §mock_forms)
-const formQuestions = (prefix: string): Question[] =>
-  Array.from({ length: 60 }, (_, i) =>
+// mockFormSchema は question_ids を exam ごとの問題数で要求する(03 §mock_forms: F 60 / P 63)
+const formQuestions = (prefix: string, length = 60): Question[] =>
+  Array.from({ length }, (_, i) =>
     mcq(`${prefix}-q${String(i + 1).padStart(3, "0")}`, {
       scenario_id: `sc-${prefix}`,
       eligible_modes: ["mock", "practice"],
@@ -21,7 +21,7 @@ const form = (id: string, questions: readonly Question[], exam: "ccar-f" | "ccar
   mockFormSchema.parse({
     id,
     exam,
-    scenario_ids: [...new Set(questions.map((q) => q.scenario_id))],
+    scenario_ids: [...new Set(questions.flatMap((q) => (q.scenario_id ? [q.scenario_id] : [])))],
     question_ids: questions.map((q) => q.id),
   });
 
@@ -83,12 +83,13 @@ describe("buildMockFormOptions(D3-2, 01 FR-5 / 05 S-5)", () => {
 });
 
 describe("T-exam: F+P で同名 form の片方だけ提出済み(B-S-3-1、specs/03 §出題プール 1)", () => {
-  const qp = formQuestions("f-d4").map((q) =>
+  // P のフォームは 63 問・独立問題形式(T-pmock)
+  const qp = formQuestions("f-d4", 63).map((q) =>
     mcq(q.id.replace(/^f-/, "p-"), {
       exam: "ccar-p",
       domain_id: "p-d4",
       primary_topic_id: "p-d4-t1-01",
-      scenario_id: "sc-p",
+      scenario_id: null,
       eligible_modes: ["mock", "practice"],
       srs_eligible: false,
     }),
@@ -118,14 +119,14 @@ describe("T-exam: F+P で同名 form の片方だけ提出済み(B-S-3-1、specs
   });
 });
 
-describe("D6-2: 開始可否は exam ごとの推奨で判定し、同名 form は開始させない(05 S-5、B-T-exam-2)", () => {
+describe("D6-2 / D6-4: 開始可否は exam ごとの推奨で判定し、同名 form も (exam, form_id) で開始できる(05 S-5、B-T-exam-2)", () => {
   const pQuestions = (prefix: string) =>
-    formQuestions(prefix).map((q) =>
+    formQuestions(prefix, 63).map((q) =>
       mcq(q.id.replace(/^f-/, "p-"), {
         exam: "ccar-p",
         domain_id: q.domain_id.replace(/^f-/, "p-"),
         primary_topic_id: q.primary_topic_id.replace(/^f-/, "p-"),
-        scenario_id: `sc-p-${prefix}`,
+        scenario_id: null,
         eligible_modes: ["mock", "practice"],
         srs_eligible: false,
       }),
@@ -146,12 +147,13 @@ describe("D6-2: 開始可否は exam ごとの推奨で判定し、同名 form �
     expect(at(r, "ccar-f", "form-b")).toEqual({ recommended: false, startable: false, blocked: "not_next" });
   });
 
-  it("同名 form が F と P の両方にあれば、未実施・提出済みとも開始不可(理由 ambiguous_form)", () => {
+  it("同名 form が F と P の両方にあっても、それぞれ開始できる(開始は (exam, form_id)。D6-4)", () => {
     const r = buildMockFormOptions([formA, formB, formPa], [submittedA], [], findAll);
-    expect(at(r, "ccar-f", "form-a")).toMatchObject({ startable: false, blocked: "ambiguous_form" });
-    expect(at(r, "ccar-p", "form-a")).toMatchObject({ startable: false, blocked: "ambiguous_form" });
-    // 同名でない form は影響を受けない
+    // F の form-a は提出済み → rehearsal で開始可、P の form-a は P の推奨(未実施)で開始可
+    expect(at(r, "ccar-f", "form-a")).toEqual({ recommended: false, startable: true, blocked: null });
+    expect(at(r, "ccar-p", "form-a")).toEqual({ recommended: true, startable: true, blocked: null });
     expect(at(r, "ccar-f", "form-b")).toEqual({ recommended: true, startable: true, blocked: null });
+    expect(r.options.find((o) => o.exam === "ccar-p")?.questionCount).toBe(63);
   });
 
   it("単独スコープ(F のみ)では従来どおり: 推奨は開始可、提出済みは rehearsal で開始可、block は unavailable", () => {

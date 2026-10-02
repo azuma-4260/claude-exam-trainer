@@ -63,17 +63,24 @@ describe("POST /api/mock/sessions", () => {
   afterEach(() => vi.unstubAllEnvs());
 
   it("未認証は 401", async () => {
-    expect((await post(JSON.stringify({ form_id: "form-a" }), false)).status).toBe(401);
+    expect((await post(JSON.stringify({ exam: "ccar-f", form_id: "form-a" }), false)).status).toBe(401);
     expect(startFullMock).not.toHaveBeenCalled();
   });
-  it("壊れた JSON / form_id 形式不正は 400", async () => {
+  it("壊れた JSON / form_id 形式不正 / exam 欠落・不正は 400(開始は (exam, form_id)。D6-4)", async () => {
     expect((await post("{")).status).toBe(400);
-    expect((await post(JSON.stringify({ form_id: "A" }))).status).toBe(400);
+    expect((await post(JSON.stringify({ exam: "ccar-f", form_id: "A" }))).status).toBe(400);
+    expect((await post(JSON.stringify({ form_id: "form-a" }))).status).toBe(400);
+    expect((await post(JSON.stringify({ exam: "ccar-x", form_id: "form-a" }))).status).toBe(400);
     expect(startFullMock).not.toHaveBeenCalled();
+  });
+  it("startFullMock に (exam, form_id) を渡す(F と P の同名 form-a を取り違えない)", async () => {
+    startFullMock.mockResolvedValue({ status: 404, error: "unknown_form" });
+    await post(JSON.stringify({ exam: "ccar-p", form_id: "form-a" }));
+    expect(startFullMock.mock.calls[0][0]).toEqual({ exam: "ccar-p", formId: "form-a" });
   });
   it("201: セッション一式を返し、正解・解説・refs をネットワークに載せない(05 S-5: 提出まで非表示)", async () => {
     startFullMock.mockResolvedValue({ status: 201, session, answers });
-    const res = await post(JSON.stringify({ form_id: "form-a" }));
+    const res = await post(JSON.stringify({ exam: "ccar-f", form_id: "form-a" }));
     expect(res.status).toBe(201);
     const text = await res.text();
     const body = JSON.parse(text);
@@ -86,27 +93,27 @@ describe("POST /api/mock/sessions", () => {
   });
   it("409(進行中あり)は既存セッション参照を返す", async () => {
     startFullMock.mockResolvedValue({ status: 409, error: "session_in_progress", session });
-    const res = await post(JSON.stringify({ form_id: "form-b" }));
+    const res = await post(JSON.stringify({ exam: "ccar-f", form_id: "form-b" }));
     expect(res.status).toBe(409);
     expect(await res.json()).toMatchObject({ error: "session_in_progress", session: { id: session.id } });
   });
   it("409(availability NG)は理由の件数を返す(D3-2, 01 FR-5)", async () => {
     startFullMock.mockResolvedValue({ status: 409, error: "form_blocked", openFlagCount: 2, inactiveCount: 1 });
-    const res = await post(JSON.stringify({ form_id: "form-a" }));
+    const res = await post(JSON.stringify({ exam: "ccar-f", form_id: "form-a" }));
     expect(res.status).toBe(409);
     expect(await res.json()).toEqual({ error: "form_blocked", open_flag_count: 2, inactive_count: 1 });
   });
   it("409(自動選択外の未実施フォーム)は推奨フォームを返す(D3-2, 01 FR-5)", async () => {
     startFullMock.mockResolvedValue({ status: 409, error: "form_not_next", recommendedFormId: "form-a" });
-    const res = await post(JSON.stringify({ form_id: "form-b" }));
+    const res = await post(JSON.stringify({ exam: "ccar-f", form_id: "form-b" }));
     expect(res.status).toBe(409);
     expect(await res.json()).toEqual({ error: "form_not_next", recommended_form_id: "form-a" });
   });
   it("未知フォームは 404、例外は 500", async () => {
     startFullMock.mockResolvedValue({ status: 404, error: "unknown_form" });
-    expect((await post(JSON.stringify({ form_id: "form-zz" }))).status).toBe(404);
+    expect((await post(JSON.stringify({ exam: "ccar-f", form_id: "form-zz" }))).status).toBe(404);
     startFullMock.mockRejectedValue(new Error("neon down"));
     vi.spyOn(console, "error").mockImplementation(() => {});
-    expect((await post(JSON.stringify({ form_id: "form-a" }))).status).toBe(500);
+    expect((await post(JSON.stringify({ exam: "ccar-f", form_id: "form-a" }))).status).toBe(500);
   });
 });
