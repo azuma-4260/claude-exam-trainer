@@ -4,7 +4,7 @@ import { processAnswer, type AnswerDeps, type AnswerStore, AttemptPkConflictErro
 import type { PoolContext } from "@/lib/bank/pool";
 import type { MockForm, Question } from "@/lib/bank/schema";
 import type { QueueItem } from "@/lib/queue/build";
-import { emptyCtx, mcq } from "@/lib/queue/test-fixtures";
+import { emptyCtx, mcq, structuredPmcq } from "@/lib/queue/test-fixtures";
 import type { SrsStateUpsert } from "@/lib/srs/card-row";
 import { assemblePracticeView, PRACTICE_BATCH_MAX, type PracticeAssembleInputs } from "./serve";
 
@@ -222,5 +222,23 @@ describe("DoD: 提出済み session + 解放問題で applied_rating=null(specs/
     if (res.status !== 200) return;
     expect(res.attempt.appliedRating).not.toBeNull();
     expect(store.srs.size).toBe(1);
+  });
+});
+
+describe("assemblePracticeView: 構造化解説フィールド(D6-9、specs/03 §1 / 05 §解説の表示)", () => {
+  it("フィールドがある問題は値を明示的に詰め、無い問題は null", () => {
+    const withFields = structuredPmcq("p-d1-q001", { eligible_modes: ["practice"] });
+    const plain = mcq("p-d1-q002", { exam: "ccar-p" });
+    const view = assemble({ bank: bankOf([withFields, plain]) });
+    if (view.kind !== "ok") throw new Error(view.kind);
+    expect(view.items[0]).toMatchObject({
+      questionId: "p-d1-q001",
+      bindingConstraintJa: "支払いは取り消せない",
+      lifecyclePhase: "deployment",
+    });
+    expect(view.items[0].choices[0]).toEqual({ label: "A", textEn: "a", plausibleJa: "事後監査が目的なら妥当", notBestJa: "支払い後では手遅れ" });
+    expect(view.items[0].choices[1]).toEqual({ label: "B", textEn: "b", plausibleJa: null, notBestJa: null });
+    expect(view.items[1]).toMatchObject({ questionId: "p-d1-q002", bindingConstraintJa: null, lifecyclePhase: null });
+    expect(view.items[1].choices.every((c) => c.plausibleJa === null && c.notBestJa === null)).toBe(true);
   });
 });

@@ -1,5 +1,6 @@
 import type { AttemptRow, ExamSessionRow } from "@/db/schema";
 import type { Question, Syllabus } from "@/lib/bank/schema";
+import { structuredOf, type StructuredFields } from "@/lib/explanation/structured";
 
 /**
  * S-6 模試レポートの導出(specs/05 S-6、01 FR-5)。DB 非依存の純関数。
@@ -39,7 +40,15 @@ export interface MockReportDomain {
   correct: number;
 }
 
-export interface MockReportWrongItem {
+/** 誤答一覧の選択肢。plausible_ja / not_best_ja は構造化解説フィールドのある問題の正解でない選択肢だけ値を持つ(D6-9) */
+export interface MockReportChoice {
+  label: string;
+  text_en: string;
+  plausible_ja: string | null;
+  not_best_ja: string | null;
+}
+
+export interface MockReportWrongItem extends StructuredFields {
   questionId: string;
   /** 出題順の 1 始まり位置(画面の問題番号) */
   position: number;
@@ -48,7 +57,7 @@ export interface MockReportWrongItem {
   /** バンクに現行問題が無ければ null */
   correct: string[] | null;
   stemEn: string | null;
-  choices: { label: string; text_en: string }[] | null;
+  choices: MockReportChoice[] | null;
   explanationJa: string | null;
   refs: string[];
   /** 開始時 snapshot の rev と現行 rev が異なる(解説が改訂後のものである可能性) */
@@ -111,7 +120,17 @@ export function buildMockReport(args: {
         chosen: chosen ?? [],
         correct: q && q.type !== "flash" ? q.answer : null,
         stemEn: q?.stem_en ?? null,
-        choices: q && q.type !== "flash" ? q.choices : null,
+        // バンクの Choice を丸ごと渡さず明示 pick する(他の DTO と同じ方式。D6-9)
+        choices:
+          q && q.type !== "flash"
+            ? q.choices.map((c) => ({
+                label: c.label,
+                text_en: c.text_en,
+                plausible_ja: c.plausible_ja ?? null,
+                not_best_ja: c.not_best_ja ?? null,
+              }))
+            : null,
+        ...(q ? structuredOf(q) : { bindingConstraintJa: null, lifecyclePhase: null }),
         explanationJa: q?.explanation_ja ?? null,
         refs: q?.refs ?? [],
         revChanged: q !== null && a !== null && a.questionRev !== q.rev,

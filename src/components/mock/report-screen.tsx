@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import type { Exam } from "@/lib/bank/schema";
+import { BindingConstraintBox, ChoiceRationale } from "@/components/explanation/structured-explanation";
 import { EXAM_LABEL } from "@/lib/exam/label";
+import { isRationaleOpen } from "@/lib/explanation/structured";
 import type { MockReport, MockReportDomain } from "@/lib/mock/report";
 
 /**
@@ -125,22 +127,35 @@ export function MockReportScreen({ report }: { report: MockReport }) {
               )}
             </summary>
             <div className="flex flex-col gap-3 border-t p-3 text-sm">
+              {/* 05 §解説の表示: 誤答一覧の展開部は全体が解説なので、拘束条件を選択肢より前(先頭)に置く */}
+              <BindingConstraintBox
+                bindingConstraintJa={w.bindingConstraintJa}
+                lifecyclePhase={w.lifecyclePhase}
+                className=""
+              />
               {w.choices && (
                 <ul className="flex flex-col gap-1">
                   {w.choices.map((c) => {
                     const isCorrect = w.correct?.includes(c.label) ?? false;
                     const isChosen = w.chosen.includes(c.label);
                     return (
-                      <li
-                        key={c.label}
-                        className={`rounded-md border p-2 ${isCorrect ? "border-primary bg-primary/10" : isChosen ? "border-destructive" : ""}`}
-                      >
-                        <span className="mr-2 font-semibold">{c.label}.</span>
-                        {c.text_en}
-                        {isCorrect && <span className="ml-2 text-xs font-medium text-primary">正解</span>}
-                        {isChosen && !isCorrect && (
-                          <span className="ml-2 text-xs font-medium text-destructive">選択</span>
-                        )}
+                      <li key={c.label} className="flex flex-col gap-1">
+                        <div
+                          className={`rounded-md border p-2 ${isCorrect ? "border-primary bg-primary/10" : isChosen ? "border-destructive" : ""}`}
+                        >
+                          <span className="mr-2 font-semibold">{c.label}.</span>
+                          {c.text_en}
+                          {isCorrect && <span className="ml-2 text-xs font-medium text-primary">正解</span>}
+                          {isChosen && !isCorrect && (
+                            <span className="ml-2 text-xs font-medium text-destructive">選択</span>
+                          )}
+                        </div>
+                        {/* 05 §解説の表示: 正解でない選択肢の理由(選んだ誤答は最初から開く。D6-9) */}
+                        <ChoiceRationale
+                          plausibleJa={c.plausible_ja}
+                          notBestJa={c.not_best_ja}
+                          defaultOpen={isRationaleOpen(c.label, w.correct ?? [], w.chosen)}
+                        />
                       </li>
                     );
                   })}

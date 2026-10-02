@@ -2,6 +2,7 @@ import type { Db } from "@/db/client";
 import type { Bank } from "@/lib/bank/load";
 import { filterPool, holdoutFormOf, type PoolContext } from "@/lib/bank/pool";
 import type { Question, Scenario } from "@/lib/bank/schema";
+import { structuredOf, toChoiceView, type ChoiceView, type StructuredFields } from "@/lib/explanation/structured";
 import { toScenarioDtos, type MockScenarioDto } from "@/lib/mock/dto";
 import type { QueueItem } from "@/lib/queue/build";
 import { assembleQueueView, loadQueueInputs } from "@/lib/queue/serve";
@@ -25,14 +26,14 @@ import type { StudyScope } from "@/lib/scope/scope";
 /** 1 バッチの上限(RSC ペイロード上限のための制約。FR-3 の 5〜20 レンジは Drill 専用で Practice には適用しない) */
 export const PRACTICE_BATCH_MAX = 20;
 
-/** S-4 がクライアントへ渡す 1 問分。採点即時表示のため answer / 解説を含む(個人用アプリ) */
-export type PracticeItem = {
+/** S-4 がクライアントへ渡す 1 問分。採点即時表示のため answer / 解説(構造化解説フィールドを含む)を含む(個人用アプリ) */
+export type PracticeItem = StructuredFields & {
   questionId: string;
   rev: number;
   type: "mcq_single" | "mcq_multi";
   scenarioId: string | null;
   stemEn: string;
-  choices: { label: string; textEn: string }[];
+  choices: ChoiceView[];
   answer: string[];
   explanationJa: string;
   refs: string[];
@@ -70,7 +71,8 @@ export function assemblePracticeView(inputs: PracticeAssembleInputs): PracticeVi
       type: q.type,
       scenarioId: q.scenario_id,
       stemEn: q.stem_en,
-      choices: q.choices.map((c) => ({ label: c.label, textEn: c.text_en })),
+      choices: q.choices.map(toChoiceView),
+      ...structuredOf(q),
       answer: [...q.answer],
       explanationJa: q.explanation_ja,
       refs: [...q.refs],

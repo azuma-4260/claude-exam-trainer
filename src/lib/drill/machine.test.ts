@@ -25,6 +25,8 @@ const flashItem = (n: number): DrillItem => ({
   type: "flash",
   stemEn: "What transport?",
   choices: null,
+  bindingConstraintJa: null,
+  lifecyclePhase: null,
   answer: null,
   answerEn: "Streamable HTTP",
   explanationJa: "解説",
@@ -37,8 +39,8 @@ const singleItem = (n: number): DrillItem => ({
   ...flashItem(n),
   type: "mcq_single",
   choices: [
-    { label: "A", textEn: "stdio" },
-    { label: "B", textEn: "Streamable HTTP" },
+    { label: "A", textEn: "stdio", plausibleJa: null, notBestJa: null },
+    { label: "B", textEn: "Streamable HTTP", plausibleJa: null, notBestJa: null },
   ],
   answer: ["B"],
   answerEn: null,
@@ -49,9 +51,9 @@ const multiItem = (n: number): DrillItem => ({
   ...singleItem(n),
   type: "mcq_multi",
   choices: [
-    { label: "A", textEn: "stdio" },
-    { label: "B", textEn: "Streamable HTTP" },
-    { label: "C", textEn: "SSE" },
+    { label: "A", textEn: "stdio", plausibleJa: null, notBestJa: null },
+    { label: "B", textEn: "Streamable HTTP", plausibleJa: null, notBestJa: null },
+    { label: "C", textEn: "SSE", plausibleJa: null, notBestJa: null },
   ],
   answer: ["B", "C"],
 });
