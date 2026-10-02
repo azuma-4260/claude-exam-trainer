@@ -309,27 +309,38 @@ function makePSyllabus(): Syllabus {
 }
 
 function makePQuestion(domain: string, n: number, over: Partial<Question> = {}): Question {
-  return makeQuestion(domain, n, { exam: "ccar-p", primary_topic_id: `${domain}-t1-01`, ...over });
+  // P の MCQ は全問 4〜5 択(03 §1 P の MCQ の不変条件。D6-9 で Zod 強制)
+  return makeQuestion(domain, n, { exam: "ccar-p", primary_topic_id: `${domain}-t1-01`, choices: FOUR_CHOICES, ...over } as Partial<Question>);
 }
 
 // P のフォーム収載問題は 4〜5 択(03 §mock_forms §CCAR-P の構造)
 const FOUR_CHOICES = ["A", "B", "C", "D"].map((label) => ({ label, text_en: label.toLowerCase() }));
 
-/** P form 収載 63 問(配分 11-8-12-10-9-9-4、全問 scenario_id null)+ 非収載 7 問。1 問は mcq_multi */
+/** 構造化解説フィールドを埋める(03 §1: binding_constraint_ja + 正解でない選択肢すべてに plausible_ja / not_best_ja) */
+function withStructured(q: Question): Question {
+  if (q.type === "flash") return q;
+  return {
+    ...q,
+    binding_constraint_ja: "決め手になる制約",
+    choices: q.choices.map((c) => (q.answer.includes(c.label) ? c : { ...c, plausible_ja: "別条件なら正解", not_best_ja: "ここでは劣る" })),
+  } as Question;
+}
+
+/** P form 収載 63 問(配分 11-8-12-10-9-9-4、全問 scenario_id null、構造化解説フィールドあり)+ 非収載 7 問。1 問は mcq_multi */
 function makePBank(): BankInput {
   const questions: Question[] = [];
   const formIds: string[] = [];
   P_FORM_QUESTIONS.forEach((fq, i) => {
     const d = `p-d${i + 1}`;
     for (let k = 0; k < fq; k++) {
-      const q = makePQuestion(d, k + 1, { eligible_modes: ["mock", "practice"], srs_eligible: false, choices: FOUR_CHOICES });
+      const q = withStructured(makePQuestion(d, k + 1, { eligible_modes: ["mock", "practice"], srs_eligible: false, choices: FOUR_CHOICES }));
       questions.push(q);
       formIds.push(q.id);
     }
     questions.push(makePQuestion(d, 100));
   });
   // 問題形式の件数は検証しない(03 §mock_forms §CCAR-P)。mcq_multi が混ざっても OK
-  questions[0] = {
+  questions[0] = withStructured({
     ...questions[0],
     type: "mcq_multi",
     stem_en: "Which TWO options are correct? (Select TWO.)",
@@ -341,7 +352,7 @@ function makePBank(): BankInput {
       { label: "E", text_en: "e" },
     ],
     answer: ["A", "C"],
-  } as Question;
+  } as Question);
   return {
     syllabus: makePSyllabus(),
     questions,
@@ -387,6 +398,20 @@ describe("validateBank(CCAR-P の固定フォーム。T-pmock)", () => {
       b.questions = b.questions.map((q, i) => (i === 1 ? ({ ...q, type: "flash", choices: null, answer: null, answer_en: "a" } as Question) : q));
     }, /form-a: p-d1-q002 は flash/],
     ["収載問題の srs_eligible が true", (b) => { (b.questions[1] as { srs_eligible: boolean }).srs_eligible = true; }, /form-a: p-d1-q002 の srs_eligible が false でない/],
+    // D6-9: P のフォーム収載問題は構造化解説フィールド必須(03 §mock_forms §CCAR-P、fail closed)
+    ["収載問題に binding_constraint_ja が無い", (b) => {
+      const rest = { ...b.questions[1] } as Question & { binding_constraint_ja?: string };
+      delete rest.binding_constraint_ja;
+      (b.questions as Question[])[1] = rest;
+    }, /form-a: p-d1-q002 に binding_constraint_ja が無い/],
+    ["収載問題の正解でない選択肢に plausible_ja / not_best_ja が無い", (b) => {
+      const q = b.questions[1] as { choices: { label: string; text_en: string; plausible_ja?: string; not_best_ja?: string }[] };
+      q.choices = q.choices.map((c) => (c.label === "C" ? { label: c.label, text_en: c.text_en } : c));
+    }, /form-a: p-d1-q002 の選択肢 C に plausible_ja \/ not_best_ja が無い/],
+    ["収載問題の mcq_multi の正解でない選択肢に not_best_ja が無い", (b) => {
+      const q = b.questions[0] as { choices: { label: string; text_en: string; plausible_ja?: string; not_best_ja?: string }[] };
+      q.choices = q.choices.map((c) => (c.label === "E" ? { label: c.label, text_en: c.text_en, plausible_ja: "x" } : c));
+    }, /form-a: p-d1-q001 の選択肢 E に plausible_ja \/ not_best_ja が無い/],
   ];
   for (const [name, mutate, re] of bad) {
     it(`invalid: ${name}`, () => {

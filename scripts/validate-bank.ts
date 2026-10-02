@@ -7,9 +7,10 @@ import { parse as parseYaml } from "yaml";
 import type { ZodError } from "zod";
 import {
   EXAMS,
-  FORM_CHOICE_RANGE,
   FORM_DOMAIN_QUOTA,
+  FORM_REQUIRES_STRUCTURED_EXPLANATION,
   FORM_STRUCTURE,
+  MCQ_CHOICE_RANGE,
   mockFormsFileSchema,
   questionsFileSchema,
   type MockForm,
@@ -221,12 +222,22 @@ export function validateBank(b: BankInput): ValidationResult {
       }
       perDomain.set(q.domain_id, (perDomain.get(q.domain_id) ?? 0) + 1);
       if (!q.eligible_modes.includes("mock")) errors.push(`${f.id}: ${qid} の eligible_modes に mock が無い`);
-      const choiceRange = FORM_CHOICE_RANGE[f.exam];
+      const choiceRange = MCQ_CHOICE_RANGE[f.exam];
       if (choiceRange) {
         const n = q.choices?.length ?? 0;
         if (q.type === "flash") errors.push(`${f.id}: ${qid} は flash(フォームは MCQ のみ)`);
         else if (n < choiceRange.min || n > choiceRange.max)
           errors.push(`${f.id}: ${qid} の選択肢 ${n} 個(${choiceRange.min}〜${choiceRange.max} 個)`);
+      }
+      // P のフォーム収載問題は構造化解説フィールド必須(03 §mock_forms §CCAR-P、D6-9)。
+      // 「書くなら全部」は Zod が 1 問内で強制するが、ここでは有無そのものを fail closed で検査する
+      if (FORM_REQUIRES_STRUCTURED_EXPLANATION[f.exam] && q.type !== "flash") {
+        if (q.binding_constraint_ja === undefined) errors.push(`${f.id}: ${qid} に binding_constraint_ja が無い(構造化解説フィールド必須)`);
+        for (const c of q.choices) {
+          if (q.answer.includes(c.label)) continue;
+          if (c.plausible_ja === undefined || c.not_best_ja === undefined)
+            errors.push(`${f.id}: ${qid} の選択肢 ${c.label} に plausible_ja / not_best_ja が無い(構造化解説フィールド必須)`);
+        }
       }
       // フォーム収載問題は FSRS カード化しない(03 §1 標準値・README 決定 6。B-D0-3-2 で CI に昇格)
       if (q.srs_eligible) errors.push(`${f.id}: ${qid} の srs_eligible が false でない`);

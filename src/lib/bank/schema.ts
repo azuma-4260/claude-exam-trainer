@@ -30,10 +30,24 @@ export const formIdSchema = z.string().regex(/^form-[a-z0-9-]+$/, "form id は f
 
 const choiceLabelSchema = z.string().regex(/^[A-F]$/);
 
+/**
+ * 構造化解説フィールド(specs/03 §1、v1.3.3・S-4)。任意。値はバンクの静的ファイルにだけあり DB の意味は変えない。
+ * 正解の選択肢だけ持たないため、フィールドの有無で正解が分かる → Mock の試験中 DTO には含めない(src/lib/mock/dto.ts)
+ */
+const explanationTextSchema = z.string().trim().min(1);
+
+export const LIFECYCLE_PHASES = ["discovery", "design", "deployment", "monitoring", "iteration"] as const;
+export const lifecyclePhaseSchema = z.enum(LIFECYCLE_PHASES);
+export type LifecyclePhase = z.infer<typeof lifecyclePhaseSchema>;
+
 export const choiceSchema = z
   .object({
     label: choiceLabelSchema,
     text_en: z.string().trim().min(1),
+    /** どんな条件なら正解になるか(正解でない選択肢のみ) */
+    plausible_ja: explanationTextSchema.optional(),
+    /** このシナリオでなぜ BEST でないか(正解でない選択肢のみ) */
+    not_best_ja: explanationTextSchema.optional(),
   })
   .strict();
 export type Choice = z.infer<typeof choiceSchema>;
@@ -61,6 +75,10 @@ const mcqBase = questionBase.extend({
   choices: z.array(choiceSchema).min(2),
   answer: z.array(choiceLabelSchema).min(1),
   answer_en: z.null(),
+  /** 決め手になる制約(書くなら正解でない選択肢すべてに plausible_ja / not_best_ja を書く) */
+  binding_constraint_ja: explanationTextSchema.optional(),
+  /** フェーズが判断を左右する問題だけに設定する(単独で設定してよい) */
+  lifecycle_phase: lifecyclePhaseSchema.nullable().optional(),
 });
 
 const flashQuestionSchema = questionBase
@@ -85,6 +103,17 @@ const mcqMultiQuestionSchema = mcqBase
     answer: z.array(choiceLabelSchema).min(2),
   })
   .strict();
+
+/**
+ * MCQ の選択肢数(specs/03 §1 P の MCQ の不変条件: P はフォーム収載に限らず全 MCQ で 4〜5 択)。
+ * 定義の無い exam(F)は検証しない(既存バンクの受理集合を変えない)
+ */
+export const MCQ_CHOICE_RANGE: Partial<Record<Exam, { readonly min: number; readonly max: number }>> = {
+  "ccar-p": { min: 4, max: 5 },
+};
+
+/** mcq_multi の answer 件数を固定する exam(P は "Select TWO" のみ。specs/03 §1) */
+const MULTI_ANSWER_COUNT: Partial<Record<Exam, number>> = { "ccar-p": 2 };
 
 /** "Select TWO" / "Select THREE" … と answer 件数の対応 */
 const SELECT_WORDS: Record<number, string> = { 2: "TWO", 3: "THREE", 4: "FOUR", 5: "FIVE" };
@@ -133,7 +162,33 @@ export const questionSchema = z
       const m = re.exec(q.stem_en);
       if (!m) issue("stem_en", "mcq_multi は stem に 'Select TWO' 等の件数明記が必要");
       else if (m[1] !== word) issue("stem_en", `stem の 'Select ${m[1]}' と answer 件数(${q.answer.length})が不一致`);
+      const fixed = MULTI_ANSWER_COUNT[q.exam];
+      if (fixed !== undefined && q.answer.length !== fixed)
+        issue("answer", `exam=${q.exam} の mcq_multi は Select ${SELECT_WORDS[fixed]} のみ(answer ${q.answer.length} 件)`);
     }
+
+    // --- P の MCQ の選択肢数(specs/03 §1) ---
+    const range = MCQ_CHOICE_RANGE[q.exam];
+    if (range && (q.choices.length < range.min || q.choices.length > range.max))
+      issue("choices", `exam=${q.exam} の MCQ は選択肢 ${range.min}〜${range.max} 個(${q.choices.length} 個)`);
+
+    // --- 構造化解説フィールド: 書くなら全部書く(specs/03 §1) ---
+    const hasBc = q.binding_constraint_ja !== undefined;
+    q.choices.forEach((c) => {
+      const isAnswer = q.answer.includes(c.label);
+      const has = [c.plausible_ja, c.not_best_ja].filter((v) => v !== undefined).length;
+      if (isAnswer || !hasBc) {
+        if (has > 0)
+          issue(
+            "choices",
+            isAnswer
+              ? `正解の選択肢 ${c.label} は plausible_ja / not_best_ja を持たない`
+              : `binding_constraint_ja が無い問題の選択肢 ${c.label} は plausible_ja / not_best_ja を持たない`,
+          );
+      } else if (has !== 2) {
+        issue("choices", `binding_constraint_ja がある問題は正解でない選択肢 ${c.label} に plausible_ja と not_best_ja が必要`);
+      }
+    });
   });
 
 export type Question = z.infer<typeof questionSchema>;
@@ -161,11 +216,12 @@ export const FORM_STRUCTURE: Readonly<Record<Exam, { readonly size: number; read
 };
 
 /**
- * フォーム収載問題の選択肢数(specs/03 §mock_forms §CCAR-P の構造: P は 4〜5 択の MCQ のみ)。
- * 定義の無い exam(F)は検証しない(既存フォームの受理集合を変えない)
+ * フォーム収載問題で構造化解説フィールド(binding_constraint_ja + 正解でない選択肢の plausible_ja / not_best_ja)を
+ * 必須にする exam(specs/03 §mock_forms §CCAR-P、v1.3.3・S-4)。ファイル横断条件なので validate-bank が検査する
  */
-export const FORM_CHOICE_RANGE: Partial<Record<Exam, { readonly min: number; readonly max: number }>> = {
-  "ccar-p": { min: 4, max: 5 },
+export const FORM_REQUIRES_STRUCTURED_EXPLANATION: Readonly<Record<Exam, boolean>> = {
+  "ccar-f": false,
+  "ccar-p": true,
 };
 
 /** mock_forms.yaml の forms[] 1 件(specs/03 §mock_forms.yaml)。問題数とシナリオ有無は exam ごと(FORM_STRUCTURE) */
