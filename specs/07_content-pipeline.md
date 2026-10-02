@@ -1,5 +1,7 @@
 # 07. 問題バンク生成パイプライン(v1.3)
 
+**v1.3.1(2026-10-03, T-pmock)**: §CCAR-P の Step 3a 不適用・Step 3b のフォーム構造を確定値に更新。
+
 **v1.3(2026-09-29, S-3)**: CCAR-P フェーズを詳細化(ディレクトリ・Step ごとの差分・生成量サマリ P 版)。以下の Step 0〜6 本文は F で確定した手順で、P は §CCAR-P フェーズの差分を適用して再実行する。
 
 ## 原則
@@ -70,8 +72,8 @@
 - **Step 0(CP0)**: Guide を `content/ccar-p/SOURCES.md` に転記し、`02` CCAR-P 節を公式優先で突合。模試構造(問題数・ドメイン配分・シナリオ有無・multiple-response の選択数)と In/Out-of-Scope は **Guide の事実として記録するまで**。`03` §mock_forms への仕様化は T-pmock(停止条件: Mock のスコア)
 - **Step 1(CP1)**: `content/ccar-p/syllabus.yaml`。task statement 層は Guide と 1:1、topic 数は CP0 で決めた範囲。オーナー粒度レビュー
 - **Step 2(CP2)**: 最小フラッシュ 150(ドメイン重み比例)。ドメイン内では CP0 の重なりマップ(`content/ccar-p/SOURCES.md` §8)で F と重ならない目標(「なし」「部分」)を優先し、重なる目標は F カードとの重複を避ける。D5 / D6 / D7 はドメインとしては F に無いが、目標単位では D7 と D5 の一部が F と重なる(CP0)
-- **Step 3a は P に適用しない(暫定の制作方針)**: P の Guide にシナリオ構造の記述が無い(CP0、`02` / `content/ccar-p/SOURCES.md` §1.1)ため、Practice 用は Step 5 相当の独立 MCQ(CP3)で成立させる。独立問題形式は Guide の確認事項ではない。T-pmock で模試形式を確定し、シナリオ形式と判明した場合は Step 3a 相当の要否を見直す
-- **Step 3b(CP4-A / CP4-B)**: P の固定フォームは T-pmock で確定した構造に従う(シナリオ条件・件数は F 固有値を流用しない)。フォーム収載問題の標準値(`eligible_modes: ["mock", "practice"]` / `srs_eligible: false`)と holdout は F と同じ(`03`、フォームは `(exam, form_id)` で識別)
+- **Step 3a は P に適用しない(T-pmock で確定)**: P は独立問題形式(`03` §mock_forms §CCAR-P の構造。オーナー決定 2026-10-03)。Practice 用は Step 5 相当の独立 MCQ(CP3)で成立させる。状況説明は各問の stem に 2〜4 文で書く(受験記。`content/ccar-p/SOURCES.md` §1.1)。P の制作指針の詳細(binding constraint・誤答の作り方・難易度・問題タイプ)は S-4 で本節に追記する
+- **Step 3b(CP4-A / CP4-B)**: P の固定フォームは `03` §mock_forms §CCAR-P の構造(63 問・配分 11-8-12-10-9-9-4・全問 scenario_id null・`mcq_single` / `mcq_multi`)に従う(F 固有値を流用しない)。フォーム収載問題の標準値(`eligible_modes: ["mock", "practice"]` / `srs_eligible: false`)と holdout は F と同じ(`03`、フォームは `(exam, form_id)` で識別)
 - **Step 4**: F と同じ全工程(flagged で登録 → 2 周 → active、オーナー抜き取り各ドメイン 5 問、active 化後の修正ループ)。選択肢バランス監査も同じ基準で P に適用する
 - **Step 5(CP3)**: 独立 MCQ 60〜100(Practice / ドメイン別ミニ模試用、フォーム非収載、全ドメインに収録)
 - **Step 6(CP6)**: P の現行 rev 未解決フラグを `/api/export?exam=ccar-p` から取得して改訂
@@ -82,7 +84,7 @@
 |---|---|---|---|
 | 最小フラッシュ | 150(weight 比例) | 10/23(CP2) | 10/24 P Drill 開始 |
 | 独立 MCQ | 60〜100 | 10/30(CP3) | 10/31 P Practice 開始 / ミニ模試 |
-| P form A | 構造は T-pmock | 11/20(CP4-A) | 11/21 第 1 回フル模試 |
+| P form A | 63 問(11-8-12-10-9-9-4) | 11/20(CP4-A) | 11/21 第 1 回フル模試 |
 | P form B(A と重複なし) | 同上 | 11/27(CP4-B) | 11/28 第 2 回フル模試 |
 
 ## 生成量サマリ(F・v1.2。履歴)

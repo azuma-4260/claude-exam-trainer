@@ -1,5 +1,7 @@
 # 02. 試験ブループリント整理(v1.3)
 
+**v1.3.1(2026-10-03, T-pmock)**: CCAR-P の出題構造と 63 問の配分を確定値に更新(`03` §mock_forms)。
+
 **v1.3(2026-09-29, CP0)**: CCAR-P 節を公式 Exam Guide v1.0(`ExamGuide/CCAR-P.pdf`)と突合し、公式優先で更新。転記原文と判断記録は `content/ccar-p/SOURCES.md` が正本。「独立問題形式」は Guide 未確認(シナリオ構造の記述が無いだけ)と訂正し、P の出題範囲・F との重なり・トピックツリー方針を追記。
 
 **v1.2(2026-08-23, C0)**: 公式 Exam Guide v1.0(`ExamGuide/CCAR-F.pdf`)と突合し、公式優先で全面更新。転記原文と判断記録は `content/ccar-f/SOURCES.md` が正本(本ファイルはその要約)。CCAR-P 節は引き続き Web 調査ベース(P の Exam Guide 取得後に同手順で突合する)。
@@ -54,7 +56,7 @@ In-Scope / Out-of-Scope の全リストは `content/ccar-f/SOURCES.md` §4。**C
 (公式 Exam Guide v1.0 で突合済み・2026-09-29 CP0。転記原文と判断記録は `content/ccar-p/SOURCES.md`)
 
 - **63 問**、**multiple-choice + multiple-response**(各問で選択数を明記。具体的な選択数の記述は Guide に無い)。バンクでは `mcq_single` / `mcq_multi` が対応(`03`)
-- **出題構造**: Guide に**シナリオ構造の記述が無い**(F の "4 scenarios drawn from a bank of 6" に相当する記述なし)。「独立問題形式」は Guide では**未確認**で、サンプル問題 3 問が独立 4 択なのは例示に過ぎない(`SOURCES.md` §1.1)。本試験・模試の形式、フォームの問題数・ドメイン配分・選択数は **T-pmock で `03` §mock_forms に確定する**(停止条件: Mock のスコア)
+- **出題構造**: Guide に**シナリオ構造の記述が無い**(F の "4 scenarios drawn from a bank of 6" に相当する記述なし)。受験記(`SOURCES.md` §1.1 追記)では各問が独立し、stem に 2〜4 文の状況説明が付く。**本アプリの P 模試は独立問題形式で確定**(オーナー決定 2026-10-03, T-pmock。`03` §mock_forms)。受験記にある「共通の選択肢で複数の小問に答える」形式(Yes/No Matrix・Drop-down Matching)は採点の一次情報が無く、`09` T-bundle で扱う
 - 対象: ミッド〜シニアの技術職(solution architect / AI・ML engineer / tech lead / senior SWE)。推奨経験: systems architecture 3 年以上、本番 LLM システム 6 ヶ月以上
 
 ### ドメインと重み(公式 §6 Blueprint・一致を確認)
@@ -71,7 +73,7 @@ In-Scope / Out-of-Scope の全リストは `content/ccar-f/SOURCES.md` §4。**C
 | P-D6 | Stakeholder Communication & Lifecycle Management | 14% | 6.1 構造化 discovery と要件収集 / 6.2 意思決定とトレードオフの伝達 / 6.3 フィードバックループと期待値調整(SLA 含む)/ 6.4 アーキテクチャ文書化と実装ガイダンス / 6.5 ライフサイクル(discovery・design・handoff・monitoring・iteration) |
 | P-D7 | Developer Productivity & Operational Enablement | 7% | 7.1 チーム向け Claude ツール・環境設定(Claude Code 等)/ 7.2 AI 支援ツールによる開発ワークフロー改善 / 7.3 デバッグと運用上の問題解決 |
 
-63 問への配分は Guide に記述が無いため本書では固定しない(largest-remainder の参考計算は `SOURCES.md` §1.2。確定は T-pmock)。
+63 問への配分は Guide に記述が無い。本アプリの固定フォームは largest-remainder で **11 / 8 / 12 / 10 / 9 / 9 / 4** に確定(T-pmock。計算は `SOURCES.md` §1.1、正本は `03` §mock_forms)。
 
 ### 出題範囲
 

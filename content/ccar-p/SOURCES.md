@@ -45,7 +45,7 @@ F の "Exam structure: 4 scenarios drawn from a bank of 6" に相当する行は
 
 §9 要点: criterion-referenced(相対評価ではない)。cut score 720 は standard-setting study で設定。ドメイン別 % は参考情報で合否判定には使わない("Section-level percentages ... are not used to determine your pass or fail result, which is based on your total scaled score.")。
 
-### 1.1 模試構造の Guide 上の事実(`07` §CCAR-P Step 0)— **ここでは記録のみ。`03` §mock_forms への仕様化は T-pmock(停止条件: Mock のスコア)**
+### 1.1 模試構造の Guide 上の事実(`07` §CCAR-P Step 0)— **T-pmock で `03` §mock_forms に確定済み(2026-10-03)**
 
 | 観点 | Guide の記述 | 備考 |
 |---|---|---|
@@ -53,11 +53,22 @@ F の "Exam structure: 4 scenarios drawn from a bank of 6" に相当する行は
 | ドメイン配分 | 7 ドメインの重み(§6、§1.2)。"The percentages indicate the approximate proportion of **scored items** drawn from each domain." | 問題数への丸め方は記述なし |
 | シナリオ構造 | **記述なし**。Guide 全文に "scenario" の語は §13(NDA: "questions, answer options, and scenarios")の 1 回のみで、出題構造としての言及は無い | **独立問題形式か否かは Guide では未確認**。サンプル問題(§8)3 問はいずれも独立した 4 択単一正解だが、"They are not drawn from the live item bank" とある例示であり本試験構造の根拠にはならない |
 | multiple-response の選択数 | "each item states how many responses to select" のみ。**具体的な選択数(2 つ / 3 つ等)・選択肢数の記述なし** | サンプル 3 問は全て A–D の 4 択・単一正解 |
-| フォーム本数 | Guide の範囲外(本アプリの模試フォームは自作) | `03` / T-pmock で決める |
+| フォーム本数 | Guide の範囲外(本アプリの模試フォームは自作) | 2 本(form A / B)で確定(T-pmock、`03` §mock_forms) |
 | 時間 | 120 分 / 63 問(約 1.9 分/問) | |
 
 - **P のドメイン数 = 7**(`09` §1 の 6「抜き取り」を P で読むときの値。各ドメイン 5 問 → 35 問)
 - F の §1.1(「各シナリオ 15 問」の判定)に相当する論点は、シナリオ記述が無いため P では発生しない
+
+#### 1.1.1 受験記による補足(2026-10-03, T-pmock。Guide 外の受験者証言であり公式仕様ではない)
+
+| 出典 | 種別 | 内容 |
+|---|---|---|
+| KDDI Tech Note(https://tech-note.kddi.com/n/n11674d06d5fd、2026-10-02、885 点) | 受験者証言 | 形式は「4〜5 個の選択肢から 1 つを選ぶ」「4〜5 個の選択肢から 2 つを選ぶ」「5 つ程度の小問がまとめて出て、それぞれに対して共通の 2〜3 個の選択肢から答える(これで 1 問の扱い)」の 3 種。3 つ目は Guide に記載がない。「問題文は 2〜4 文のシナリオ」。63 問を一通り解くのに 100 分 |
+| Reddit 調査メモ(`ExamGuide/memo.md`、オーナー作成 2026-10-03) | 受験者証言の整理 + 設計推奨 | 965 点の受験者が Yes/No Matrix(1 シナリオ × 約 5 statement を独立に Yes/No)と Drop-down Matching(複数シナリオを再利用可能な共通 option から分類)を報告。multiple-response は「much more frequent」との証言。F の「4 シナリオ × 15 問」を P に流用しないこと。形式別の比率は公式値なし(memo §31 LOW) |
+| Partner Academy FAQ(https://anthropic-partners.skilljar.com/page/faq-certifications) | 公式 | "All Claude certification exams use multiple choice and scenario-based multiple response questions." Pearson VUE で実施 |
+
+- **採点**: Guide §9 は "the percentage of items you answered correctly within each content domain" のみ。まとめ形式・multiple-response の部分点の有無を直接述べる一次情報は見つからない(2026-10-03 調査)
+- **T-pmock の確定事項**(オーナー決定 2026-10-03): 独立問題形式(各問 stem に状況説明)/ 63 問 / 配分 11-8-12-10-9-9-4 / 問題形式の件数は validator で固定しない。まとめ形式は `09` T-bundle(採点確定が着手条件)。memo の制作指針は `09` S-4 で `07` に反映する
 
 ### 1.2 ドメイン配分(§6 Blueprint)— `02` の重みを**確認**
 
@@ -71,7 +82,7 @@ F の "Exam structure: 4 scenarios drawn from a bank of 6" に相当する行は
 | 6 | Stakeholder Communication & Lifecycle Management | 14% |
 | 7 | Developer Productivity & Operational Enablement | 7% |
 
-**参考計算(確定値ではない)**: 17/13/19/16/14/14/7% × 63 = 10.71 / 8.19 / 11.97 / 10.08 / 8.82 / 8.82 / 4.41 → largest-remainder(切り捨て 59、残り 4 を端数 .97 / .82 / .82 / .71 の D3・D5・D6・D1 へ)で **11 / 8 / 12 / 10 / 9 / 9 / 4**(端数の同値 D5 = D6 は両方とも加算対象のためタイブレーク不要)。Guide は "approximate proportion of scored items" としか述べないため、フォームの問題数とドメイン配分は **T-pmock 冒頭でオーナー承認を経て `03` §mock_forms に確定する**。`02` にはこの値を固定値として書かない。
+**参考計算(確定値ではない)**: 17/13/19/16/14/14/7% × 63 = 10.71 / 8.19 / 11.97 / 10.08 / 8.82 / 8.82 / 4.41 → largest-remainder(切り捨て 59、残り 4 を端数 .97 / .82 / .82 / .71 の D3・D5・D6・D1 へ)で **11 / 8 / 12 / 10 / 9 / 9 / 4**(端数の同値 D5 = D6 は両方とも加算対象のためタイブレーク不要)。Guide は "approximate proportion of scored items" としか述べないため、フォームの問題数とドメイン配分は **T-pmock 冒頭でオーナー承認を経て `03` §mock_forms に確定する**。`02` にはこの値を固定値として書かない。→ **2026-10-03 T-pmock でこの値に確定**(オーナー決定。`03` §mock_forms)。
 
 ### 1.3 `02` との突合結果(公式優先で `02` を v1.3 に更新)
 
@@ -304,6 +315,7 @@ P の 38 目標を F の task statement(`content/ccar-f/SOURCES.md` §3、ID `f-
 | 日付 | 内容 |
 |---|---|
 | 2026-09-29 | 初版(CP0)。Exam Guide v1.0 を転記 |
+| 2026-10-03 | T-pmock: §1.1 の模試構造を `03` §mock_forms に確定(オーナー決定)。§1.1.1 に受験記・Reddit 調査メモ・Partner Academy FAQ の補足を追加 |
 | 2026-09-30 | CP1: §3 の 38 目標と 1:1 の `syllabus.yaml`(108 topics)を作成。§9 の P 内重なり 6 ペアは両側の scope_ja に【primary 境界】を記載。`form_questions` は T-pmock 確定まで書かない |
 | 2026-09-30 | CP3: 独立 MCQ の ID 帯(q501〜q599・ドメイン内連番)と CP3 の refs 台帳 88 URL(#301〜#388、curl で 200 確認)を §13(CP3 節)に追加。独立 MCQ 76 問(12/10/13/11/10/10/10、mcq_single のみ)を flagged で生成。配分根拠は `content/ccar-p/CP3-allocation.md`。Step 4 は別セッション(step4-review)で実施 |
 | 2026-09-30 | CP3 Step 4: 独立レビュー 2 周(1 周目 P1 1 / P2 21、2 周目 P1 0 / P2 8 を修正)、refs 突合(使用 52 URL)、P 内・F バンクとの重複統合。許可ソースで裏付けられない 3 topic(B-CP2-1)に割り当てていた p-d2-q510 / p-d3-q512 / p-d6-q503 を同じ task statement 内の topic へ差し替え。全 76 問を active 化。記録は `content/ccar-p/CP3-allocation.md` §Step 4 |
