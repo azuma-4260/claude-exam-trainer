@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { parseArgs, runAuditFormMcq } from "./audit-form-mcq";
+import { formatDistribution, parseArgs, runAuditFormMcq } from "./audit-form-mcq";
 
 const URL_A = "https://docs.claude.com/en/docs/claude-code/memory";
 const URL_B = "https://www.anthropic.com/engineering/building-effective-agents";
@@ -88,6 +88,13 @@ describe("runAuditFormMcq", () => {
     const r = runAuditFormMcq(dir, { formId: null, status: "flagged" });
     expect(r.errors).toEqual([]);
     expect(r.total).toBe(60);
+  });
+
+  it("F は分布を表示するだけで目安の warning を出さない(D6-9)", () => {
+    writeBank(dir);
+    const r = runAuditFormMcq(dir, { formId: null, status: "flagged" });
+    expect(r.distributions).toEqual([{ formId: "form-a", types: { mcq_single: 60, mcq_multi: 0 }, difficulty: { 1: 0, 2: 60, 3: 0 } }]);
+    expect(r.warnings.some((w) => /目安/.test(w))).toBe(false);
   });
 
   it("srs_eligible=true の混入を検出する(B-D0-3-2 (2) の緩和)", () => {
@@ -176,6 +183,7 @@ domains:
         topics:
           - { id: p-d1-t1-01, name: "T1", scope_ja: "範囲" }
 `;
+  // 既定の分布は specs/07 §P 制作指針の目安内: single 45 / multi 18、難易度 1: 5 / 2: 38 / 3: 20
   const pq = (n: number) =>
     mcq(n, {
       id: `p-d1-q${String(n).padStart(3, "0")}`,
@@ -184,7 +192,11 @@ domains:
       primary_topic_id: "p-d1-t1-01",
       scenario_id: null,
       answer: [["A", "B", "C", "D"][n % 4]],
+      difficulty: n <= 5 ? 1 : n <= 25 ? 3 : 2,
+      ...(n > 45 ? { type: "mcq_multi", stem_en: "Which TWO actions should the architect take? (Select TWO.)", answer: ["A", "C"] } : {}),
     });
+  const writeP = (qs: Record<string, unknown>[]) =>
+    writeFileSync(path.join(dir, "questions", "form-a.json"), JSON.stringify(qs));
 
   beforeEach(() => {
     writeFileSync(path.join(dir, "syllabus.yaml"), P_SYLLABUS);
@@ -213,6 +225,28 @@ domains:
     writeFileSync(path.join(dir, "questions", "form-a.json"), JSON.stringify(qs));
     const r = runAuditFormMcq(dir, { exam: "ccar-p", formId: null, status: "flagged" });
     expect(r.errors).toContain("p-d1-q001: srs_eligible が false でない");
+  });
+
+  // D6-9: 問題形式・難易度の分布表示(warning のみ。specs/07 §P 制作指針「フォームの目安」)
+  it("form ごとの問題形式・難易度の分布を返す", () => {
+    const r = runAuditFormMcq(dir, { exam: "ccar-p", formId: null, status: "flagged" });
+    expect(r.distributions).toEqual([
+      { formId: "form-a", types: { mcq_single: 45, mcq_multi: 18 }, difficulty: { 1: 5, 2: 38, 3: 20 } },
+    ]);
+    expect(formatDistribution(r.distributions[0])).toBe("form-a: 形式 single 45 / multi 18、難易度 1: 5 / 2: 38 / 3: 20");
+  });
+
+  it("目安を外れると warning を出すが errors にはしない", () => {
+    // 全問 single・難易度 1 → 難易度 1 過多 / 難易度 3 不足 / single 過多 / multi 不足
+    writeP(Array.from({ length: 63 }, (_, i) => ({ ...pq(i + 1), type: "mcq_single", stem_en: "Which option is correct?", answer: [["A", "B", "C", "D"][(i + 1) % 4]], difficulty: 1 })));
+    const r = runAuditFormMcq(dir, { exam: "ccar-p", formId: null, status: "flagged" });
+    expect(r.errors).toEqual([]);
+    expect(r.warnings).toEqual([
+      "form-a: 難易度 1 が 63 問(目安 6 問以下)",
+      "form-a: 難易度 3 が 0 問(目安 20 問以上)",
+      "form-a: mcq_single が 63 問(目安 43〜48)",
+      "form-a: mcq_multi が 0 問(目安 15〜20)",
+    ]);
   });
 
   it("--exam ccar-p は既定ディレクトリを content/ccar-p にする", () => {

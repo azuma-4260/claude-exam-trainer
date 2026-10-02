@@ -11,6 +11,9 @@
 //   4. warning(非ブロッキング): mcq_single の正解ラベル偏り(最頻ラベル > 35%)/
 //      シナリオあたり問題数が 12〜18 の設計指針外(SOURCES.md §1.1 の非検証指針。CCAR-F のみ。
 //      P は独立問題形式でシナリオを持たない。specs/03 §mock_forms §CCAR-P の構造、T-pmock)
+//   5. 分布の表示(D6-9): form ごとの問題形式・difficulty の件数を INFO で出す。P は specs/07 §P 制作指針の
+//      目安(難易度 1 は 6 問以下 / 3 は 20 問以上 / single 43〜48・multi 15〜20)を外れたら warning
+//      (validator では強制しない。specs/03 §1)
 // 違反(1〜3)は fail closed(非 0)。warning のみなら 0。
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -28,6 +31,31 @@ export const SCENARIO_SIZE_RANGE_BY_EXAM: Partial<Record<Exam, { readonly min: n
 /** mcq_single の正解ラベル最頻シェアの warning 閾値 */
 export const ANSWER_SHARE_WARN = 0.35;
 
+/**
+ * フォームの問題形式・難易度の目安(specs/07 §P 制作指針「フォームの目安」。warning のみ)。
+ * 形式の目安はまとめ形式(T-bundle / D6-8)を使わない場合の値。F は目安が無いので表示のみ
+ */
+export const FORM_DISTRIBUTION_GUIDE: Partial<
+  Record<
+    Exam,
+    {
+      readonly maxDifficulty1: number;
+      readonly minDifficulty3: number;
+      readonly single: { readonly min: number; readonly max: number };
+      readonly multi: { readonly min: number; readonly max: number };
+    }
+  >
+> = {
+  "ccar-p": { maxDifficulty1: 6, minDifficulty3: 20, single: { min: 43, max: 48 }, multi: { min: 15, max: 20 } },
+};
+
+/** form 1 本の問題形式・difficulty の件数 */
+export interface FormDistribution {
+  formId: string;
+  types: { mcq_single: number; mcq_multi: number };
+  difficulty: { 1: number; 2: number; 3: number };
+}
+
 export interface FormAuditOptions {
   /** 期待する exam(既定 ccar-f)。D6-3 */
   exam?: Exam;
@@ -42,6 +70,12 @@ export interface FormAuditResult {
   warnings: string[];
   /** 監査した収載問題数 */
   total: number;
+  /** form ごとの分布(表示用) */
+  distributions: FormDistribution[];
+}
+
+export function formatDistribution(d: FormDistribution): string {
+  return `${d.formId}: 形式 single ${d.types.mcq_single} / multi ${d.types.mcq_multi}、難易度 1: ${d.difficulty[1]} / 2: ${d.difficulty[2]} / 3: ${d.difficulty[3]}`;
 }
 
 export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditResult {
@@ -76,11 +110,13 @@ export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditR
 
   const exam = opts.exam ?? "ccar-f";
   let total = 0;
+  const distributions: FormDistribution[] = [];
   for (const f of forms) {
     if (f.exam !== exam) errors.push(`${f.id}: exam ${f.exam}(期待 ${exam})`);
     const answerCounts = new Map<string, number>();
     let singles = 0;
     const perScenario = new Map<string, number>();
+    const dist: FormDistribution = { formId: f.id, types: { mcq_single: 0, mcq_multi: 0 }, difficulty: { 1: 0, 2: 0, 3: 0 } };
     for (const qid of f.question_ids) {
       const q = byId.get(qid);
       if (!q) {
@@ -104,6 +140,8 @@ export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditR
       for (const r of q.refs) if (!ledger.has(r)) errors.push(`${q.id}: refs ${r} がソース台帳に無い`);
 
       // 4. warning 用の集計
+      if (q.type === "mcq_single" || q.type === "mcq_multi") dist.types[q.type]++;
+      dist.difficulty[q.difficulty as 1 | 2 | 3]++;
       if (q.scenario_id) perScenario.set(q.scenario_id, (perScenario.get(q.scenario_id) ?? 0) + 1);
       if (q.type === "mcq_single" && q.answer) {
         singles++;
@@ -122,9 +160,23 @@ export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditR
         if (n < range.min || n > range.max)
           warnings.push(`${f.id}: ${sid} の問題数 ${n}(設計指針 ${range.min}〜${range.max})`);
       }
+
+    // 5. 分布(D6-9)
+    distributions.push(dist);
+    const guide = FORM_DISTRIBUTION_GUIDE[f.exam];
+    if (guide) {
+      if (dist.difficulty[1] > guide.maxDifficulty1)
+        warnings.push(`${f.id}: 難易度 1 が ${dist.difficulty[1]} 問(目安 ${guide.maxDifficulty1} 問以下)`);
+      if (dist.difficulty[3] < guide.minDifficulty3)
+        warnings.push(`${f.id}: 難易度 3 が ${dist.difficulty[3]} 問(目安 ${guide.minDifficulty3} 問以上)`);
+      for (const [t, r] of [["mcq_single", guide.single], ["mcq_multi", guide.multi]] as const) {
+        const n = dist.types[t];
+        if (n < r.min || n > r.max) warnings.push(`${f.id}: ${t} が ${n} 問(目安 ${r.min}〜${r.max})`);
+      }
+    }
   }
 
-  return { errors, warnings, total };
+  return { errors, warnings, total, distributions };
 }
 
 export function parseArgs(argv: readonly string[]): { dir: string; opts: FormAuditOptions } {
@@ -146,6 +198,7 @@ export function parseArgs(argv: readonly string[]): { dir: string; opts: FormAud
 function main(): void {
   const { dir, opts } = parseArgs(process.argv.slice(2));
   const r = runAuditFormMcq(dir, opts);
+  for (const d of r.distributions) console.log(`audit-form-mcq INFO ${formatDistribution(d)}`);
   for (const w of r.warnings) console.error(`audit-form-mcq WARN ${w}`);
   for (const e of r.errors) console.error(`audit-form-mcq NG ${e}`);
   if (r.errors.length > 0) {
