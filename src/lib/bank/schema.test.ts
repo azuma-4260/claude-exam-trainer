@@ -193,6 +193,116 @@ describe("questionSchema: mcq_multi", () => {
   });
 });
 
+// D6-9(specs/03 §1 構造化解説フィールド、v1.3.3・S-4)
+const structured = {
+  ...mcqSingle,
+  binding_constraint_ja: "リモートのクライアントから接続する必要がある",
+  lifecycle_phase: "design",
+  choices: [
+    { label: "A", text_en: "stdio", plausible_ja: "同一ホストのローカル連携なら妥当", not_best_ja: "リモートから接続できない" },
+    { label: "B", text_en: "Streamable HTTP" },
+    { label: "C", text_en: "WebSocket", plausible_ja: "独自の双方向通信が要るなら妥当", not_best_ja: "MCP の標準トランスポートではない" },
+    { label: "D", text_en: "gRPC", plausible_ja: "社内の既存 gRPC 基盤に寄せるなら妥当", not_best_ja: "MCP の標準トランスポートではない" },
+  ],
+} as const;
+
+/** 選択肢 i だけ差し替えた structured */
+const withChoice = (i: number, c: Record<string, unknown>) => ({
+  ...structured,
+  choices: structured.choices.map((x, j) => (j === i ? c : x)),
+});
+
+describe("questionSchema: 構造化解説フィールド(D6-9)", () => {
+  it("書くなら全部: binding_constraint_ja + 正解でない選択肢すべての plausible_ja / not_best_ja を受理する", () => {
+    expect(ok(structured)).toBe(true);
+  });
+
+  it("フィールドが無い従来の問題はそのまま受理する(F・既存 P)", () => {
+    expect(ok(mcqSingle)).toBe(true);
+    expect(ok(mcqMulti)).toBe(true);
+  });
+
+  it("lifecycle_phase は単独で設定してよい(null も可)。値は 5 種のみ", () => {
+    for (const ph of ["discovery", "design", "deployment", "monitoring", "iteration", null])
+      expect(ok({ ...mcqSingle, lifecycle_phase: ph })).toBe(true);
+    expect(ng({ ...mcqSingle, lifecycle_phase: "handoff" })).toBe(true);
+    expect(ng({ ...mcqSingle, lifecycle_phase: "" })).toBe(true);
+  });
+
+  it("binding_constraint_ja は非空文字列", () => {
+    expect(ng({ ...structured, binding_constraint_ja: "" })).toBe(true);
+    expect(ng({ ...structured, binding_constraint_ja: "   " })).toBe(true);
+    expect(ng({ ...structured, binding_constraint_ja: null })).toBe(true);
+  });
+
+  it("正解でない選択肢が 1 つでも欠ける・片方だけなら拒否する", () => {
+    expect(ng(withChoice(0, { label: "A", text_en: "stdio" }))).toBe(true);
+    expect(ng(withChoice(0, { label: "A", text_en: "stdio", plausible_ja: "x" }))).toBe(true);
+    expect(ng(withChoice(2, { label: "C", text_en: "WebSocket", not_best_ja: "x" }))).toBe(true);
+    expect(ng(withChoice(3, { label: "D", text_en: "gRPC", plausible_ja: "", not_best_ja: "x" }))).toBe(true);
+  });
+
+  it("正解の選択肢は 2 フィールドを持たない(正解の漏洩防止の前提)", () => {
+    expect(ng(withChoice(1, { label: "B", text_en: "Streamable HTTP", plausible_ja: "x", not_best_ja: "y" }))).toBe(true);
+    expect(ng(withChoice(1, { label: "B", text_en: "Streamable HTTP", not_best_ja: "y" }))).toBe(true);
+  });
+
+  it("binding_constraint_ja が無い問題は choice の 2 フィールドを持たない", () => {
+    const noBc: Record<string, unknown> = { ...structured };
+    delete noBc.binding_constraint_ja;
+    expect(ng(noBc)).toBe(true);
+    expect(
+      ng({ ...mcqSingle, choices: [{ ...mcqSingle.choices[0], plausible_ja: "x", not_best_ja: "y" }, ...mcqSingle.choices.slice(1)] }),
+    ).toBe(true);
+  });
+
+  it("mcq_multi でも正解 2 つを除く選択肢すべてに必要", () => {
+    const multi = { ...structured, id: "f-d2-q015", type: "mcq_multi", stem_en: "Select TWO transports.", answer: ["A", "B"] };
+    // A が正解になったので A のフィールドは不可、B は正解のまま
+    expect(ng(multi)).toBe(true);
+    const fixed = { ...multi, choices: [{ label: "A", text_en: "stdio" }, ...structured.choices.slice(1)] };
+    expect(ok(fixed)).toBe(true);
+  });
+
+  it("flash は構造化解説フィールドを持てない", () => {
+    expect(ng({ ...flash, binding_constraint_ja: "x" })).toBe(true);
+    expect(ng({ ...flash, lifecycle_phase: "design" })).toBe(true);
+  });
+
+  it("F の問題も同じ不変条件で受理する(使わないが許容)", () => {
+    expect(structured.exam).toBe("ccar-f");
+    expect(ok(structured)).toBe(true);
+  });
+});
+
+// D6-9(specs/03 §1 P の MCQ の不変条件): multi は Select TWO のみ・選択肢 4〜5 個
+const pSingle = { ...mcqSingle, id: "p-d2-q014", exam: "ccar-p", domain_id: "p-d2", primary_topic_id: "p-d2-t1-03", secondary_topic_ids: [] } as const;
+const pMulti = { ...pSingle, id: "p-d2-q015", type: "mcq_multi", stem_en: "Select TWO practices.", answer: ["A", "C"] } as const;
+const fifth = { label: "E", text_en: "SSE" } as const;
+
+describe("questionSchema: P の MCQ の不変条件(D6-9)", () => {
+  it("P の 4 択・5 択の single / Select TWO の multi を受理する", () => {
+    expect(ok(pSingle)).toBe(true);
+    expect(ok({ ...pSingle, choices: [...pSingle.choices, fifth] })).toBe(true);
+    expect(ok(pMulti)).toBe(true);
+    expect(ok({ ...pMulti, choices: [...pMulti.choices, fifth] })).toBe(true);
+  });
+
+  it("P の MCQ は選択肢 3 個以下・6 個以上を拒否する(フォーム収載に限らない)", () => {
+    expect(ng({ ...pSingle, choices: pSingle.choices.slice(0, 3) })).toBe(true);
+    expect(ng({ ...pSingle, choices: [...pSingle.choices, fifth, { label: "F", text_en: "TCP" }] })).toBe(true);
+  });
+
+  it("P の mcq_multi は Select TWO(answer 2 件)のみ", () => {
+    expect(ng({ ...pMulti, stem_en: "Select THREE practices.", answer: ["A", "B", "C"] })).toBe(true);
+  });
+
+  it("F は従来どおり(2〜3 択・Select THREE を許容)", () => {
+    expect(ok({ ...mcqSingle, choices: mcqSingle.choices.slice(0, 2) })).toBe(true);
+    expect(ok({ ...mcqMulti, stem_en: "Select THREE practices.", answer: ["A", "B", "C"] })).toBe(true);
+  });
+});
+
 describe("questionsFileSchema(questions/*.json)", () => {
   it("配列を受理し、ファイル内の id 重複を拒否する", () => {
     expect(questionsFileSchema.safeParse([mcqSingle, flash]).success).toBe(true);

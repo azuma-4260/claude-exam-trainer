@@ -33,6 +33,8 @@ const item = (n: number): DrillItem => ({
   type: "flash",
   stemEn: "stem",
   choices: null,
+  bindingConstraintJa: null,
+  lifecyclePhase: null,
   answer: null,
   answerEn: "answer",
   explanationJa: "解説",
@@ -125,6 +127,40 @@ describe("assembleQueueView", () => {
       source: "due",
       estSec: 20,
     });
+  });
+
+  it("D6-9: 構造化解説フィールドを DrillItem に明示的に射影し、無い問題は null にする", () => {
+    const withFields = mcq(id3(1), {
+      eligible_modes: ["drill"],
+      binding_constraint_ja: "リモートから接続する",
+      lifecycle_phase: "design",
+      choices: [
+        { label: "A", text_en: "stdio", plausible_ja: "ローカル連携なら妥当", not_best_ja: "リモート不可" },
+        { label: "B", text_en: "Streamable HTTP" },
+      ],
+    });
+    const plain = Array.from({ length: 5 }, (_, i) => mcq(id3(i + 2), { eligible_modes: ["drill"] }));
+    const qs = [withFields, ...plain];
+    const v = view(qs, { srsRows: qs.map((q) => srsRow(q.id)) });
+    if (v.session.kind !== "ok") throw new Error(v.session.kind);
+    const byId = new Map(v.session.items.map((x) => [x.questionId, x]));
+    expect(byId.get(id3(1))).toMatchObject({
+      bindingConstraintJa: "リモートから接続する",
+      lifecyclePhase: "design",
+      choices: [
+        { label: "A", textEn: "stdio", plausibleJa: "ローカル連携なら妥当", notBestJa: "リモート不可" },
+        { label: "B", textEn: "Streamable HTTP", plausibleJa: null, notBestJa: null },
+      ],
+    });
+    expect(byId.get(id3(2))).toMatchObject({ bindingConstraintJa: null, lifecyclePhase: null });
+    expect(byId.get(id3(2))?.choices?.every((c) => c.plausibleJa === null && c.notBestJa === null)).toBe(true);
+  });
+
+  it("D6-9: flash の DrillItem は構造化解説フィールドが null", () => {
+    const qs = Array.from({ length: 5 }, (_, i) => flash(id3(i + 1)));
+    const v = view(qs, { srsRows: qs.map((q) => srsRow(q.id)) });
+    if (v.session.kind !== "ok") throw new Error(v.session.kind);
+    expect(v.session.items[0]).toMatchObject({ bindingConstraintJa: null, lifecyclePhase: null, choices: null });
   });
 
   it("practice-mode item(シナリオ MCQ)は S-3 に出さず件数のみ分離する", () => {

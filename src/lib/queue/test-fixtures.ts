@@ -34,10 +34,19 @@ const mcqBase = {
   rev: 1,
 } as const;
 
+/** P の MCQ は 4〜5 択(specs/03 §1 P の MCQ の不変条件)。exam=ccar-p で choices 未指定なら 4 択にする */
+const P_CHOICES = [
+  { label: "A", text_en: "stdio" },
+  { label: "B", text_en: "Streamable HTTP" },
+  { label: "C", text_en: "WebSocket" },
+  { label: "D", text_en: "gRPC" },
+] as const;
+
 /** 短問 MCQ(scenario_id=null)。over.scenario_id を与えるとシナリオ MCQ になる */
 export const mcq = (id: string, over: Partial<Question> = {}): Question =>
   questionSchema.parse({
     ...mcqBase,
+    ...(over.exam === "ccar-p" ? { choices: P_CHOICES } : {}),
     id,
     domain_id: domainOf(id),
     primary_topic_id: `${domainOf(id)}-t1-01`,
@@ -162,3 +171,21 @@ export const pSyllabus: Syllabus = syllabusFileSchema.parse({
 /** P の未提出フォーム(同名 form-a の exam 独立性の検証用)。P は 63 問・独立問題形式(scenario_ids 空。T-pmock) */
 export const pHoldoutForm = (id: string, questionIds: readonly string[]): MockForm =>
   mockFormSchema.parse({ id, exam: "ccar-p", scenario_ids: [], question_ids: questionIds });
+
+// ---- D6-9: 構造化解説フィールド(specs/03 §1)----
+
+/** 構造化解説フィールドを持つ P の MCQ(正解 B) */
+export const structuredPmcq = (id = "p-d1-q001", over: Partial<Question> = {}): Question =>
+  mcq(id, {
+    exam: "ccar-p",
+    binding_constraint_ja: "支払いは取り消せない",
+    lifecycle_phase: "deployment",
+    choices: [
+      { label: "A", text_en: "a", plausible_ja: "事後監査が目的なら妥当", not_best_ja: "支払い後では手遅れ" },
+      { label: "B", text_en: "b" },
+      { label: "C", text_en: "c", plausible_ja: "C の条件", not_best_ja: "C の理由" },
+      { label: "D", text_en: "d", plausible_ja: "D の条件", not_best_ja: "D の理由" },
+    ],
+    answer: ["B"],
+    ...over,
+  } as Partial<Question>);

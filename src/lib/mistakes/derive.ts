@@ -1,6 +1,7 @@
 import { evaluatePool, holdoutFormOf, type PoolContext } from "@/lib/bank/pool";
 import type { Bank } from "@/lib/bank/load";
 import type { McqQuestion, Scenario } from "@/lib/bank/schema";
+import { structuredOf, toChoiceView } from "@/lib/explanation/structured";
 import { toScenarioDtos, type MockScenarioDto } from "@/lib/mock/dto";
 import { estSec } from "@/lib/queue/estimate";
 import { SESSION_MAX, type DrillItem } from "@/lib/queue/serve";
@@ -116,7 +117,8 @@ export function assembleMistakesView(inputs: AssembleMistakesInputs): MistakesVi
     type: question.type,
     scenarioId: question.scenario_id,
     stemEn: question.stem_en,
-    choices: question.choices.map((choice) => ({ label: choice.label, textEn: choice.text_en })),
+    choices: question.choices.map(toChoiceView),
+    ...structuredOf(question),
     answer: [...question.answer],
     explanationJa: question.explanation_ja,
     refs: [...question.refs],

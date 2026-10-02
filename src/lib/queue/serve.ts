@@ -5,6 +5,7 @@ import type { PoolContext } from "@/lib/bank/pool";
 import { loadMultiBank, scopeBank } from "@/lib/bank/runtime";
 import type { Exam, Question, Syllabus } from "@/lib/bank/schema";
 import { EXAM_DATE_JST, examDateOf, type ExamDates } from "@/lib/exam/dates";
+import { structuredOf, toChoiceView, type ChoiceView, type StructuredFields } from "@/lib/explanation/structured";
 import { getStudyScope } from "@/lib/scope/repo";
 import { scopeExams, type StudyScope } from "@/lib/scope/scope";
 import { jstStartOfDay } from "@/lib/srs/jst";
@@ -29,13 +30,16 @@ import type { NewPace } from "./pace";
 export const SESSION_MIN = 5;
 export const SESSION_MAX = 20;
 
-/** S-3 がクライアントへ渡す 1 問分。採点即時表示のため answer / 解説を含む(個人用アプリ) */
-export type DrillItem = {
+/**
+ * S-3 がクライアントへ渡す 1 問分。採点即時表示のため answer / 解説を含む(個人用アプリ)。
+ * 構造化解説フィールド(StructuredFields / ChoiceView。specs/03 §1)も同じ扱いで、画面は回答後だけ表示する
+ */
+export type DrillItem = StructuredFields & {
   questionId: string;
   rev: number;
   type: Question["type"];
   stemEn: string;
-  choices: { label: string; textEn: string }[] | null;
+  choices: ChoiceView[] | null;
   answer: string[] | null;
   answerEn: string | null;
   explanationJa: string;
@@ -163,7 +167,8 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
       rev: q.rev,
       type: q.type,
       stemEn: q.stem_en,
-      choices: q.choices?.map((c) => ({ label: c.label, textEn: c.text_en })) ?? null,
+      choices: q.choices?.map(toChoiceView) ?? null,
+      ...structuredOf(q),
       answer: q.answer,
       answerEn: q.answer_en,
       explanationJa: q.explanation_ja,

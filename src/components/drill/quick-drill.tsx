@@ -4,10 +4,12 @@ import { useEffect, useReducer, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, CircleCheck, CircleX, LoaderCircle, RotateCcw, X } from "lucide-react";
 import { ExamBadge } from "@/components/exam-badge";
+import { BindingConstraintBox, ChoiceRationale } from "@/components/explanation/structured-explanation";
 import { QuestionMenu } from "@/components/question-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
 import type { AnswerRequest } from "@/lib/answer/schema";
 import { examOfQuestionId } from "@/lib/exam/dates";
+import { isRationaleOpen } from "@/lib/explanation/structured";
 import type { MockScenarioDto } from "@/lib/mock/dto";
 import type { DrillItem } from "@/lib/queue/serve";
 import {
@@ -358,32 +360,42 @@ function McqCard({
         </p>
       ) : null}
       <div className="flex flex-col gap-2" role="group" aria-label="選択肢">
-        {(item.choices ?? []).map(({ label, textEn }) => {
+        {(item.choices ?? []).map(({ label, textEn, plausibleJa, notBestJa }) => {
           const picked = chosen.includes(label);
           const correct = answerSet.has(label);
           return (
-            <button
-              key={label}
-              type="button"
-              disabled={cur.step !== "choosing"}
-              aria-pressed={picked}
-              onClick={() => (isMulti ? onToggle(label) : onChoose(label))}
-              className={cn(
-                "flex min-h-12 items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-                !answered && "border-border bg-card hover:bg-muted/60",
-                !answered && picked && "border-primary bg-primary/5",
-                answered && correct && "border-emerald-500/60 bg-emerald-500/10",
-                answered && picked && !correct && "border-red-500/60 bg-red-500/10",
-                answered && !picked && !correct && "border-border opacity-60",
-              )}
-            >
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-md border border-border font-mono text-xs font-semibold">
-                {picked && isMulti && !answered ? <Check className="size-3.5" aria-hidden /> : label}
-              </span>
-              <span className="flex-1 leading-snug">{textEn}</span>
-              {answered && correct ? <Check className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden /> : null}
-              {answered && picked && !correct ? <X className="size-4 shrink-0 text-red-600 dark:text-red-400" aria-hidden /> : null}
-            </button>
+            <div key={label} className="flex flex-col gap-1">
+              <button
+                type="button"
+                disabled={cur.step !== "choosing"}
+                aria-pressed={picked}
+                onClick={() => (isMulti ? onToggle(label) : onChoose(label))}
+                className={cn(
+                  "flex min-h-12 items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                  !answered && "border-border bg-card hover:bg-muted/60",
+                  !answered && picked && "border-primary bg-primary/5",
+                  answered && correct && "border-emerald-500/60 bg-emerald-500/10",
+                  answered && picked && !correct && "border-red-500/60 bg-red-500/10",
+                  answered && !picked && !correct && "border-border opacity-60",
+                )}
+              >
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md border border-border font-mono text-xs font-semibold">
+                  {picked && isMulti && !answered ? <Check className="size-3.5" aria-hidden /> : label}
+                </span>
+                <span className="flex-1 leading-snug">{textEn}</span>
+                {answered && correct ? <Check className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden /> : null}
+                {answered && picked && !correct ? <X className="size-4 shrink-0 text-red-600 dark:text-red-400" aria-hidden /> : null}
+              </button>
+              {/* 05 §解説の表示: 回答後、正解でない選択肢の直下に理由(選んだ誤答は最初から開く)。ボタンの兄弟に置く */}
+              {answered ? (
+                <ChoiceRationale
+                  key={`${item.questionId}-${label}`}
+                  plausibleJa={plausibleJa}
+                  notBestJa={notBestJa}
+                  defaultOpen={isRationaleOpen(label, item.answer ?? [], chosen)}
+                />
+              ) : null}
+            </div>
           );
         })}
       </div>
@@ -400,6 +412,7 @@ function McqCard({
 function ExplanationBlock({ item }: { item: DrillItem }) {
   return (
     <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm leading-relaxed">
+      <BindingConstraintBox bindingConstraintJa={item.bindingConstraintJa} lifecyclePhase={item.lifecyclePhase} />
       <p className="whitespace-pre-wrap">{item.explanationJa}</p>
       <ul className="mt-3 flex flex-col gap-1">
         {item.refs.map((url) => (

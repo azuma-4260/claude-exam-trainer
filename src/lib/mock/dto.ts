@@ -4,7 +4,9 @@ import type { Question, Scenario } from "@/lib/bank/schema";
 /**
  * 試験中クライアントへ渡す DTO(05 S-5)。
  * 採点・解説は提出まで非表示のため、answer / explanation_ja / refs は**構造上含めない**
- * (ネットワーク層でも正解を漏らさない)。
+ * (ネットワーク層でも正解を漏らさない)。構造化解説フィールド(binding_constraint_ja / lifecycle_phase /
+ * choice の plausible_ja・not_best_ja)も同じ扱い: 正解の選択肢だけ持たないので有無で正解が分かる(specs/03 §1。
+ * 選択肢は label / text_en だけに詰め直し、スプレッドしない)。
  */
 
 export interface MockQuestionDto {

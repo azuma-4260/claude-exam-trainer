@@ -11,7 +11,18 @@ vi.mock("@/lib/mock/lifecycle", async (importOriginal) => ({
   restoreCurrent: (...a: unknown[]) => restoreCurrent(...a),
 }));
 
-const Q1 = mcq("f-d1-q001", { scenario_id: "sc-a", eligible_modes: ["mock"], srs_eligible: false });
+// D6-9: 構造化解説フィールドを実際に持たせ、試験中 DTO に漏れないことを検証する(specs/03 §1 正解の漏洩防止)
+const Q1 = mcq("f-d1-q001", {
+  scenario_id: "sc-a",
+  eligible_modes: ["mock"],
+  srs_eligible: false,
+  binding_constraint_ja: "拘束条件の本文",
+  lifecycle_phase: "design",
+  choices: [
+    { label: "A", text_en: "stdio", plausible_ja: "成立条件の本文", not_best_ja: "劣る理由の本文" },
+    { label: "B", text_en: "Streamable HTTP" },
+  ],
+});
 vi.mock("@/lib/mock/server", async (importOriginal) => {
   const orig = await importOriginal<typeof import("@/lib/mock/server")>();
   return {
@@ -80,6 +91,12 @@ describe("GET /api/mock/sessions/current", () => {
     expect(body.scenarios).toEqual([{ id: "sc-a", title_en: null, context_en: null }]);
     expect(text).not.toContain('"answer"');
     expect(text).not.toContain("explanation");
+    for (const leak of ["binding_constraint_ja", "lifecycle_phase", "plausible_ja", "not_best_ja", "拘束条件の本文", "成立条件の本文", "劣る理由の本文"])
+      expect(text).not.toContain(leak);
+    expect(body.questions[0].choices).toEqual([
+      { label: "A", text_en: "stdio" },
+      { label: "B", text_en: "Streamable HTTP" },
+    ]);
   });
   it("期限超過は timeout 提出済みセッションを timed_out で返す", async () => {
     const submitted = { ...session, status: "submitted", submissionReason: "timeout", finishedAt: NOW, scoreRaw: 0 };

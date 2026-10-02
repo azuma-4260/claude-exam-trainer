@@ -18,9 +18,11 @@ const item = (id: string, over: Partial<PracticeItem> = {}): PracticeItem => ({
   scenarioId: null,
   stemEn: "Which transport should the MCP server use?",
   choices: [
-    { label: "A", textEn: "stdio" },
-    { label: "B", textEn: "Streamable HTTP" },
+    { label: "A", textEn: "stdio", plausibleJa: null, notBestJa: null },
+    { label: "B", textEn: "Streamable HTTP", plausibleJa: null, notBestJa: null },
   ],
+  bindingConstraintJa: null,
+  lifecyclePhase: null,
   answer: ["B"],
   explanationJa: "解説",
   refs: ["https://docs.claude.com/en/docs/mcp"],
@@ -31,9 +33,9 @@ const item = (id: string, over: Partial<PracticeItem> = {}): PracticeItem => ({
 
 const multiItem = (id: string): PracticeItem =>
   item(id, { type: "mcq_multi", answer: ["A", "B"], choices: [
-    { label: "A", textEn: "a" },
-    { label: "B", textEn: "b" },
-    { label: "C", textEn: "c" },
+    { label: "A", textEn: "a", plausibleJa: null, notBestJa: null },
+    { label: "B", textEn: "b", plausibleJa: null, notBestJa: null },
+    { label: "C", textEn: "c", plausibleJa: null, notBestJa: null },
   ] });
 
 const UUID = "11111111-1111-4111-8111-111111111111";

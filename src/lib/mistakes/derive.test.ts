@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { MockForm, Question } from "@/lib/bank/schema";
-import { mcq } from "@/lib/queue/test-fixtures";
+import { mcq, structuredPmcq } from "@/lib/queue/test-fixtures";
 import {
   assembleMistakesView,
   deriveMistakeSummaries,
@@ -187,5 +187,24 @@ describe("assembleMistakesView", () => {
       questions.slice(0, 3).reverse().map((q) => q.id),
     );
     expect(second.review.remainingAfterBatch).toBe(0);
+  });
+});
+
+describe("assembleMistakesView: 総ざらいの構造化解説フィールド(D6-9)", () => {
+  it("総ざらいの DrillItem にフィールドを明示的に詰め、無い問題は null", () => {
+    const withFields = structuredPmcq("p-d1-q001", { eligible_modes: ["practice"] });
+    const plain = mcq("p-d1-q002", { exam: "ccar-p" });
+    const view = assembleMistakesView({
+      bank: bankOf([withFields, plain]),
+      poolCtx: { forms: [], sessions: [], flags: [] },
+      scenarios: null,
+      attempts: [att(withFields.id, false, 0), att(withFields.id, false, 1), att(plain.id, false, 2)],
+    });
+    if (view.kind !== "ok") throw new Error(view.kind);
+    const [a, b] = view.review.items;
+    expect(a).toMatchObject({ questionId: "p-d1-q001", bindingConstraintJa: "支払いは取り消せない", lifecyclePhase: "deployment" });
+    expect(a.choices?.[0]).toEqual({ label: "A", textEn: "a", plausibleJa: "事後監査が目的なら妥当", notBestJa: "支払い後では手遅れ" });
+    expect(a.choices?.[1]).toEqual({ label: "B", textEn: "b", plausibleJa: null, notBestJa: null });
+    expect(b).toMatchObject({ questionId: "p-d1-q002", bindingConstraintJa: null, lifecyclePhase: null });
   });
 });
