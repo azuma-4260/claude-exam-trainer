@@ -1,2 +1,3 @@
-state: merged
+state: done
+evidence: "CI・deploy 成功: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/37035966513(main 94462f7、merge 33533a2、ci / deploy success)。DoD: memo §0〜§33 を反映 / 不採用(理由)/ 別タスクに振り分け content/ccar-p/SOURCES.md §14 に区分・信頼度とともに記録。スキーマ追加(構造化解説フィールド binding_constraint_ja / lifecycle_phase / plausible_ja・not_best_ja、P MCQ の Select TWO のみ・4〜5 択・difficulty 再定義)はオーナー承認(grill-me 2 ラウンド、2026-10-03)。CP4-A の制作指針は 07 §P 制作指針。実装タスク D6-9 を 09 に追加(83 ノード)。main で npm test 780 件 green、backlog:check OK(41 件)。Codex レビュー P1 0"
 recorded: 2026-10-03
