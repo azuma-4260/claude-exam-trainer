@@ -1,2 +1,3 @@
-state: merged
+state: done
+evidence: "CI・deploy 成功: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/37032045101(main 764a3b4、merge 90a16a0、ci / deploy success)。DoD: T-pmock green。FORM_STRUCTURE / FORM_DOMAIN_QUOTA[ccar-p] / P syllabus form_questions、validate-bank の P 構造・srs_eligible=false 検証、開始 API を { exam, form_id } に変更し ambiguous_form を廃止。F form の開始可否・レポートは不変(F の mock テストは呼び出し形のみ更新して green、実バンクの validate-bank F 結果・audit:form F 120 問が変更前と同一)"
 recorded: 2026-10-03
