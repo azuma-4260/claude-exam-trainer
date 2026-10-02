@@ -2,6 +2,8 @@
 
 **v1.3(2026-09-29, S-3)**: `content/ccar-p/`、出題プール判定の学習スコープ段、フォームの `(exam, form_id)` 識別、進行中セッションのスコープ非依存、`study_setting` テーブル、間違いノート・export の exam 絞り込みを追加。mock_forms の件数・配分は CCAR-F 固有と明記。
 
+**v1.3.2(2026-10-03, T-pmock)**: §mock_forms に CCAR-P の構造(63 問・配分 11-8-12-10-9-9-4・独立問題形式・問題形式の件数は不問)を追記し、full の開始リクエストを `{exam, form_id}` に変更(オーナー決定 2026-10-03)。
+
 バンク = Git 内静的ファイル(ビルド時取込)、進捗 = Neon Postgres。スキーマの単一ソースは `src/lib/bank/schema.ts` の Zod discriminated union(TypeScript 型は z.infer、validate-bank.ts も同 schema を import)。本書の JSON/SQL は説明例。
 
 ## 1. 問題バンク(`content/`)
@@ -10,13 +12,13 @@
 content/ccar-f/
   syllabus.yaml / scenarios.yaml / mock_forms.yaml / SOURCES.md
   questions/*.json (例: d1-flash.json / d1-agentic.json。ローダーはファイル名非依存)
-content/ccar-p/              # v1.3。構成は ccar-f と同じ(ファイルの有無・シナリオ有無は CP0 / T-pmock で確定)
+content/ccar-p/              # v1.3。syllabus.yaml / mock_forms.yaml / SOURCES.md / questions/*.json。scenarios.yaml は持たない(独立問題形式。T-pmock で確定)
 ```
 
 - exam ごとにディレクトリを分ける。**問題・syllabus(domain / task statement / topic)の ID** は exam 接頭辞(`f-` / `p-`)で全体一意(`src/lib/bank/schema.ts` の `EXAM_PREFIX`)。F からの流用は新 ID(`07`)
 - **シナリオ ID(`sc-*`)とフォーム ID(`form-*`)は exam 内で一意**(接頭辞なし。F と P に同名の `form-a` があってよい)。フォームは常に `(exam, form_id)`、シナリオは `(exam, scenario_id)` で解釈する
 - 各 question の `exam` はそのディレクトリの exam と一致する(validator で検証)
-- `syllabus.yaml` の各 domain の `form_questions`(固定フォームのドメイン配分)は、固定フォーム配分が確定した exam(`src/lib/bank/schema.ts` の `FORM_DOMAIN_QUOTA` に値がある exam。現状 CCAR-F のみ)でのみ必須で、合計 = フォーム問題数・配分一致を検証する。配分が未確定の exam(CCAR-P は T-pmock で確定し D6-4 で反映するまで)は `form_questions` を**書かない**(書けば validator エラー。暫定配分の混入防止)。配分未確定の exam の `mock_forms.yaml` は validator が拒否する(D6-3)
+- `syllabus.yaml` の各 domain の `form_questions`(固定フォームのドメイン配分)は、固定フォーム配分が確定した exam(`src/lib/bank/schema.ts` の `FORM_DOMAIN_QUOTA` に値がある exam。CCAR-F と CCAR-P(T-pmock で確定、D6-4 で反映))でのみ必須で、合計 = その exam のフォーム問題数(F 60 / P 63)・配分一致を検証する。配分が未確定の exam は `form_questions` を**書かない**(書けば validator エラー。暫定配分の混入防止)。配分未確定の exam の `mock_forms.yaml` は validator が拒否する(D6-3)
 
 ### question オブジェクト
 
@@ -72,7 +74,7 @@ scenarios:
 
 ### mock_forms.yaml と validator 条件
 
-以下の件数・配分・シナリオ条件は **CCAR-F 固有値**。CCAR-P の構造(問題数・フォーム数・ドメイン配分・シナリオ有無・multiple-response の選択数)は T-pmock の冒頭で CP0 の記録をもとに本節へ追記する(停止条件: Mock のスコア)。exam 共通の条件は「form 間の問題重複なし(同一 exam 内)/ 全問 eligible_modes に mock を含む / 全問 form.exam と同じ exam / form の `(exam, id)` が一意」。
+件数・配分・シナリオ条件は exam ごとに定める(CCAR-F は下記、CCAR-P は下記 §CCAR-P の構造)。exam 共通の条件は「form 間の問題重複なし(同一 exam 内)/ 全問 eligible_modes に mock を含む / **全問 srs_eligible = false**(フォーム収載問題の標準値を CI で強制。v1.3.2、B-D0-3-2)/ 全問 form.exam と同じ exam / form の `(exam, id)` が一意」。
 
 ```yaml
 forms:
@@ -85,6 +87,29 @@ forms:
 validator(CCAR-F): 60 問 / ドメイン配分 16-11-12-12-9 / form 間の問題重複なし / 全問 eligible_modes に mock を含む / **全問 scenario_id != null** / **各問の scenario_id ∈ form.scenario_ids** / **実使用 scenario_id 集合 = form.scenario_ids(完全一致)** / Step 0 で「各 15 問」が公式確認できた場合のみ各シナリオ 15 問も検証(未確認なら件数を固定しない)。
 
 **Step 0 判定(2026-08-23, C0)**: Exam Guide v1.0 に各シナリオの問題数の記述は**なし**(`content/ccar-f/SOURCES.md` §1.1)。したがって各シナリオ 15 問検証は **OFF で確定**。validator はシナリオ内件数を検証せず、上記の scenario_id 整合のみ検証する。
+
+#### CCAR-P の構造(オーナー決定 2026-10-03, T-pmock。停止条件: Mock のスコア)
+
+| 項目 | 値 | 根拠 |
+|---|---|---|
+| フォーム本数 | 2 本(form A / form B、form 間重複なし) | `07` §CCAR-P / `09` CP4-A・CP4-B |
+| 問題数 | **63 問** / 120 分 | Guide §5(`content/ccar-p/SOURCES.md` §1) |
+| ドメイン配分 | **p-d1..p-d7 = 11 / 8 / 12 / 10 / 9 / 9 / 4** | Guide §6 の重み × 63 を largest-remainder で丸めた値(`SOURCES.md` §1.1) |
+| シナリオ構造 | **独立問題形式**。フォームは `scenario_ids` を空にし、全問 `scenario_id = null`。状況説明(2〜4 文)は各問の `stem_en` に書く | Guide にシナリオ構造の記述なし。受験記(`SOURCES.md` §1.1 追記)。F の形式は流用しない |
+| 問題形式 | `mcq_single` / `mcq_multi` を含めてよい。**形式ごとの件数・比率は validator で固定しない**。選択肢は 4〜5 個(validator が検証。flash は収載しない) | Guide は "each item states how many responses to select" のみ。比率の公式値なし |
+| 採点 | 全 exam 共通(`mcq_multi` は集合一致・部分点なし) | 既存 |
+
+```yaml
+forms:
+  - id: form-a
+    exam: ccar-p
+    scenario_ids: []
+    question_ids: [ ...63 件、出題順 ]
+```
+
+validator(CCAR-P): 63 問 / ドメイン配分 11-8-12-10-9-9-4 / form 間の問題重複なし / 全問 eligible_modes に mock を含む / **全問 scenario_id == null** / **form.scenario_ids は空** / **全問 MCQ で選択肢 4〜5 個**。問題形式の件数は検証しない。
+
+- まとめ形式(Yes/No Matrix・Drop-down Matching。受験記で報告された「共通の選択肢で複数の小問に答え、1 問として数える」形式)は取り入れる方針だが、**採点の一次情報が無い**ため本節の対象外。型・採点・保存は `09` の T-bundle / D6-8 で扱い、その冒頭で採点を確定する(停止条件: 採点)。それまで P フォームは `mcq_single` / `mcq_multi` のみで構成する
 
 ## 2. 進捗 DB(Postgres)
 
@@ -175,6 +200,7 @@ create table exam_session_answer (
 - deadline 超過の検知時は submission_reason='timeout' で提出処理(独立した expired 状態は持たない)
 - **進行中セッションは学習スコープに依存しない(v1.3)**: 復元・回答保存・見直しフラグ・位置保存・manual / timeout 提出・attempt 一括生成は、セッションの `exam` と開始時に固定した `question_ids` / snapshot `question_rev` だけを使い、出題プールの判定(スコープ・holdout・flag・eligible_modes)を再評価しない。スコープ切替で進行中セッションが除外・再開不能になってはならない。新規開始の候補にだけスコープを適用する
 - exam_session.exam は開始したフォーム(またはミニのドメイン)の exam。full の form_id は常に exam と組で解釈する
+- **full の開始リクエストは `{ exam, form_id }`**(v1.3.2)。サーバーは学習スコープ内の exam であることを確認し、`(exam, form_id)` でフォームを一意に解決する(F と P に同名の `form-a` があっても取り違えない)。exam がスコープ外・未知の `(exam, form_id)` は開始しない
 
 ### Mock の attempt 生成(提出時一括)
 

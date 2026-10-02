@@ -97,8 +97,8 @@ front matter(YAML)+ 本文(Markdown: 内容・再現手順・推奨対応)。
 
 09 §7 と `tasks/README.md` の規約の機械可読版。テストで 09 の記述・グラフと一致することを固定する。
 
-- `PAIRS`: `T-srs → D1-1`、`T-holdout → D1-2`、`T-write → D1-3`、`T-queue → D1-4`、`T-mock → D3-1`、`T-exam → D6-1`、`T-pmock → D6-4`(T-rev は paired ではない)
-- `EXCLUSIVE_LOCKS`: `migration` = {`D0-4`, `T-exam`, `T-pmock`, `CP6`}(Drizzle migration を生成し得るタスク。paired は T-x の worktree で進むので T-x で持つ)。`package-lock.json` を変えるタスクは静的に列挙できないため、セッションが着手時に自己申告で報告する
+- `PAIRS`: `T-srs → D1-1`、`T-holdout → D1-2`、`T-write → D1-3`、`T-queue → D1-4`、`T-mock → D3-1`、`T-exam → D6-1`、`T-pmock → D6-4`、`T-bundle → D6-8`(T-rev は paired ではない)
+- `EXCLUSIVE_LOCKS`: `migration` = {`D0-4`, `T-exam`, `T-pmock`, `T-bundle`, `CP6`}(Drizzle migration を生成し得るタスク。paired は T-x の worktree で進むので T-x で持つ)。`package-lock.json` を変えるタスクは静的に列挙できないため、セッションが着手時に自己申告で報告する
 
 ## 4. `/task-session` セッション状態(`.task-session-state`)
 

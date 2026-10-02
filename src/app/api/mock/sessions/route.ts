@@ -5,12 +5,12 @@ import { startMockRequestSchema } from "@/lib/mock/schema";
 import { loadStartPool, mockServerContext, sessionPayload } from "@/lib/mock/server";
 
 /**
- * full Mock の開始(specs/03 §exam_session、05 S-5、01 FR-5)。form_id 明示指定。
+ * full Mock の開始(specs/03 §exam_session、05 S-5、01 FR-5)。`{ exam, form_id }` で明示指定(D6-4)。
  * 進行中セッションが既にあれば(kind を問わず)409 + 参照(オーナー決定: 全 kind で 1 件)。
  * availability NG(status≠active / 現行 rev 未解決フラグ)の form は 409 form_blocked(D3-2)。
  *
  * POST /api/mock/sessions → 201 | 400 | 401 | 404 | 409 { error, session? | open_flag_count, inactive_count } | 500
- * 開始候補は学習スコープ内 exam のフォーム(同名 form が複数 exam にあれば 409 ambiguous_form)。
+ * 開始候補は学習スコープ内 exam のフォーム。スコープ外の exam・未知の (exam, form_id) は 404 unknown_form。
  */
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const ctx = mockServerContext();
     const pool = await loadStartPool(ctx.forms);
     // 開始候補は学習スコープ内 exam のフォームだけ(01 FR-5 / FR-10)。提出状態は全 exam の session で判定する
-    const result = await startFullMock(parsed.data.form_id, pool.startForms, pool.sessions, pool.flags, ctx.deps);
+    const result = await startFullMock({ exam: parsed.data.exam, formId: parsed.data.form_id }, pool.startForms, pool.sessions, pool.flags, ctx.deps);
     if (result.status === 201) {
       const payload = sessionPayload(result.session, result.answers, ctx);
       if (!payload) return json({ error: "bank_inconsistent" }, 500);
@@ -44,7 +44,6 @@ export async function POST(request: Request) {
       if (result.error === "form_not_next") {
         return json({ error: result.error, recommended_form_id: result.recommendedFormId }, 409);
       }
-      if (result.error === "ambiguous_form") return json({ error: result.error }, 409);
       return json({ error: result.error, session: toSessionDto(result.session) }, 409);
     }
     return json({ error: result.error }, 404);

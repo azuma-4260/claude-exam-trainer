@@ -2,11 +2,13 @@
 id: B-T-exam-2
 origin: T-exam
 created: 2026-09-30
-status: open
+status: absorbed-by D6-4
 related_tasks: [D6-4, D6-2]
 related_specs: ["03#exam_session", "05#s-5-mock", "01#fr-5-模試モードmock-exam"]
 related_paths: [src/lib/mock/lifecycle.ts, src/lib/mock/schema.ts, src/app/(tabs)/mock/page.tsx, src/components/mock/start-screen.tsx]
 stop_condition: none
+decisions:
+  - { at: 2026-10-03, by: D6-4, action: absorb, note: "03 §exam_session / 05 S-5 を改訂し、開始リクエストを { exam, form_id } に変更。startFullMock は (exam, form_id) で解決し ambiguous_form を廃止。開始画面は exam を送り、同名 form もそれぞれ開始可" }
 ---
 # スコープ both で F と P に同名フォームがあると full 模試を開始できない(開始 API に exam が無い)
 

@@ -94,7 +94,6 @@ export type StartResult =
   | { status: 409; error: "form_blocked"; openFlagCount: number; inactiveCount: number }
   | { status: 409; error: "form_not_next"; recommendedFormId: string }
   /** 開始候補に同名 form が複数 exam 分ある(学習スコープ both。exam 指定の開始は D6-4) */
-  | { status: 409; error: "ambiguous_form" }
   | { status: 404; error: "unknown_form" | "unknown_question"; questionId?: string };
 
 export type SaveResult =
@@ -232,7 +231,7 @@ export async function startSession(input: StartInput, deps: MockDeps): Promise<S
 }
 
 /**
- * full 開始(05 S-5、01 FR-5)。form_id 明示指定だが、要求された form を再検証して
+ * full 開始(05 S-5、01 FR-5、03 §exam_session)。フォームは `(exam, form_id)` で明示指定(D6-4)。要求された form を再検証して
  * 別フォームへの代替差し込みをしない:
  * - status≠active / 現行 rev 未解決フラグを含む form は 409 form_blocked
  * - 未実施フォームは自動選択(次の有効な未実施フォーム = buildMockFormOptions の推奨)以外
@@ -240,17 +239,16 @@ export async function startSession(input: StartInput, deps: MockDeps): Promise<S
  * - missingCount のみの不整合は blocked にせず、startSession の存在確認(404)に委ねる
  */
 export async function startFullMock(
-  formId: string,
+  key: { exam: Exam; formId: string },
   forms: readonly MockForm[],
   sessions: readonly PoolSession[],
   flags: readonly OpenFlag[],
   deps: MockDeps,
 ): Promise<StartResult> {
-  // forms は開始候補(学習スコープ内 exam のフォーム)。form_id は exam 内でのみ一意なので、
-  // 候補に同名 form が複数 exam 分あれば取り違えないよう開始しない(fail closed。exam 指定は D6-4)
-  const matches = forms.filter((f) => f.id === formId);
-  if (matches.length > 1) return { status: 409, error: "ambiguous_form" };
-  const form = matches[0];
+  // forms は開始候補(学習スコープ内 exam のフォーム)。form_id は exam 内でのみ一意なので (exam, form_id) で解決する。
+  // スコープ外の exam・未知の (exam, form_id) は候補に無いので 404(F と P の同名 form-a を取り違えない)
+  const { exam, formId } = key;
+  const form = forms.find((f) => f.exam === exam && f.id === formId);
   if (!form) return { status: 404, error: "unknown_form" };
   // 提出状態・推奨(次の有効な未実施フォーム)は exam ごとに独立(01 FR-5)
   const sameExamForms = forms.filter((f) => f.exam === form.exam);

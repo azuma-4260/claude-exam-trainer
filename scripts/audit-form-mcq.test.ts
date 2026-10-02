@@ -159,7 +159,7 @@ describe("parseArgs", () => {
   });
 });
 
-// D6-3: --exam ccar-p。フィクスチャは現行 mockFormSchema(60 問)を満たす暫定形(P の実フォーム構造は T-pmock / D6-4 で検証)
+// D6-3 / T-pmock: --exam ccar-p。P のフォーム構造(63 問・独立問題形式で scenario_ids は空。specs/03 §mock_forms §CCAR-P の構造)
 describe("runAuditFormMcq(exam=ccar-p)", () => {
   const P_SYLLABUS = `
 exam: ccar-p
@@ -169,18 +169,12 @@ domains:
   - id: p-d1
     name: "D1"
     weight: 100
+    form_questions: 63
     task_statements:
       - id: p-d1-t1
         name: "TS1"
         topics:
           - { id: p-d1-t1-01, name: "T1", scope_ja: "範囲" }
-`;
-  const P_SCENARIOS = `
-scenarios:
-  - id: sc-p
-    title_en: "P scenario"
-    context_en: "Context."
-    refs: [${URL_A}]
 `;
   const pq = (n: number) =>
     mcq(n, {
@@ -188,18 +182,17 @@ scenarios:
       exam: "ccar-p",
       domain_id: "p-d1",
       primary_topic_id: "p-d1-t1-01",
-      scenario_id: "sc-p",
+      scenario_id: null,
       answer: [["A", "B", "C", "D"][n % 4]],
     });
 
   beforeEach(() => {
     writeFileSync(path.join(dir, "syllabus.yaml"), P_SYLLABUS);
-    writeFileSync(path.join(dir, "scenarios.yaml"), P_SCENARIOS);
-    const qs = Array.from({ length: 60 }, (_, i) => pq(i + 1));
+    const qs = Array.from({ length: 63 }, (_, i) => pq(i + 1));
     writeFileSync(path.join(dir, "questions", "form-a.json"), JSON.stringify(qs));
     writeFileSync(
       path.join(dir, "mock_forms.yaml"),
-      `forms:\n  - id: form-a\n    exam: ccar-p\n    scenario_ids: [sc-p]\n    question_ids: [${qs.map((q) => q.id).join(", ")}]\n`,
+      `forms:\n  - id: form-a\n    exam: ccar-p\n    scenario_ids: []\n    question_ids: [${qs.map((q) => q.id).join(", ")}]\n`,
     );
   });
 
@@ -207,7 +200,7 @@ scenarios:
     const r = runAuditFormMcq(dir, { exam: "ccar-p", formId: null, status: "flagged" });
     expect(r.errors).toEqual([]);
     expect(r.warnings).toEqual([]);
-    expect(r.total).toBe(60);
+    expect(r.total).toBe(63);
   });
 
   it("既定 exam(ccar-f)で P の form を監査すると exam 不一致", () => {
@@ -216,7 +209,7 @@ scenarios:
   });
 
   it("P でもフォーム収載の標準値(srs_eligible=false)は検査する", () => {
-    const qs = Array.from({ length: 60 }, (_, i) => (i === 0 ? { ...pq(1), srs_eligible: true } : pq(i + 1)));
+    const qs = Array.from({ length: 63 }, (_, i) => (i === 0 ? { ...pq(1), srs_eligible: true } : pq(i + 1)));
     writeFileSync(path.join(dir, "questions", "form-a.json"), JSON.stringify(qs));
     const r = runAuditFormMcq(dir, { exam: "ccar-p", formId: null, status: "flagged" });
     expect(r.errors).toContain("p-d1-q001: srs_eligible が false でない");

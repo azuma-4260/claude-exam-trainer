@@ -6,7 +6,6 @@ import { ExamBadge } from "@/components/exam-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EXAMS, type Exam } from "@/lib/bank/schema";
-import { EXAM_SHORT } from "@/lib/exam/label";
 import { formStartability, type MockFormOption, type MockFormOptions } from "@/lib/mock/availability";
 import type { MockSessionDto } from "@/lib/mock/dto";
 
@@ -14,6 +13,7 @@ import type { MockSessionDto } from "@/lib/mock/dto";
  * S-5 開始画面(client)。進行中セッションがあれば「再開」を最優先表示する。
  * D3-2: availability NG は理由付き選択不可、提出済みは rehearsal ラベル、未実施フォームを推奨表示。
  * D6-2: 推奨・開始可否は exam ごと(formStartability)。both ではフォームに exam ラベルを付ける。
+ * D6-4: 開始は `{ exam, form_id }`(F と P の同名フォームもそれぞれ開始できる)。問題数はフォームから表示する。
  * 進行中セッションはスコープ外 exam でも表示するため常に exam ラベルを付ける。
  */
 
@@ -67,14 +67,14 @@ export function MockStartScreen({
     };
   }, [router]);
 
-  const start = async (formId: string) => {
+  const start = async (exam: Exam, formId: string) => {
     setStarting(true);
     setError(null);
     try {
       const res = await fetch("/api/mock/sessions", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ form_id: formId }),
+        body: JSON.stringify({ exam, form_id: formId }),
       });
       if (res.status === 201) {
         router.push("/mock/session");
@@ -148,7 +148,7 @@ export function MockStartScreen({
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-medium">フル模試</h2>
         <p className="text-sm text-muted-foreground">
-          60 問 / 120 分。<strong>一時停止・破棄はできません</strong>(手動提出か時間切れ提出のみ)。
+          120 分(問題数はフォームごと)。<strong>一時停止・破棄はできません</strong>(手動提出か時間切れ提出のみ)。
           画面を閉じても同じセッションを再開できますが、<strong>時計は止まりません</strong>。
           採点と解説は提出後まで表示されません。
         </p>
@@ -165,7 +165,7 @@ export function MockStartScreen({
         {options.map((o) => {
           const available = o.availability.available;
           // 未実施フォームは exam ごとの自動選択(次の有効な未実施フォーム)のみ開始可(01 FR-5)。
-          // 提出済みフォームは rehearsal として available なら常に選択可。同名 form は D6-4 まで開始不可
+          // 提出済みフォームは rehearsal として available なら常に選択可
           const { recommended: isRecommended, startable, blocked } = formStartability(o, formOptions);
           return (
             <div key={`${o.exam}:${o.formId}`} className="flex items-center justify-between gap-3 rounded-lg border p-4">
@@ -174,16 +174,10 @@ export function MockStartScreen({
                   {showExamLabel && <ExamBadge exam={o.exam} />}
                   {o.formId}
                   {o.submitted && <Badge variant="secondary">rehearsal</Badge>}
-                  {!o.submitted && isRecommended && blocked !== "ambiguous_form" && <Badge>次のフォーム</Badge>}
+                  {!o.submitted && isRecommended && <Badge>次のフォーム</Badge>}
                 </p>
                 <p className="text-sm text-muted-foreground">{o.questionCount} 問 / 120 分</p>
                 {!available && <p className="mt-1 text-sm text-destructive">開始不可: {blockedReason(o)}</p>}
-                {blocked === "ambiguous_form" && (
-                  <p className="mt-1 text-sm text-destructive">
-                    開始不可: {options.filter((x) => x.formId === o.formId).map((x) => EXAM_SHORT[x.exam]).join(" / ")}{" "}
-                    に同名のフォームがあるため、P 模試対応(D6-4)まで開始できません
-                  </p>
-                )}
                 {blocked === "not_next" && (
                   <p className="mt-1 text-xs text-muted-foreground">未実施フォームは自動選択の順で受験します</p>
                 )}
@@ -194,7 +188,7 @@ export function MockStartScreen({
               <Button
                 disabled={busy || !startable}
                 variant={isRecommended && startable ? "default" : "outline"}
-                onClick={() => start(o.formId)}
+                onClick={() => start(o.exam, o.formId)}
               >
                 開始
               </Button>

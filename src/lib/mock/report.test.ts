@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ExamSessionRow } from "@/db/schema";
+import { syllabusFileSchema } from "@/lib/bank/schema";
 import { mcq, syllabus } from "@/lib/queue/test-fixtures";
 import { buildMockReport, isRehearsal, type MockAttempt, type SubmittedFullSession } from "./report";
 
@@ -163,5 +164,69 @@ describe("buildMockReport", () => {
     const rehearsal = build({ submissionReason: "timeout" }, ATTEMPTS, [prior()]);
     expect(rehearsal.rehearsal).toBe(true);
     expect(rehearsal.submissionReason).toBe("timeout");
+  });
+});
+
+// T-pmock: P のレポートは P の syllabus(7 ドメイン・重み)で集計し、rehearsal は (exam, form_id) 単位
+// (specs/05 S-6、03 §mock_forms §CCAR-P の構造)
+describe("buildMockReport(CCAR-P、7 ドメイン)", () => {
+  const P_WEIGHTS = [17, 13, 19, 16, 14, 14, 7];
+  const P_FORM_QUESTIONS = [11, 8, 12, 10, 9, 9, 4];
+  const pSyllabus7 = syllabusFileSchema.parse({
+    exam: "ccar-p",
+    version: 1,
+    source: "test fixture",
+    domains: P_WEIGHTS.map((weight, i) => ({
+      id: `p-d${i + 1}`,
+      name: `P Domain ${i + 1}`,
+      weight,
+      form_questions: P_FORM_QUESTIONS[i],
+      task_statements: [{ id: `p-d${i + 1}-t1`, name: "TS", topics: [{ id: `p-d${i + 1}-t1-01`, name: "T", scope_ja: "範囲" }] }],
+    })),
+  });
+  // 配分どおりの 63 問(独立問題形式)。各ドメインの先頭 1 問だけ正解、p-d7 は全問正解
+  const pQs = P_FORM_QUESTIONS.flatMap((n, i) =>
+    Array.from({ length: n }, (_, k) => mcq(`p-d${i + 1}-q${String(k + 1).padStart(3, "0")}`, { exam: "ccar-p", scenario_id: null })),
+  );
+  const pBank = new Map(pQs.map((q) => [q.id, q]));
+  const pAttempts = pQs.map((q) =>
+    att(q.id, { isCorrect: q.id.endsWith("-q001") || q.domain_id === "p-d7", chosen: ["B"] }),
+  );
+  const pSession = (over: Partial<ExamSessionRow> = {}) =>
+    session({ id: "sess-p", exam: "ccar-p", questionIds: pQs.map((q) => q.id), scoreRaw: 10, ...over });
+  const buildP = (over: Partial<ExamSessionRow> = {}, priors: SubmittedFullSession[] = []) =>
+    buildMockReport({
+      session: pSession(over),
+      attempts: pAttempts,
+      priorSessions: priors,
+      findQuestion: (id) => pBank.get(id) ?? null,
+      syllabus: pSyllabus7,
+    });
+
+  it("7 ドメインを重みつきで集計し、問題数は 63", () => {
+    const r = buildP();
+    expect(r.exam).toBe("ccar-p");
+    expect(r.total).toBe(63);
+    expect(r.scoreRaw).toBe(10);
+    expect(r.domains.map((d) => [d.domainId, d.weight, d.total, d.correct])).toEqual([
+      ["p-d1", 17, 11, 1],
+      ["p-d2", 13, 8, 1],
+      ["p-d3", 19, 12, 1],
+      ["p-d4", 16, 10, 1],
+      ["p-d5", 14, 9, 1],
+      ["p-d6", 14, 9, 1],
+      ["p-d7", 7, 4, 4],
+    ]);
+    expect(r.wrong).toHaveLength(63 - 10);
+    expect(r.unknownQuestionIds).toEqual([]);
+  });
+
+  it("弱点ドメインは正答率最小(p-d3: 1/12)", () => {
+    expect(buildP().weakestDomainId).toBe("p-d3");
+  });
+
+  it("rehearsal は (exam, form_id) 単位: F の同名 form-a の提出は P の初回受験を rehearsal にしない", () => {
+    expect(buildP({}, [prior({ exam: "ccar-f" })]).rehearsal).toBe(false);
+    expect(buildP({}, [prior({ exam: "ccar-p" })]).rehearsal).toBe(true);
   });
 });

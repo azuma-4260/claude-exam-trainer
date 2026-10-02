@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  FORM_STRUCTURE,
   mockFormSchema,
   mockFormsFileSchema,
   questionSchema,
@@ -224,6 +225,42 @@ describe("mockFormSchema(mock_forms.yaml の forms[])", () => {
   it("id は form-* 形式", () => {
     expect(mockFormSchema.safeParse({ ...form, id: "A" }).success).toBe(false);
   });
+
+  // T-pmock(specs/03 §mock_forms §CCAR-P の構造): P は 63 問・独立問題形式(scenario_ids は空)
+  const pForm = {
+    id: "form-a",
+    exam: "ccar-p",
+    scenario_ids: [],
+    question_ids: Array.from({ length: 63 }, (_, i) => `p-d1-q${String(i + 1).padStart(3, "0")}`),
+  };
+
+  it("FORM_STRUCTURE: F は 60 問・4 シナリオ、P は 63 問・シナリオなし", () => {
+    expect(FORM_STRUCTURE["ccar-f"]).toEqual({ size: 60, scenarioCount: 4 });
+    expect(FORM_STRUCTURE["ccar-p"]).toEqual({ size: 63, scenarioCount: 0 });
+  });
+
+  it("P: 63 問・scenario_ids 空を受理", () => {
+    expect(mockFormSchema.safeParse(pForm).success).toBe(true);
+  });
+
+  it("P: 62 / 64 問は拒否、F の 60 問も P では拒否", () => {
+    expect(mockFormSchema.safeParse({ ...pForm, question_ids: pForm.question_ids.slice(0, 62) }).success).toBe(false);
+    expect(mockFormSchema.safeParse({ ...pForm, question_ids: [...pForm.question_ids, "p-d1-q064"] }).success).toBe(false);
+    const r = mockFormSchema.safeParse({ ...pForm, question_ids: pForm.question_ids.slice(0, 60) });
+    expect(r.success).toBe(false);
+    expect(JSON.stringify(r.error?.issues)).toMatch(/63 件/);
+  });
+
+  it("P: scenario_ids を持つと拒否(独立問題形式)", () => {
+    const r = mockFormSchema.safeParse({ ...pForm, scenario_ids: ["sc-1"] });
+    expect(r.success).toBe(false);
+    expect(JSON.stringify(r.error?.issues)).toMatch(/独立問題形式/);
+  });
+
+  it("F: 63 問は拒否(exam ごとの問題数)", () => {
+    const qs = Array.from({ length: 63 }, (_, i) => `f-d1-q${String(i + 1).padStart(3, "0")}`);
+    expect(mockFormSchema.safeParse({ ...form, question_ids: qs }).success).toBe(false);
+  });
 });
 
 // --- syllabus.yaml / scenarios.yaml(D0-3) ---
@@ -276,8 +313,8 @@ describe("syllabusFileSchema", () => {
     });
   }
 
-  // D6-3(specs/03 §1): form_questions は固定フォーム配分が確定した exam(FORM_DOMAIN_QUOTA あり)でのみ必須。
-  // 未確定の exam(ccar-p)は書かない(暫定配分の混入防止)
+  // D6-3 / T-pmock(specs/03 §1): form_questions は固定フォーム配分が確定した exam(FORM_DOMAIN_QUOTA あり)でのみ必須で、
+  // 合計はその exam のフォーム問題数(F 60 / P 63)。P は T-pmock で確定済み
   const toP = (s: typeof syllabus) =>
     JSON.parse(JSON.stringify(s).replaceAll('"f-d', '"p-d').replace('"exam":"ccar-f"', '"exam":"ccar-p"')) as Record<
       string,
@@ -298,14 +335,19 @@ describe("syllabusFileSchema", () => {
     expect(JSON.stringify(r.error?.issues)).toMatch(/form_questions が必須/);
   });
 
-  it("配分未確定 exam(ccar-p)は form_questions 無しで受理", () => {
-    expect(syllabusFileSchema.safeParse(toP(withoutFormQuestions(syllabus) as typeof syllabus)).success).toBe(true);
+  it("配分確定 exam(ccar-p)で form_questions が欠けると拒否", () => {
+    const r = syllabusFileSchema.safeParse(toP(withoutFormQuestions(syllabus) as typeof syllabus));
+    expect(r.success).toBe(false);
+    expect(JSON.stringify(r.error?.issues)).toMatch(/form_questions が必須/);
   });
 
-  it("配分未確定 exam(ccar-p)に form_questions があると拒否(合計 60 でも)", () => {
+  it("ccar-p の form_questions 合計は 63(F の 60 では拒否)", () => {
     const r = syllabusFileSchema.safeParse(toP(syllabus));
     expect(r.success).toBe(false);
-    expect(JSON.stringify(r.error?.issues)).toMatch(/固定フォーム配分が未確定/);
+    expect(JSON.stringify(r.error?.issues)).toMatch(/form_questions 合計が 63 でない\(60\)/);
+    const p63 = toP(syllabus) as { domains: { form_questions: number }[] };
+    p63.domains[0].form_questions += 3;
+    expect(syllabusFileSchema.safeParse(p63).success).toBe(true);
   });
 });
 

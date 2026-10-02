@@ -1,12 +1,15 @@
 import { z } from "zod";
-import { formIdSchema } from "@/lib/bank/schema";
+import { examSchema, formIdSchema } from "@/lib/bank/schema";
 
 /** Mock API のリクエストスキーマ(specs/03 §exam_session、05 S-5) */
 
 const choiceLabelSchema = z.string().regex(/^[A-F]$/);
 
-/** full 開始。availability 検証・自動選択は D3-2(form_id はクライアント明示指定) */
-export const startMockRequestSchema = z.object({ form_id: formIdSchema }).strict();
+/**
+ * full 開始。フォームは `(exam, form_id)` でクライアントが明示指定する(03 §exam_session v1.3.2、D6-4)。
+ * availability 検証・自動選択は D3-2
+ */
+export const startMockRequestSchema = z.object({ exam: examSchema, form_id: formIdSchema }).strict();
 export type StartMockRequest = z.infer<typeof startMockRequestSchema>;
 
 /** 回答・見直しフラグの保存(どちらか一方以上)。chosen: null = 回答取り消し */

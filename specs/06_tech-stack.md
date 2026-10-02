@@ -1,5 +1,7 @@
 # 06. 技術スタック(v1.3・固定仕様)
 
+**v1.3.1(2026-10-03, T-pmock)**: 固定フォーム検証に CCAR-P の構造を追記。
+
 **v1.3(2026-09-29, S-3)**: F 本番データの保全(学習スコープ導入時)を追加。CI の step 順序を実態(`backlog:check` を含む)に合わせて修正(B-D0-3-1)。固定フォーム検証の件数・配分は CCAR-F 固有と明記。
 
 ## 採用スタックとバージョン方針
@@ -92,7 +94,7 @@ Next.js 16 では middleware.ts の file convention は deprecated であり、�
 - Zod 検証(`03` の全不変条件)、id 重複、syllabus 整合、refs
 - ドメイン別問題数の重み乖離(±30% 超で警告)
 - **MCQ 選択肢バランス監査**(`npm run audit:choices`、`07` 品質ルール): 正解だけが長い / 独特の記法を含む偏りを fail closed で検査(validator とは別スクリプト。受理集合を変えないため)
-- **固定フォーム検証**(以下の件数・配分は CCAR-F 固有値。P は T-pmock で `03` §mock_forms に追記し D6-4 で validator に反映): 60 問 / ドメイン配分 16-11-12-12-9 / form 間重複なし / mock eligible / scenario_id 非 null / scenario_id ∈ form.scenario_ids / 実使用シナリオ集合 = form.scenario_ids / (公式確認済みの場合のみ)各シナリオ 15 問 — **Step 0 判定(2026-08-23): 公式記述なしのため OFF 確定**(`content/ccar-f/SOURCES.md` §1.1)。シナリオ内件数は検証しない
+- **固定フォーム検証**(CCAR-P は `03` §mock_forms §CCAR-P の構造: 63 問 / 配分 11-8-12-10-9-9-4 / 全問 scenario_id null・scenario_ids 空 / 問題形式の件数は不問。以下は CCAR-F 固有値): 60 問 / ドメイン配分 16-11-12-12-9 / form 間重複なし / mock eligible / srs_eligible=false(全 exam 共通。B-D0-3-2)/ scenario_id 非 null / scenario_id ∈ form.scenario_ids / 実使用シナリオ集合 = form.scenario_ids / (公式確認済みの場合のみ)各シナリオ 15 問 — **Step 0 判定(2026-08-23): 公式記述なしのため OFF 確定**(`content/ccar-f/SOURCES.md` §1.1)。シナリオ内件数は検証しない
 - **deploy は CI の後続 job からのみ実行**(`validate-bank` → `audit:choices` → `backlog:check` → `npm test` → `npm run build` が全て成功した場合のみ Vercel CLI + token で deploy)。Vercel の Git 連携による自動 deploy は無効化する。これにより「CI 失敗 = deploy 中止」を仕組みで保証する
 - 失敗時は CI fail・デプロイ中止。**フラグの resolved_at 更新はデプロイ成功条件に含めない**(旧 rev フラグは superseded として自動失効)
 

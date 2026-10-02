@@ -202,7 +202,7 @@ describe("holdout と remaining_new は (exam, form_id) で判定する(B-S-3-1)
   it("F の form-a だけ提出済み: F form-a 収載は解放、P form-a 収載は holdout で remaining_new にも入らない", () => {
     // 検証用に srs_eligible=true の収載問題を置く(同名 form の取り違えがあれば remaining_new が変わる)
     const fForm = fIds(100, 60, 3).map((id) => flash(id));
-    const pForm = pIds(100, 60, 3).map((id) => pflash(id));
+    const pForm = pIds(100, 63, 3).map((id) => pflash(id)); // P のフォームは 63 問(T-pmock)
     const poolCtx = {
       forms: [holdoutForm("form-a", fForm.map((q) => q.id)), pHoldoutForm("form-a", pForm.map((q) => q.id))],
       sessions: [{ exam: "ccar-f", formId: "form-a", kind: "full", status: "submitted" }] as const,
@@ -225,7 +225,7 @@ describe("holdout と remaining_new は (exam, form_id) で判定する(B-S-3-1)
     );
     expect(Object.fromEntries(reversed.paceByExam.map((p) => [p.exam, p.pace.remainingNew]))).toEqual({
       "ccar-f": 0,
-      "ccar-p": 60,
+      "ccar-p": 63,
     });
   });
 });

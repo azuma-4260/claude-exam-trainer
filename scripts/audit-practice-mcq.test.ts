@@ -229,6 +229,7 @@ describe("parseArgs", () => {
 // D6-3: ccar-p は独立 MCQ プロファイル(specs/07 §CCAR-P。F の帯・連番・C3a 条件を適用しない)
 describe("runAuditPracticeMcq(exam=ccar-p・独立 MCQ プロファイル)", () => {
   const P_WEIGHTS = [17, 13, 19, 16, 14, 14, 7];
+  const P_FORM_QUESTIONS = [11, 8, 12, 10, 9, 9, 4];
   const P_SYLLABUS = `
 exam: ccar-p
 version: 1
@@ -238,6 +239,7 @@ ${P_WEIGHTS.map(
   (w, i) => `  - id: p-d${i + 1}
     name: "D${i + 1}"
     weight: ${w}
+    form_questions: ${P_FORM_QUESTIONS[i]}
     task_statements:
       - id: p-d${i + 1}-t1
         name: "TS"
@@ -315,12 +317,12 @@ ${P_WEIGHTS.map(
 
   it("form 収載問題と flash は対象外", () => {
     const flash = { ...pmcq(1, 99), id: "p-d1-q001", type: "flash", choices: null, answer: null, answer_en: "a", eligible_modes: ["drill"] };
-    // form 収載(srs_eligible=false)は独立 MCQ 条件・帯に掛けない。暫定 60 問 form(現行 mockFormSchema)
-    const formQs = Array.from({ length: 60 }, (_, i) => pmcq(2, 101 + i, { id: `p-d2-q${101 + i}`, srs_eligible: false }));
+    // form 収載(srs_eligible=false)は独立 MCQ 条件・帯に掛けない。P の form は 63 問・scenario_ids 空(T-pmock)
+    const formQs = Array.from({ length: 63 }, (_, i) => pmcq(2, 101 + i, { id: `p-d2-q${101 + i}`, srs_eligible: false }));
     write("p.json", [...pBank(), flash, ...formQs]);
     writeFileSync(
       path.join(dir, "mock_forms.yaml"),
-      `forms:\n  - id: form-a\n    exam: ccar-p\n    scenario_ids: [sc-x]\n    question_ids: [${formQs.map((q) => q.id).join(", ")}]\n`,
+      `forms:\n  - id: form-a\n    exam: ccar-p\n    scenario_ids: []\n    question_ids: [${formQs.map((q) => q.id).join(", ")}]\n`,
     );
     const r = runAuditPracticeMcq(dir, pOpts());
     expect(r.errors).toEqual([]);

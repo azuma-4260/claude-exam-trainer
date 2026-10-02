@@ -129,7 +129,10 @@ export const NOW_P = new Date("2026-10-01T12:00:00+09:00");
 export const pflash = (id: string, over: Partial<Question> = {}): Question => flash(id, { exam: "ccar-p", ...over });
 export const pmcq = (id: string, over: Partial<Question> = {}): Question => mcq(id, { exam: "ccar-p", ...over });
 
-/** p-d1: weight 70 / p-d2: weight 30(P の固定フォーム配分は未確定なので form_questions は書かない) */
+/**
+ * p-d1: weight 70 / p-d2: weight 30。P は固定フォーム配分が確定済み(T-pmock)なので form_questions が必須で、
+ * schema は合計 = 63 だけを見る(ドメイン別の一致は validate-bank が実 syllabus で検証)。ここでは 44 / 19
+ */
 export const pSyllabus: Syllabus = syllabusFileSchema.parse({
   exam: "ccar-p",
   version: 1,
@@ -139,6 +142,7 @@ export const pSyllabus: Syllabus = syllabusFileSchema.parse({
       id: "p-d1",
       name: "P Domain 1",
       weight: 70,
+      form_questions: 44,
       task_statements: [
         { id: "p-d1-t1", name: "P TS 1", topics: [{ id: "p-d1-t1-01", name: "P Topic 1-1", scope_ja: "範囲" }] },
       ],
@@ -147,6 +151,7 @@ export const pSyllabus: Syllabus = syllabusFileSchema.parse({
       id: "p-d2",
       name: "P Domain 2",
       weight: 30,
+      form_questions: 19,
       task_statements: [
         { id: "p-d2-t1", name: "P TS 2", topics: [{ id: "p-d2-t1-01", name: "P Topic 2-1", scope_ja: "範囲" }] },
       ],
@@ -154,6 +159,6 @@ export const pSyllabus: Syllabus = syllabusFileSchema.parse({
   ],
 });
 
-/** P の未提出フォーム(同名 form-a の exam 独立性の検証用) */
+/** P の未提出フォーム(同名 form-a の exam 独立性の検証用)。P は 63 問・独立問題形式(scenario_ids 空。T-pmock) */
 export const pHoldoutForm = (id: string, questionIds: readonly string[]): MockForm =>
-  mockFormSchema.parse({ id, exam: "ccar-p", scenario_ids: ["sc-1"], question_ids: questionIds });
+  mockFormSchema.parse({ id, exam: "ccar-p", scenario_ids: [], question_ids: questionIds });

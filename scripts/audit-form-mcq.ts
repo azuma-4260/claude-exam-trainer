@@ -10,7 +10,7 @@
 //   3. refs が SOURCES.md「refs ソース台帳」記載 URL のみ(specs/07 原則の一次ソース主義)
 //   4. warning(非ブロッキング): mcq_single の正解ラベル偏り(最頻ラベル > 35%)/
 //      シナリオあたり問題数が 12〜18 の設計指針外(SOURCES.md §1.1 の非検証指針。CCAR-F のみ。
-//      P はフォーム構造(シナリオ有無)が T-pmock で確定するまでシナリオ件数を見ない)
+//      P は独立問題形式でシナリオを持たない。specs/03 §mock_forms §CCAR-P の構造、T-pmock)
 // 違反(1〜3)は fail closed(非 0)。warning のみなら 0。
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -21,7 +21,7 @@ import { loadBankForValidation } from "./validate-bank";
 
 /** シナリオあたり問題数の設計指針(content/ccar-f/SOURCES.md §1.1。validator では検証しない) */
 export const SCENARIO_SIZE_RANGE = { min: 12, max: 18 } as const;
-/** シナリオ件数 warning を適用する exam(F 固有の設計指針。P は T-pmock で構造確定まで適用しない) */
+/** シナリオ件数 warning を適用する exam(F 固有の設計指針。P は独立問題形式のため対象外。T-pmock) */
 export const SCENARIO_SIZE_RANGE_BY_EXAM: Partial<Record<Exam, { readonly min: number; readonly max: number }>> = {
   "ccar-f": SCENARIO_SIZE_RANGE,
 };

@@ -10,7 +10,8 @@
 # - P の Guide には Out-of-Scope の Appendix が無く、F の Out-of-Scope は流用しない(specs/02 §CCAR-P 出題範囲)。
 #   制作方針として、価格・レート制限など改定の早い具体数値は暗記問題化せず、トレードオフ判断として問う(SOURCES.md §4)
 # - P 内で目標が重なるペア(SOURCES.md §9)は両側の scope_ja に【primary 境界】を書く
-# - form_questions(固定フォームのドメイン配分)は書かない。P の配分は T-pmock で確定する(停止条件: Mock のスコア)
+# - form_questions = 固定フォーム 63 問のドメイン配分 11-8-12-10-9-9-4(T-pmock でオーナー確定 2026-10-03。正本は specs/03 §mock_forms・
+#   src/lib/bank/schema.ts の FORM_DOMAIN_QUOTA。validate-bank が一致を検証)
 
 exam: ccar-p
 version: 1
@@ -20,6 +21,7 @@ domains:
   - id: p-d1
     name: "Solution Design & Architecture"
     weight: 17
+    form_questions: 11
     task_statements:
       - id: p-d1-t1
         name: "Translate business problems into Claude-based AI solutions"
@@ -97,6 +99,7 @@ domains:
   - id: p-d2
     name: "Claude Models, Prompting & Context Engineering"
     weight: 13
+    form_questions: 8
     task_statements:
       - id: p-d2-t1
         name: "Select appropriate Claude models based on trade-offs"
@@ -162,6 +165,7 @@ domains:
   - id: p-d3
     name: "Integration"
     weight: 19
+    form_questions: 12
     task_statements:
       - id: p-d3-t1
         name: "Evaluate tool/agent configuration for capability bloat"
@@ -260,6 +264,7 @@ domains:
   - id: p-d4
     name: "Evaluation, Testing & Optimization"
     weight: 16
+    form_questions: 10
     task_statements:
       - id: p-d4-t1
         name: "Define evaluation metrics (accuracy, latency, cost, safety, security)"
@@ -331,6 +336,7 @@ domains:
   - id: p-d5
     name: "Governance, Safety & Risk Management"
     weight: 14
+    form_questions: 9
     task_statements:
       - id: p-d5-t1
         name: "Implement guardrails and safety controls"
@@ -396,6 +402,7 @@ domains:
   - id: p-d6
     name: "Stakeholder Communication & Lifecycle Management"
     weight: 14
+    form_questions: 9
     task_statements:
       - id: p-d6-t1
         name: "Conduct structured discovery and requirement gathering"
@@ -455,6 +462,7 @@ domains:
   - id: p-d7
     name: "Developer Productivity & Operational Enablement"
     weight: 7
+    form_questions: 4
     task_statements:
       - id: p-d7-t1
         name: "Configure Claude tools and environments for teams (e.g., Claude Code)"

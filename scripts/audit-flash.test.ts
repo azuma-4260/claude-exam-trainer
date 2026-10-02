@@ -252,6 +252,7 @@ domains:
   - id: p-d6
     name: "D6"
     weight: 100
+    form_questions: 63
     task_statements:
       - id: p-d6-t1
         name: "TS1"

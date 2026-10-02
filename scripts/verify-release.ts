@@ -17,7 +17,7 @@
 import { readFileSync } from "node:fs";
 import { loadBank, type Bank } from "../src/lib/bank/load";
 import { evaluatePool, formKey, holdoutFormOf, unsubmittedFormKeys, type PoolContext, type PoolReason } from "../src/lib/bank/pool";
-import { MOCK_FORM_SIZE } from "../src/lib/bank/schema";
+import { FORM_STRUCTURE } from "../src/lib/bank/schema";
 import { assemblePracticeView, PRACTICE_BATCH_MAX } from "../src/lib/practice/serve";
 import { jstCalendarDate } from "../src/lib/srs/jst";
 
@@ -110,11 +110,12 @@ export function verifyRelease(data: ExportData, bank: Bank, formId: string, now:
     .filter((s) => s.kind === "full" && s.status === "submitted" && s.exam === form.exam && s.formId === form.id)
     .sort((a, b) => a.startedAt.localeCompare(b.startedAt) || a.id.localeCompare(b.id));
   if (sessions.length === 0) failures.push(`${formId}: submitted な full session が無い(提出前)`);
+  const formSize = FORM_STRUCTURE[form.exam].size;
   for (const s of sessions) {
     const snapshot = new Set(s.questionIds);
-    // スナップショット自体が full form の 60 問(重複なし)であること。欠けた session が「自己整合」で通らないようにする
-    if (s.questionIds.length !== MOCK_FORM_SIZE || snapshot.size !== MOCK_FORM_SIZE) {
-      failures.push(`session ${s.id}: question_ids スナップショットが ${MOCK_FORM_SIZE} 問でない(${s.questionIds.length} 件、重複除去後 ${snapshot.size} 件)`);
+    // スナップショット自体が full form の問題数(F 60 / P 63、重複なし)であること。欠けた session が「自己整合」で通らないようにする
+    if (s.questionIds.length !== formSize || snapshot.size !== formSize) {
+      failures.push(`session ${s.id}: question_ids スナップショットが ${formSize} 問でない(${s.questionIds.length} 件、重複除去後 ${snapshot.size} 件)`);
     }
     const answers = data.exam_session_answer.filter((a) => a.sessionId === s.id);
     const answerIds = new Set(answers.map((a) => a.questionId));
