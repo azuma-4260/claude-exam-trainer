@@ -2,6 +2,8 @@
 
 `08` が「いつ」のカレンダーであるのに対し、本書は「何を・どの順で・何が終われば完了か」を定める実行順の単一ソース。タスク ID は本書で採番し、以後のセッション・commit メッセージ・TODO(owner) で参照する。
 
+**v1.3.2(2026-10-03, S-4)**: 構造化解説フィールド(`03` §1)と P の MCQ の不変条件の実装タスク D6-9 を追加し、CP4-A と CP7 の depends に D6-9 を追加。CP7 の DoD に既存 P MCQ 76 問への埋め戻しを追加(オーナー承認 2026-10-03)。
+
 **v1.3.1(2026-10-03, T-pmock)**: P 模試の構造確定(`03` §mock_forms)に伴い、Reddit 調査メモ(`ExamGuide/memo.md`)の反映タスク S-4、まとめ形式(Yes/No Matrix・Drop-down Matching)の paired task T-bundle / D6-8、既存 P バンクの再監査 CP7 を追加。CP4-A の depends に S-4 を追加(オーナー決定 2026-10-03)。
 
 **v1.3(2026-09-28)**: CCAR-F は 2026-09-27 に合格。F 向けに積んでいた未着手タスクを棚卸し(§8)し、CCAR-P 向けタスクを Phase 6〜8 として追加した。F の完了済みノードと台帳(`tasks/status/`)はそのまま残す。**削除した ID は再利用しない**(§8 に一覧)。
@@ -165,11 +167,12 @@ S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、
 | T-pmock | T | P 模試テスト: CP0 の模試構造でのフォーム schema・開始時全行生成・提出時 attempt 一括・レポートのドメイン別集計(P のドメイン数・重み) | CP0, S-3 | 03 §mock_forms, §exam_session, §Mock の attempt 生成 | 冒頭で CP0 の記録から `03` §mock_forms に P の構造(問題数・ドメイン配分・選択数)を追記しオーナー承認(停止条件: Mock のスコア)。テストが存在し D6-4 で green |
 | D6-4 | D | P 模試対応: `mock_forms` の P 構造、開始・提出・レポート・rehearsal 判定を exam 別に | T-pmock, D6-1, D6-3 | 03, 05 S-5, S-6 | T-pmock green。F form の開始可否・レポートが不変 |
 | S-4 | D | Reddit 調査メモ(`ExamGuide/memo.md`)の spec 反映: `content/ccar-p/SOURCES.md` に公式 / 受験者証言 / 設計推奨の 3 区分と信頼度で記録、`07` §CCAR-P に P 制作指針(binding constraint、誤答の推奨型と禁止パターン、難易度 3 段階、phase-gate・障害診断・アーキテクチャ選択の問題タイプ、Full Mock 品質チェックリスト、問題形式の training distribution(設定値で validator は強制しない)、Drill 短問 MCQ の「知識の適用」型)、`03` のバンクスキーマ追加案(`binding_constraint`、選択肢ごとの plausible / not-best 理由、`lifecycle_phase`)。grill-me で詰める | T-pmock | 07 §CCAR-P, 03 §1, `ExamGuide/memo.md` | memo の各項目が「反映 / 不採用(理由)/ 別タスク」のいずれかに振り分けられ、スキーマ追加はオーナー承認済み(停止条件: 永続データの意味)。CP4-A の制作が従う指針が `07` にある。**10/26** 目安 |
-| CP4-A | C | P form A(63 問・配分 11-8-12-10-9-9-4。`03` §mock_forms)+ `mock_forms.yaml` → validator → Step 4 全工程 → deploy。制作は S-4 の指針に従う | CP3, D6-4, S-4 | 07 Step 3b, 4; 03 §mock_forms | **11/20** 本番反映。遅延時は M12 を後ろ倒し(フラッシュ増産で代替しない) |
+| D6-9 | D | 構造化解説フィールドの実装: Zod スキーマに任意フィールド(`binding_constraint_ja` / `lifecycle_phase` / choice の `plausible_ja`・`not_best_ja`)と不変条件(書くなら全部・正解でない選択肢だけ)、P の MCQ の不変条件(multi は Select TWO のみ・選択肢 4〜5 個)、validator で P フォーム収載問題のフィールド必須(fail closed)、`audit:form` に問題形式・難易度の分布表示(warning のみ)、§解説の表示(Practice・Drill 短問 MCQ・模試レポート・間違いノート) | S-4 | 03 §1, §mock_forms §CCAR-P; 05 §解説の表示, S-3, S-4, S-6, S-7; 07 §P 制作指針 | Vitest で新しい不変条件(受理・拒否の両方)と validator のフォーム必須を検証。既存の F・P バンクが無変更で `validate-bank` を通る。試験中の Mock DTO に `binding_constraint_ja` / `plausible_ja` / `not_best_ja` が含まれないことを Vitest で検証(`03` §1 の正解の漏洩防止)。フィールドが無い問題(F・既存 P)の解説表示が変わらない。CP4-A の着手(11/2)前に merge。`src/lib/mock/report.ts`・`dto.ts` は D4-1 の worktree も変更しているため、着手時に D4-1 の状態を確認する |
+| CP4-A | C | P form A(63 問・配分 11-8-12-10-9-9-4。`03` §mock_forms)+ `mock_forms.yaml` → validator → Step 4 全工程 → deploy。制作は S-4 の指針(`07` §P 制作指針)に従い、構造化解説フィールドを書く | CP3, D6-4, S-4, D6-9 | 07 Step 3b, 4; 03 §mock_forms | **11/20** 本番反映。遅延時は M12 を後ろ倒し(フラッシュ増産で代替しない) |
 | CP4-B | C | P form B(A と重複なし)→ validator → Step 4 全工程 → deploy | CP4-A | 07 Step 3b | **11/27** 本番反映 |
 | T-bundle | T | まとめ形式(Yes/No Matrix・Drop-down Matching。共通の選択肢で複数の小問に答え 1 問として数える)の状態遷移テスト: バンクスキーマ、Practice の厳密 ACK 保存と FSRS 評価、Mock の開始時全行生成・保存・提出時 attempt 一括・素点 | S-4, D6-4 | 03 §1, §学習回答の書込プロトコル, §exam_session, 04 §モード行列 | **冒頭で採点(全小問正解のみ正解か、小問単位か)と chosen の保存形式をオーナー承認**(停止条件: 採点・永続データの意味。2026-10-03 時点で採点の一次情報は無い。`content/ccar-p/SOURCES.md` §1.1.1)。テストが存在し D6-8 で green |
 | D6-8 | D | まとめ形式の実装: スキーマ・validator・採点・Practice / Mock 画面・解説(小問ごとの正誤) | T-bundle | 03, 05 S-4, S-5 | T-bundle green。既存の `mcq_single` / `mcq_multi` / flash の挙動が不変 |
-| CP7 | C | 既存 P バンク(フラッシュ 150・独立 MCQ 76)を S-4 の指針で再監査: 定義想起だけのカードの検出と Drill 短問 MCQ(知識の適用型)への置き換え、Select TWO・4〜5 択の追加、ありえない誤答の検出 → Step 4 全工程 → deploy | S-4 | 07 §CCAR-P, Step 4, Step 6 | 再監査の記録が残り、修正分が Step 4 を経て本番反映 |
+| CP7 | C | 既存 P バンク(フラッシュ 150・独立 MCQ 76)を S-4 の指針で再監査: 定義想起だけのカードの検出と Drill 短問 MCQ(知識の適用型)への置き換え、Select TWO・4〜5 択の追加、ありえない誤答の検出、独立 MCQ 76 問への構造化解説フィールドの埋め戻しと `difficulty` の付け直し(editorial fix = rev++。Practice が空かないよう flagged は 1 ドメインずつ)→ Step 4 全工程 → deploy | S-4, D6-9 | 07 §CCAR-P, §P 制作指針, Step 4, Step 6; 03 §1 | 再監査の記録が残り、修正分が Step 4 を経て本番反映。active な P MCQ で構造化解説フィールドの未記入が 0 件 |
 | D6-5 | D | P form A 提出後解放の本番 E2E(`verify:release` の P 対応。B-D3-4-1 の「解放問題への Practice 回答で applied_rating=null」の正の証拠もここで取る) | M12 | 03 §1, 04 | 本番 export で確認(M12 直後) |
 
 ### Phase 8: 11/22–12/11 — P 直前期
@@ -180,7 +183,7 @@ S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、
 | O-P4 | O | 12/5 P 凍結宣言(以後 bug fix のみ) | CP6, D5-1 | 08 | 宣言後の commit が fix のみ |
 | O-P5 | O | 12/11 P 間違いノート総ざらい(D-1 モード) | M14, D5-1 | 08, 04 §D-1 | 実施 |
 
-## 5. 依存グラフ(§4 の depends 列から機械生成・全 82 ノード)
+## 5. 依存グラフ(§4 の depends 列から機械生成・全 83 ノード)
 
 `X ← A, B` は「X は A と B の完了後に着手可能」。§4 を更新したら本節も再生成する(§4 との 1:1 を検証スクリプトで確認する)。
 
@@ -247,11 +250,12 @@ CP3 ← CP1, D6-1, D6-3
 T-pmock ← CP0, S-3
 D6-4 ← T-pmock, D6-1, D6-3
 S-4 ← T-pmock
-CP4-A ← CP3, D6-4, S-4
+D6-9 ← S-4
+CP4-A ← CP3, D6-4, S-4, D6-9
 CP4-B ← CP4-A
 T-bundle ← S-4, D6-4
 D6-8 ← T-bundle
-CP7 ← S-4
+CP7 ← S-4, D6-9
 D6-5 ← M12
 CP6 ← T-rev, D4-3, M12
 O-P4 ← CP6, D5-1
@@ -274,7 +278,7 @@ M15 ← M14, O-P5
 ```
 Dev    : S-2 → S-3 → T-exam → D6-1 → D6-2 → M9 → M10
            ├ D6-1 + D6-3 → CP2 / CP3(試験別の絞り込みとバンク読込の両方がバンク投入の関門)
-           └ D6-1 → D6-4(+ T-pmock ← CP0)→ S-4 → CP4-A → M12
+           └ D6-1 → D6-4(+ T-pmock ← CP0)→ S-4 → D6-9 → CP4-A → M12
            (T-bundle → D6-8 と CP7 は M12 の前提にしない。まとめ形式は採点確定後の任意の強化)
 Content: CP0 → CP1 → CP2 → M10 / CP3 → CP4-A → M12 → CP6 → O-P4 → M14
 Owner  : O-P1 / O-P2 は完了済み(9/28)。以後は S-3 / CP0 / CP1 の承認と抜き取りが Owner 側の律速
@@ -292,7 +296,7 @@ Owner  : O-P1 / O-P2 は完了済み(9/28)。以後は S-3 / CP0 / CP1 の承認
 | 9/28–10/4 | O-P3, 棚卸し(S-2)の承認 | S-2 → S-3 | CP0 |
 | 10/5–10/11 | P の Guide を通読、S-3 の停止条件判断 | T-exam → D6-1, D6-3 | CP0, CP1(+粒度レビュー) |
 | 10/12–10/18 | CP1 承認 | D6-2 → **M9**, D4-4 | CP2 |
-| 10/19–10/25 | CP2 抜き取り → **P Drill 開始(M10 10/24)** | T-pmock → D6-4, S-4 | CP2 deploy, CP3 |
+| 10/19–10/25 | CP2 抜き取り → **P Drill 開始(M10 10/24)** | T-pmock → D6-4, S-4 → D6-9 | CP2 deploy, CP3 |
 | 10/26–11/1 | CP3 抜き取り → **M11(10/31)**、まとめ形式の採点確定 | D4-1, T-rev, T-bundle → D6-8 | CP3 deploy, CP4-A 着手, CP7 |
 | 11/2–11/15 | 学習 | D5-1 | **CP4-A(最優先)** |
 | 11/16–11/20 | CP4-A 抜き取り | bug fix | CP4-A deploy(11/20) |

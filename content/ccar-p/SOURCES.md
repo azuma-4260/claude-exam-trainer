@@ -68,7 +68,7 @@ F の "Exam structure: 4 scenarios drawn from a bank of 6" に相当する行は
 | Partner Academy FAQ(https://anthropic-partners.skilljar.com/page/faq-certifications) | 公式 | "All Claude certification exams use multiple choice and scenario-based multiple response questions." Pearson VUE で実施 |
 
 - **採点**: Guide §9 は "the percentage of items you answered correctly within each content domain" のみ。まとめ形式・multiple-response の部分点の有無を直接述べる一次情報は見つからない(2026-10-03 調査)
-- **T-pmock の確定事項**(オーナー決定 2026-10-03): 独立問題形式(各問 stem に状況説明)/ 63 問 / 配分 11-8-12-10-9-9-4 / 問題形式の件数は validator で固定しない。まとめ形式は `09` T-bundle(採点確定が着手条件)。memo の制作指針は `09` S-4 で `07` に反映する
+- **T-pmock の確定事項**(オーナー決定 2026-10-03): 独立問題形式(各問 stem に状況説明)/ 63 問 / 配分 11-8-12-10-9-9-4 / 問題形式の件数は validator で固定しない。まとめ形式は `09` T-bundle(採点確定が着手条件)。memo の制作指針は `09` S-4 で `07` に反映した(memo の節ごとの区分・信頼度・振り分けは §14)
 
 ### 1.2 ドメイン配分(§6 Blueprint)— `02` の重みを**確認**
 
@@ -307,6 +307,7 @@ P の 38 目標を F の task statement(`content/ccar-f/SOURCES.md` §3、ID `f-
 | `02` | CCAR-P 節・トピックツリー方針・主要ソース | 公式 v1.0 で突合済みに書き換え(v1.3)。独立問題形式は Guide 未確認と明記、詳細目標 38 本の要約、出題範囲(Appendix 無し・F の Out-of-Scope を流用しない)、F との差分を §8 参照に、P の task_statement / topic 数、CCAR-P PDF の SHA-256 |
 | `07` | §CCAR-P フェーズ(Step 2 / Step 3a の行) | Step 2 の優先根拠を「F に無い 3 ドメイン(計 35%)」から §8 の重なりマップへ。Step 3a 不適用の根拠を「独立問題形式」の断定から「Guide にシナリオ記述が無いための暫定制作方針(T-pmock で見直し)」へ |
 | `README` | 試験表・未確定事項 | 試験表の「独立問題」を「シナリオ記述なし」に。未確定事項に CP0 完了分と T-pmock の確認事項を反映 |
+| `07` / `03` / `05` / `09` / README | §CCAR-P の P 制作指針、§1 の任意フィールド(`binding_constraint_ja` / `lifecycle_phase` / 選択肢の `plausible_ja`・`not_best_ja`)と P MCQ の不変条件、解説表示、D6-9 の追加 | S-4(2026-10-03)。memo の振り分けは §14 |
 
 `09` CP2 行と `08` の「F に無い 3 ドメイン」表現は CP0 の spec 範囲外のため `tasks/backlog/B-CP0-1.md` に起票し、CP2 で §8 基準に書き換えた(B-CP0-1 を absorb)。
 
@@ -316,6 +317,7 @@ P の 38 目標を F の task statement(`content/ccar-f/SOURCES.md` §3、ID `f-
 |---|---|
 | 2026-09-29 | 初版(CP0)。Exam Guide v1.0 を転記 |
 | 2026-10-03 | T-pmock: §1.1 の模試構造を `03` §mock_forms に確定(オーナー決定)。§1.1.1 に受験記・Reddit 調査メモ・Partner Academy FAQ の補足を追加 |
+| 2026-10-03 | S-4: §14 に Reddit 調査メモの区分・信頼度・振り分けを追加。P 制作指針を `07` に、構造化解説フィールドを `03` に確定(オーナー承認) |
 | 2026-09-30 | CP1: §3 の 38 目標と 1:1 の `syllabus.yaml`(108 topics)を作成。§9 の P 内重なり 6 ペアは両側の scope_ja に【primary 境界】を記載。`form_questions` は T-pmock 確定まで書かない |
 | 2026-09-30 | CP3: 独立 MCQ の ID 帯(q501〜q599・ドメイン内連番)と CP3 の refs 台帳 88 URL(#301〜#388、curl で 200 確認)を §13(CP3 節)に追加。独立 MCQ 76 問(12/10/13/11/10/10/10、mcq_single のみ)を flagged で生成。配分根拠は `content/ccar-p/CP3-allocation.md`。Step 4 は別セッション(step4-review)で実施 |
 | 2026-09-30 | CP3 Step 4: 独立レビュー 2 周(1 周目 P1 1 / P2 21、2 周目 P1 0 / P2 8 を修正)、refs 突合(使用 52 URL)、P 内・F バンクとの重複統合。許可ソースで裏付けられない 3 topic(B-CP2-1)に割り当てていた p-d2-q510 / p-d3-q512 / p-d6-q503 を同じ task statement 内の topic へ差し替え。全 76 問を active 化。記録は `content/ccar-p/CP3-allocation.md` §Step 4 |
@@ -535,3 +537,51 @@ CP3(`07` Step 5 相当・独立 MCQ)専用の節。CP2(flash)が追加する台�
 | 386 | https://docs.claude.com/en/docs/claude-code/third-party-integrations | code.claude.com/docs/en/third-party-integrations | 7.1 |
 | 387 | https://docs.claude.com/en/docs/claude-code/sub-agents | code.claude.com/docs/en/sub-agents | 7.2 |
 | 388 | https://docs.claude.com/en/docs/claude-code/sandboxing | code.claude.com/docs/en/sandboxing | 7.1 |
+
+## 14. Reddit 調査メモ(`ExamGuide/memo.md`)の区分・信頼度・振り分け(S-4・2026-10-03)
+
+`ExamGuide/memo.md`(オーナー作成、最終調査 2026-10-03)を、memo 自身の 3 区分と信頼度(memo §31)で節ごとに記録し、spec への振り分け(反映 / 不採用(理由)/ 別タスク)を確定する(`09` S-4)。**memo は一次ソースではない**: 技術的事実の根拠(`refs`)には使わず、形式・難易度・思考パターンの補助情報として使う(`07` 原則、memo §18・§33-18)。
+
+- 区分: **A** = 公式 Exam Guide 由来(正本は Guide 本体 §1〜§9)/ **B** = 実受験者の証言(NDA のため形式・傾向の報告のみ。フォーム差があり得る)/ **C** = A・B から導いたアプリ設計上の推奨
+- 信頼度: memo §31 の HIGH / MEDIUM-HIGH / MEDIUM / LOW。C は信頼度ではなく採否で扱う(「–」)
+- 振り分けの決定はオーナー承認済み(grill-me 2 ラウンド、2026-10-03)。判断軸は「拡張性より、利用者が合格できるか」
+
+| memo § | 内容 | 区分 | 信頼度 | 振り分け |
+|---|---|---|---|---|
+| §0 | 資料の目的・3 区分 | – | – | 反映: 本節の区分列 |
+| §1 | 63 問 / 120 分 / 720 / 7 ドメイン / 重み / MC・MR | A | HIGH | 反映済み: §1・§1.2、`03` §mock_forms §CCAR-P(配分 11-8-12-10-9-9-4 は memo の概算と一致) |
+| §2.1 | Yes/No Matrix | B(965 点の 1 名) | MEDIUM | 別タスク: `09` T-bundle / D6-8(採点の確定が着手条件) |
+| §2.2 | Drop-down Matching(option 再利用可) | B(同上) | MEDIUM | 別タスク: T-bundle / D6-8 |
+| §3 | multi-response が多い・本番は模試より複雑 | B(複数名) | MEDIUM-HIGH | 反映: `07` §P 制作指針(Select TWO・4〜5 択・形式比率)、`03` §1(P の multi は Select TWO のみ) |
+| §4 | 知識の再生より architectural judgment(40/60 の体感) | B | MEDIUM-HIGH(40/60 の比率は LOW) | 反映: `07` §P 制作指針(比率は固定しない) |
+| §5 | もっともらしい誤答(一般には正しいが BEST でない) | C(B 由来) | – | 反映: `07` §P 制作指針(誤答の推奨型) |
+| §6 | binding constraint を先に決める | C | – | 反映: `07`(作問手順)、`03` §1 `binding_constraint_ja`、`05`(表示)。実装は D6-9 |
+| §7 | 応急処置と構造的解決 | B(965 点)+ C | MEDIUM | 反映: `07` 誤答の推奨型(応急処置)。機械的な規則にしない旨も明記 |
+| §8 | least privilege = 能力の削減 | B + C | MEDIUM | 反映: `07` 誤答の推奨型(予防でなく監視)。Guide Sample 1(§5)とも整合 |
+| §9 | phase-gate が多い | B(965 点) | MEDIUM | 反映: `07` 問題タイプ(phase-gate)、`03` §1 `lifecycle_phase` |
+| §10 | 派手な architecture が正解とは限らない | C(B 由来) | – | 反映: `07` 問題タイプ(アーキテクチャ選択)・誤答の推奨型(過剰設計) |
+| §11 | RAG は障害診断まで問う | B + C | MEDIUM | 反映: `07` 問題タイプ(障害診断)。**syllabus に独立カテゴリを作るのは不採用**(syllabus は Guide の 38 目標と 1:1。診断は既存 topic の問題タイプで扱う) |
+| §12 | コスト最適化 = 小さいモデルとは限らない | C | – | 反映: `07` 誤答の推奨型(caching / retrieval が本当の原因なのに小さいモデル) |
+| §13 | 技術知識だけの試験ではない | B(897 点) | MEDIUM-HIGH | 反映: `07` §P 制作指針(Claude 固有知識だけに偏らない) |
+| §14 | governance / security が難所 | B(複数)+ C | MEDIUM-HIGH | 反映: `07` 重点(法規制は暗記でなく設計の制約として使う) |
+| §15 | evaluation は評価設計まで | C(Guide Domain 4 と整合) | – | 反映: `07` 重点 |
+| §16 | stakeholder communication | C(Guide Domain 6 と整合) | – | 反映: `07` 問題タイプ(ステークホルダー判断) |
+| §17 | 本番の難易度(F より上か下か) | B(証言が相反) | LOW | **不採用**: 経歴による個人差が大きく、仕様に入れない |
+| §18 | 市販模試を正解の根拠にしない | C | – | 反映済み: `07` 原則(サードパーティ問題集は参照・転記禁止)。`07` §P 制作指針にも明記 |
+| §19 | F の形式と混同しない | C | – | 反映済み: `exam` フィールドとディレクトリ分離(`03` §1)、P の独立問題形式(T-pmock) |
+| §20 | 問題タイプ A〜G | C | – | A・B 反映: `07` / `03`。C・D 別タスク: T-bundle / D6-8。E・F・G 反映: `07` 問題タイプ |
+| §21 | Full Mock 63 問 / 120 分・形式比率の初期案 | A(63 / 120)+ C(比率) | HIGH(構造)/ LOW(比率) | 構造は反映済み(`03` §mock_forms)。比率は反映: `07` の目安(2 ケース、validator で強制しない) |
+| §22 | 難易度 3 段階 | C | – | 反映: `03` §1(P MCQ の `difficulty` を再定義)、`07`(フォームの目安) |
+| §23 | 誤答の禁止パターンと推奨型 10 種 | C | – | 反映: `07` §P 制作指針。「正解だけ長い / 具体的」の形の偏りは既存の `audit:choices` が検査 |
+| §24 | 作問時に内部で持つ構造 | C | – | 一部反映: `binding_constraint` / `lifecycle_phase` / 選択肢ごとの plausible・not-best を `03` §1 の任意フィールドに。domain / objective / difficulty / source_basis は既存の `domain_id` / `primary_topic_id` / `difficulty` / `refs` で代替。question_type・secondary_constraints・confidence はバンクに持たず作問時のメモにとどめる(表示しても学習効果が小さいため) |
+| §25 | 解説画面に出す情報 | C | – | 反映: `05`(拘束条件の枠・選択肢ごとの理由・「どんな条件なら正解か」・フェーズのタグ)。実装は D6-9 |
+| §26 | 学習の 7 段階 | C | – | **不採用**: 既存の Drill(知識の適用)/ Practice(制約判断・トレードオフ・診断・phase-gate)/ Mock と日次キューで段階を担える。段階ごとの画面は作らない |
+| §27 | Full Mock 品質チェックリスト | C | – | 反映: `07` Step 4 の P 版 |
+| §28 | 特に重視する出題領域 | B + C | MEDIUM-HIGH | 反映: `07` 重点(syllabus の topic は変えない) |
+| §29 | 「CCAR-P らしい問題」のテンプレート | C | – | 反映: `07` §P 制作指針 |
+| §30 | 避けるべきこと 16 項目 | C | – | 反映: `07` 禁止パターン |
+| §31 | 情報の信頼度 | – | – | 反映: 本節の信頼度列 |
+| §32 | 最終原則(BEST が一意に決まるか) | C | – | 反映: `07` §P 制作指針の品質基準 |
+| §33 | 実装指示 1〜20 | C | – | 下記 |
+
+**§33 の各項目**: 1 現行仕様との比較・20 差分の提示 = S-4 の grill-me で実施 / 2 既存仕様を破棄しない・17 公式ソースとの整合 = 遵守(`07` 原則) / 3 公式と Reddit 由来の区別 = 本節 / 4 形式のサポート = single・multi は対応済み、Matrix・Dropdown は T-bundle / D6-8 / 5・6・7 = `03` §1 の任意フィールド(D6-9) / 8・9 = 反映済み(`03` §mock_forms、`FORM_DOMAIN_QUOTA`) / 10・19 形式比率は設定値で強制しない = `07` の目安・監査は表示のみ / 11 定義想起の検出 = CP7 / 12 ありえない誤答の検出 = `07` Step 4 P 版のレビュー観点(意味の判断なので機械検査はしない) / 13 = `03` §1 の `difficulty` / 14・15 = `07` 問題タイプ(CP4-A / CP7 で作る) / 16 = `05` / 18 = `07` §P 制作指針

@@ -1,5 +1,7 @@
 # Claude 認定資格 対策アプリ 設計書
 
+**v1.3.3(2026-10-03, S-4)**: Reddit 調査メモ(`ExamGuide/memo.md`)を spec に反映。P 制作指針(binding constraint・誤答の推奨型と禁止パターン・難易度 3 段階・問題形式の比率の目安)を `07` に、構造化解説フィールド(`binding_constraint_ja` / `lifecycle_phase` / 選択肢ごとの `plausible_ja`・`not_best_ja`)と P の MCQ の不変条件(multi は Select TWO のみ・選択肢 4〜5 個)を `03` に、解説の表示を `05` に追加し、実装タスク D6-9 を `09` に追加(オーナー承認 2026-10-03)。memo の節ごとの振り分けは `content/ccar-p/SOURCES.md` §14。
+
 **v1.3.2(2026-10-03, T-pmock)**: P 模試の構造を確定(2 本 × 63 問・配分 11-8-12-10-9-9-4・独立問題形式・問題形式の件数は不問。オーナー決定 2026-10-03、`03` §mock_forms)。full の開始を `(exam, form_id)` に変更。Reddit 調査メモ(`ExamGuide/memo.md`)の反映は `09` S-4 で行う。
 
 **v1.3.1(2026-09-29, S-3)**: P フェーズの spec 改訂。確定事項 1(9/27 まで F 固定)を解除し、**学習スコープ(F のみ / P のみ / F+P)**を導入。試験日を過ぎた試験も復習を継続(`maximum_interval` 上限なし)、F+P のキュー合成、D-1 は単独スコープのみ、holdout の `(exam, form_id)` 識別を確定(オーナー決定 2026-09-29)。`01`/`03`/`04`/`05`/`06`/`07`/`08` を v1.3 に改訂。P 模試の構造値は CP0 / T-pmock で決める。
