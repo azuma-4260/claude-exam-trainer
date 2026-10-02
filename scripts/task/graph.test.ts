@@ -13,13 +13,13 @@ function fixture(opts: { s3?: string; s4?: string; s5?: string } = {}): string {
 }
 
 describe("現物 specs/09_task-plan.md", () => {
-  it("§3 が 11、§4 が 67、計 78 ノードで §5 と一致する", () => {
+  it("§3 が 11、§4 が 71、計 82 ノードで §5 と一致する", () => {
     const g = loadGraph(real);
     const ids = [...g.keys()];
     expect(ids.filter(isMilestone)).toHaveLength(11);
-    expect(ids.filter((x) => !isMilestone(x))).toHaveLength(67);
-    expect(g.size).toBe(78);
-    expect(parseDerived(real).size).toBe(78);
+    expect(ids.filter((x) => !isMilestone(x))).toHaveLength(71);
+    expect(g.size).toBe(82);
+    expect(parseDerived(real).size).toBe(82);
   });
   it("F→P 棚卸し(v1.3)で削除した ID は存在しない", () => {
     const g = loadGraph(real);

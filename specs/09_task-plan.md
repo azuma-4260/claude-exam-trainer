@@ -2,6 +2,8 @@
 
 `08` が「いつ」のカレンダーであるのに対し、本書は「何を・どの順で・何が終われば完了か」を定める実行順の単一ソース。タスク ID は本書で採番し、以後のセッション・commit メッセージ・TODO(owner) で参照する。
 
+**v1.3.1(2026-10-03, T-pmock)**: P 模試の構造確定(`03` §mock_forms)に伴い、Reddit 調査メモ(`ExamGuide/memo.md`)の反映タスク S-4、まとめ形式(Yes/No Matrix・Drop-down Matching)の paired task T-bundle / D6-8、既存 P バンクの再監査 CP7 を追加。CP4-A の depends に S-4 を追加(オーナー決定 2026-10-03)。
+
 **v1.3(2026-09-28)**: CCAR-F は 2026-09-27 に合格。F 向けに積んでいた未着手タスクを棚卸し(§8)し、CCAR-P 向けタスクを Phase 6〜8 として追加した。F の完了済みノードと台帳(`tasks/status/`)はそのまま残す。**削除した ID は再利用しない**(§8 に一覧)。
 
 前提(2026-09-28 時点): Phase 0〜2 と Phase 3 の一部は完了済み(台帳参照)。本番 DB には F の学習データがあり、data-protection cutover(`06`)は P フェーズでも継続する(migration は追加のみ、本番データの変更・破壊禁止)。CCAR-P の Exam Guide v1.0 は `ExamGuide/CCAR-P.pdf` に commit 済み(O-P1、9/28。台帳記録はオーナー)。**受験日は 2026-12-12(土)**(9/28 オーナー申告。O-P2 の台帳記録はオーナー)。
@@ -162,8 +164,12 @@ S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、
 | CP3 | C | P 独立 MCQ 60〜100(Practice / ドメイン別ミニ模試用、フォーム非収載)→ Step 4 全工程 → deploy | CP1, D6-1, D6-3 | 07 Step 5 | **10/30** 本番反映、全ドメインに収録 |
 | T-pmock | T | P 模試テスト: CP0 の模試構造でのフォーム schema・開始時全行生成・提出時 attempt 一括・レポートのドメイン別集計(P のドメイン数・重み) | CP0, S-3 | 03 §mock_forms, §exam_session, §Mock の attempt 生成 | 冒頭で CP0 の記録から `03` §mock_forms に P の構造(問題数・ドメイン配分・選択数)を追記しオーナー承認(停止条件: Mock のスコア)。テストが存在し D6-4 で green |
 | D6-4 | D | P 模試対応: `mock_forms` の P 構造、開始・提出・レポート・rehearsal 判定を exam 別に | T-pmock, D6-1, D6-3 | 03, 05 S-5, S-6 | T-pmock green。F form の開始可否・レポートが不変 |
-| CP4-A | C | P form A(問題数・配分は CP0)+ `mock_forms.yaml` → validator → Step 4 全工程 → deploy | CP3, D6-4 | 07 Step 3b, 4; 03 §mock_forms | **11/20** 本番反映。遅延時は M12 を後ろ倒し(フラッシュ増産で代替しない) |
+| S-4 | D | Reddit 調査メモ(`ExamGuide/memo.md`)の spec 反映: `content/ccar-p/SOURCES.md` に公式 / 受験者証言 / 設計推奨の 3 区分と信頼度で記録、`07` §CCAR-P に P 制作指針(binding constraint、誤答の推奨型と禁止パターン、難易度 3 段階、phase-gate・障害診断・アーキテクチャ選択の問題タイプ、Full Mock 品質チェックリスト、問題形式の training distribution(設定値で validator は強制しない)、Drill 短問 MCQ の「知識の適用」型)、`03` のバンクスキーマ追加案(`binding_constraint`、選択肢ごとの plausible / not-best 理由、`lifecycle_phase`)。grill-me で詰める | T-pmock | 07 §CCAR-P, 03 §1, `ExamGuide/memo.md` | memo の各項目が「反映 / 不採用(理由)/ 別タスク」のいずれかに振り分けられ、スキーマ追加はオーナー承認済み(停止条件: 永続データの意味)。CP4-A の制作が従う指針が `07` にある。**10/26** 目安 |
+| CP4-A | C | P form A(63 問・配分 11-8-12-10-9-9-4。`03` §mock_forms)+ `mock_forms.yaml` → validator → Step 4 全工程 → deploy。制作は S-4 の指針に従う | CP3, D6-4, S-4 | 07 Step 3b, 4; 03 §mock_forms | **11/20** 本番反映。遅延時は M12 を後ろ倒し(フラッシュ増産で代替しない) |
 | CP4-B | C | P form B(A と重複なし)→ validator → Step 4 全工程 → deploy | CP4-A | 07 Step 3b | **11/27** 本番反映 |
+| T-bundle | T | まとめ形式(Yes/No Matrix・Drop-down Matching。共通の選択肢で複数の小問に答え 1 問として数える)の状態遷移テスト: バンクスキーマ、Practice の厳密 ACK 保存と FSRS 評価、Mock の開始時全行生成・保存・提出時 attempt 一括・素点 | S-4, D6-4 | 03 §1, §学習回答の書込プロトコル, §exam_session, 04 §モード行列 | **冒頭で採点(全小問正解のみ正解か、小問単位か)と chosen の保存形式をオーナー承認**(停止条件: 採点・永続データの意味。2026-10-03 時点で採点の一次情報は無い。`content/ccar-p/SOURCES.md` §1.1.1)。テストが存在し D6-8 で green |
+| D6-8 | D | まとめ形式の実装: スキーマ・validator・採点・Practice / Mock 画面・解説(小問ごとの正誤) | T-bundle | 03, 05 S-4, S-5 | T-bundle green。既存の `mcq_single` / `mcq_multi` / flash の挙動が不変 |
+| CP7 | C | 既存 P バンク(フラッシュ 150・独立 MCQ 76)を S-4 の指針で再監査: 定義想起だけのカードの検出と Drill 短問 MCQ(知識の適用型)への置き換え、Select TWO・4〜5 択の追加、ありえない誤答の検出 → Step 4 全工程 → deploy | S-4 | 07 §CCAR-P, Step 4, Step 6 | 再監査の記録が残り、修正分が Step 4 を経て本番反映 |
 | D6-5 | D | P form A 提出後解放の本番 E2E(`verify:release` の P 対応。B-D3-4-1 の「解放問題への Practice 回答で applied_rating=null」の正の証拠もここで取る) | M12 | 03 §1, 04 | 本番 export で確認(M12 直後) |
 
 ### Phase 8: 11/22–12/11 — P 直前期
@@ -174,7 +180,7 @@ S-3 と CP0 は P 固有の**意味**(試験切替後の F データの扱い、
 | O-P4 | O | 12/5 P 凍結宣言(以後 bug fix のみ) | CP6, D5-1 | 08 | 宣言後の commit が fix のみ |
 | O-P5 | O | 12/11 P 間違いノート総ざらい(D-1 モード) | M14, D5-1 | 08, 04 §D-1 | 実施 |
 
-## 5. 依存グラフ(§4 の depends 列から機械生成・全 78 ノード)
+## 5. 依存グラフ(§4 の depends 列から機械生成・全 82 ノード)
 
 `X ← A, B` は「X は A と B の完了後に着手可能」。§4 を更新したら本節も再生成する(§4 との 1:1 を検証スクリプトで確認する)。
 
@@ -240,8 +246,12 @@ CP2 ← CP1, D6-1, D6-3
 CP3 ← CP1, D6-1, D6-3
 T-pmock ← CP0, S-3
 D6-4 ← T-pmock, D6-1, D6-3
-CP4-A ← CP3, D6-4
+S-4 ← T-pmock
+CP4-A ← CP3, D6-4, S-4
 CP4-B ← CP4-A
+T-bundle ← S-4, D6-4
+D6-8 ← T-bundle
+CP7 ← S-4
 D6-5 ← M12
 CP6 ← T-rev, D4-3, M12
 O-P4 ← CP6, D5-1
@@ -264,7 +274,8 @@ M15 ← M14, O-P5
 ```
 Dev    : S-2 → S-3 → T-exam → D6-1 → D6-2 → M9 → M10
            ├ D6-1 + D6-3 → CP2 / CP3(試験別の絞り込みとバンク読込の両方がバンク投入の関門)
-           └ D6-1 → D6-4(+ T-pmock ← CP0)→ CP4-A → M12
+           └ D6-1 → D6-4(+ T-pmock ← CP0)→ S-4 → CP4-A → M12
+           (T-bundle → D6-8 と CP7 は M12 の前提にしない。まとめ形式は採点確定後の任意の強化)
 Content: CP0 → CP1 → CP2 → M10 / CP3 → CP4-A → M12 → CP6 → O-P4 → M14
 Owner  : O-P1 / O-P2 は完了済み(9/28)。以後は S-3 / CP0 / CP1 の承認と抜き取りが Owner 側の律速
 ```
@@ -281,8 +292,8 @@ Owner  : O-P1 / O-P2 は完了済み(9/28)。以後は S-3 / CP0 / CP1 の承認
 | 9/28–10/4 | O-P3, 棚卸し(S-2)の承認 | S-2 → S-3 | CP0 |
 | 10/5–10/11 | P の Guide を通読、S-3 の停止条件判断 | T-exam → D6-1, D6-3 | CP0, CP1(+粒度レビュー) |
 | 10/12–10/18 | CP1 承認 | D6-2 → **M9**, D4-4 | CP2 |
-| 10/19–10/25 | CP2 抜き取り → **P Drill 開始(M10 10/24)** | T-pmock → D6-4 | CP2 deploy, CP3 |
-| 10/26–11/1 | CP3 抜き取り → **M11(10/31)** | D4-1, T-rev | CP3 deploy, CP4-A 着手 |
+| 10/19–10/25 | CP2 抜き取り → **P Drill 開始(M10 10/24)** | T-pmock → D6-4, S-4 | CP2 deploy, CP3 |
+| 10/26–11/1 | CP3 抜き取り → **M11(10/31)**、まとめ形式の採点確定 | D4-1, T-rev, T-bundle → D6-8 | CP3 deploy, CP4-A 着手, CP7 |
 | 11/2–11/15 | 学習 | D5-1 | **CP4-A(最優先)** |
 | 11/16–11/20 | CP4-A 抜き取り | bug fix | CP4-A deploy(11/20) |
 | 11/21 | **M12(P form A)** | – | – |
@@ -300,7 +311,7 @@ Owner  : O-P1 / O-P2 は完了済み(9/28)。以後は S-3 / CP0 / CP1 の承認
 - 新しいセッションは「本書のどの ID に着手するか」を冒頭で宣言し、`npm run task:check <ID>` が READY であることを確認して `npm run task:start <ID>` で始める(完了判定・worktree 規約は `tasks/README.md`)
 - DoD を満たさない状態で次の ID に進まない。満たせない場合は TODO(owner) を残して停止する(README 停止条件)
 - 日付が遅延した場合は `08` のリスク表(form A → 後ろ倒し等)に従い、本書の depends は変更しない
-- **paired task**: テストタスク T-x と直後の実装タスク D-y(T-srs/D1-1、T-holdout/D1-2、T-write/D1-3、T-queue/D1-4、T-mock/D3-1、T-exam/D6-1、T-pmock/D6-4)は、同一 worktree `task/T-x` でテスト先行 → 実装の順に作り、**両方 green の状態で一緒に main に入れる**(§1-2 の red テスト禁止の帰結。T-x 単独では main に入れない)。D-y の `task:start` は行わず、マージ時に両 ID を台帳記録する。T-rev は実装タスクが CP6(コンテンツ)なので paired ではない
+- **paired task**: テストタスク T-x と直後の実装タスク D-y(T-srs/D1-1、T-holdout/D1-2、T-write/D1-3、T-queue/D1-4、T-mock/D3-1、T-exam/D6-1、T-pmock/D6-4、T-bundle/D6-8)は、同一 worktree `task/T-x` でテスト先行 → 実装の順に作り、**両方 green の状態で一緒に main に入れる**(§1-2 の red テスト禁止の帰結。T-x 単独では main に入れない)。D-y の `task:start` は行わず、マージ時に両 ID を台帳記録する。T-rev は実装タスクが CP6(コンテンツ)なので paired ではない
 - **凍結**: `task:report` は O-P4 または M14 が DONE になったら全候補を `frozen` で除外する(F の 9/20 凍結は F 試験の終了とともに失効)
 
 ## 8. F→P 棚卸し記録(v1.3・2026-09-28)
