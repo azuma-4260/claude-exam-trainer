@@ -1,0 +1,3 @@
+state: done
+evidence: "オーナー指示(2026-10-03)で Claude が本番 https://claude-exam-trainer.vercel.app をブラウザで確認して記録。スコープ P のみ(Home: CCAR-P 試験日 2026-12-12・70 days to CCAR-P)で P 試験日設定済み。attempt 保存: 2026-10-01 00:28 / 00:32 JST に P カード p-d3-q001 / p-d3-q003 を Drill で Again 回答した attempt と srs_state が /api/export?exam=ccar-p に存在。翌日以降の due 出現: p-d3-q003(dueAt 10/1 00:33 JST)と p-d3-q001 が 10/3 の /drill キューに出現(10/2 は未閲覧だが due は 10/1 のため同日以降は継続して due)。再読込で復元: 10/3 01:50 JST に p-d3-q001 を Drill で Again 回答(attempt 9f675cdf-292a-4922-8ba3-8e0d091f56e7、mode=drill、exam=ccar-p)→ export に attempt / srs_state 反映 → /drill 再読込で 2/6 から再開し Home の Drill ノルマが 6 → 5 問に減少。依存 M9 / O-P2 / CP2 は全て done 記録済み"
+recorded: 2026-10-03
