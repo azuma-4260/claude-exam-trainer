@@ -194,7 +194,7 @@
       "https://claude.com/blog/ciso-guide-to-agentic-ai"
     ],
     "difficulty": 1,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -270,7 +270,7 @@
       "https://claude.com/blog/deploying-ai-from-pilot-to-production"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -513,5 +513,54 @@
     "difficulty": 2,
     "status": "active",
     "rev": 1
+  },
+  {
+    "id": "p-d5-q022",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An agent will read inbound tickets written by anonymous customers, and it can write directly to the refund database. Using the approach in Anthropic's CISO guide, how should an architect judge and limit its risk?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "It ingests untrusted content and has write access, so the exposure is high.\nLimit it with least agency: narrow the write surface (for example, new records only, no edits or deletes) instead of relying on the model to resist.",
+    "explanation_ja": "4 つの質問に当てはめると、入力は匿名の顧客が書く信頼できない内容で、書込みは返金データベースに直接届くため、リスクが高い構成です。リスクはゼロにできないので、モデルの賢さに頼らず、最小権限(least agency)の原則でエージェントの書込み面を絞って影響範囲を限定します。そのうえで全操作を観測できるようにしておくと、想定外の動きにも気づけます。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q023",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t3-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An LLM-as-judge grader has run for months with stable results, and the team is considering dropping all human review of its scores. What should the team keep?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Keep occasional human review of the judge's scores.\nA judge that looks stable can still drift from human judgment unnoticed, so periodic human checks are what keep it calibrated.",
+    "explanation_ja": "LLM-as-judge は人間の専門家との較正によって信頼を得ています。結果が安定して見えても、judge の採点が人間の判断から少しずつずれていくことに自分では気づけないため、人間のレビューを時々残して較正を保ちます。全件を人が見る必要まではなく、ずれを検出できる頻度で足ります。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 2
   }
 ]

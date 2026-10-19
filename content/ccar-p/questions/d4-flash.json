@@ -69,7 +69,7 @@
       "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
     ],
     "difficulty": 1,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -535,7 +535,7 @@
       "https://docs.claude.com/en/docs/claude-code/monitoring-usage"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -583,6 +583,56 @@
     "refs": [
       "https://docs.claude.com/en/docs/manage-claude/usage-cost-api",
       "https://docs.claude.com/en/docs/claude-code/analytics"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q025",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A nightly job summarizes tens of thousands of archived tickets, and no user waits for any single summary. Which operational targets matter most for this job?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Throughput and cost per completed task, because latency targets follow the application's real-time requirements.\nTTFT matters when users watch a streamed reply, which this job does not have.",
+    "explanation_ja": "許容できる応答時間は、アプリのリアルタイム要件とユーザーの期待で決まる。誰も個々の要約を待たない夜間バッチでは、最初のトークンまでの時間より、一定時間に処理できる量と完了したタスクあたりのコストが運用上の目標になる。ストリーミングで画面に流す応答なら、TTFT が特に関係する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d4-q026",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A privacy policy bars engineers from reading customers' conversation text, yet they must still diagnose why an agent fails in production. What can they monitor instead?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Agent decision patterns and interaction structures.\nThis can diagnose root causes without monitoring the contents of individual conversations.",
+    "explanation_ja": "Anthropic のマルチエージェント研究システムは、個々の会話の内容を監視せずに、エージェントの判断パターンと相互作用の構造を観測し、根本原因の診断や予期しない挙動の発見に使った。プライバシー統制が会話本文へのアクセスを制限していても、構造的な観測で多くの失敗は切り分けられる。本文が必要な場合は、アクセス統制の下で報告されたセッションに限って開く。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues"
     ],
     "difficulty": 2,
     "status": "active",
