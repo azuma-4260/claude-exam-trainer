@@ -4,7 +4,8 @@ import type { McqQuestion, Scenario } from "@/lib/bank/schema";
 import { structuredOf, toChoiceView } from "@/lib/explanation/structured";
 import { toScenarioDtos, type MockScenarioDto } from "@/lib/mock/dto";
 import { estSec } from "@/lib/queue/estimate";
-import { SESSION_MAX, type DrillItem } from "@/lib/queue/serve";
+import { SESSION_MAX } from "@/lib/queue/session-size";
+import type { DrillItem } from "@/lib/queue/serve";
 
 /** 間違いノート導出に必要な attempt の最小射影。 */
 export type MistakeAttempt = {

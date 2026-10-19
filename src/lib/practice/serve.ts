@@ -5,7 +5,7 @@ import type { Question, Scenario } from "@/lib/bank/schema";
 import { structuredOf, toChoiceView, type ChoiceView, type StructuredFields } from "@/lib/explanation/structured";
 import { toScenarioDtos, type MockScenarioDto } from "@/lib/mock/dto";
 import type { QueueItem } from "@/lib/queue/build";
-import { assembleQueueView, loadQueueInputs } from "@/lib/queue/serve";
+import { assembleQueueView, loadQueueInputs, type DMinus1View } from "@/lib/queue/serve";
 import type { StudyScope } from "@/lib/scope/scope";
 
 /**
@@ -56,10 +56,12 @@ export type PracticeAssembleInputs = {
   practiceQueue: readonly QueueItem[];
   /** 第 2 層から除外する question id(当日キュー全項目 + 当日回答済み) */
   excludeIds: ReadonlySet<string>;
+  /** D-1(順序保証): 第 2 層(通常プールの追補)を出さず、第 1 層だけを提示する */
+  queueOnly?: boolean;
 };
 
 export function assemblePracticeView(inputs: PracticeAssembleInputs): PracticeView {
-  const { bank, poolCtx, scenarios, practiceQueue, excludeIds } = inputs;
+  const { bank, poolCtx, scenarios, practiceQueue, excludeIds, queueOnly = false } = inputs;
   if (bank.questions.length === 0) return { kind: "bank_empty" };
 
   const toItem = (q: Question, source: "queue" | "pool"): PracticeItem | null => {
@@ -92,7 +94,7 @@ export function assemblePracticeView(inputs: PracticeAssembleInputs): PracticeVi
 
   // 第 2 層: FR-4 プール(holdout / status / open_flag / eligible_modes は evaluatePool に委譲)から
   // キュー項目・当日回答済みを除外し、id 昇順 → 同一 scenario_id を初出順で隣接(折りたたみ UI が連続する)
-  const pool = filterPool(bank.questions, { mode: "practice" }, poolCtx)
+  const pool = (queueOnly ? [] : filterPool(bank.questions, { mode: "practice" }, poolCtx))
     .filter((q) => !excludeIds.has(q.id) && !layer1Ids.has(q.id))
     .sort((a, b) => a.id.localeCompare(b.id));
   const groups = new Map<string, Question[]>();
@@ -129,9 +131,9 @@ export function assemblePracticeView(inputs: PracticeAssembleInputs): PracticeVi
  * RSC から呼ぶ I/O 合成(loadQueueView と同じシグナル一式)。日次キューを同一入力で組み立ててから
  * Practice ビューへ射影するので、Home の deferredPracticeCount と提示内容が一致する。
  */
-export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView & { scope: StudyScope }> {
+export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView & { scope: StudyScope; dMinus1: DMinus1View | null }> {
   // 出題はスコープ内 exam のみ(scoped.bank)。消費予算は全 exam(loadQueueInputs)
-  const { scope, scoped, poolCtx, signals, consumption, consumptionRows } = await loadQueueInputs(db, now);
+  const { scope, scoped, poolCtx, signals, consumption, consumptionRows, dMinus1Signals } = await loadQueueInputs(db, now);
   const bank = scoped.bank;
   const queueView = assembleQueueView({
     now,
@@ -142,9 +144,11 @@ export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView 
     srsRows: signals.srsRows,
     correctQuestionIds: signals.correctQuestionIds,
     consumption,
+    dMinus1Signals,
   });
-  // D-1(d_minus_1_unavailable)は practiceItems / queueQuestionIds が空 = 第 2 層のみで通常どおり動く
-  // (04 §D-1 が止めるのは日次キューの選定であって Practice 画面ではない)
+  // D-1 は Home / Drill と同じ入力(dMinus1Signals)で組み立てる。先頭 run が practice のときだけ
+  // practiceItems に入り最優先で提示される。drill が先のときは practiceItems が空 = 第 2 層は出さない(queueOnly)
+  // (dMinus1.nextMode で Drill へ誘導する。順序は 04 §D-1 の「間違いノート → low-stability」)
   const answeredToday = consumptionRows.todayRows.map((r) => r.questionId);
   const view = assemblePracticeView({
     bank,
@@ -152,7 +156,8 @@ export async function loadPracticeView(db: Db, now: Date): Promise<PracticeView 
     scenarios: scoped.scenarios,
     practiceQueue: queueView.practiceItems,
     excludeIds: new Set([...queueView.queueQuestionIds, ...answeredToday]),
+    queueOnly: queueView.dMinus1 !== null,
   });
   // scope は画面の exam ラベル表示(both のみ)に使う(D6-2)
-  return { ...view, scope };
+  return { ...view, scope, dMinus1: queueView.dMinus1 };
 }

@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * S-1 Home(specs/05)。カウントダウン + 進捗リング(予算消化)、ノルマ/バックログ分離、
- * CTA 1 ボタン、pace_warning 時のみ警告カード。推奨行動カード(直前期)は D5-1。
+ * CTA 1 ボタン、pace_warning 時のみ警告カード。推奨行動カード(直前期)は preExam、D-1 の次の回答先は dMinus1.nextMode(D5-1)。
  * 学習スコープ(v1.3): ヘッダに現在のスコープを常時表示し、ここから切替できる(D6-2)。
  * カウントダウンはスコープ内で試験日が未来の exam(過去の exam は「受験済み」)。both では exam ごとに並べる。
  * DB を読むため常に動的レンダリング(ビルド時に DATABASE_URL を要求しない)。
@@ -25,7 +25,9 @@ export default async function HomePage() {
   const view = await loadQueueView(getDb(), new Date());
   const spentMin = min(view.spentTodaySec);
   const budgetMin = min(view.budgetSec);
-  const canStart = view.kind === "ok" && view.session.kind === "ok";
+  const canStart = view.session.kind === "ok";
+  // D-1 は先頭 item の mode が次の回答先(間違いノート → low-stability の順序保証)
+  const practiceFirst = view.dMinus1?.nextMode === "practice";
   // リング中央は試験日が最も近い未来の exam。すべて通過済みなら「受験済み」
   const upcoming = view.countdowns.filter((c) => c.daysLeft >= 0).sort((a, b) => a.daysLeft - b.daysLeft);
   const next = upcoming[0] ?? null;
@@ -79,14 +81,23 @@ export default async function HomePage() {
         ) : null}
       </section>
 
-      {view.kind === "d_minus_1_unavailable" ? (
+      {view.preExam ? (
+        // 直前期の推奨行動カード(05 S-1 / 04 §直前期と D-1)
         <section className="rounded-xl border border-border bg-card p-4 text-sm">
-          <p className="font-medium">前日(D-1)メニューは準備中です</p>
+          <p className="font-medium">
+            {view.preExam.phase === "d_minus_1"
+              ? `${EXAM_LABEL[view.preExam.exam]} 前日メニュー`
+              : `${EXAM_LABEL[view.preExam.exam]} 直前期(あと ${view.preExam.daysLeft} 日)`}
+          </p>
           <p className="mt-1 text-muted-foreground">
-            間違いノート優先の前日キューは D5-1 で実装されます。今日は通常キューを配信しません。
+            {view.preExam.phase === "d_minus_1"
+              ? "間違いノート → stability の低い順に、時間予算の範囲で出題します。全問の完走は不要です。"
+              : "新規導入は自動で 0 になります。due 復習 + 間違いノート + 固定フォーム模試を優先してください。"}
           </p>
         </section>
-      ) : view.bankEmpty ? (
+      ) : null}
+
+      {view.bankEmpty ? (
         <section className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
           問題バンクがまだ登録されていません。バンクが配信されると今日のキューが表示されます。
         </section>
@@ -145,7 +156,11 @@ export default async function HomePage() {
           ) : null}
 
           {/* CTA は 1 ボタンのみ(specs/05 S-1) */}
-          {canStart ? (
+          {practiceFirst ? (
+            <Link href="/practice" className={cn(buttonVariants({ size: "lg" }), "h-12 w-full text-base")}>
+              前日メニューを始める(間違いノートから)
+            </Link>
+          ) : canStart ? (
             <Link href="/drill" className={cn(buttonVariants({ size: "lg" }), "h-12 w-full text-base")}>
               今日のキューを始める
             </Link>

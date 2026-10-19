@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Bank } from "@/lib/bank/load";
 import type { Question } from "@/lib/bank/schema";
 import { assembleQueueView, planSession, SESSION_MAX, SESSION_MIN, type DrillItem } from "./serve";
-import { emptyCtx, flash, mcq, NOW, srsRow, syllabus } from "./test-fixtures";
+import { emptyCtx, flash, mcq, NOW, pmcq, pSyllabus, srsRow, syllabus } from "./test-fixtures";
 
 // D1-5: キュー合成(セッション分割 / practice 分離 / D-1 ガード / 空バンク / 予算差引)
 
@@ -207,17 +207,93 @@ describe("assembleQueueView", () => {
     expect(v.session.items.map((i) => i.questionId)).toEqual(qs.map((q) => q.id));
   });
 
-  it("D-1(試験前日)はセレクタ未実装のため d_minus_1_unavailable(throw しない)", () => {
+  it("D-1 入力なしで D-1 日に組み立てると fail closed(通常キューに fallback しない)", () => {
     const qs = [flash("f-d1-q001")];
-    const v = view(qs, { now: new Date("2026-09-26T12:00:00+09:00"), srsRows: [srsRow("f-d1-q001")] });
-    expect(v.kind).toBe("d_minus_1_unavailable");
-    expect(v.session).toEqual({ kind: "none" });
-    expect(v.pace).toBeNull();
+    expect(() => view(qs, { now: new Date("2026-09-26T12:00:00+09:00"), srsRows: [srsRow("f-d1-q001")] })).toThrow(/D-1/);
   });
 
   it("スコープ内 exam のカウントダウンと budgetSec を Home 表示用に返す", () => {
     const v = view([]);
     expect(v.countdowns).toEqual([{ exam: "ccar-f", examDateJst: "2026-09-27", daysLeft: 34 }]); // NOW = 8/24, 試験 9/27
     expect(v.budgetSec).toBe(2700);
+  });
+});
+
+// ---- D5-1: D-1(P 試験前日 2026-12-11)の画面向けキュー ----
+describe("assembleQueueView: D-1(D5-1)", () => {
+  const D1_NOW = new Date("2026-12-11T12:00:00+09:00");
+  const wrong = (questionId: string) => ({
+    attemptId: `${questionId}-w`,
+    questionId,
+    mode: "practice",
+    isCorrect: false,
+    answeredAt: new Date("2026-12-01T09:00:00+09:00"),
+  });
+  const pRow = (id: string, stability: number) => srsRow(id, { exam: "ccar-p", stability });
+  const pview = (questions: Question[], over: Partial<Parameters<typeof assembleQueueView>[0]> = {}) =>
+    assembleQueueView({
+      now: D1_NOW,
+      scope: "ccar-p",
+      bank: bankOf(questions),
+      syllabi: [pSyllabus],
+      poolCtx: emptyCtx(),
+      srsRows: [],
+      correctQuestionIds: new Set(),
+      consumption: { spentTodaySec: 0, introducedTodayCount: 0, introducedTodayByExam: {} },
+      dMinus1Signals: { mistakeAttempts: [], answeredTodayIds: new Set() },
+      ...over,
+    });
+
+  // Practice 専用の間違いノート問題(q001)が先、Drill 対象の低 stability カード(q002, q003)が後
+  const qs = [
+    pmcq("p-d1-q001", { eligible_modes: ["practice"], scenario_id: "sc-1" }),
+    pmcq("p-d1-q002"),
+    pmcq("p-d1-q003"),
+  ];
+  const rows = [pRow("p-d1-q003", 9), pRow("p-d1-q002", 2)];
+  const mistakes = [wrong("p-d1-q001")];
+
+  it("Practice 専用の間違いノートが先頭なら、Drill セッションは空で nextMode=practice(順序を保つ)", () => {
+    const v = pview(qs, { srsRows: rows, dMinus1Signals: { mistakeAttempts: mistakes, answeredTodayIds: new Set() } });
+    expect(v.kind).toBe("ok");
+    expect(v.dMinus1).toEqual({ nextMode: "practice", queued: 3 });
+    expect(v.session).toEqual({ kind: "none" });
+    expect(v.practiceItems.map((i) => i.questionId)).toEqual(["p-d1-q001"]);
+    // 後続の drill 項目も Practice 第 2 層に二重提供しないよう、キュー全体の id は公開する
+    expect(v.queueQuestionIds).toEqual(["p-d1-q001", "p-d1-q002", "p-d1-q003"]);
+    expect(v.pace).not.toBeNull();
+  });
+
+  it("practice run を回答済みにして再構築すると nextMode=drill、低 stability 順の drill run が出る", () => {
+    const v = pview(qs, {
+      srsRows: rows,
+      dMinus1Signals: { mistakeAttempts: mistakes, answeredTodayIds: new Set(["p-d1-q001"]) },
+    });
+    expect(v.dMinus1?.nextMode).toBe("drill");
+    expect(v.practiceItems).toEqual([]);
+    if (v.session.kind !== "ok") throw new Error(v.session.kind);
+    expect(v.session.items.map((i) => i.questionId)).toEqual(["p-d1-q002", "p-d1-q003"]);
+  });
+
+  it("前々日(12-10)は通常順(dMinus1 なし・due ベース)。スコープ both では P 前日でも通常順", () => {
+    const common = { srsRows: rows, dMinus1Signals: undefined };
+    const dayBefore2 = pview(qs, { ...common, now: new Date("2026-12-10T12:00:00+09:00") });
+    expect(dayBefore2.dMinus1).toBeNull();
+    expect(dayBefore2.preExam?.phase).toBe("freeze");
+    const both = pview(qs, { ...common, scope: "both", syllabi: [syllabus, pSyllabus] });
+    expect(both.dMinus1).toBeNull();
+    expect(both.preExam).toBeNull();
+  });
+
+  it("F の前日(9/26)に P スコープは反応せず、F スコープなら D-1", () => {
+    const f926 = new Date("2026-09-26T12:00:00+09:00");
+    expect(pview(qs, { now: f926, dMinus1Signals: undefined }).dMinus1).toBeNull();
+    const fq = [mcq("f-d1-q001")];
+    const fv = view(fq, {
+      now: f926,
+      srsRows: [srsRow("f-d1-q001")],
+      dMinus1Signals: { mistakeAttempts: [], answeredTodayIds: new Set() },
+    });
+    expect(fv.dMinus1?.nextMode).toBe("drill");
   });
 });

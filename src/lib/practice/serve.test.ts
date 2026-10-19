@@ -4,7 +4,8 @@ import { processAnswer, type AnswerDeps, type AnswerStore, AttemptPkConflictErro
 import type { PoolContext } from "@/lib/bank/pool";
 import type { MockForm, Question } from "@/lib/bank/schema";
 import type { QueueItem } from "@/lib/queue/build";
-import { emptyCtx, mcq, structuredPmcq } from "@/lib/queue/test-fixtures";
+import { assembleQueueView } from "@/lib/queue/serve";
+import { emptyCtx, mcq, pmcq, pSyllabus, srsRow, structuredPmcq } from "@/lib/queue/test-fixtures";
 import type { SrsStateUpsert } from "@/lib/srs/card-row";
 import { assemblePracticeView, PRACTICE_BATCH_MAX, type PracticeAssembleInputs } from "./serve";
 
@@ -240,5 +241,51 @@ describe("assemblePracticeView: 構造化解説フィールド(D6-9、specs/03 �
     expect(view.items[0].choices[1]).toEqual({ label: "B", textEn: "b", plausibleJa: null, notBestJa: null });
     expect(view.items[1]).toMatchObject({ questionId: "p-d1-q002", bindingConstraintJa: null, lifecyclePhase: null });
     expect(view.items[1].choices.every((c) => c.plausibleJa === null && c.notBestJa === null)).toBe(true);
+  });
+});
+
+// D5-1: P 試験前日(2026-12-11)。D-1 の practice run は第 1 層として最優先で提示され、後続 drill 項目は第 2 層に二重提供しない
+describe("assemblePracticeView: D-1 の統合(D5-1)", () => {
+  const qs = [
+    pmcq("p-d1-q001", { eligible_modes: ["practice"] }),
+    pmcq("p-d1-q002"),
+    pmcq("p-d1-q003", { eligible_modes: ["practice"] }),
+  ];
+  const bank = bankOf(qs);
+  const queueView = assembleQueueView({
+    now: new Date("2026-12-11T12:00:00+09:00"),
+    scope: "ccar-p",
+    bank,
+    syllabi: [pSyllabus],
+    poolCtx: emptyCtx(),
+    srsRows: [srsRow("p-d1-q002", { exam: "ccar-p", stability: 1 })],
+    correctQuestionIds: new Set(),
+    consumption: { spentTodaySec: 0, introducedTodayCount: 0, introducedTodayByExam: {} },
+    dMinus1Signals: {
+      mistakeAttempts: [
+        { attemptId: "a1", questionId: "p-d1-q001", mode: "practice", isCorrect: false, answeredAt: new Date("2026-12-01T09:00:00+09:00") },
+      ],
+      answeredTodayIds: new Set(),
+    },
+  });
+
+  it("practice run(間違いノート)が第 1 層の先頭。drill 項目 q002 は第 2 層に出ない", () => {
+    expect(queueView.dMinus1?.nextMode).toBe("practice");
+    const view = assemble({ bank, practiceQueue: queueView.practiceItems, excludeIds: new Set(queueView.queueQuestionIds) });
+    if (view.kind !== "ok") throw new Error(view.kind);
+    expect(view.items.map((i) => [i.questionId, i.source])).toEqual([
+      ["p-d1-q001", "queue"],
+      ["p-d1-q003", "pool"],
+    ]);
+  });
+});
+
+describe("assemblePracticeView: queueOnly(D-1 の順序保証)", () => {
+  it("第 2 層を出さない。第 1 層が空なら empty", () => {
+    const bank = bankOf([mcq("f-d1-q001"), mcq("f-d1-q002")]);
+    expect(assemble({ bank, queueOnly: true })).toEqual({ kind: "empty" });
+    const v = assemble({ bank, queueOnly: true, practiceQueue: [queueItem("f-d1-q001")] });
+    if (v.kind !== "ok") throw new Error(v.kind);
+    expect(v.items.map((i) => i.questionId)).toEqual(["f-d1-q001"]);
   });
 });

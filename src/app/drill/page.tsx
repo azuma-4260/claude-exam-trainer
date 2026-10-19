@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export default async function DrillPage() {
   const view = await loadQueueView(getDb(), new Date());
 
-  if (view.kind === "ok" && view.session.kind === "ok") {
+  if (view.session.kind === "ok") {
     return (
       <QuickDrill
         items={view.session.items}
@@ -27,16 +27,22 @@ export default async function DrillPage() {
     );
   }
 
-  const message =
-    view.kind === "d_minus_1_unavailable"
-      ? "前日(D-1)メニューは準備中です(D5-1)。今日は通常キューを配信しません。"
-      : view.bankEmpty
-        ? "問題バンクがまだ登録されていません。"
-        : "今日の Drill は完了しました。";
+  // D-1 で先に Practice(間違いノート)が来る日は、順序を保つため Practice を案内する
+  const practiceFirst = view.dMinus1?.nextMode === "practice";
+  const message = practiceFirst
+    ? "前日メニューは間違いノートから始まります。先に Practice で間違いノートを解いてください。"
+    : view.bankEmpty
+      ? "問題バンクがまだ登録されていません。"
+      : "今日の Drill は完了しました。";
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col items-center justify-center gap-6 px-5">
       <p className="text-center text-sm text-muted-foreground">{message}</p>
+      {practiceFirst ? (
+        <Link href="/practice" className={cn(buttonVariants())}>
+          Practice へ進む
+        </Link>
+      ) : null}
       <Link href="/" className={cn(buttonVariants({ variant: "outline" }))}>
         <ArrowLeft data-icon="inline-start" aria-hidden />
         Home へ戻る
