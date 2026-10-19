@@ -1,0 +1,523 @@
+[
+  {
+    "id": "p-d5-q701",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A logistics company's customer-service agent can call an issue_refund tool. The system prompt says refunds above $500 require manager approval, but an internal audit found several larger refunds issued without it, and the auditors require that the limit hold on every call. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Strengthen the system prompt by restating the $500 rule in capital letters and adding examples of refunds that must be escalated to a manager.",
+        "plausible_ja": "上限違反の影響が小さく、たまの例外を許容できる業務なら、プロンプトの強化で足りる場合がある",
+        "not_best_ja": "監査が全呼出しで上限の遵守を求めており、プロンプトの指示は確率的で違反がゼロにならないため、この要件を満たせない"
+      },
+      {
+        "label": "B",
+        "text_en": "Review the refund log each week and have managers reverse any refund above $500 that lacks a recorded approval from a manager.",
+        "plausible_ja": "返金が取り消せて事後に回収できる低額の運用で、目的が事後の監査なら、事後確認でも成り立つ",
+        "not_best_ja": "全呼出しで上限が守られることが要件であり、事後に検出する監視は上限を超える返金が実行されること自体を防がない"
+      },
+      {
+        "label": "C",
+        "text_en": "Enforce the limit in the tool layer so that any call above $500 is held until a manager's approval is recorded, whatever the model requests."
+      },
+      {
+        "label": "D",
+        "text_en": "Describe the $500 approval rule in the issue_refund tool's description field, so that the model reads the limit each time it considers calling the tool.",
+        "plausible_ja": "上限違反の影響が小さく、モデルの判断精度を少し上げれば足りる業務なら、ツール説明への明記は有効な補助になる",
+        "not_best_ja": "ツール説明もモデルへの指示であり、遵守は確率的になる。全呼出しで上限が守られることを求める監査の要件を満たせない"
+      },
+      {
+        "label": "E",
+        "text_en": "Add a second Claude call that reads each proposed refund and states whether the $500 rule applies before the refund tool is run.",
+        "plausible_ja": "規則が曖昧で決定的な条件に書けない判断なら、別モデルによる事前チェックが有効",
+        "not_best_ja": "上限は金額という決定的な条件であり、確率的なモデル判定ではなくシステム側で強制すべきで、モデル同士の確認は遵守の保証にならない"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "上限の遵守を全呼出しで求められているため、モデルの判断を介さず、ツール層(呼出しの手前)で金額を判定して承認が記録されるまで保留する構成が、その制約を直接満たす。プロンプトの指示や確率的な判定は遵守をゼロリスクにできないので、必ず守らせたい統制はシステム側で決定的に強制する、というのが一般原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/hooks-guide",
+      "https://docs.claude.com/en/docs/claude-code/permissions",
+      "https://claude.com/blog/ciso-guide-to-agentic-ai"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "上限を全呼出しで必ず守らせる必要があり、プロンプトの指示や確率的な判定では遵守を保証できない。"
+  },
+  {
+    "id": "p-d5-q702",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An insurer plans to use Claude to sort inbound claim emails into 12 handling queues. The emails often contain national ID numbers and bank account details that the sorting does not need, and the privacy officer requires data minimization. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Instruct Claude in the system prompt not to use, repeat, or retain any national ID or bank account number that appears in an email.",
+        "plausible_ja": "識別子を受け取ること自体は許容され、出力への混入を防ぐことが要件なら有効",
+        "not_best_ja": "最小化は不要なデータをそもそも送らないことを求める。プロンプトの指示は送信後のモデルの振る舞いを頼むだけで、識別子の送信を止めない"
+      },
+      {
+        "label": "B",
+        "text_en": "Send the full emails and delete the insurer's own stored copies of the prompts and responses within 30 days after each email is sorted.",
+        "plausible_ja": "処理に識別子が必要で、保持期間の短縮が主題の要件なら妥当",
+        "not_best_ja": "分類に識別子は不要なので、送ること自体が最小化に反する。自社保管分の削除は、モデルに渡す識別子を減らさない"
+      },
+      {
+        "label": "C",
+        "text_en": "Mask or tokenize the national ID and bank account fields in the insurer's own pipeline before each email is sent to Claude."
+      },
+      {
+        "label": "D",
+        "text_en": "Send the full emails and agree stricter data-retention terms with the provider so that conversation content is not kept after the call.",
+        "plausible_ja": "識別子が処理に不可欠で、提供元での保持が主なリスクなら妥当",
+        "not_best_ja": "提供元での保持以前に、不要な識別子を送ることが最小化に反する。送らなければ、契約で保持を縛る必要も小さい"
+      },
+      {
+        "label": "E",
+        "text_en": "Send the full emails over encrypted connections and restrict access to the request logs to the claims-operations team only.",
+        "plausible_ja": "識別子が処理に必要で、機密性の確保が主題なら必須の統制",
+        "not_best_ja": "暗号化とアクセス制限は機密性の統制であり、不要なデータを渡さないという最小化の要件を満たさない"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "分類に不要な識別子を送信前に自社側でマスクまたはトークン化すれば、識別子はモデルにも提供元にも渡らず、データ最小化の要件を直接満たす。一般原則は、処理に必要なデータだけを渡し、不要なものは入口で外すことである。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/api-and-data-retention"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "分類に不要な識別子は、そもそも送らないことが最小化の要件を直接満たす。"
+  },
+  {
+    "id": "p-d5-q703",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A procurement team's agent answers supplier status questions, sends routine renewal reminder emails, and can terminate a supplier contract in the contract system. Termination cannot be undone once the supplier is notified, and about 2,000 low-risk reminder emails go out each week. The team wants to keep automating the routine work. Which TWO measures should the architect adopt to place human oversight? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Require a person to approve every reminder email before it is sent, so that no faulty message can reach a supplier.",
+        "plausible_ja": "誤送信が許されない規制文書や、件数が少なく影響が大きいメールなら、全件承認が妥当",
+        "not_best_ja": "週 2,000 通の低リスクな定型メールを全件承認にすると運用が成り立たず、承認が形骸化する。自動化を続けたいという要件にも反する"
+      },
+      {
+        "label": "B",
+        "text_en": "Require a named contract owner to approve each termination before the supplier is notified."
+      },
+      {
+        "label": "C",
+        "text_en": "Have the agent attach a self-reported confidence score to each termination, and route only the low-confidence ones to a person.",
+        "plausible_ja": "確信度がラベル付きデータで較正されており、取り消せる操作の振り分けなら有効",
+        "not_best_ja": "取り消せない解約は確信度に関わらず実行前に人間の承認が要る。モデルの自己申告の確信度は較正されておらず、閾値の根拠もない"
+      },
+      {
+        "label": "D",
+        "text_en": "Have reviewers audit a weekly sample of sent reminders, stratified by supplier tier, and feed the errors back into the prompts and templates."
+      },
+      {
+        "label": "E",
+        "text_en": "Add a second Claude instance that reviews each termination request and approves it when it agrees with the first instance's decision on the same inputs.",
+        "plausible_ja": "取り消せる低リスクな操作の一次チェックを自動化する用途なら有効",
+        "not_best_ja": "同種のモデルによる確認は人間の承認の代わりにならず、取り消せない操作の統制として不十分である"
+      }
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "取り消せない解約には、実行前に人間の承認ゲートを置くことで影響の大きさに見合う統制になる。大量で低リスクな定型メールは自動化を保ったまま、層化した抽出で継続的に品質を確認し、誤りを改善に還流する。この 2 つは別々の理由で必要である。一般原則は、人間のレビューをリスクに見合う場所と強度で配置し、全件承認と無監視の両極を避けることである。",
+    "refs": [
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production",
+      "https://www.anthropic.com/news/our-framework-for-developing-safe-and-trustworthy-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "取り消せない解約は実行前に人間の承認が要る一方、大量の低リスクな定型メールは全件承認が成り立たず、リスクに応じてレビューの置き場所を分ける必要がある。"
+  },
+  {
+    "id": "p-d5-q704",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A recruiting platform's agent reads uploaded resumes, scores candidates, and can update a candidate's pipeline status in the applicant tracking system. A tester hid white-on-white text in a resume telling the agent to mark the candidate as \"advance\", and the status changed. The business needs automatic status updates to continue at high volume, and the design must still hold if an injection slips past detection. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a system-prompt rule stating that resume content is data only and that any instructions found inside it must be ignored.",
+        "plausible_ja": "他の層と併用する前提の一層としては有効で、すり抜けを許容できる低リスク用途なら単独でも足りる",
+        "not_best_ja": "プロンプトの指示は確率的で、すり抜けた場合にステータス更新を守れない。検出をすり抜けても成り立つ設計という要件を満たさない"
+      },
+      {
+        "label": "B",
+        "text_en": "Screen every resume with a lightweight classifier and quarantine those that contain instruction-like text before the agent processes them, logging each quarantined file for review.",
+        "plausible_ja": "検出層として価値があり、他の層と重ねる前提なら有効で、すり抜けを許容できる用途なら単独でも妥当",
+        "not_best_ja": "分類器による検出だけでは、すり抜けた埋め込み指示が権限のあるエージェントに届く。検出が破られても守れるという要件を満たさない"
+      },
+      {
+        "label": "C",
+        "text_en": "Remove the agent's write access to the tracking system and have recruiters apply every status change by hand after reading its scores.",
+        "plausible_ja": "更新件数が少なく自動更新の価値が低いなら、最小権限として最も確実な選択になる",
+        "not_best_ja": "高い件数でも自動でステータスを更新し続けることが要件であり、書込み権限の撤去はこの要件を捨ててしまう"
+      },
+      {
+        "label": "D",
+        "text_en": "Extract resume content in a tool-less step that returns just validated fields, and let a separate step with system access see only those fields."
+      },
+      {
+        "label": "E",
+        "text_en": "Log every status change together with its source resume, and review the logged changes each week to detect anomalous updates.",
+        "plausible_ja": "取り消しが容易で、事後の検知で足りる低リスク用途なら妥当",
+        "not_best_ja": "事後の確認は、操作された更新が起きること自体を防がない。検出をすり抜けても守れるという要件を満たさない"
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "信頼できない入力である履歴書を、ツールを持たない段階で固定項目だけに変換し、権限を持つ段階にはその項目だけを渡すことで、埋め込み指示が権限のある段階で指示として実行される経路を断てる。自動更新も維持される。一般原則は、プロンプトの指示や検出だけに頼らず、信頼できない入力の隔離と権限の最小化を重ねる多層防御である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks",
+      "https://www.anthropic.com/research/trustworthy-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "検出をすり抜けた埋め込み指示でも、ステータス更新を操作できない構造が要る一方、高い件数での自動更新も維持しなければならない。"
+  },
+  {
+    "id": "p-d5-q705",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A payroll provider wants to automate withholding calculations. Requests arrive as free-text emails from many client HR departments whose formats the provider cannot change, and each result must be exact to the cent, reproducible, and explainable to auditors from the published rule tables. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Give Claude the rule tables and have it compute each amount with extended thinking, accepting the result whenever two separate runs agree on the figure.",
+        "plausible_ja": "結果の厳密さを求めない概算や下書きの用途なら、複数回の一致確認でも実用になる",
+        "not_best_ja": "2 回の一致は正しさを保証せず、ルール表の適用を再現して説明することもできない。1 円単位の正確さと再現性の要件を満たさない"
+      },
+      {
+        "label": "B",
+        "text_en": "Use Claude to extract the inputs from each email into a validated structure, then compute the amounts with deterministic code that applies the rule tables."
+      },
+      {
+        "label": "C",
+        "text_en": "Have Claude compute each amount, and send every result to a payroll specialist who recomputes it by hand before the result is released.",
+        "plausible_ja": "リスクが高く全件の人手確認が規制上必須で、件数が少ないなら妥当",
+        "not_best_ja": "決定的にできる計算を確率的なモデルに任せ、人手で全件を再計算するため、自動化の価値がほとんど残らない"
+      },
+      {
+        "label": "D",
+        "text_en": "Have Claude write a fresh calculation script for each email from the rule tables, and run that script to produce the amount.",
+        "plausible_ja": "1 回限りの試算や、結果を人が必ず検算する用途なら、都度のスクリプト生成でも実用になる",
+        "not_best_ja": "都度生成されるコードは検証も固定もされず、実行ごとに内容が変わり得る。再現性と、公表されたルール表に沿った監査人への説明が必要な要件を満たせない"
+      },
+      {
+        "label": "E",
+        "text_en": "Require clients to submit changes through a fixed form, and compute the amounts with deterministic code without using Claude at all.",
+        "plausible_ja": "入力の形式を顧客に強制できるなら、LLM を使わない構成が最小で最も確実",
+        "not_best_ja": "顧客の形式は変えられず、依頼は多様な自由記述のメールである。読み取りに Claude を使う価値を捨ててしまう"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正確さ・再現性・監査可能性が求められる計算を決定的なコードに任せ、LLM は自由記述の読み取りという不確実な部分に限定する構成が、この制約に適した最小十分な構成である。一般原則は、LLM の役割をリスクと要件に応じて絞り、使わない部分を見極めることである。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://claude.com/blog/ciso-guide-to-agentic-ai",
+      "https://docs.claude.com/en/api/messages"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "1 円単位の正確さ、再現性、監査可能性が求められる計算は、確率的なモデルではなく決定的なコードで行う必要がある。"
+  },
+  {
+    "id": "p-d5-q706",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t5-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A company's nightly agent reconciles records and corrects entries in its ERP system. It runs unattended under a shared administrator service account, so after a bad correction investigators could not tell which changes the agent made and which a person made. Security now requires every agent action to be attributable to the agent and to an accountable owner, with no broader access than the job needs, and the business wants the nightly automation to continue. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep the shared account and have the agent prefix every entry it changes with an \"AI\" tag in the comment field.",
+        "plausible_ja": "補助的な目印として、帰属の厳密さを求めない小規模なシステムなら役に立つ",
+        "not_best_ja": "共有の管理者アカウントのままでは権限が広すぎる。タグはエージェント自身が付けるもので、システム側の識別による帰属の根拠にならない"
+      },
+      {
+        "label": "B",
+        "text_en": "Run each nightly job under the credentials of the employee who scheduled it, so every change is logged under a person's name.",
+        "plausible_ja": "利用者の依頼を対話で代行し、その人が実行を監督しているなら、本人の資格情報での実行が妥当",
+        "not_best_ja": "無人の夜間実行で本人の資格情報を使うと、agent の操作と人の操作が再び区別できず、担当者の全権限を使うため最小権限にも反する"
+      },
+      {
+        "label": "C",
+        "text_en": "Keep the shared account and record every prompt and model response in a central log that investigators can search after an incident.",
+        "plausible_ja": "モデルの推論過程や入出力の調査が目的なら、プロンプトと応答の記録は有効",
+        "not_best_ja": "ERP 側で操作の主体が共有アカウントのままで、帰属と最小権限の要件を満たさない。入出力の記録は ERP 上の操作者を特定しない"
+      },
+      {
+        "label": "D",
+        "text_en": "Make the agent read-only and have staff apply each proposed correction manually, using their own accounts, the next morning.",
+        "plausible_ja": "訂正の影響が大きく、自動適用がまだ許されない導入段階なら妥当",
+        "not_best_ja": "要件は帰属と最小権限であり、夜間の自動化を続けることも求められている。自動訂正をやめる理由にならない"
+      },
+      {
+        "label": "E",
+        "text_en": "Give the agent its own identity limited to the reconciliation tasks, and record a named human owner who is accountable for it."
+      }
+    ],
+    "answer": [
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "エージェントに独立した ID と業務に必要な最小の権限を与えれば、システム側の記録で agent の操作と人の操作を区別でき、責任を負う人間の所有者を紐づけることで説明責任も満たせる。判断の結果への責任は人間・組織が負う、というのが一般原則であり、帰属はエージェント自身の申告ではなくシステムの識別で担保する。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai",
+      "https://www.anthropic.com/research/trustworthy-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "無人の自動化を続けるために、操作を agent と責任者に帰属でき、かつ権限を必要最小限にする識別の設計が要る。"
+  },
+  {
+    "id": "p-d5-q707",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A customs-brokerage firm uses Claude to extract tariff-classification fields from supplier invoices. Regulation requires a licensed reviewer to sign off on every declaration. Reviewers now spend most of their time re-reading whole invoices to find what to check, and they approve nearly everything. What should the architect do BEST to make the human review effective?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Move to a sampled review of 10 percent of declarations, stratified by supplier, and send the remaining declarations through without review.",
+        "plausible_ja": "リスクが低く、全件の署名が規制上必須でないなら、層化した抽出による確認が妥当",
+        "not_best_ja": "全件に対する資格者の署名が規制で必須であり、抽出による確認に切り替えることはできない"
+      },
+      {
+        "label": "B",
+        "text_en": "Add a second Claude pass that approves each declaration, and have the licensed reviewer sign off on a short summary of its verdict.",
+        "plausible_ja": "一次チェックを自動化して審査者の負荷を下げる用途として、人間の最終署名が根拠付きで残るなら有効",
+        "not_best_ja": "審査者が根拠を見ずに結論だけへ署名することになり、承認の形骸化を悪化させる。署名の実質的な確認にならない"
+      },
+      {
+        "label": "C",
+        "text_en": "Hire more licensed reviewers so that each reviewer handles fewer declarations per day and has more time for every invoice.",
+        "plausible_ja": "処理量が律速で、レビューの作業内容に問題がないなら、増員が最も直接的な解決になる",
+        "not_best_ja": "問題は件数ではなく、根拠を探して全文を読み直す作業の進め方にある。増員しても承認が形骸化する構造は変わらない"
+      },
+      {
+        "label": "D",
+        "text_en": "Show each extracted field beside its supporting invoice passage, and highlight fields with weak or missing evidence to check first."
+      },
+      {
+        "label": "E",
+        "text_en": "Show reviewers only a short summary of each declaration's extracted fields and rationale, and hide the invoice so that they stop re-reading it.",
+        "plausible_ja": "要約の内容が別の工程で原文と突き合わせて検証されているなら、審査者の負荷を下げる手段として検討できる",
+        "not_best_ja": "要約は審査者が原文で根拠を確かめる手段にならず、誤りを見つけられない。結論への署名を求めるだけで、承認の形骸化を悪化させる"
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "全件の人間による署名が必須の場面では、レビューの回数を減らすのではなく、判断材料を提示して一件あたりの確認を効果的にする。各項目に根拠となる原文の箇所を添え、根拠の弱い項目を目立たせれば、審査者は全文を読み直さず確認すべき箇所に集中できる。一般原則は、レビュアーに根拠・出典・不確実な箇所を示し、レビューを形式的な承認にしないことである。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/citations",
+      "https://claude.com/blog/the-ai-native-sdlc-playbook"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "全件の資格者署名が必須なのでレビュー回数は減らせず、一件あたりの確認を判断材料の提示で効果的にするしかない。"
+  },
+  {
+    "id": "p-d5-q708",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A SaaS company's operations agent has write access to its multi-tenant production database. This morning it ran a bulk update against the wrong tenant, and monitoring shows the same scheduled job will run again in 10 minutes. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a human approval gate before any bulk update, then re-enable the job once the gate is in place.",
+        "plausible_ja": "封じ込めの後に実施する恒久策として妥当で、再実行が差し迫っていなければ最初でもよい",
+        "not_best_ja": "10 分後の再実行を止めるのが先であり、承認ゲートの実装はそれまでに間に合わない。実装が終わるまで被害が広がる"
+      },
+      {
+        "label": "B",
+        "text_en": "Suspend the job's schedule and revoke the agent's write credentials until the cause is understood."
+      },
+      {
+        "label": "C",
+        "text_en": "Pull the agent's traces and logs to identify why it targeted the wrong tenant, before changing anything about the job.",
+        "plausible_ja": "再実行が差し迫っておらず、原因が分からないと対処を選べない場合は、原因の特定から始めるのが妥当",
+        "not_best_ja": "10 分後に同じジョブが再実行されるため、調査より先に被害の拡大を止める必要がある"
+      },
+      {
+        "label": "D",
+        "text_en": "Restore the affected tenant's data from the most recent backup so that the customer's records are correct again.",
+        "plausible_ja": "損害の回復が主目的で、再発の恐れがない状況なら最優先になる",
+        "not_best_ja": "封じ込めの前に復旧しても、再実行で再び壊れるおそれがある。復旧は被害の拡大を止めた後に行う"
+      },
+      {
+        "label": "E",
+        "text_en": "Rewrite the system prompt to require tenant-ID confirmation before each update, and let the job run as scheduled.",
+        "plausible_ja": "恒久策の一部として有効で、封じ込めの後に他の統制と重ねるなら妥当",
+        "not_best_ja": "プロンプトの指示は確率的で、検証のないまま 10 分後に本番で再実行すれば、同じ被害が再び起こりうる"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "同じジョブが 10 分後に再実行される状況では、被害の拡大を止める即時の封じ込めが最優先で、スケジュールの停止と書込み権限の取消しがその制約を満たす。一般原則は、進行中の被害にはまず封じ込めを行い、その後に調査・構造的な是正・復旧へ進むことである。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "同じジョブが 10 分後に再実行されるため、調査や恒久策より先に被害の拡大を止める即時の封じ込めが必要である。",
+    "lifecycle_phase": "monitoring"
+  },
+  {
+    "id": "p-d5-q709",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A law firm's associates use Claude to draft research memos. Opposing counsel found citations to cases that do not exist in a draft that was nearly filed with a court, and the firm's rules make the signing attorney responsible for every authority cited. Which TWO measures should the architect adopt? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Restrict Claude to answering from case-law excerpts retrieved from the firm's database, and require each cited authority to be backed by a quoted passage."
+      },
+      {
+        "label": "B",
+        "text_en": "Add a prompt instruction telling the model to cite only cases it is highly confident exist, and to leave out any citation it is unsure about.",
+        "plausible_ja": "別の統制で出典の確認が担保されていて、補助的に誤引用を減らしたいだけなら、有効な一層になる。",
+        "not_best_ja": "モデルの自己申告の確信度は存在確認の根拠にならず、確信を持って作り話の引用を出すこともある。出典による裏付けも人間の確認も置かないままでは防げない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Switch drafting to the largest available model, which tends to produce fewer citations of cases that do not exist than smaller models do in drafting.",
+        "plausible_ja": "モデルの能力不足が誤りの主因と診断できた場合は、モデルの変更が有効",
+        "not_best_ja": "大きなモデルでも事実と異なる内容を生成することはあり、根拠づけも署名者による確認も置かないままでは誤った引用を防げない"
+      },
+      {
+        "label": "D",
+        "text_en": "Add a second Claude pass that checks whether each cited case exists, and file the memo when that pass reports no problems.",
+        "plausible_ja": "検証用に判例データベースを検索できる構成なら、存在確認の自動化は有効な一層になる",
+        "not_best_ja": "出典に当たらずモデルが自己点検しても確実ではなく、署名弁護士が責任を負う提出物で人間による確認の代わりにならない"
+      },
+      {
+        "label": "E",
+        "text_en": "Require the signing attorney to check every cited authority against its source before the memo is filed."
+      }
+    ],
+    "answer": [
+      "A",
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "引用を検索した原文の抜粋と引用文で裏付けさせれば、作り話の引用が生じる余地を減らせる。さらに、提出物では署名者が出典で確認する人間の検証が、残る誤りを捕捉する。前者は発生の抑制、後者は残る誤りの捕捉という別々の理由で必要である。一般原則は、幻覚はモデルの変更や設定だけでは消えないため、根拠づけと人間の検証を重ねることである。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations",
+      "https://docs.claude.com/en/docs/build-with-claude/citations"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "存在しない引用を提出すると署名弁護士が責任を負うため、引用を出典に根拠づけることと、提出前に人間が出典で確認することの両方が要る。"
+  }
+]

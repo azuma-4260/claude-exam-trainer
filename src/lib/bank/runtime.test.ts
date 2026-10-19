@@ -67,10 +67,11 @@ describe("loadExamBank(content/<exam>)", () => {
   });
 
   // 実バンクの P は CP2 / CP3 で問題が入るため件数に依存しない(空バンクは上の fixture で担保)
-  it("P を読める(全問 exam = ccar-p、form は T-pmock 確定まで無し、syllabus は P)", () => {
+  it("P を読める(全問 exam = ccar-p、form は CP4-A 以後 form-a を含み全て exam = ccar-p、syllabus は P)", () => {
     const p = loadExamBank("ccar-p");
     expect(p.questions.every((q) => q.exam === "ccar-p")).toBe(true);
-    expect(p.forms).toEqual([]);
+    expect(p.forms.length).toBeGreaterThan(0);
+    expect(p.forms.every((f) => f.exam === "ccar-p")).toBe(true);
     expect(p.syllabus?.exam).toBe("ccar-p");
   });
 

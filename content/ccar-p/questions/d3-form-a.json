@@ -1,0 +1,664 @@
+[
+  {
+    "id": "p-d3-q701",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t1-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A logistics company runs a nightly reporting subagent with four tools: a read-only shipment database query tool, a chart-rendering tool, a shell execution tool, and an email tool that can send to any external address. The subagent's only job is to query shipment tables and render charts onto a dashboard, and a review shows it has never needed the shell or email tools. What should the architect do BEST to reduce risk?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep all four tools, run the shell tool inside a sandbox, and log every email sent so that unusual messages can be reviewed afterward.",
+        "plausible_ja": "シェルやメールが業務上実際に必要で、能力を残したまま被害範囲を限定し事後に追跡することが目的なら、サンドボックスと監査ログは妥当な補償統制になる。",
+        "not_best_ja": "このサブエージェントはシェルもメールも使わないため、能力を残して囲うより外す方が確実。サンドボックスとログは事後対応で、不要な能力を持つこと自体のリスクを消さない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Remove the shell and email tools from the subagent's configuration, leaving just the query and chart tools."
+      },
+      {
+        "label": "C",
+        "text_en": "Keep all four tools, but require a human to confirm each shell command and each email before it runs.",
+        "plausible_ja": "対話的に動き、人がその場で内容を判断でき、かつ能力が実際に必要な場面なら、実行前の確認は有効な歯止めになる。",
+        "not_best_ja": "夜間の無人バッチでは確認する人が常時いるとは限らず、確認が形骸化する。必要のない能力は確認を置くより構成から外すのが最小権限に合う。"
+      },
+      {
+        "label": "D",
+        "text_en": "Keep all four tools and add a system-prompt rule stating that the subagent must use only the query and chart tools.",
+        "plausible_ja": "能力を外せない共有構成で、権限による制御を補う多層防御の一部として併用するなら有用。",
+        "not_best_ja": "システム側で強制すべき統制をプロンプトに頼っており、悪意ある入力などで破られ得る。ツールが存在する限り呼び出し可能な状態が残る。"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、役割が必要としないシェルとメールのツールを構成から外すことである。権限そのものが無ければ、誤動作や悪用があっても被害が起きない。最小権限の原則では、不要な能力を残して監視・確認・指示で補うのではなく、能力そのものを除くのが最も確実で、追加の複雑さも最小で済む。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://docs.claude.com/en/docs/claude-code/sub-agents",
+      "https://docs.claude.com/en/docs/claude-code/security"
+    ],
+    "difficulty": 1,
+    "binding_constraint_ja": "このサブエージェントは照会とグラフ描画しか必要とせず、シェルとメールは一度も使われていない。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q702",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A bank's internal policy assistant retrieves from a vector index that a nightly job refreshes. Employees report that answers about the travel-expense limit quote last year's figure, although the policy document was republished three weeks ago with a new figure. Answers on other topics look correct. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Replace the model with a larger one, on the assumption that it will resolve conflicts between old and new figures more reliably when both appear.",
+        "plausible_ja": "両バージョンがプロンプトに入っているのにモデルが矛盾を解消できないと確認できた場合は、モデル変更も検討対象になる。",
+        "not_best_ja": "旧版しか検索されていない可能性があり、原因の層が未確認のまま部品を交換することになる。症状は改訂された 1 文書に限られ、索引側の問題を示唆している。"
+      },
+      {
+        "label": "B",
+        "text_en": "Increase top-k so that more candidate chunks, including the republished version, reach the prompt for every policy question.",
+        "plausible_ja": "新版が索引にあって順位が低いだけだと分かった場合は、候補数の増加や並べ替えの調整が有効。",
+        "not_best_ja": "新版が再索引されていなければ、top-k を増やしても取得されず、コストとコンテキスト量だけが増える。まず新版が索引に存在するかを確かめる必要がある。"
+      },
+      {
+        "label": "C",
+        "text_en": "Add a system-prompt instruction telling the model to prefer the most recent document whenever two retrieved figures differ.",
+        "plausible_ja": "改訂履歴の版が意図的に併存していて、取得後に版を解決する規則が必要な設計なら、補助として妥当。",
+        "not_best_ja": "旧版しか取得されていなければ、プロンプトに新旧を比べる材料が届かず効かない。索引の鮮度という構造的な問題をプロンプトの応急処置で覆うことになる。"
+      },
+      {
+        "label": "D",
+        "text_en": "For the affected queries, inspect the retrieved chunks and their index timestamps to see whether the republished policy was re-indexed."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、失敗したクエリで実際に取得されたチャンクとその索引時刻・版を確認することである。他の話題が正しく 1 文書だけが古いという症状は、モデルの能力ではなく索引の鮮度(更新が再索引に反映されたか)を疑わせるため、まず証拠で障害の層を切り分ける。原則として、障害診断では部品を替える前に、どの層で壊れているかを示す証拠を最初に取る。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://www.anthropic.com/news/contextual-retrieval",
+      "https://docs.claude.com/en/docs/build-with-claude/embeddings"
+    ],
+    "difficulty": 2,
+    "binding_constraint_ja": "症状は改訂された特定の文書に限られ、原因が索引の鮮度か取得順位かを見分ける証拠がまだ無い。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q703",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A telecom operator runs a RAG assistant over its network-equipment manuals. Support leads say the assistant \"hallucinates\" wrong port-configuration steps in about 8% of answers, and the team proposes moving to a larger model. A review of 40 logged bad answers shows that the chunk with the correct steps was retrieved in 36 of them, usually among about 25 chunks passed to the model. Neither the corpus nor the code changed recently. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Move all traffic to the larger model, then compare the error rate over the next few weeks to see whether model capability was the cause of the bad answers.",
+        "plausible_ja": "正解の手順だけを含む最小の文脈でも同じ誤りが再現するなら、モデルの能力が主因であり、モデル変更が有力な手段になる。",
+        "not_best_ja": "文脈の与え方が原因かをまだ切り分けておらず、40 件中 36 件で正解チャンクは取得済みである。診断より先にコストの大きい部品交換を行うことになる。"
+      },
+      {
+        "label": "B",
+        "text_en": "Fine-tune the embedding model on the full set of manuals so that the chunk with the correct steps is retrieved more accurately in future.",
+        "plausible_ja": "分析で、語彙の食い違いなど埋め込みに起因する取得漏れが主因と示された場合は、埋め込みの改善が妥当。",
+        "not_best_ja": "ログでは 40 件中 36 件で正解チャンクは既に取得されており、取得の改善は主な失敗に効かない。再学習は大きな投資でもある。"
+      },
+      {
+        "label": "C",
+        "text_en": "Replay the failing questions with only the top few reranked chunks instead of all 25, to test whether context overload or conflicting passages cause the errors."
+      },
+      {
+        "label": "D",
+        "text_en": "Rebuild the index with smaller chunks and more overlap, so that the procedures are split across chunk boundaries less often and are retrieved with more precision.",
+        "plausible_ja": "正解の手順がチャンクの境界で分断され、取得されていない失敗が多い場合は、チャンクの再設計が有効。",
+        "not_best_ja": "取得に成功している失敗が大半で、取得が原因だという証拠が無い。再インデックスはコストが大きく、文脈の与え方に原因がある場合は直らない。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、失敗した質問を少数の上位チャンクだけで再実行し、文脈の過多や矛盾する記述が誤りの原因かを確かめることである。ログから正解チャンクは多くの失敗で取得済みと分かっており、残る疑いは取得ではなくモデルへの文脈の与え方にある。障害診断では、症状の言い換え(幻覚)でモデルを疑う前に、ログが示す層に対して最も安く確認できる実験から始める。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations",
+      "https://www.anthropic.com/news/contextual-retrieval",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "binding_constraint_ja": "取得ログから、正解チャンクは大半の失敗で取得済みと分かっており、残る原因候補はモデルへの文脈の与え方である。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q704",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A retailer's nightly inventory agent calls a remote MCP server through the Messages API's MCP connector, with the application supplying an OAuth access token. Tool calls succeed for roughly the first hour of each run, after which every call returns an authorization error. A manually restarted run works again, and the MCP server's logs show no outage. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add retries with exponential backoff to every tool call, so that transient server errors and rate-limit responses no longer abort the nightly run.",
+        "plausible_ja": "エラーが一時的な 5xx やレート制限で、時間と無関係にランダムに起きている場合は、再試行とバックオフが有効。",
+        "not_best_ja": "エラーは約 1 時間後から継続して認可エラーになっており、再試行しても同じ認可エラーが返る。時間に依存するパターンは一時障害ではない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Ask the MCP server team to extend the server-side session timeout so that connections stay open longer during each nightly run.",
+        "plausible_ja": "サーバー側のセッションが切れて認可エラーのように見える構成なら、セッションの有効時間を延ばす対応が有効になる。",
+        "not_best_ja": "トークンは呼び出し側アプリが供給しており、サーバーのログに障害は無い。約 1 時間後から継続して認可エラーになる症状は、サーバー側のセッションより先にトークンの期限切れを確認する対象になる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Check whether the failures begin when the access token expires, and whether the application refreshes it before calling the connector."
+      },
+      {
+        "label": "D",
+        "text_en": "Replace the OAuth token with one that stays valid for several days, so that a single run never needs to refresh it.",
+        "plausible_ja": "強い補償統制(保管・失効・範囲の限定)があり、漏えい時の影響が小さい限定的な内部用途なら、有効期間を延ばす選択も許容される場合がある。",
+        "not_best_ja": "原因が有効期限切れだとまだ確認されておらず、期限を延ばしても更新処理の欠落は残る。MCP コネクタでは OAuth の取得と更新はアプリ側の責任で、更新処理の欠落が本来の修正点になる。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、失敗の開始時刻をアクセストークンの有効期限と突き合わせ、更新処理の有無を確認することである。MCP コネクタでは OAuth の取得とトークンの更新は呼び出し側アプリの責任で、約 1 時間後から継続して失敗し再起動で直るという症状は期限切れに合致する。資格情報は範囲と期限を絞って扱い、期限切れは更新で対処するのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/mcp-connector",
+      "https://docs.claude.com/en/docs/agents-and-tools/remote-mcp-servers",
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "binding_constraint_ja": "認可エラーが一定時間後から全呼び出しで継続しており、原因はトークンの有効期限と更新処理にある可能性が高い。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q705",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A law firm's research assistant answers attorneys' questions using documents retrieved from a document-management system organized by client matter, with ethical walls between matters. To cut latency, it also caches answers to repeated questions across the firm. About 3,000 attorneys use it, each may see only the matters they are staffed on, and staffing assignments change weekly and must take effect the same day, so rebuilding per-attorney indexes after each change is not acceptable. Which TWO actions best close the authorization gaps? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a system-prompt rule telling the assistant never to reveal content from matters the current attorney is not staffed on.",
+        "plausible_ja": "ユーザーごとの制御がシステム側で別途強制されている前提で、誤出力に備える補助的な多層防御として併用するなら妥当。",
+        "not_best_ja": "システム側で強制すべきアクセス統制をプロンプトに頼っている。権限外の文書がモデルに渡った時点で漏えいの可能性があり、指示は破られ得る。"
+      },
+      {
+        "label": "B",
+        "text_en": "Apply the requesting attorney's matter entitlements as a filter in the retrieval layer, enforced in application code before any chunk reaches the model."
+      },
+      {
+        "label": "C",
+        "text_en": "Build and maintain a separate vector index for each attorney from the matters that attorney is staffed on.",
+        "plausible_ja": "利用者が少数で担当の変更が稀な構成なら、利用者ごとの索引で分離する方式も成立する。",
+        "not_best_ja": "担当の変更は当日中に反映する必要があるが、3,000 人分の索引を変更のたびに作り直す運用は許容されない。権限変更への追随が遅れると古い権限で見え、フィルタ強制で足りる場面での過剰設計でもある。"
+      },
+      {
+        "label": "D",
+        "text_en": "Scope the answer cache so that a cached answer is served only to attorneys entitled to every matter its sources came from."
+      },
+      {
+        "label": "E",
+        "text_en": "Record every retrieval and tool call with the attorney's ID in an audit log, and have the compliance team review the log for access violations each week.",
+        "plausible_ja": "事後の説明責任や不正利用の検知が目的なら、監査ログとレビューは必須の補助統制になる。",
+        "not_best_ja": "ログは事後に違反を見つけるだけで、権限外の閲覧を防がない。要件はアクセスを防ぐことで、検知を予防の代わりにしている。"
+      }
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、検索層で利用者の担当案件による絞り込みをアプリケーションコードで強制することと、回答キャッシュを利用者の権限に応じて分けることである。2 つは別々の経路(文書の検索と、再利用される回答)の穴をそれぞれ塞ぐため、どちらも必要になる。アクセス制御はモデルの判断ではなく、アプリケーション側で利用者の権限に基づいて強制するのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/secure-deployment",
+      "https://docs.claude.com/en/docs/claude-code/security"
+    ],
+    "difficulty": 3,
+    "binding_constraint_ja": "閲覧できるのは担当案件のみで、文書検索と回答キャッシュの 2 つの経路を、モデルに頼らず利用者の権限で強制する必要がある。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q706",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A software consultancy lets engineers add MCP servers to a shared coding-agent setup. Over a year, 25 servers have accumulated. Usage data shows that most engineers regularly use only about six of them, and the security team has found that several servers were added with no review. Which TWO actions best address the situation? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Inventory the configured servers and their tools against actual usage, and remove or disable the ones nobody needs."
+      },
+      {
+        "label": "B",
+        "text_en": "Treat a connector's listing in a vendor directory as the approval step for adding it, because listed connectors have been security-audited by the vendor.",
+        "plausible_ja": "社内で別途の審査を行う前提で、ディレクトリ掲載を一次的な絞り込みに使うなら、有用な入力になる。",
+        "not_best_ja": "ディレクトリ掲載は一次的な絞り込みにすぎず、docs も接続前に各サーバーを自社で信頼確認するよう求めている。自社の承認プロセスの代わりにはならない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Add a system-prompt instruction telling the agent to avoid tools that look risky or irrelevant to the current task.",
+        "plausible_ja": "能力を構成から外せない暫定期間の補助として、不要なツールを避けさせる指示を併用するのは意味がある。",
+        "not_best_ja": "システム側で強制すべき統制をプロンプトでやっており、指示は破られ得る。未審査・未使用のサーバーも構成に残ったままになる。"
+      },
+      {
+        "label": "D",
+        "text_en": "Maintain an allowlist of approved MCP servers in managed settings under change review, so that new servers are reviewed before use."
+      },
+      {
+        "label": "E",
+        "text_en": "Require engineers to confirm every MCP tool call manually, so that unneeded servers are noticed when they appear.",
+        "plausible_ja": "少数の高リスクなツールだけに限った確認なら、実行前の歯止めとして有効。",
+        "not_best_ja": "全呼び出しの確認は承認疲れを招き、未使用や未審査の能力を構成から減らさない。"
+      }
+    ],
+    "answer": [
+      "A",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、使用実態と突き合わせた棚卸しで不要なサーバーを除去することと、承認済みサーバーの許可リストをmanaged settings に置き、変更審査を通して新規追加を管理することである。前者は既にある過剰な能力を減らし、後者は今後の未審査の追加を防ぐ。別々の理由で両方が必要になる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp",
+      "https://docs.claude.com/en/docs/claude-code/security",
+      "https://docs.claude.com/en/docs/claude-code/managed-settings"
+    ],
+    "difficulty": 2,
+    "binding_constraint_ja": "未使用の能力が積み上がり、未審査のサーバーも追加されているため、棚卸しによる除去と、今後の追加を審査に通す仕組みの両方が要る。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q707",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A health insurer's member chat assistant must return each full response within 4 seconds at the 95th percentile, and the business accepts at most a 3-point drop from the current 97% accuracy on a 500-case evaluation set. The current setup (the largest model at default effort) scores 97% with a 7.5 s p95. Measured on the same set: a mid-size model at medium effort scores 95.5% with a 3.4 s p95; a small model scores 89% with a 1.2 s p95; and the largest model with a shorter-answer prompt scores 96.5% with a 5.9 s p95. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Choose the small model, because it has the lowest latency and leaves the most margin on the 4-second requirement.",
+        "plausible_ja": "遅延が最優先で、精度の許容低下幅が大きい用途(下書き候補の提示など)なら、小型モデルが適する。",
+        "not_best_ja": "精度 89% は許容される下限(94%)を下回る。遅延だけを最適化し、もう一方の制約を満たしていない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Keep the largest model with the shorter-answer prompt, because it keeps accuracy closest to the current level.",
+        "plausible_ja": "遅延の目標が緩い(6 秒以上でよい)用途なら、精度が最も高いこの構成が選ばれる。",
+        "not_best_ja": "p95 が 5.9 秒で、4 秒という要件を満たさない。精度の高さが制約の 1 つを満たしても、遅延の制約が決め手になる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Keep the current setup and stream the response, because streaming removes the need to change the configuration.",
+        "plausible_ja": "要件が最初のトークンが出るまでの時間のような体感の応答性なら、ストリーミングは有効な手段になる。",
+        "not_best_ja": "要件は応答全体を 4 秒以内に返すことで、ストリーミングは体感を改善しても総生成時間を縮めない。計測された p95 は 7.5 秒のまま。"
+      },
+      {
+        "label": "D",
+        "text_en": "Keep the largest model with the shorter-answer prompt, and ask the business to relax the p95 latency target from 4 seconds to 6 seconds.",
+        "plausible_ja": "遅延の要件が実はビジネス上の必須ではなく、計測結果を示して合意し直せるなら、要件の調整も選択肢になる。",
+        "not_best_ja": "計測上、両方の閾値を満たす構成が既にあり、要件を緩める必要が無い。エンジニアリングで解ける問題を要件の変更で逃げている。"
+      },
+      {
+        "label": "E",
+        "text_en": "Choose the mid-size model at medium effort, and re-run the evaluation set before release to confirm the result."
+      }
+    ],
+    "answer": [
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、中型モデルを medium effort で使う構成である。95.5% で許容下限の 94% を満たし、p95 が 3.4 秒で 4 秒の要件も満たす、計測された唯一の構成になる。精度と遅延のトレードオフは、評価セット上の計測値を閾値に照らして構成を選び、その数値で判断を説明するのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model",
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
+    ],
+    "difficulty": 2,
+    "binding_constraint_ja": "精度は 94% 以上、p95 は 4 秒以内という 2 つの閾値を、評価セットの計測で両方満たす構成は 1 つだけである。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q708",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An insurer's claims-intake agent chains retrieval, several tool calls, and a drafting step, and handles about 500,000 conversations a month that contain health details. Data-protection rules prohibit storing conversation content in operational telemetry, yet engineers cannot currently explain why some runs fail or take unusually long. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Capture full prompts, tool inputs, and outputs for every run (including health details) in the telemetry store, and restrict access to a small on-call engineering group.",
+        "plausible_ja": "規則が運用ログへの内容保存を認めており、アクセス制御と保存期間の管理が要件として足りるなら、内容まで記録する方が調査しやすい。",
+        "not_best_ja": "規則が運用テレメトリへの会話内容の保存を禁じている。アクセスを絞っても、保存自体が制約に反する。"
+      },
+      {
+        "label": "B",
+        "text_en": "Trace each run's structure (steps, tool names, latencies, token counts, status codes) with content redacted by default, to locate failing or slow steps."
+      },
+      {
+        "label": "C",
+        "text_en": "Rely on thumbs-up and thumbs-down ratings from claimants, because user feedback requires no conversation content to be retained.",
+        "plausible_ja": "障害の特定ではなく、満足度の傾向を把握するのが目的なら、利用者のフィードバックは有用な信号になる。",
+        "not_best_ja": "評価は失敗した工程や遅い工程を示さず、多段の呼び出しの原因調査に使えない。失敗が例外として現れない問題の診断にならない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Keep full conversation content only for a randomly sampled 5% of runs, and delete it automatically after 30 days.",
+        "plausible_ja": "規則が限定的・短期の保存を明示的に認めているなら、サンプルの内容を診断に使える。",
+        "not_best_ja": "規則は内容の保存そのものを禁じており、サンプルや期限付きでも制約に反する。しかも工程の構造を記録すれば内容無しで原因を追える。"
+      },
+      {
+        "label": "E",
+        "text_en": "Disable tracing in production and reproduce failures in a staging environment with synthetic conversations.",
+        "plausible_ja": "本番のテレメトリを一切許せず、再現できる決定的な障害が中心なら、ステージングでの再現が主な手段になる。",
+        "not_best_ja": "非決定的で多段の呼び出しの失敗は、合成データのステージングでは再現しにくい。本番の構造的な痕跡を捨てるのは、観測を放棄することになる。"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、内容をマスクしたまま、各実行の工程・ツール名・遅延・トークン数・ステータスをトレースすることである。個々の会話内容を見なくても、意思決定のパターンや呼び出しの構造から、どの工程で失敗や遅延が起きているかを追える。観測性の設計では、プライバシーの制約を観測の放棄ではなく、記録する対象を構造に絞る判断として扱う。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/docs/claude-code/monitoring-usage",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "binding_constraint_ja": "会話内容をテレメトリに保存できないため、内容ではなく実行の構造から失敗箇所を特定する必要がある。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q709",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t5-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A hospital pharmacy wants an assistant that answers staff questions from its drug formulary, a single document set of about 150,000 tokens that fits in the model's context window. The formulary changes once a quarter, handles about 300 queries per hour, and questions often need cross-references between sections. The team plans to build a vector index with chunking, hybrid search, and a reranker. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Build the planned vector index, because retrieval keeps each prompt small and so keeps the cost per query low.",
+        "plausible_ja": "知識ベースがコンテキストに収まらない規模(数百万トークン)や、頻繁に更新される規模なら、検索による方式が適する。",
+        "not_best_ja": "約 15 万トークンで収まり、更新も四半期に 1 回で、全文を置けばセクション間の参照も保てる。この規模では検索基盤の構築と運用が不要な複雑さになる。"
+      },
+      {
+        "label": "B",
+        "text_en": "Summarize each section into a few paragraphs and keep only the summaries in the prompt to save tokens.",
+        "plausible_ja": "コンテキスト上限を超える規模で、詳細より概要が目的なら、要約の利用は妥当。",
+        "not_best_ja": "薬剤の用量や禁忌のような詳細が要約で失われる恐れがあり、正確さの要件を損なう。全文が収まるのに情報を落とす理由が無い。"
+      },
+      {
+        "label": "C",
+        "text_en": "Place the full formulary in the prompt and use prompt caching so that repeated queries reuse it."
+      },
+      {
+        "label": "D",
+        "text_en": "Give the assistant a search tool and let it query the formulary iteratively until it finds the needed sections.",
+        "plausible_ja": "規模が大きく、必要な情報が事前に予測できず、探索しながら集める必要がある場面なら、エージェント型検索が適する。",
+        "not_best_ja": "対象は固定された小さな文書集合で、探索の反復は遅延とコストを増やす。全文を置けば探索自体が不要になる。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、全文をプロンプトに置き、prompt caching で繰り返しのクエリのコストと遅延を下げることである。約 15 万トークンで収まる固定的な知識ベースなら、チャンク分割や検索の失敗要因を持ち込まずに済み、セクション間の参照も保てる。RAG は万能の上位解ではなく、規模が大きい知識ベースのための手段であり、制約を満たす最小十分な構成を選ぶのが原則である。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-caching",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "binding_constraint_ja": "知識ベースが小さくコンテキストに収まり更新も稀なため、検索基盤を作らず全文をキャッシュするのが最小十分な構成になる。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q710",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A retailer wants an assistant that answers finance questions such as \"What was the total return value for outdoor products in the Northeast last quarter?\" from a sales warehouse with hundreds of millions of rows. The proposal is to export the rows as text chunks, embed them, and answer through vector search. Answers must be exact, and the warehouse contains data that most users are not cleared to see. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Export each row of the warehouse as a chunk and use hybrid search with reranking, so that the exact product and region terms in each question are matched.",
+        "plausible_ja": "対象が製品説明やレビューのような非構造の文章で、意味と語彙の両方で関連する文章を探すなら、ハイブリッド検索と再ランキングが適する。",
+        "not_best_ja": "要件は集計の厳密な値で、行の断片を取得してモデルが合計する方式は網羅も正確さも保証されない。構造化データに非構造向けの手法を当てている。"
+      },
+      {
+        "label": "B",
+        "text_en": "Load a representative CSV extract of the warehouse into the context and let the model compute the requested totals directly from that extract.",
+        "plausible_ja": "対象が数千行程度の小さな表で、権限の問題も無い場合は、コンテキストに載せて分析させることも可能。",
+        "not_best_ja": "数億行は載せられず、抜粋では全体の合計が出せない。権限の無い利用者向けのデータが抜粋に混入する恐れもある。"
+      },
+      {
+        "label": "C",
+        "text_en": "Let a subagent fetch rows from the warehouse over several turns, and total them by reading the results as they come back.",
+        "plausible_ja": "必要な情報が事前に予測できず、探索しながら少量の文書を集める場面なら、反復的な取得が適する。",
+        "not_best_ja": "合計をモデルが結果を読んで計算する方式は、行数が多いと精度が保てず、集計という決定的な処理を LLM に任せている。権限の強制も満たさない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Give the assistant a parameterized, read-only query tool over permitted warehouse views, run with the asking user's access, so the database does the aggregation."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、許可されたビューに対するパラメータ化された読み取り専用の照会ツールを、質問した利用者の権限で動かし、集計をデータベースに任せることである。表形式のデータは SQL や API のツールで引くのが適し、厳密な値は決定的な処理で出すべきで、権限もデータ側で強制できる。非構造の文章向けの検索手法を構造化データにそのまま当てはめないのが原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 3,
+    "binding_constraint_ja": "答えは厳密な集計値で、かつ利用者ごとに見てよいデータが異なるため、データベース側で集計と権限の強制を行う必要がある。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q711",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t7-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A freight forwarder's dispatch agent needs the customs-clearance status of each shipment from an external customs broker. The broker offers an autonomous agent that accepts free-form requests and replies in free text; it can also return replies in a fixed schema if asked. The dispatch agent also holds a tool that releases shipments for pickup in the forwarder's own systems. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Let the broker's agent call the release tool directly once it decides that a shipment is cleared, to avoid an extra round trip.",
+        "plausible_ja": "ブローカーが同じ組織の信頼境界内にあり、権限と監査が一体で管理されているなら、直接の連携も成立する。",
+        "not_best_ja": "ブローカーは外部組織で、信頼境界の外にある。自社システムの出荷解放という重要な操作の権限を外部のエージェントに渡している。"
+      },
+      {
+        "label": "B",
+        "text_en": "Pass the broker agent's reply to the dispatch agent as a trusted tool result, and let it decide whether to release the shipment.",
+        "plausible_ja": "返信が自社の管理下にあるシステムから、決まった形式で返る場合は、ツール結果として信頼して扱える。",
+        "not_best_ja": "外部エージェントの自由文は信頼できない内容で、その中の指示や誤りが出荷解放の判断に影響し得る。信頼境界の定義が無い。"
+      },
+      {
+        "label": "C",
+        "text_en": "Agree a structured request and response contract with the broker, validate replies against it, and let only the validated status field gate the release tool."
+      },
+      {
+        "label": "D",
+        "text_en": "Keep the free-text exchange and add a system-prompt instruction that the dispatch agent must ignore any instructions it finds in the broker agent's reply.",
+        "plausible_ja": "他の防御が整った上での多層防御の一部としてなら、プロンプトでの指示も補助的な効果がある。",
+        "not_best_ja": "システム側で強制すべき統制をプロンプトだけでやっている。自由文の中の指示を完全には避けられず、出荷解放の根拠が検証されない。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、ブローカーとの間で構造化された要求と応答の取り決めを定め、返信を検証し、検証済みの状態の項目だけを出荷解放の判断に使うことである。外部のエージェントの出力は信頼境界の外から来る内容として扱い、重要な操作の入力はシステム側で形式と値を検証して絞る。外部への委任では、インターフェースと信頼境界を定義し、自由文を直接に操作の根拠にしないのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/api/agent-sdk/secure-deployment",
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://www.anthropic.com/research/prompt-injection-defenses"
+    ],
+    "difficulty": 3,
+    "binding_constraint_ja": "ブローカーは信頼境界の外にあり、その返信が自社システムの出荷解放という重要な操作を左右してしまう。",
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q712",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t8-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A support team's agent has a system prompt containing about 40 troubleshooting procedures (roughly 60,000 tokens), although any single ticket needs only one or two of them. The agent also reads raw log files directly, so each investigation fills the context with thousands of log lines before it reaches an answer, and later answers degrade. Which TWO changes best address these problems? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Keep all procedures in the system prompt and rely on prompt caching, so that the repeated prefix is cheaper and faster to process on every ticket.",
+        "plausible_ja": "問題がコストだけで、手順が常に全て使われ、精度の劣化が無い場合なら、キャッシュは有効な手段になる。",
+        "not_best_ja": "キャッシュは費用と遅延を下げても、コンテキストを占める量や注意の分散は減らさない。劣化の原因である文脈の肥大が残る。"
+      },
+      {
+        "label": "B",
+        "text_en": "Increase the context window and the maximum output length so that the agent can keep all of the logs in view.",
+        "plausible_ja": "情報が全て同時に必要で、かつ精度の劣化が無いと確認された場合は、大きい文脈の利用が妥当。",
+        "not_best_ja": "コンテキストが増えるほど精度や再現率が下がる傾向があり、既に起きている劣化を悪化させる。ログの大半は結論に不要。"
+      },
+      {
+        "label": "C",
+        "text_en": "Package each procedure as a Skill so that only its name and description are loaded up front and the full text is read when a ticket needs it."
+      },
+      {
+        "label": "D",
+        "text_en": "Delete the 20 least-used procedures from the prompt to cut its size in half.",
+        "plausible_ja": "使われない手順が本当に不要と確認できた場合は、棚卸しによる削除も有効。",
+        "not_best_ja": "稀に必要になる手順を失い、対応できるチケットが減る。段階的に読み込めば、手順を失わずに常駐のコンテキストを減らせる。"
+      },
+      {
+        "label": "E",
+        "text_en": "Delegate log exploration to a subagent that reads the raw logs in its own context and returns only a concise summary to the main agent."
+      }
+    ],
+    "answer": [
+      "C",
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "正解は、手順を Skill にして必要になったときだけ全文を読み込むことと、ログの調査をサブエージェントに任せて要約だけを受け取ることである。前者は常駐する手順の量を、後者は調査中に積み上がるツール出力の量を、それぞれ減らす。一括で全てを載せるのではなく、必要な情報を必要なときに段階的に見つける方式を選ぶのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview",
+      "https://docs.claude.com/en/api/agent-sdk/subagents",
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 2,
+    "binding_constraint_ja": "手順の常駐とログの生出力という 2 つの別々の原因でコンテキストが肥大し、精度が劣化している。",
+    "status": "active",
+    "rev": 1
+  }
+]

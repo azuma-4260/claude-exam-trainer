@@ -1,0 +1,444 @@
+[
+  {
+    "id": "p-d2-q701",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A tax-software vendor's in-app assistant sends the same 40,000-token compliance manual, followed by the user's question, on every turn of multi-turn sessions. Turns within a session arrive seconds apart, and the manual changes only quarterly. Evaluation shows the current top-tier model meets the accuracy target, but input cost and time to first token are well above budget. Answers frequently draw on several chapters at once, and the team has no capacity to build new infrastructure this quarter. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Move all traffic to the smallest model tier and keep the prompt as it is, because a lower per-token price reduces the bill on every request.",
+        "plausible_ja": "評価で小型 tier が精度目標を満たすと確認でき、かつコストの主因が出力生成や推論そのものである場合は妥当になる。",
+        "not_best_ja": "精度目標を満たすと評価済みなのは現行 tier だけで、コストと TTFT の主因は毎ターン再送される同一の長い静的 prefix である。モデルを縮小しても原因に当たらず、精度低下のリスクだけが増える。"
+      },
+      {
+        "label": "B",
+        "text_en": "Truncate the manual to its first 10,000 tokens and send that shortened text on every turn, because shorter input reduces both cost and time to first token.",
+        "plausible_ja": "利用の大半が冒頭部分でしか賄われないことがログで確認できる場合は、入力削減が有効になる。",
+        "not_best_ja": "回答が複数の章にまたがるため、マニュアルを冒頭だけに切り詰めると根拠となる条文を失い、精度目標を割る恐れがある。"
+      },
+      {
+        "label": "C",
+        "text_en": "Place the manual at the start of the prompt as a stable prefix, set a cache breakpoint after it, and append each user turn after it."
+      },
+      {
+        "label": "D",
+        "text_en": "Replace the manual with a retrieval step that fetches only the sections relevant to each question and adds them to the prompt for that turn.",
+        "plausible_ja": "マニュアルが長大で質問ごとに必要な箇所が少数に限られ、検索精度を評価で確かめられる場合は有効になる。",
+        "not_best_ja": "回答が複数章にまたがるため検索で必要な章を取りこぼす恐れがあり、今四半期に新しい検索基盤を作る余力もない。繰り返し送られる同一 prefix の問題は、構成を変えずにキャッシュで解ける。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "コストと TTFT の原因は、変わらない長い文書を毎ターン最初から処理していることである。静的な内容を prompt の先頭に置いてキャッシュ境界を設定し、可変の質問をその後ろに続ければ、精度に影響する入力内容を変えずに両方を同時に下げられる。原則として、症状がコストや遅延でも、まず繰り返し送られる静的 prefix の再利用など原因の層で対処し、モデル変更や入力削除はその後に検討する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-caching",
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "毎ターン同一の長い静的文書を再処理していることが、コストと TTFT の原因である。"
+  },
+  {
+    "id": "p-d2-q702",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A property-management firm's assistant answers questions about lease portfolios. Each request carries about 120,000 tokens of lease documents, concatenated without separators, and the question and instructions are placed before the documents. Answers about clauses in the middle documents are often missed, and the answers must compare clauses across several leases in one pass. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Switch to a retrieval pipeline that returns only the top three chunks, so the model never reads the full 120,000 tokens.",
+        "plausible_ja": "質問ごとに関連箇所が少数で、複数契約の横断比較が不要であり、検索精度を評価で確かめられる場合は有効になる。",
+        "not_best_ja": "複数契約の条項を 1 回で比較する必要があり、上位 3 チャンクでは他の契約の該当条項が落ちやすい。配置と区切りという低コストの原因も未対処のままである。"
+      },
+      {
+        "label": "B",
+        "text_en": "Put the documents first, each in its own tagged block with its source, and place the instructions and the question after them at the end."
+      },
+      {
+        "label": "C",
+        "text_en": "Move to the largest model tier, because a larger tier recalls details from long inputs more reliably.",
+        "plausible_ja": "配置と区切りを整えても評価で精度目標に届かず、上位 tier で改善が確認できた場合は妥当になる。",
+        "not_best_ja": "プロンプトの配置と文書の区切りという安価な原因が未診断のまま、先に高コストな部品交換をしており、費用も遅延も増える。"
+      },
+      {
+        "label": "D",
+        "text_en": "Split the leases into separate calls of about 10,000 tokens each and have the application concatenate the per-call answers.",
+        "plausible_ja": "契約ごとに独立した質問で、契約間の比較が不要なら、分割は有効になる。",
+        "not_best_ja": "横断比較が必須の要件であり、契約ごとに独立した呼び出しでは契約間の関係を見られず、連結された回答は比較になっていない。"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "長い文書は prompt の先頭近くに置き、指示と質問を末尾に置くと、特に複数文書の入力で回答品質が上がる。各文書を出典付きのタグで区切れば取り違えも減る。全文を 1 回で見せる要件を保ったまま、入力の構成だけで直せる点が決め手である。原則として、コンテキストの扱いで問題が出たら、検索の導入や大型モデルへの変更より先に、配置・区切り・選別を見直す。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "複数契約を 1 回で横断比較する必要があり、長い入力の配置と文書の区切りに原因がある。"
+  },
+  {
+    "id": "p-d2-q703",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t4-01",
+    "secondary_topic_ids": [
+      "p-d2-t4-03"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An e-commerce operations agent reconciles refunds by calling an order-lookup tool that wraps a third-party API returning 60 fields per order. The agent needs only four of those fields, but it must compare them across every order it has already looked up. After about 25 orders its accuracy drops and runs hit the context limit, and the team cannot change the third-party API. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Clear tool results older than the five most recent calls, so that the context never holds more than five full order records at any point in the run.",
+        "plausible_ja": "各注文が互いに独立で、過去の結果を再参照しない処理なら、古いツール結果の消去は軽量で安全な手段になる。",
+        "not_best_ja": "過去の注文との比較が必須で、古い結果を消すと比較に必要な 4 項目まで失われる。不要な 56 項目が毎回入る問題も残る。"
+      },
+      {
+        "label": "B",
+        "text_en": "Summarize the whole conversation every ten orders, so that the earlier orders are replaced by a short narrative that the agent reads from then on.",
+        "plausible_ja": "蓄積の大半が推論履歴や対話で、ツール出力が主因でない長時間実行なら、要約は有効になる。",
+        "not_best_ja": "要約では比較に必要な正確な値が落ちる恐れがあり、肥大化の主因である不要フィールドの混入も解消しない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Move to a model tier with a larger context window, so that all of the 60-field order records fit in context for the whole reconciliation run.",
+        "plausible_ja": "60 項目すべてが実際に必要になる処理で、量の増加による精度低下が評価上許容範囲だと確認できる場合は妥当になる。",
+        "not_best_ja": "必要なのは 4 項目だけで、不要な項目はコンテキスト予算を使い続け、量が増えるほど精度と再現性も下がる。窓を広げても原因の入力過多は残る。"
+      },
+      {
+        "label": "D",
+        "text_en": "Add a wrapper in the tool layer that returns just the four needed fields per order, and keep those fields for every looked-up order in context."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "肥大化の原因は、必要な 4 項目に対して 60 項目を毎回返す出力にある。サードパーティ API を変えられなくても、ツール層の wrapper で必要な項目だけを返せば、比較に必要な値を残したままコンテキスト消費を大きく減らせる。原則として、コンテキストの問題はあとから消したり要約したりするより、不要な情報を入れない入口側で解くほうが、内容を失うリスクが小さく簡素なことが多い。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/context-windows"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "必要なのは各注文の 4 項目だけで、過去注文との比較に必要な情報は保持しつつ、不要な項目の混入を入口で止める必要がある。"
+  },
+  {
+    "id": "p-d2-q704",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t1-01",
+    "secondary_topic_ids": [
+      "p-d2-t2-01"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A pharmacy chain extracts drug codes, dosages, and dates from prescription transcripts using a mid-tier model. Accuracy on the team's labeled set is 88% against a 95% target. About 70% of the misses are date fields, and nobody has yet examined what those date errors have in common. A manager asks the architect to move to the top tier. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Move production to the top tier immediately and accept the higher per-request cost, so that the accuracy gap to the 95% target is closed quickly.",
+        "plausible_ja": "誤りが特定フィールドに偏らず、多段の推論不足が原因だと評価で確認された場合は、上位 tier への移行が妥当になる。",
+        "not_best_ja": "誤りの約 7 割が日付に集中しているのに、その共通原因を調べる前に、運用コストの高い tier へ移行することになる。原因が基準の不足なら、tier を上げてもコストだけが増える。"
+      },
+      {
+        "label": "B",
+        "text_en": "Run the labeled set on the top tier with the prompt unchanged, and upgrade production only if that tier clears the 95% accuracy target.",
+        "plausible_ja": "プロンプトを直しても改善しない場合に、能力差を切り分ける手順としては妥当になる。",
+        "not_best_ja": "日付の誤りの共通原因を調べず、プロンプトを変えないまま tier だけを比較しても、原因の診断にならない。上位 tier が基準を通っても、安価に直せた可能性を確かめずにコストを上げることになる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Review a sample of the date-field misses to find their common cause, fix the prompt for that cause, and rerun the labeled set on the same tier."
+      },
+      {
+        "label": "D",
+        "text_en": "Add a second model pass that reviews every extraction for errors and corrects them, accepting the added cost and latency on every request.",
+        "plausible_ja": "誤りが複数フィールドに散らばり、自己点検で検出できると評価で確認でき、コストと遅延に余裕がある場合は有効になる。",
+        "not_best_ja": "全件に追加パスを走らせるとコストと遅延が増えるが、日付の基準が未定義という根本原因は直らず、同じ誤りが再び出やすい。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "精度不足を見たとき、まず誤りの内訳から原因の層を特定する。誤りの約 7 割が日付に集中しているので、その事例を確認して共通の原因を突き止め、プロンプトの修正と同じ tier での再評価から始めるのが、最小の変更で binding constraint に応える手である。原則として、診断より先にモデルを替えず、タスクに適合する最小の tier を自社の評価セットで確かめて選ぶ。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "誤りの約 7 割は日付に集中しており、モデルを替える前にその共通原因を診断して安価に直せるかを確かめる必要がある。"
+  },
+  {
+    "id": "p-d2-q705",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t3-02",
+    "secondary_topic_ids": [
+      "p-d2-t1-02"
+    ],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An insurer's live-chat assistant enables extended thinking with a large manual thinking budget (budget_tokens), on a model generation that still supports manual budgets, on every turn, after the team saw accuracy gains on complex coverage questions. Now p95 end-to-end response time breaches the 3-second SLA and output-token spend has risen sharply. Logs show about 70% of turns are simple policy-status or FAQ lookups. The evaluation set shows complex coverage questions still need some thinking to meet the accuracy target, and even on those turns alone p95 response time at the current budget is about 4.5 seconds. Which TWO actions should the architect take? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Disable extended thinking everywhere and rely on the base model, since the SLA is a contractual requirement.",
+        "plausible_ja": "複雑な質問の精度が思考なしでも評価で目標に達する場合は、全面的な無効化も妥当になる。",
+        "not_best_ja": "複雑な質問では思考を使わないと精度目標を満たせないことが評価で示されており、全面無効化は精度要件を犠牲にする。"
+      },
+      {
+        "label": "B",
+        "text_en": "Stream responses to the user so that perceived latency falls below the SLA without changing the thinking configuration, and keep the current budget on every turn.",
+        "plausible_ja": "SLA が本文の最初の表示までではなく、体感の応答性だけを対象にしている場合は、ストリーミングが有効になる。",
+        "not_best_ja": "思考ブロックは回答本文より前に生成されるため、本文が出始めるまでの時間は縮まらず、p95 の超過も思考トークンの出力コストも変わらない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Route simple FAQ and status turns to a path without extended thinking, and enable it just for turns classified as complex coverage questions."
+      },
+      {
+        "label": "D",
+        "text_en": "Add prompt caching to the system prompt so that thinking tokens are reused across turns.",
+        "plausible_ja": "遅延やコストの主因が、毎ターン再送される長い静的な入力にある場合は有効になる。",
+        "not_best_ja": "課金される思考トークンは出力側で毎回生成されるため、入力側の再利用であるキャッシュでは減らない。問題の層が違う。"
+      },
+      {
+        "label": "E",
+        "text_en": "Lower the thinking budget for the complex path in steps, measuring accuracy on the evaluation set, and keep the smallest budget that meets the target."
+      }
+    ],
+    "answer": [
+      "C",
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "思考は出力トークンとして課金され、予算が大きいほど遅延も増える。簡単な質問から思考を外せば大半のターンのコストと遅延が下がり、複雑な質問に残す思考も評価セットで精度を保てる最小の予算に絞れば、精度要件を守ったまま遅延をさらに下げられる。この 2 つは対象のターンが異なり、それぞれ独立した理由で必要である。原則として、推論の深さはタスク難度に合わせて、評価で確かめた最小限にする。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/thinking",
+      "https://docs.claude.com/en/docs/build-with-claude/extended-thinking",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "簡単な約 7 割の質問には思考が不要で、複雑な質問には精度のために思考が必要なため、思考の適用範囲と量の両方を、精度を保てる最小に絞る必要がある。"
+  },
+  {
+    "id": "p-d2-q706",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A retail bank's dispute-intake assistant has a system prompt that says, \"Be careful and escalate risky disputes to a human.\" Reviewers find inconsistent behavior: some $40 disputes are escalated while some $6,000 suspected-fraud claims are not. Compliance requires that escalation decisions be traceable to the written policy, which combines dollar thresholds with fraud indicators described in free text, and that non-engineers can maintain the rules. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Strengthen the escalation instruction with emphatic wording and a warning about regulatory penalties, so that the model treats the rule as the top priority.",
+        "plausible_ja": "基準は既に明記されていて、長いプロンプトの中で守られにくいだけの場合は、強調が一定の効果を持つ。",
+        "not_best_ja": "問題は強調の不足ではなく、「risky」の基準が定義されていないことである。強調しても判断基準は方針に結びつかず、追跡可能性の要件を満たさない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Add five worked examples of escalated disputes and leave the criteria implicit, so that the model infers the written policy from the examples alone.",
+        "plausible_ja": "基準を文章で書き切れず、例でしか伝えられない判断が中心の場合は、例示が有効になる。",
+        "not_best_ja": "方針には明文の閾値と不正兆候があり、5 件の例から暗黙に推測させると、判断を名前のある規則に結びつけられず、保守者も内容を確認しにくい。"
+      },
+      {
+        "label": "C",
+        "text_en": "Move the whole escalation policy into hard-coded application rules and have the prompt only summarize each dispute for those rules to evaluate.",
+        "plausible_ja": "方針が数値だけで完結し、保守を担うのがエンジニアである場合は、コードへの全面移行も妥当になる。",
+        "not_best_ja": "不正兆候は自由記述で、コードの条件に書き切れない。ルールの保守を非エンジニアに任せるという要件にも合わない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Move to a larger model tier and keep the current wording, so that the model is better able to judge what counts as a risky dispute.",
+        "plausible_ja": "基準が明示されたうえで、判断の複雑さが精度の限界になっていると評価で確認できた場合は、tier の引き上げが妥当になる。",
+        "not_best_ja": "基準が書かれていないという原因が未対処のまま部品を交換しており、判断は方針に結びつかない。誰が保守しても同じ結果になるという要件も満たせない。"
+      },
+      {
+        "label": "E",
+        "text_en": "Rewrite the instruction with the policy's explicit escalation criteria, the reason behind each, and tagged sections, so each decision maps to a named rule."
+      }
+    ],
+    "answer": [
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "「慎重に」のような曖昧な指示ではなく、方針に対応した明示的な基準を、目的の説明とタグによる構造化とともに system prompt に書くと、判断が名前のある規則に結びつき、非エンジニアも読んで更新できる。原則として、プロンプトは判断基準を明示し、背景と理由を添えて構造化する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/system-prompts",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "判断は方針に追跡可能で、閾値と自由記述の不正兆候が混在し、非エンジニアが保守できる必要があるため、基準を明示的に書く必要がある。"
+  },
+  {
+    "id": "p-d2-q707",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A SaaS company classifies incoming support tickets into eight categories using a prompt with sixteen few-shot examples taken from recent tickets. The team reports 96% accuracy, measured on a 300-ticket sample that includes those sixteen examples. After launch, support leads report frequent misroutes on two rarely seen categories, and the team is about to rewrite the examples again. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add more examples for the two rare categories and ship the prompt, because the leads' reports already show which categories are wrong.",
+        "plausible_ja": "例を足す手当てを急ぐべき重大な障害で、現場の報告が十分に具体的な場合は、先に例を足して後で測る判断もありえる。",
+        "not_best_ja": "現在の 96% は例を含む標本での値で、希少カテゴリもほとんど含まれていない。修正の効果を測る手段がないまま出荷すると、改善したかを確認できない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Increase the existing sample from 300 to 3,000 tickets, keeping the sixteen examples inside it, so that the accuracy figure becomes more reliable.",
+        "plausible_ja": "標本が小さく、例が全体に占める割合が大きい場合は、標本の拡大が精度推定のばらつきを下げる。",
+        "not_best_ja": "例を含むことと、希少カテゴリが少ないことという標本の偏りは残る。標本を増やしても希少カテゴリの精度は見えてこない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Drop the examples and keep only the category definitions, because the examples may be biasing the model toward the common categories.",
+        "plausible_ja": "定義だけで十分に明確なタスクで、zero-shot が評価で同等の精度を示す場合は妥当になる。",
+        "not_best_ja": "例が悪いのか、評価が見えていないのかを区別できていない段階で例を捨てると、形式や境界の手がかりも失い、効果も測れない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Build a labeled set that excludes the prompt's examples and oversamples the two rare categories, then measure accuracy per category before editing the prompt."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "評価データに例が含まれていると、精度は実際より高く出る。例と切り離し、問題が報告されている希少カテゴリを厚くした評価セットでカテゴリ別に測れば、誤分類の実態が見え、その後のプロンプト修正の効果も確かめられる。原則として、変更の前に、変更の効果を測れる評価データを用意する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/multishot-prompting",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "現行の 96% は例を含む標本の値で希少カテゴリが少なく、実際の誤りも修正の効果も測れない。"
+  },
+  {
+    "id": "p-d2-q708",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t4-03",
+    "secondary_topic_ids": [
+      "p-d2-t3-02"
+    ],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A compliance team's agent produces a structured JSON risk summary that a downstream service parses directly into a records database. After extended thinking is enabled to improve quality, roughly 4% of summaries arrive cut off mid-field, and those API responses end with a stop reason of max_tokens. The max_tokens value was chosen before thinking was enabled, and the input prompts have not changed. Which TWO actions should the architect take? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Switch to a smaller model tier, because smaller models produce shorter outputs that fit the existing limit.",
+        "plausible_ja": "出力が不必要に冗長で、小型 tier が評価で同等の要約品質を示す場合は、出力が短くなる効果を期待できる。",
+        "not_best_ja": "原因は、思考トークンが max_tokens を消費して上限が不足していることにある。tier を変えても上限と思考の関係は解消せず、品質も評価されていない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Raise max_tokens so it covers the thinking tokens plus the longest expected summary, and check it against observed output lengths."
+      },
+      {
+        "label": "C",
+        "text_en": "Shorten the input documents to free up room, because the output limit shrinks as the input grows.",
+        "plausible_ja": "入力と出力の合計がコンテキストウィンドウを超えて失敗している場合は、入力の削減が有効になる。",
+        "not_best_ja": "max_tokens は出力の上限として独立に設定されており、入力を短くしても切り詰めの原因は変わらない。症状も入力超過ではなく出力の途切れである。"
+      },
+      {
+        "label": "D",
+        "text_en": "Add a \"be concise\" instruction to the prompt and keep max_tokens at its current value.",
+        "plausible_ja": "思考をほとんど使わず、出力本文の冗長さが主因の場合は、簡潔さの指示が有効になる。",
+        "not_best_ja": "思考トークンも max_tokens に数えられるため、指示で本文を短くしても思考の分は減らず、途切れは再発する。出力の確実性をプロンプトの文言に頼ることにもなる。"
+      },
+      {
+        "label": "E",
+        "text_en": "Treat any response that stops at max_tokens as a failed call, never pass it to the parser, and retry it or route it for review."
+      }
+    ],
+    "answer": [
+      "B",
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "思考トークンは出力として課金され、max_tokens にも本文と合わせて数えられる。そのため、思考を有効にしたら上限を思考と最長の本文の合計に合わせて引き上げる必要がある。同時に、max_tokens で止まった応答を失敗として扱い、パーサに渡さず再試行か確認に回せば、上限が再び足りなくなった場合でも不完全なデータが記録されない。2 つは原因の修正と下流の保護という独立した理由で必要である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/thinking",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "思考トークンも max_tokens を消費するため上限が不足し、途切れた JSON が下流のデータベースに黙って流れ込む危険がある。"
+  }
+]

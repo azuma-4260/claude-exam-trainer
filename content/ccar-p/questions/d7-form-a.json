@@ -1,0 +1,225 @@
+[
+  {
+    "id": "p-d7-q701",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A retail bank's CI pipeline uses Claude Code in non-interactive mode to draft unit tests for newly added modules, then asks Claude in the same session to review the tests it just wrote before opening a pull request. Human reviewers keep finding tests that simply encode the same misunderstanding as the implementation, even though the automated review step always passes. The bank wants the automated review to catch these defects and reduce reviewer load. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Extend the generation prompt with a detailed self-review checklist that Claude must complete before it finishes the draft.",
+        "plausible_ja": "欠陥の原因が単なるチェック項目の不足(例: 命名規約の見落とし)なら、チェックリストの追加で改善できる。",
+        "not_best_ja": "問題は生成者と同じ文脈・同じ誤解を引き継いだ自己レビューが同じ欠陥を見逃す点であり、チェックリストを足しても独立性は得られないため BEST でない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Add a code-coverage threshold to the pipeline so that pull requests with insufficient test coverage fail automatically.",
+        "plausible_ja": "テスト不足そのものが主な問題で、網羅性を機械的に担保したい場合には有効なゲートになる。",
+        "not_best_ja": "実装と同じ誤解を符号化したテストでもカバレッジは満たせるため、欠陥を検出するという要件を満たさず、BEST でない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Run the review as a separate non-interactive invocation that starts with a fresh context and receives only the diff and the review criteria."
+      },
+      {
+        "label": "D",
+        "text_en": "Require two human engineers to approve every generated test file before the pull request can merge.",
+        "plausible_ja": "規制上、人間の承認が必須でレビュー負荷の削減が目的でない場合は妥当な統制になる。",
+        "not_best_ja": "stem は自動レビューで人間レビューの負荷を減らすことを求めており、全件を人手承認に戻すとその要件に反するため BEST でない。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "自動レビューが同じ誤解を見逃す原因は、生成者と同じ文脈を共有していることにある。レビューを新しいコンテキストで起動する別の非対話実行に分け、差分とレビュー基準だけを渡せば、生成時の推論に引きずられず独立した検査になり、人間のレビュー負荷も下がる。一般原則として、自動化された品質ゲートは、検査される成果物の生成過程から切り離した独立インスタンスで実行する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/best-practices",
+      "https://docs.claude.com/en/docs/claude-code/headless"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "自動レビューが生成者と同じ文脈・同じ誤解を共有しているため、独立したレビューインスタンスが必要である"
+  },
+  {
+    "id": "p-d7-q702",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A logistics company wants its 30 engineers to share one internal shipment-tracking MCP server across a repository so that every clone gets the same tools. The server requires a personal API token per engineer, and the security team prohibits committing credentials to source control. How should the architect configure the server?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Document a setup command in the team wiki so that each engineer registers the server in their own user-level configuration.",
+        "plausible_ja": "リポジトリに依存せず、個人のマシン全体で同じサーバーを使う用途なら個人スコープへの登録も妥当。",
+        "not_best_ja": "全員が同じ構成を得る再現性が要件なのに、手順書頼みでは構成が人ごとにずれ、clone しただけでは揃わないため BEST でない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Commit a project-level .mcp.json that embeds one shared service token, and restrict repository access to the engineering group.",
+        "plausible_ja": "漏えい時の影響が小さい公開情報だけを返すサーバーなら、共有トークンの運用負荷の低さが勝つ場合がある。",
+        "not_best_ja": "トークンは個人ごとの発行で、資格情報のコミットが禁止されているため、リポジトリへの共有トークン埋め込みは制約に反し BEST でない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Deploy the server definition and each engineer's token through an organization-wide managed configuration to all developer machines.",
+        "plausible_ja": "全リポジトリ・全開発者に強制したい組織共通のサーバーなら、組織レベルの配布が適する。",
+        "not_best_ja": "対象は 1 つのリポジトリの 30 人であり、個人別トークンを組織の管理設定で一括配布するのは範囲も秘密の扱いも過大なため BEST でない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Commit a project-level .mcp.json that references the token through an environment variable, and have each engineer supply their own value locally."
+      },
+      {
+        "label": "E",
+        "text_en": "Describe the server and its connection details in the root CLAUDE.md so Claude can configure the connection when a session starts.",
+        "plausible_ja": "サーバーの使い分けや利用方針を伝えるだけなら、CLAUDE.md の説明は有用な補助になる。",
+        "not_best_ja": "CLAUDE.md は助言的な指示で、MCP サーバーの接続設定を全員に同一に配る仕組みではなく、認証値の扱いも解決しないため BEST でない。"
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "プロジェクト単位の .mcp.json をバージョン管理にコミットすれば全員が同じ MCP ツールを得られ、環境変数の展開により秘密値だけを各自のローカルに残せる。よって、構成の再現性と資格情報をコミットしない制約を同時に満たす。一般原則として、共有すべき構成と個人固有の秘密値は別の層に置く。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/mcp"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "構成は全員に同一で配りたいが、トークンは個人ごとでコミットしてはならない"
+  },
+  {
+    "id": "p-d7-q703",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A payments company's nightly reconciliation job fails intermittently, and the failing run can be reproduced with a single command that prints a stack trace. The service lives in a monorepo of about two million lines, and an engineer's earlier Claude Code session filled its context with file reads before reaching a diagnosis. Which TWO actions should the architect recommend for the next debugging session? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Name the several files that look related to the job with @file references in the first prompt, so that Claude starts with the likely code in context.",
+        "plausible_ja": "対象が数十ファイル程度の小さなサービスで、関連ファイルが明らかなら、最初に関連ファイルを渡す方法も有効である。",
+        "not_best_ja": "約 200 万行の monorepo では、どのファイルが関係するかを推測で選ぶことになり、外れる危険がある。選んだファイルの読み込みで文脈も消費し、以前と同じ問題が再発し得るため BEST でない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Delegate the exploration of the unfamiliar call paths to a subagent so that only its findings return to the main session."
+      },
+      {
+        "label": "C",
+        "text_en": "Ask Claude to refactor the reconciliation job into smaller functions first, so that the faulty logic becomes easier to spot.",
+        "plausible_ja": "原因が複雑すぎる構造そのものに特定済みで、保守性の改善が目的なら先行リファクタリングは妥当。",
+        "not_best_ja": "原因が未特定のまま構造を変えると、再現コマンドで検証できない変更が増え、診断より先に部品を替える形になるため BEST でない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Ask Claude to write a failing regression test from the stack trace first, then fix the code until that test and the existing suite pass."
+      },
+      {
+        "label": "E",
+        "text_en": "Patch the function at the top frame of the stack trace first, and confirm the fix when the nightly job next runs.",
+        "plausible_ja": "再現が本番でしか起きず、手元で実行できない環境なら、最上位フレームの修正から入るのは現実的である。",
+        "not_best_ja": "stem には 1 コマンドの再現手順があり、実行による検証を後回しにすると、間欠的な失敗では修正の成否を確認できず誤った修正を混入させるため BEST でない。"
+      }
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "この場面の制約は、1 コマンドで再現できるのに、巨大なコードベースの探索で文脈が埋まって診断が進まない点にある。スタックトレースから失敗するテストを先に書かせ、そのテストと既存のテストが通るまで直させれば、修正の成否を実行で確認できる。探索をサブエージェントに委ねれば発見だけが主セッションに戻って文脈が保たれる。2 つはそれぞれ検証手段の確保と文脈の保護という別の理由で必要である。一般原則として、検証可能な証拠を与え、探索の副産物を主文脈から隔離する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/common-workflows",
+      "https://docs.claude.com/en/docs/claude-code/best-practices"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "再現コマンドはあるが、巨大なコードベースの探索で文脈が埋まり診断が進まない"
+  },
+  {
+    "id": "p-d7-q704",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A payments platform is introducing Claude Code to help on-call engineers analyze production incidents. Auditors require that no automated actor can change production outside an approved, human-reviewed path, and responders still need Claude to read logs and metrics quickly. Which TWO measures best meet these requirements? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "State in the incident prompt template that Claude must never run commands that modify production, and trust responders to keep the template.",
+        "plausible_ja": "権限設定を直接変えられない環境での一時的な運用や、補助的な注意喚起としては有用。",
+        "not_best_ja": "監査要件はシステム側で強制された境界を求めており、プロンプトの文言はコントロールとして強制力がなく、BEST でない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Enforce the read-only boundary in version-controlled permission configuration that denies production-mutating commands, instead of relying on responders' judgment."
+      },
+      {
+        "label": "C",
+        "text_en": "Grant Claude broad production credentials for faster diagnosis, and review the recorded command logs after each incident closes.",
+        "plausible_ja": "取り消せる操作だけで、事後監査が目的の統制として許される環境なら、広い権限と事後ログ確認は成り立つ。",
+        "not_best_ja": "監査要件は承認済み経路外での変更自体を許さないため、事後のログ確認は検知にとどまり、不要な権限を外す予防になっておらず BEST でない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Route every resulting fix through the normal pull-request review gate, and have the runbooks approved in advance executed by the on-call engineer rather than by Claude."
+      },
+      {
+        "label": "E",
+        "text_en": "For severity-1 incidents only, let Claude push hotfixes directly to the production branch and schedule a human review for the next morning.",
+        "plausible_ja": "承認済みの緊急対応手順が別途あり、その手順が事後レビューを認めている組織なら成り立つ。",
+        "not_best_ja": "stem は人間がレビューする承認済み経路外での変更を認めておらず、深刻度が高い場合でも例外を設けると要件に反するため BEST でない。"
+      }
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "監査要件は、本番変更を人間が承認した経路に限ることを求めている。version 管理された権限設定で本番を変更するコマンドを拒否すれば、ログとメトリクスの読み取りは維持したまま、アクセス境界をシステム側で強制できる。さらに修正を通常の PR レビューに通し、事前承認済みの runbook は当番の担当者が実行する形にすれば、変更の経路が統制される。2 つはアクセス境界と変更管理という別の理由で必要である。一般原則として、統制は予防的にシステムで強制し、承認済みの経路に載せる。",
+    "refs": [
+      "https://claude.com/blog/the-ai-native-sdlc-playbook",
+      "https://docs.claude.com/en/docs/claude-code/permissions"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "本番変更は人間が承認した経路に限る必要があり、読み取りの速度は維持したい"
+  }
+]
