@@ -1,2 +1,3 @@
-state: merged
+state: done
+evidence: "CI・deploy 成功: https://github.com/azuma-4260/claude-exam-trainer/actions/runs/39246429068(main 659a5d8、merge c8d9ae6、ci / deploy success)。DoD: mcq_bundle の採点(全小問正解のみ正解)・chosen(小問順ラベル配列・重複可)をオーナー承認(2026-10-19)。スキーマ・Practice の厳密 ACK 保存と FSRS 評価・Mock の開始時全行生成/保存/提出時 attempt 一括/素点のテストが存在し D6-8 で green(main で npm test 869 件 green)。既存 mcq_single / mcq_multi / flash の挙動は不変。Codex レビュー P1 0(P2 1 件は修正済み)"
 recorded: 2026-10-19
