@@ -1,0 +1,495 @@
+[
+  {
+    "id": "p-d6-q701",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A regional health insurer's member-services director wants Claude to draft replies to member billing inquiries and asks the architect to start prompt design next week. The project is in the discovery phase, and no one has yet written down what counts as an acceptable reply, how quickly it must arrive, or what a reply may cost. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Build a prototype from a handful of past replies and show it to the director, so the acceptance criteria can emerge from her feedback on the drafts and costs.",
+        "plausible_ja": "要件が曖昧で、デモへの反応から期待を引き出す探索的な打ち合わせが目的なら有用である。",
+        "not_best_ja": "受入基準が未合意のまま試作に入ると、デモの印象が事実上の基準になり、品質・応答時間・コストの合意が後ろへずれる。"
+      },
+      {
+        "label": "B",
+        "text_en": "Choose the model by comparing candidates on a public question-answering benchmark, so the cost per reply can be estimated for the budget discussion.",
+        "plausible_ja": "成功基準が合意済みで、設計フェーズのモデル選定に進んでいるなら妥当な活動である。",
+        "not_best_ja": "公開ベンチマークの結果は自社の返信品質の基準を示さず、コスト見積りの前提となる品質と応答時間の基準がまだ存在しない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Agree with the director and the compliance owner on measurable criteria for reply quality, response time, and cost per reply, and record them."
+      },
+      {
+        "label": "D",
+        "text_en": "Assemble a labeled evaluation set of several hundred past inquiries, so quality can be measured as soon as the first prototype is ready.",
+        "plausible_ja": "成功基準が決まった後の設計・パイロット準備としては必要な作業である。",
+        "not_best_ja": "何を許容できる返信とみなすかが未定義のためラベルの付け方が決まらず、基準が決まった後に作り直しになる恐れがある。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "discovery では、設計や評価に進む前に、品質のしきい値・応答時間・コストといった測定可能な成功基準を関係者と合意するのが出発点になる。この合意が後続のモデル選定、評価セット作成、パイロットの合否判定の共通の物差しになる。一般原則として、各フェーズの活動は前のフェーズで固めた基準に従って順に進める。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "測定可能な成功基準が未合意のままでは、設計・評価・コスト見積りのいずれも判断の根拠を持てない。",
+    "lifecycle_phase": "discovery"
+  },
+  {
+    "id": "p-d6-q702",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A regional electric utility has run a six-week pilot of a Claude assistant that drafts outage notices for customer-service staff. Pilot accuracy exceeded the 95% threshold set in discovery. The agreed production plan calls for sampled review of sent notices, but no reviewers have been named and no team owns the monthly usage cost. The vice president asks to go live in all regions next Monday. What should the architect do NEXT?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Approve the go-live as requested because the accuracy threshold from discovery has been met, and name reviewers during the first weeks of production.",
+        "plausible_ja": "移行条件が精度のしきい値だけで、監督体制と費用の責任が条件に含まれていない低リスクの内部用途なら妥当である。",
+        "not_best_ja": "合意した本番計画は抜き取りレビューを前提としているのに、担当者と費用の責任者が未定のままで、本番開始時点で監督が機能しない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Make the production gate conditional on naming the sampled-review staff and a cost owner, and go live in all regions once both are in place."
+      },
+      {
+        "label": "C",
+        "text_en": "Extend the pilot by another quarter to collect a larger sample, so the accuracy estimate is more precise before any production decision.",
+        "plausible_ja": "精度がしきい値すれすれで、標本が小さく統計的に不確かな場合なら、パイロット延長が妥当である。",
+        "not_best_ja": "精度はすでにしきい値を超えており、足りないのは標本の大きさではなく、本番に必要な監督と費用の責任の割当である。"
+      },
+      {
+        "label": "D",
+        "text_en": "Go live in a single region first and expand to the other regions as support staff report no problems with the notices.",
+        "plausible_ja": "段階展開そのものが目的で、抜き取りレビューの担当者と費用の責任者が既に確保されているなら妥当である。",
+        "not_best_ja": "段階展開自体は妥当でも、stem ではレビュー担当も費用の責任者も未指名のままで、現場の報告任せでは計画が前提とする抜き取りレビューの代わりにならない。"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "パイロットから本番への移行ゲートでは、成功基準の達成に加えて、本番で何を誰が判断し、誰が責任を持つかが事前の計画どおりに揃っているかを確認する。精度が基準を満たしていても、合意した監督体制と費用の責任者が未整備なら、それを条件にして移行する。一般原則として、各段階の移行は事前に決めた基準と担当の充足で判断する。",
+    "refs": [
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "移行判断は精度の達成だけでなく、本番に必要な人による監督と費用の責任者が揃っているかで決まる。",
+    "lifecycle_phase": "deployment"
+  },
+  {
+    "id": "p-d6-q703",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A telecom operator's support-ticket summarization service has been in production for five months. Weekly sampled evaluation scores have stayed within the agreed range, but support leads now report that summaries of tickets about a newly launched fiber plan often miss the plan terms. The evaluation set was built before that plan existed. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Replace the model with the largest available one and keep the current evaluation set to confirm that the summaries improve.",
+        "plausible_ja": "新プランの失敗が評価で確認され、原因がモデル能力の不足と特定された後なら、モデル変更も検討に値する。",
+        "not_best_ja": "原因が未診断のまま部品の交換を先行しており、新プランを含まない現行の評価セットでは改善したかどうかも確認できない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Log the support leads' reports and take them to the next scheduled stakeholder review, since sampled scores remain within the agreed range.",
+        "plausible_ja": "品質低下の兆候が評価と現場の声の両方に無く、利用者の報告が軽微なら、定期レビューでの確認で足りる。",
+        "not_best_ja": "現場から具体的な報告があり、評価セットは新プランを含まないため、スコアの安定は安全の証拠にならない。次回レビューまで待つと失敗の確認と原因の特定が先送りになる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Add a note to summaries of new-plan tickets telling agents to verify the plan terms against the billing system before replying.",
+        "plausible_ja": "調査の間の暫定的な封じ込めとしては有効で、低リスクなら先に実施してよい。",
+        "not_best_ja": "失敗の範囲と原因がまだ分かっておらず、注意書きだけでは構造的な解決にならない。先に診断して原因を特定する必要がある。"
+      },
+      {
+        "label": "D",
+        "text_en": "Collect the reported tickets, add representative new-plan cases to the evaluation set, and rerun it to confirm and locate the failures before changing anything."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "本番後の monitoring は、業務や入力の変化による分布ドリフトや想定外の失敗を検知するために続ける。現場からの具体的な報告を継続的なシグナルとして受け止め、該当する事例を評価セットに取り込んで再実行すれば、失敗を確認し原因の層を絞れ、以後も同様の変化を追える。一般原則として、原因を診断する前に部品を交換せず、評価セットを業務の変化に合わせて更新する。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "評価セットが新プランを含まないため、集計スコアが安定していても本番の分布の変化を捉えられていない。",
+    "lifecycle_phase": "monitoring"
+  },
+  {
+    "id": "p-d6-q704",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An engineering consultancy uses a Claude-based assistant to draft building-code compliance summaries, and the system is in its iteration phase. Reviewers in three departments email improvement requests whenever they notice something, and the engineering team reprioritizes after each message. Changes now often conflict and none of them is verified before release. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Triage requests by severity as they arrive, implement the high-severity ones immediately, and batch lower-severity requests into the next release.",
+        "plausible_ja": "重大な本番障害や安全上の不具合の報告が中心なら、重大度順の即時対応が妥当である。",
+        "not_best_ja": "重大度だけの順位付けでは部署間の要望の衝突が解けず、受け入れた変更が評価セットで検証されないまま出るため、stem の未検証と衝突が残る。"
+      },
+      {
+        "label": "B",
+        "text_en": "Collect requests in one shared queue and accept them as a batch just before each quarterly release, letting the reviewers' comments decide what ships.",
+        "plausible_ja": "契約や規制の都合で、変更を四半期の計画リリースにしか出せない環境なら、まとめて受け入れる運用が妥当である。",
+        "not_best_ja": "問題は変更の衝突と未検証であり、四半期にまとめるだけでは共通の指標による優先付けも評価セットでの検証も行われない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Concentrate on expanding the nightly automated evaluation, and treat the reviewers' emails as informal input that is read but not prioritized.",
+        "plausible_ja": "利用者の声が極めて少なく主観に偏っていて、自動評価が業務を十分に代表している場合なら有効である。",
+        "not_best_ja": "自動評価は評価セットに無い失敗を拾えず、要望をトリアージしない運用では衝突も未検証も解消されない。利用者のシグナルは評価を補う。"
+      },
+      {
+        "label": "D",
+        "text_en": "Set a regular review cadence where requests are triaged against shared quality metrics, ranked by impact, and each accepted change is verified on the evaluation set before release."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "利用者や関係者のフィードバックは継続的に集め、定期的なレビューで指標と一緒に確認して優先度と期待値を更新する。受け入れた変更は評価セットで検証してから出す。評価と監視だけでは拾えない失敗を利用者のシグナルが補うため、両方を回すのが原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues",
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "iteration では、散発的な要望に反応し続けるのではなく、共通の指標に基づいて優先度を決め、変更を検証する場が必要である。",
+    "lifecycle_phase": "iteration"
+  },
+  {
+    "id": "p-d6-q705",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A consumer lender's Chief Risk Officer must decide whether to extend a Claude assistant, which summarizes loan-officer notes for low-value loans, to all loan types. She asks the architect, \"Can we accept the risk of expanding?\" The architect holds evaluation results (per-type error rates and their consequences) and a proposed human-review design. How should the architect present the recommendation? She cannot approve without knowing what risk remains after the controls.",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Walk through the prompt structure, retrieval design, and model configuration in detail, so she can judge the technical soundness for herself.",
+        "plausible_ja": "聴衆が実装レビューを担う技術チームで、構成の妥当性の確認が目的なら妥当である。",
+        "not_best_ja": "CRO の判断は受け入れるリスクの大きさと範囲であり、構成の詳細は判断に直接必要な情報にならない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Report a single overall accuracy figure across all loan types and recommend the expansion, since the aggregate is the most concise evidence.",
+        "plausible_ja": "ローン種別ごとの誤り率と影響が同程度で均質なら、集約値でも判断に足りる。",
+        "not_best_ja": "ローン種別ごとに結果が異なる中で、集約値は拡大範囲ごとのリスクを隠し、CRO が受け入れるリスクを読み取れない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Present a table of error rates and consequences for each loan type and recommend the full expansion, with the human-review controls to be finalized after she approves.",
+        "plausible_ja": "統制の設計がすでに別の場で合意済みで、CRO が誤り率と影響の確認だけを求めているなら妥当である。",
+        "not_best_ja": "統制が示されないままでは、CRO は残余リスクが限定されるかを判断できず、承認後に統制を決める順序ではリスクを受け入れる根拠がない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Provide the full evaluation logs and let her risk team derive the conclusions, so the architect's framing does not influence the decision.",
+        "plausible_ja": "独立した監査や再分析が目的で、リスクチームが生の結果を求めている場合なら妥当である。",
+        "not_best_ja": "判断者が使える形に整理されておらず、リスクの大きさ・範囲・統制を示すという architect の役割を果たしていない。"
+      },
+      {
+        "label": "E",
+        "text_en": "State the proposed scope, the measured error rate and consequences for each loan type, and the controls that bound them, then recommend."
+      }
+    ],
+    "answer": [
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "判断者に必要なのは、拡大の範囲、種別ごとの誤り率とその影響、それを限定する統制である。リスクを読み取れて範囲が限定された形で示せば、受け入れる条件をその場で決められる。一般原則として、相手の意思決定に必要な形で判断を示す。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai",
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production",
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "CRO は残余リスクを受け入れるかを決める立場であり、リスクが読み取れる形で、範囲と統制が示される必要がある。"
+  },
+  {
+    "id": "p-d6-q706",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An insurer's claims-chat assistant has three signed-off requirements: at least 95% accuracy on the golden set, p95 latency of 3 seconds or less, and a monthly model budget cap. Prompt caching and routing simple requests to a smaller model have both been evaluated, and effort settings and prompt tuning have also been exhausted on both models. The best measured configurations are: the smaller model meets latency and budget but scores 91%; the larger model scores 96% but has p95 latency of 5.5 seconds and exceeds the budget by 80%. The business owner insists that all three requirements are mandatory. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Choose the larger model and ask finance for a budget increase after launch, since accuracy is the requirement with the greatest risk of customer harm.",
+        "plausible_ja": "予算に上限が無い、または精度優先で予算変更が事前に承認済みなら妥当である。",
+        "not_best_ja": "事業側が予算上限を必須としており、予算超過と応答時間の未達を承認前に既成事実にしてしまう。"
+      },
+      {
+        "label": "B",
+        "text_en": "Choose the smaller model because it meets two of the three requirements, and document the 91% result in the launch report.",
+        "plausible_ja": "91% でも業務上許容できると事業側が判断したなら妥当である。",
+        "not_best_ja": "事業側が必須とした精度要件を満たさないまま、合意なしに出荷する判断をアーキテクトが一方的に下すことになる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Present the measured trade-off table to the business owner and get a decision on which requirement to relax or fund before design is finalized."
+      },
+      {
+        "label": "D",
+        "text_en": "Keep tuning prompts and effort settings on the smaller model until it reaches 95%, then proceed with all three original targets unchanged.",
+        "plausible_ja": "現在の差が小さく、さらなる調整で埋まる見込みが評価で示されているなら有効である。",
+        "not_best_ja": "stem では effort 調整とプロンプト調整が両モデルで尽くされており、91% と 95% の差を埋める手段が残っていない。測定済みのトレードオフを事業側に示せていない。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "精度・レイテンシ・コストは相互にトレードオフになる。評価結果を並べて事業側に示し、緩和または追加投資を選んでもらうことで、合意済みの基準に沿った設計に進める。技術側が黙って要件の一部を犠牲にしたり、根拠のない見込みで先送りしたりしないのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/choosing-a-model",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "測定結果では 3 つの要件を同時に満たせず、どれを緩和するか資金を出すかは事業側の判断事項である。"
+  },
+  {
+    "id": "p-d6-q707",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A bank's retail-products team is handing a Claude-based FAQ assistant to its IT operations group after launch. During the transition review, operations says it will \"handle everything,\" while the product owner expects to approve any change to what the assistant may say about fees. Incidents have already led to ad hoc prompt edits made directly in production, some of which changed wording about fees. Operations is on call and must restore service within the hour. What should the architect define in the handoff?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Ownership by operations of all changes, including wording about fees, with the product owner informed of each change through a weekly report afterward.",
+        "plausible_ja": "料金に関する文言が運用の裁量で変更できる低リスクの内容に限られ、事業側の承認が不要なら妥当である。",
+        "not_best_ja": "料金に関する文言の変更は事業側の承認が必要という要件に反し、本番での場当たり的なプロンプト変更をむしろ助長する。"
+      },
+      {
+        "label": "B",
+        "text_en": "Split ownership so that operations handles incidents and rollback and the product owner handles fee content, but each side may publish its own prompt edits at once.",
+        "plausible_ja": "変更が少なく、両者が密に連携できる小規模な運用なら、担当を分けるだけで足りる場合がある。",
+        "not_best_ja": "担当は分かれていても本番のプロンプト変更に承認経路が無く、運用側の即時公開が料金の文言に及んでも事業側の承認を経ない。場当たり的な編集が止まらない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Business-side ownership of both content and incident decisions, with the product owner approving the fee-wording changes and the incident fixes and operations executing what is approved.",
+        "plausible_ja": "事業側が常時対応できる体制で、障害の件数が少なく復旧の遅れが許容されるなら、承認を一本化する方式も成立する。",
+        "not_best_ja": "障害対応に事業側の承認を要すると、1 時間以内の復旧という要件を満たせない。料金の文言を変えない対応やロールバックまで承認を待つことになり、運用の裁量範囲が定まらない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Operations ships incident fixes and rollbacks that leave fee wording unchanged on its own authority, while any fee-wording change needs the product owner's approval first, through one release path."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "運用チームへの引継ぎでは、判断ごとに誰が責任を持つかに加えて、どこまでが運用の裁量でどこからが承認を要するかの境界を定める。料金の文言を変えない障害対応とロールバックは運用の権限で行い、料金に関わる変更は事業側の承認を経て、単一のリリース経路に載せれば、場当たり的な本番編集を防げる。一般原則として、判断ごとに責任者を決め、承認が要る範囲を境界として明示する。",
+    "refs": [
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production",
+      "https://claude.com/blog/how-claude-code-works-in-large-codebases-best-practices-and-where-to-start",
+      "https://claude.com/blog/the-ai-native-sdlc-playbook"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "引継ぎでは、運用の裁量で変えてよい範囲と事業側の承認が要る範囲、そして変更が通る単一の経路を決めないと、障害対応と内容承認の責任が衝突する。",
+    "lifecycle_phase": "deployment"
+  },
+  {
+    "id": "p-d6-q708",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An airline plans a Claude-based system to classify and route about 30,000 multilingual customer emails per day. The project is in the discovery phase, and design is scheduled to begin next week. So far the architect knows only the daily volume and the routing categories. Which TWO items must the architect obtain from stakeholders before design begins? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The final prompt wording for each routing category, written and reviewed by the customer-service leads of every region.",
+        "plausible_ja": "設計フェーズに入った後の作業としては妥当で、反復の中で洗練する対象である。",
+        "not_best_ja": "プロンプトの文面は設計と反復の成果物であり、設計開始前に得るべき制約や基準ではない。"
+      },
+      {
+        "label": "B",
+        "text_en": "The data-handling constraints from the compliance owner, such as where passenger data may be processed and retained."
+      },
+      {
+        "label": "C",
+        "text_en": "The model selected after benchmarking candidates on a sample of the airline's emails in each language.",
+        "plausible_ja": "要件と基準が揃い、設計フェーズでモデルを選定する段階なら必要な作業である。",
+        "not_best_ja": "モデル選定は設計の活動であり、評価に使う基準とデータの制約が決まる前に行うと、制約に反する候補を試すおそれがある。"
+      },
+      {
+        "label": "D",
+        "text_en": "A response-time target for routing and the peak hourly volume the system must absorb, agreed with the operations owner."
+      },
+      {
+        "label": "E",
+        "text_en": "The alert thresholds and on-call rotation for monitoring the system after launch.",
+        "plausible_ja": "本番稼働後の monitoring フェーズに入る準備としては必要である。",
+        "not_best_ja": "運用の閾値や当番は本番前に決めればよく、設計前に必要な制約と合意の基準ではない。"
+      }
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "データの取扱い制約は、設計で選べる構成や処理場所の範囲そのものを決めるため、設計前に規制や社内ルールの担当者から得る。応答時間の目標とピーク時の処理量は、同期か非同期か、どの規模のモデルを使うかといった設計の選択を縛るため、運用側と合意して初めて設計に使える。2 つはそれぞれ別の理由で設計前に必要である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "設計の前に、許される構成を制約するデータの取扱い条件と、構成の規模と方式を縛る応答時間・処理量の条件の 2 つが確定している必要がある。",
+    "lifecycle_phase": "discovery"
+  },
+  {
+    "id": "p-d6-q709",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t5-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An insurer's claims-summarization service has run stably for three months under its operations team, and the CFO proposes cutting post-launch effort to routine uptime checks only. Claims mix and Anthropic model releases are both expected to change over the coming year. Which TWO practices should the architect insist remain in place? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Pin the prompt and model versions and revisit them at the annual budget cycle, so that the behavior covered by the evaluation stays stable between reviews.",
+        "plausible_ja": "規制上、承認済みバージョンの固定が義務づけられ、変更管理が厳格な環境なら妥当である。",
+        "not_best_ja": "請求の内容が変わり、モデルにも提供終了日があるため、年 1 回の見直しでは追従が間に合わない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Re-sample recent claims at a regular interval, compare their mix with the evaluation set, and add cases when new claim types appear."
+      },
+      {
+        "label": "C",
+        "text_en": "Re-benchmark one or two newly released models each quarter and switch to the service whenever one of them scores higher than the current model.",
+        "plausible_ja": "評価が安価で、提供終了の期限に余裕があり、モデルの切り替えが頻繁に必要な環境なら有効である。",
+        "not_best_ja": "切り替えの契機が候補モデルのスコアだけで、提供終了日までに移行検証を終える期限管理にならず、請求の内容の変化も捉えられない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Route the summaries of the highest-value claim categories to a human reviewer in full before use, and leave the other categories unreviewed.",
+        "plausible_ja": "出力が個々の請求判断に直接影響し、高額区分の誤りの影響が重大なら、その区分の全件レビューが妥当である。",
+        "not_best_ja": "区分を絞った全件レビューは、請求の内容やモデルの変化による劣化を検知する継続的な仕組みにならず、他の区分の変化を見逃す。"
+      },
+      {
+        "label": "E",
+        "text_en": "Track Anthropic's model deprecation notices, and finish migration testing on the existing evaluation suite before each retirement date."
+      }
+    ],
+    "answer": [
+      "B",
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "本番後は、請求の内容の変化とモデルの更新という 2 つの変化に備える。直近の請求を定期的にサンプルして評価セットと比べ、新しい請求の種類が現れたら事例を足せば、請求の内容の変化に評価を追従させられる。モデルの提供終了通知を追い、終了日までに既存の評価で移行を検証すれば、モデル側の変化に計画的に対応できる。前者は入力の分布、後者はモデルの寿命という別の理由で必要になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://claude.com/blog/how-claude-code-works-in-large-codebases-best-practices-and-where-to-start",
+      "https://docs.claude.com/en/docs/about-claude/model-deprecations"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "請求の内容とモデルの提供が変化し続けるため、入力の分布の変化に評価を追従させる活動と、モデルの更新・提供終了に備える活動の両方が必要である。"
+  }
+]

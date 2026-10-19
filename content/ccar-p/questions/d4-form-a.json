@@ -1,0 +1,551 @@
+[
+  {
+    "id": "p-d4-q701",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An insurer runs Claude over 300,000 archived claim notes every weekend to tag them for an audit report due Monday morning. Separately, about 2,000 notes flagged by adjusters each day must be tagged within one hour of flagging. Both jobs use one synchronous call per note, the monthly bill is the concern, and no user watches any individual result. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Submit both jobs through the Message Batches API, since most batches finish within an hour and the per-token price is lower.",
+        "plausible_ja": "1 時間以内の要件が厳密な期限ではなく目安にとどまる場合や、遅延が許容される場合には、全件を batch に載せて単価を下げられる。",
+        "not_best_ja": "batch の完了時間には上限の保証が無く(最大 24 時間)、1 時間以内に必ずタグ付けする要件を満たせない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Stream each response in both jobs so they finish sooner and the weekend compute window can be shortened.",
+        "plausible_ja": "ユーザーが応答を待つ対話型であれば、streaming は体感レイテンシの改善に効く。",
+        "not_best_ja": "待っているユーザーがおらず、問題はレイテンシではなく月額コストである。streaming は呼出しあたりのコストを下げない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Move both jobs to the smallest available model, which costs less per token for every note tagged.",
+        "plausible_ja": "小型モデルへの切替は、評価でタグ付け精度が監査の基準を満たすと確認できた場合には有効なコスト施策になる。",
+        "not_best_ja": "精度を確認しないまま監査レポートの入力を小型モデルに替えると品質を賭けることになる。品質を変えずに済む別のコスト削減手段がある。"
+      },
+      {
+        "label": "D",
+        "text_en": "Send the weekend archive through the Message Batches API and keep the hour-bound flagged notes on synchronous calls."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "週末のアーカイブは締切まで余裕があり、待つ人もいないため、非同期の batch 処理に向く。一方、1 時間以内の要件がある分は batch の完了時間に上限の保証が無いので、同期呼出しに残す必要がある。処理ごとの待てる時間に応じて経路を分ければ、モデルも入力も変えずに品質を保ったままコストを下げられる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence",
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "週末アーカイブは待つ人がおらず batch に向くが、1 時間以内の要件がある分は batch の完了時間の保証が無く同期呼出しが必要である。"
+  },
+  {
+    "id": "p-d4-q702",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t5-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A logistics firm's shipment-status assistant used to answer in about 4 seconds, but p95 latency is now 11 seconds after new integrations were added. Traces show that in the slow turns the agent calls the carrier, customs, and warehouse lookups one after another, none depending on the others, and model generation takes only about 1 second. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Have the agent issue the three independent lookups in parallel within the same turn."
+      },
+      {
+        "label": "B",
+        "text_en": "Move the assistant to a smaller model so that generation finishes faster.",
+        "plausible_ja": "トレースで生成時間が全体の大半を占めると分かっていれば、小型モデルへの切替はレイテンシ改善の有力な手段になる。",
+        "not_best_ja": "トレースでは生成は約 1 秒にすぎず、遅さの主因は直列のツール呼出しである。生成を速くしても p95 はほとんど縮まない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Stream the final answer so users start reading text before generation completes.",
+        "plausible_ja": "待ち時間が長い出力の生成に集中している場合や、体感の待ちを短くするのが目的なら、streaming は有効である。",
+        "not_best_ja": "遅い時間は最終回答の生成前に、独立した 3 つの照会が順番に完了するのを待つ間に発生している。streaming を入れても最初のテキストはその後にしか出ない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Enable prompt caching on the system prompt to shorten input processing in each turn.",
+        "plausible_ja": "毎回同じ長い prefix を処理していて入力処理が支配的なら、prompt caching は TTFT とコストの両方に効く。",
+        "not_best_ja": "遅延の原因は入力処理ではなくツール呼出しの待ち時間であり、prefix をキャッシュしても直列待ちは解消しない。"
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "トレースで時間の大半が独立した照会の直列実行にあると分かっているので、並列化がその層を直接解消する。レイテンシ改善はまず計測で支配的な区間を特定し、その区間に効く手段(並列化・呼出し回数の削減)を選ぶのが基本的な進め方で、モデルの縮小や streaming は支配的な区間に当たらない限り効果が小さい。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "遅延の主因は生成ではなく、互いに独立したツール呼出しが直列に実行されていることである。"
+  },
+  {
+    "id": "p-d4-q703",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Four product teams edit shared prompt templates for a Claude-based contract-review tool. Last month two edits silently reduced clause-extraction accuracy, and customers noticed only a week later. The company already has a labeled set of 400 past contracts, and releases happen several times a week. What should the architect do BEST to prevent a repeat?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Require a senior engineer to approve every prompt edit after reading the diff before it can be merged.",
+        "plausible_ja": "評価セットがなく自動検証ができない場合や、評価に加えてレビューで意図を確認したい場合には、diff レビューは有効な補助統制になる。",
+        "not_best_ja": "プロンプトの差分を読んでも、出力の精度がどう変わるかは分からない。400 件のラベル付きセットで変更ごとに実測できるのに、人の目視に頼ると回帰を見逃し、リリース頻度の高さにも合わない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Grade a weekly sample of production outputs with an LLM judge and alert the team when the average score drops.",
+        "plausible_ja": "本番の入力分布の変化や評価セットにない失敗を捉える目的なら、本番のサンプリング評価は欠かせない。",
+        "not_best_ja": "本番サンプリングは影響が顧客に出た後に検出する事後の手段であり、今回の問題(1 週間後に顧客が気付いた)をそのまま再現する。リリース前に防ぐ手段がある。"
+      },
+      {
+        "label": "C",
+        "text_en": "Restrict template edits to one named owner so that fewer risky changes reach production.",
+        "plausible_ja": "変更の頻度自体が品質リスクの主因で、検証手段が整うまでの暫定策としては、変更権限の集約が有効なことがある。",
+        "not_best_ja": "編集者を絞っても、1 人の編集が回帰を起こす可能性は残り、変更の良否を測る手段にはならない。複数チームが共有する運用上の要件にも合わない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Run the labeled set automatically on every prompt change and block the merge if accuracy drops below baseline."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "プロンプトの変更ごとに既存のラベル付きセットを自動実行してベースラインと比較し、劣化したらマージを止めれば、顧客に届く前に回帰を捕まえられる。一般原則として、変更頻度が高い共有資産には、目視レビューや事後監視でなく、変更のたびに走る自動回帰評価(evals を CI に組み込む)を置き、本番監視はそれを補完する位置づけにする。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "回帰はリリース前に、変更ごとの自動評価で検出する必要がある。ラベル付きセットは既にある。"
+  },
+  {
+    "id": "p-d4-q704",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A pharmaceutical company uses Claude to draft replies to medical-information requests and grades drafts with an LLM judge whose rubric scores fluency and relevance; the judge reports an average of 4.6 out of 5. Two medical reviewers say many drafts omit required safety caveats. The reviewers can give about 10 hours a month in total, and releases are weekly. What should the architect do BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Replace the judge with human review of every draft by the two medical reviewers before each weekly release.",
+        "plausible_ja": "出荷する下書きが少なく専門家の時間が十分にあれば、全件の人手評価が最も信頼できる。",
+        "not_best_ja": "専門家の時間は月 10 時間しかなく、週次リリースの全件を確認することはできない。人手評価は高品質だが遅くて高価な手段として、較正用の標本に絞って使うのが妥当である。"
+      },
+      {
+        "label": "B",
+        "text_en": "Have reviewers label a stratified sample, compare it with judge scores, add safety-caveat criteria to the rubric, and recheck agreement."
+      },
+      {
+        "label": "C",
+        "text_en": "Move to a larger model as the judge and keep the current rubric, so that its release scores become more reliable.",
+        "plausible_ja": "ルーブリックが適切で、判定の誤りが判定モデルの能力不足から来ていると確認できた場合には、より強いモデルの採用が有効である。",
+        "not_best_ja": "問題は、ルーブリックが安全上の注意書きを評価基準に含んでいないことであり、モデルを大きくしても基準にないものは採点されない。専門家の判断との一致も確認されないままである。"
+      },
+      {
+        "label": "D",
+        "text_en": "Replace the judge with a code check that fails any draft lacking the word \"warning\" or \"caution\" in its text.",
+        "plausible_ja": "必須の文言が固定されているなら、コードによる採点は速く再現性が高く、LLM 判定より適している。",
+        "not_best_ja": "必要な注意書きは問い合わせの内容ごとに異なり、特定の単語の有無では判断できない。単語があっても内容が不適切な下書きを通し、微妙な判断が要る評価には粗すぎる。"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "少量の専門家ラベルで判定とのずれを測り、ルーブリックの欠落を直してから大量の判定に使う方法は、人手の高品質と LLM 判定の拡張性を両立する。LLM-as-a-Judge は人手ラベルとの一致を確認して初めて信頼でき、判定の結果が現場の評価とずれたら、判定モデルを替える前にルーブリックと較正を見直すのが一般原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "専門家の時間が限られる中で、LLM 判定を人手ラベルで較正し、評価基準に欠けている安全要件を補う必要がある。"
+  },
+  {
+    "id": "p-d4-q705",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A bank's mortgage-policy assistant uses retrieval-augmented generation and sometimes gives confident answers that contradict the policy documents. The team has no labeled retrieval data, nothing was deployed recently, and a steering committee expects a root-cause statement next week. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Upgrade the generation step to the largest available model, expecting fewer hallucinations on policy questions.",
+        "plausible_ja": "正しい根拠がコンテキストに入っているのにモデルが読み違えている場合は、より能力の高いモデルが効くことがある。",
+        "not_best_ja": "原因の層が未確認のまま部品を替えている。検索が誤った箇所を返しているなら、大きなモデルでも誤った根拠から自信を持って誤答する。"
+      },
+      {
+        "label": "B",
+        "text_en": "Re-chunk the whole corpus into smaller pieces and rebuild the index before running any further analysis.",
+        "plausible_ja": "調査で、チャンクの境界が条件や例外を分断していると分かった場合には、チャンク設計の見直しが有効である。",
+        "not_best_ja": "原因が検索側にあるのか、どのチャンクの問題かが分かっていない。診断より先に索引全体を作り直すと、時間を使うだけで根拠のない変更になる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Compare the retrieved passages and generated answer with the source policy for a sample of failures to see whether retrieval was right."
+      },
+      {
+        "label": "D",
+        "text_en": "Add an instruction telling the model to say it does not know whenever it is not sure of an answer.",
+        "plausible_ja": "根拠となる文脈が無いときの誤答を抑える手段として、「わからない」を許可する指示は有効である。",
+        "not_best_ja": "原因が検索なのか生成なのかを調べておらず、取得された文脈が誤っているなら不確かさの自己申告に頼れない。まず原因の層を切り分けるのが先である。"
+      },
+      {
+        "label": "E",
+        "text_en": "Fine-tune the embedding model on the bank's policy vocabulary and compare answer quality afterward.",
+        "plausible_ja": "調査で、専門用語のために正しい文書が一貫して検索されていないと分かった場合には、埋め込みの改善が有効になる。",
+        "not_best_ja": "原因が検索の埋め込みにあるという証拠がなく、診断前の再学習は時間とコストを使い、効果も測れない。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "失敗事例について、取得されたチャンクと正しい根拠を突き合わせれば、検索の不良か生成の問題かが分かり、以降の対処の方向が決まる。本番の誤答は「モデルの幻覚」と即断せず、根拠となる文脈が正しく取得されているかを先に確認するのが筋で、診断の結果に応じて検索かプロンプトかモデルを変える。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations",
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "原因の層(検索か生成か)が分かっていないため、部品を替える前に失敗事例で切り分ける必要がある。"
+  },
+  {
+    "id": "p-d4-q706",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t6-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A SaaS company's Claude spend doubled within two weeks of launching a meeting-recap feature next to its existing chat assistant; chat traffic is flat. Both features share one API key and one model, but the application logs input and output tokens per request with the feature name and prompt version attached. Finance needs the cause identified before the budget review, and product managers have ruled out any change that degrades user experience until the cause is known. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Move the chat assistant to a smaller model, since it is the older and more heavily used feature.",
+        "plausible_ja": "調査の結果、支出増の主因がチャット機能だと分かり、小型モデルでも評価で品質が保てる場合には、モデルの振り分けは有効である。",
+        "not_best_ja": "チャットの量は変わっておらず、増加の原因ではない。原因が不明なまま品質に影響し得る変更をすることは、ユーザー体験を損なう変更を避ける要件にも反する。"
+      },
+      {
+        "label": "B",
+        "text_en": "Enable prompt caching on every request of both features and compare next month's bill.",
+        "plausible_ja": "内訳を見て、長い共通 prefix が繰り返し送られていることが増加の主因と分かれば、prompt caching は最初の有力な手段になる。",
+        "not_best_ja": "原因が共通 prefix だとは分かっておらず、効果の有無は翌月の請求まで分からない。まず内訳を調べるのが先である。"
+      },
+      {
+        "label": "C",
+        "text_en": "Break down logged tokens by feature and prompt version, input versus output, to locate where the increase comes from."
+      },
+      {
+        "label": "D",
+        "text_en": "Set a hard spend cap on the shared API key so that monthly spend cannot exceed last month's level.",
+        "plausible_ja": "予算超過が差し迫っていて、原因究明を待てない場合には、上限の設定は応急の封じ込めとして妥当である。",
+        "not_best_ja": "共有キーの上限は両方の機能を止め得るため、ユーザー体験を損なう。目的は原因の特定であり、封じ込めは今の目的に合わない。"
+      },
+      {
+        "label": "E",
+        "text_en": "Ask the recap team to shorten every transcript to its first ten minutes before it is sent to the model.",
+        "plausible_ja": "分析で、長い議事録が支出増の主因で、冒頭 10 分だけでも要約品質が保てると確認できた場合には、入力削減は有効である。",
+        "not_best_ja": "原因を特定する前の推測であり、要約の品質(ユーザー体験)を落とし得る。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "機能・プロンプトバージョンごとに入力と出力のトークン数を集計すれば、増加分がどの機能のどの部分から来たかが分かる。観測で原因の層を特定してから最適化するのが運用の基本であり、原因が分からないままの縮小・キャッシュ・制限はコストと品質の両方を損なうおそれがある。なお共有キーのままでも、機能タグ付きのログがあれば内訳は取れる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/manage-claude/usage-cost-api",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "支出増の原因が特定されるまで、ユーザー体験を損なう変更はできず、機能ごとの使用量の内訳が必要である。"
+  },
+  {
+    "id": "p-d4-q707",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A bank's voice assistant speaks Claude's replies to callers, and callers hang up after about three seconds of silence. Replies without account details are streamed and spoken as soon as the first words arrive. Replies containing account details (about 15% of calls) are held until generation finishes so a compliance filter can check the whole text, and are then spoken. Which service-level targets should the architect set for caller-perceived silence?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A single mean time to first token across all replies, regardless of how each reply is delivered.",
+        "plausible_ja": "全ての返答が到着順に読み上げられる構成なら、最初の語が届くまでの時間が無音の長さを決めるため有効である。",
+        "not_best_ja": "保留される返答では、通話者の無音は生成の完了とフィルタ通過まで続く。平均は遅い呼出しも隠すため、離脱の原因を捉えられない。"
+      },
+      {
+        "label": "B",
+        "text_en": "The 95th-percentile total completion time for all replies against one shared target.",
+        "plausible_ja": "全ての返答を完了後に後続の処理へ渡す構成なら、完了時間が実際の待ち時間になる。",
+        "not_best_ja": "ストリーミングされる返答では、無音は最初の語が届いた時点で終わる。完了時間を目標にすると大半の通話の体感と対応しない。"
+      },
+      {
+        "label": "C",
+        "text_en": "The 95th-percentile time to first token for streamed replies, and the 95th-percentile completion time for held replies."
+      },
+      {
+        "label": "D",
+        "text_en": "The 95th-percentile time to first token for all replies, including those that are held for the compliance check.",
+        "plausible_ja": "保留される返答でも、待機中に最初の語の到着を合図に保留音や定型句を流す設計なら、最初の語までの時間が無音を決める。",
+        "not_best_ja": "このシナリオでは保留される返答は生成が終わるまで話されず、最初の語の時間は通話者の無音を過小評価する。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "無音が終わるタイミングは配信方法で決まる。ストリーミングされる返答は最初の語が届いた時点で、保留される返答は生成完了とフィルタ通過の時点である。したがって返答の種類ごとに該当する指標を選び、パーセンタイルで遅い呼出しを捉える。指標は利用者が体験する待ちに対応づけて定義する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "返答の配信方法が種類で異なり、通話者の無音が終わる時点も最初の語か生成完了かで異なる。"
+  },
+  {
+    "id": "p-d4-q708",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A retailer is launching a Claude assistant for order-support emails. Its history holds 80,000 resolved emails, about 70% on delivery status and a small share on refund disputes and fraud claims, which carry the highest business risk. The team needs a pre-launch evaluation set of about 300 cases. Which TWO actions should the architect take? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Draw the core of the set from historical emails in proportion to the real category mix, so results reflect production traffic."
+      },
+      {
+        "label": "B",
+        "text_en": "Generate all 300 cases synthetically with Claude from a single email template, so that every case has a clean label.",
+        "plausible_ja": "過去のメールが無い、またはプライバシー上使えない新規サービスでは、合成データで評価セットを立ち上げるのは妥当である。",
+        "not_best_ja": "このシナリオには 80,000 件の実データがあり、単一のテンプレートから作った合成事例は表現が偏って本番の多様さを反映しない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Add a targeted group of edge cases, including past failures, refund disputes, and fraud claims, even though they are rare in traffic."
+      },
+      {
+        "label": "D",
+        "text_en": "Use the examples already written into the prompt as most of the test cases, since they are known to be well labeled.",
+        "plausible_ja": "プロンプトの書式や動作の簡単な動作確認(スモークテスト)であれば、プロンプト内の例の再利用は手軽で有効である。",
+        "not_best_ja": "プロンプトに入っている例はモデルが既に見ているため、そのまま使うと性能を過大に見積もる。独立した事例にならない。"
+      },
+      {
+        "label": "E",
+        "text_en": "Keep only cases the current prompt already answers correctly, so any later drop clearly signals a regression.",
+        "plausible_ja": "既に安定している挙動の退行だけを検出するための回帰専用セットなら、通過済みの事例だけで構成するのは妥当である。",
+        "not_best_ja": "発売前の品質確認が目的であり、現在の失敗を除くと弱点が見えず、スコアが実力より高く出る。"
+      }
+    ],
+    "answer": [
+      "A",
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "本番の比率に沿った標本は成功率の現実的な推定を与え、過去の失敗やリスクの高い希少事例を意図的に加えることで、頻度が低くて標本では拾えない弱点を測れる。この 2 つは、代表性と弱点の網羅という別の理由で必要になる。評価データは実運用の分布に基づいて作り、エッジケースを補い、プロンプトに使った例とは分けるのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "評価セットは本番の分布を反映しつつ、頻度は低いが業務リスクの高い事例も確実に含める必要がある。"
+  },
+  {
+    "id": "p-d4-q709",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t5-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A bank's document-triage service classifies about 2 million incoming documents a day, each request carrying the same 6,000-token instruction block followed by the document text. Results must return within seconds to branch staff. An evaluation shows a small model matches the large model on the 85% of documents that are short forms but loses accuracy on long free-text letters. The architect must cut cost without losing that accuracy. Which TWO actions should the architect take? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Move the whole workload to the Message Batches API, which lowers the per-token price on every request.",
+        "plausible_ja": "結果を数時間遅れで受け取れる夜間処理なら、batch 処理は品質を変えずに単価を下げる有効な手段である。",
+        "not_best_ja": "窓口の職員に数秒以内で結果を返す必要があり、非同期の batch 処理では待ち時間の要件を満たせない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Route short forms to the small model and keep long letters on the larger one, after validating the split on the evaluation set."
+      },
+      {
+        "label": "C",
+        "text_en": "Send every document to the small model, since it matches the large model on most of the traffic.",
+        "plausible_ja": "長文の手紙で小型モデルが十分な精度を出す、または誤分類が許容できると評価で確認できれば、全面切替は最大のコスト削減になる。",
+        "not_best_ja": "長い自由記述の手紙では小型モデルの精度が落ちると評価で分かっており、精度を保つという制約に反する。"
+      },
+      {
+        "label": "D",
+        "text_en": "Put the stable instruction block first in every request and enable prompt caching for it."
+      },
+      {
+        "label": "E",
+        "text_en": "Truncate each document to its first 300 tokens before classification to reduce the input size billed.",
+        "plausible_ja": "分類に必要な情報が必ず冒頭にあると評価で確認できた文書の種類なら、入力の切り詰めは有効である。",
+        "not_best_ja": "長い手紙では判断の根拠が後半にある可能性が高く、切り詰めは精度を落とす。必要な文脈を捨てずにコストを下げる別の手段がある。"
+      }
+    ],
+    "answer": [
+      "B",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "文書の難易度に応じた振り分け(評価で確認)は、必要な能力を保ったまま平均コストを下げる。毎回同じ 6,000 トークンの指示を安定した prefix として先頭に置き caching する方法は、入力処理の時間と費用の両方を下げる。この 2 つは対象の異なる独立した施策であり、同時に使える。前者は評価で確かめた難易度の差に、後者は毎回同一の指示ブロックという事実に基づく。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-caching"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "応答は数秒以内で、長文の手紙の精度を落とさずに、高頻度の同一 prefix と文書の難易度の差を利用してコストを下げる必要がある。"
+  },
+  {
+    "id": "p-d4-q710",
+    "exam": "ccar-p",
+    "domain_id": "p-d4",
+    "primary_topic_id": "p-d4-t4-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "Two days after a Claude model upgrade, a retailer's product-description generator starts ignoring its length limit and adds unrequested marketing claims. Prompt templates, retrieval data, and traffic mix are unchanged; the prompt was tuned for the previous model and contains several emphatic instructions written to correct that model's habits. The team keeps a labeled regression set, and customer-visible impact is limited to a few listings. Which TWO actions should the architect take FIRST? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Run the existing regression set on the old and new models with identical prompts and compare failures by category."
+      },
+      {
+        "label": "B",
+        "text_en": "Collect a large new labeled dataset and train a custom model to replace Claude for this task, then migrate traffic.",
+        "plausible_ja": "モデルの更新が頻繁に問題を起こすなど、長期的に別の手段を検討する局面では、独自モデルへの置換も選択肢になり得る。",
+        "not_best_ja": "原因がまだ特定されていない段階で、部品全体の入れ替えを始めている。変わったのはモデルだけと分かっており、切り分けで安く解ける可能性が高い。"
+      },
+      {
+        "label": "C",
+        "text_en": "Audit the prompt for instructions that compensated for the old model's behavior, then re-test a revised version on the same set."
+      },
+      {
+        "label": "D",
+        "text_en": "Pin the previous model and treat the issue as closed once the affected listings look normal again.",
+        "plausible_ja": "顧客への影響が大きく、すぐ止血が必要な場合や、新旧の差を調べる間の暫定措置としては、旧モデルへの戻しは妥当である。",
+        "not_best_ja": "影響は限定的で急いで止血する状況ではない。新モデルの挙動を調べずに終えると、次のモデル切替で同じ問題を繰り返し、旧モデルの提供期間にも縛られる。"
+      },
+      {
+        "label": "E",
+        "text_en": "Switch the service to the next-larger model tier right away, expecting it to respect the length limit.",
+        "plausible_ja": "新旧の比較で、上位モデルが同じ指示を守ることを評価セットで確認できた場合には、モデル変更は有効な是正手段になる。",
+        "not_best_ja": "原因の層が未確認のまま部品を替えている。プロンプトとの不整合が原因なら、上位モデルでも同じ系統の逸脱が起きうる。"
+      }
+    ],
+    "answer": [
+      "A",
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "同じ評価セットと同じプロンプトで新旧モデルを比較すれば、劣化がどのカテゴリでどの程度かが特定でき、変わっていない要素を除外できる。旧モデルの癖を補うために書いた指示は新モデルで過剰になりやすく、現在のモデルに合わせた監査と再評価が必要になる。この 2 つは切り分けと是正という別の目的で必要で、診断を先にして部品交換を後にするのが原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence",
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "変わったのはモデルだけなので、新旧の比較で切り分け、旧モデル向けに書かれたプロンプトとの不整合を確認する必要がある。"
+  }
+]

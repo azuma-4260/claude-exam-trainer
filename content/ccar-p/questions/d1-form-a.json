@@ -1,0 +1,592 @@
+[
+  {
+    "id": "p-d1-q701",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A municipal water utility uses one structured-output Claude call to turn citizen maintenance reports (one or two free-text paragraphs, about 300 per day) into a fixed record with location, issue type, and urgency for dispatchers. Scored against a year of hand-corrected dispatcher records, location and issue type match 96% of the time, but urgency matches only 71%. A vendor proposes an autonomous agent with dispatch-system tools, a vector memory of past reports, and a critic agent. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Adopt the vendor's full agent design as a pilot, so the team can measure whether it lifts urgency accuracy above the current 71%.",
+        "plausible_ja": "要件が既に動的な多段調査を必要と示していて、構成を後から変える費用が大きいなら、最初から本格構成にする判断もあり得る。",
+        "not_best_ja": "精度の弱点は urgency に集中していて、その原因がまだ特定されていない。原因に対応しない複雑な構成を一括で足すのは、複雑さは効果が確認できたときだけ足す、という制約に反する。"
+      },
+      {
+        "label": "B",
+        "text_en": "Add retrieval over past reports to the call first, because the conventions for rating urgency are inferred from history.",
+        "plausible_ja": "評価で、過去の報告に依存する地域固有の慣習が精度不足の原因だと分かったなら、retrieval の追加が最初の改善になる。",
+        "not_best_ja": "urgency の誤りの内訳をまだ見ておらず、慣習の不足が原因かどうかが分からない。原因の分析前に部品を足すのは根拠の無い複雑化になる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Review the urgency mismatches against the dispatcher records to find the pattern, fix that cause with a clearer rubric or examples, and re-measure."
+      },
+      {
+        "label": "D",
+        "text_en": "Split the work into extraction, urgency rating, and validation steps in a fixed chain, since urgency is the weakest field.",
+        "plausible_ja": "単一呼出しの評価で、1 回では品質が足りず中間検証が要ると判明した後なら、固定の連鎖への分割が妥当になる。",
+        "not_best_ja": "urgency の誤りのパターンが未分析で、段階分割が原因に効くかどうか分からない。原因の特定の前に構成を増やすのは過剰設計になる。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "決め手は『誤りの原因を特定せずに複雑な構成を足さない』こと。ベースラインは既にあり、弱点は urgency に集中している。まず dispatcher の記録と突き合わせて誤りのパターンを見つけ、その原因に対応する最小の変更(基準の明確化や例の追加)を加えて再測定し、それでも足りない部分にだけ構成要素(retrieval・段階分割・検証)を足す。最も高度な構成ではなく、制約を満たす最小十分な構成を選び、複雑さは評価で効果が確認できたときに足すのが一般原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "精度の弱点が urgency に集中していて原因が未特定のため、誤りのパターンを分析し、原因に対応する最小の変更だけを足す必要がある。"
+  },
+  {
+    "id": "p-d1-q702",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A freight broker handles about 50 shipment exceptions per day (customs holds, damage claims, missing pallets). The same exception category has been resolved through many different sequences of lookups, depending on what earlier lookups revealed, and each case costs staff about 40 minutes. Finance requires human sign-off for any action that commits funds, and a result within a few minutes is acceptable. Which design fits BEST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "One agent loop with read-only tracking, carrier-email, and contract tools, plus propose-only tools for refunds and payments that run only after human approval."
+      },
+      {
+        "label": "B",
+        "text_en": "A routing workflow that classifies each exception by type and sends it to a fixed, predefined chain of handling steps for that type.",
+        "plausible_ja": "例外の種類ごとに解決手順が安定していて予測できるなら、ルーティングと固定の連鎖のほうが一貫性が高く、監査もしやすい。",
+        "not_best_ja": "同じ種類の例外でも前の調査結果次第で手順が変わるという事実に合わない。手順を事前に固定できないタスクを固定の連鎖で処理すると、未知の経路を扱えない。"
+      },
+      {
+        "label": "C",
+        "text_en": "A single augmented LLM call with retrieval over the contract library that drafts a recommended resolution for staff to carry out.",
+        "plausible_ja": "必要な作業が契約条項の参照と助言文の作成だけで、追跡や運送業者への確認といった調査が不要なら、retrieval 付きの単一呼出しで足りる。",
+        "not_best_ja": "1 件ごとに追跡・メール・契約を順に調べる調査が要り、前の結果が次の調査を決める。1 回の呼出しではその探索ができず、スタッフの 40 分の作業が残る。"
+      },
+      {
+        "label": "D",
+        "text_en": "An orchestrator with separate subagents for tracking, carriers, and contracts, each with its own tools and approval rules.",
+        "plausible_ja": "調査対象が互いに独立していて並列に広く探索でき、トークン費用に見合う価値があるなら、複数エージェント構成が有効になる。",
+        "not_best_ja": "調査は前の結果に依存して直列に進み、1 日 50 件と件数も少ない。調整の負荷とトークン費用が増えるだけで、単一のエージェントで足りる過剰設計になる。"
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "手順を事前に固定できず、前の調査結果が次の行動を決めるタスクは、固定の workflow ではなく agent が適する。調査は読み取り系のツールで進めさせ、資金を動かす操作は『提案』までに留めて、実行は人間の承認という外部の統制の後にする。必要な自律性だけを与える最小十分な構成を選ぶ、というのが一般原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "手順を事前に決められない調査が必要で、かつ資金を動かす操作には人間の承認が必須であるため、承認チェックポイント付きの agent が必要になる。"
+  },
+  {
+    "id": "p-d1-q703",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "An online sportswear brand uses Claude to draft product-page copy. The brand has an explicit written checklist (banned performance claims, required care-label wording, tone rules), and about 30% of first drafts violate at least one item, which editors then reject. Copy must be ready within one minute of a request. What should the architect do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add the whole checklist as extra few-shot examples and tell Claude to follow it carefully in one generation pass.",
+        "plausible_ja": "違反が稀で、編集者の差し戻し費用も小さいなら、プロンプトの改善だけで十分な場合がある。",
+        "not_best_ja": "違反率が 30% あり、チェックリストは明示的で検査できる。1 回の生成の指示改善だけでは違反を検出する手段が無く、再発を構造的に防げないため、差し戻しが残る。"
+      },
+      {
+        "label": "B",
+        "text_en": "Route each request to a prompt specialized by product category, such as footwear, outerwear, or accessories, before drafting begins.",
+        "plausible_ja": "違反の種類が商品カテゴリごとに大きく異なると分かったなら、カテゴリ別のルーティングが有効になる。",
+        "not_best_ja": "違反は全カテゴリ共通のチェックリスト項目で起きており、カテゴリが原因だという情報が無い。ルーティングは違反の検出という問題に対応しない。"
+      },
+      {
+        "label": "C",
+        "text_en": "Generate several drafts in parallel and have the editors choose the best one to release after reading them all.",
+        "plausible_ja": "複数の視点や案が価値になる創作用途で、編集者の選択の費用が許容できるなら、並列生成が有効になる。",
+        "not_best_ja": "問題は案の少なさではなく、検査可能な基準への違反である。案を増やしても編集者の確認の負荷が増えるだけで、基準の違反は自動では是正されない。"
+      },
+      {
+        "label": "D",
+        "text_en": "A second Claude call that checks each draft against the checklist and feeds violations back for a bounded number of revisions."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "基準が明示的で機械的に検査でき、反復修正で測定可能な改善が得られる場合は、生成と評価を分ける evaluator-optimizer が適する。修正の回数に上限を置けば 1 分以内の遅延の制約も守れる。評価基準が明確で反復による改善に価値があるなら評価器を追加する、というのが一般原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "基準が明示的で検査でき、かつ 1 分の遅延の枠内で修正を回せるため、生成と検査を分けた反復が必要になる。"
+  },
+  {
+    "id": "p-d1-q704",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A fintech must migrate a 15-module payment library to a new API version within a week and under a fixed token budget; one agent is estimated to fit that schedule. The modules share type definitions, and a change in one module regularly breaks callers in others. A team member proposes assigning one concurrent subagent per module to finish faster. What should the architect recommend?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Concurrent per-module subagents that coordinate by writing notes to a shared file as they go.",
+        "plausible_ja": "モジュールが互いに独立していて共有する型が無いなら、並列化で期間を縮められる。",
+        "not_best_ja": "モジュール間で型を共有し、変更が他モジュールの呼び出し側を壊す。独立して作業するエージェントは共有の文脈を持てず、固定のトークン予算を調整の費用で消費する。"
+      },
+      {
+        "label": "B",
+        "text_en": "One agent that works through the modules in dependency order and runs the test suite after each step."
+      },
+      {
+        "label": "C",
+        "text_en": "Concurrent per-module subagents followed by a merge agent that reconciles type conflicts at the end.",
+        "plausible_ja": "差分が小さく衝突の統合が容易で、予算にも余裕があるなら、並列実行の後に統合する方法も成立する。",
+        "not_best_ja": "型の衝突が多発するため、最後の統合で大きな手戻りが生じる。複数エージェントは単一より数倍のトークンを使うので、固定の予算とも合わない。"
+      },
+      {
+        "label": "D",
+        "text_en": "A planner agent that assigns module groups to a small pool of subagents, with a reviewer agent verifying each result.",
+        "plausible_ja": "作業が実際に独立した大きな塊に分けられ、検証にも価値が見合う高額なタスクなら、役割分担の構成が有効になる。",
+        "not_best_ja": "密結合のタスクでは、エージェント間で理解を頻繁に同期する必要がある。計画・実行・レビューの層を足すと調整とトークンの費用が増え、予算内で終わらない。"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "共有の文脈を必要とする密結合の作業は、分けると同期の費用が増えるので同じエージェントに残す。依存関係の順に進めてテストで検証する単一エージェントなら、型の整合性を保ちながら固定の予算に収まる。複数エージェントは並列化できる広い探索で効果が出るのであって、密結合のタスクは向かない、というのが一般原則である。",
+    "refs": [
+      "https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them",
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "モジュール間で共有の型に依存する密結合の作業であり、かつトークン予算が固定されているため、文脈を分けずに進める必要がある。"
+  },
+  {
+    "id": "p-d1-q705",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t5-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A property-management firm reviews 300-page commercial leases in three stages: extract key terms, check those terms against portfolio policy, and draft an attorney summary of the findings. The lease is divided into 12 independent sections. Attorneys need the summary the same business day, and extracting the sections one after another takes about six hours, which leaves too little time for the two later stages. They have also found that a wrong extracted term silently corrupts the later stages. Which TWO actions best structure this pipeline? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Start the policy check at the same time as extraction, so both stages finish sooner.",
+        "plausible_ja": "政策の確認が抽出済みの項目を必要とせず、原文だけで判定できるなら、抽出と同時に実行しても問題ない。",
+        "not_best_ja": "政策の確認は抽出された項目を入力にするため、抽出の完了前には実行できない。依存関係のある段階を並列にすると、存在しない入力で確認することになる。"
+      },
+      {
+        "label": "B",
+        "text_en": "Extract terms from the 12 independent sections in parallel and then merge the results."
+      },
+      {
+        "label": "C",
+        "text_en": "Combine extraction, policy checking, and the summary into one prompt so Claude sees everything at once.",
+        "plausible_ja": "リースが短く、途中結果の検査も要らないなら、1 回の処理にまとめてもよい。",
+        "not_best_ja": "300 ページで途中の検査が必要なため、1 回にまとめると誤った項目を段階の間で検出できない。分割して検証の機会を作る必要がある。"
+      },
+      {
+        "label": "D",
+        "text_en": "Draft the attorney summary concurrently with the policy check and patch it afterwards.",
+        "plausible_ja": "要約が政策確認の結果に依存しない内容(例えば条項の概要だけ)なら、同時に作成してよい。",
+        "not_best_ja": "要約は確認の所見を含むので、確認の後でないと作れない。後から修正する方法は、直列にすれば避けられる手戻りを生む。"
+      },
+      {
+        "label": "E",
+        "text_en": "Place a programmatic check on the extracted terms before they are passed to the policy-check stage."
+      }
+    ],
+    "answer": [
+      "B",
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "依存関係のある段階は直列に並べ、その間に検証ゲートを置く。互いに独立したサブタスク(独立した 12 のセクション)は並列化できる。この問題では抽出の誤りが後続に波及するため中間検証が要り、独立したセクションには並列化で時間を縮められる。依存するものは直列、独立するものは並列、という分解の原則を満たす 2 つが必要になる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "後続の段階が前の段階の出力に依存し、その誤りが波及する一方で、セクション同士は独立しているため、直列の検証ゲートと独立部分の並列化が必要になる。"
+  },
+  {
+    "id": "p-d1-q706",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A clinical laboratory has Claude extract test codes from physician orders as JSON that matches a schema. The downstream lab-information system rejects any code that is not in its catalog of about 40,000 codes, which the catalog team updates every week. Occasionally an order yields a well-formed code that does not exist in the catalog. Which design best protects the downstream system?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Put the full list of current catalog codes in the system prompt, instruct Claude to output only codes from that list, and refresh the list each week.",
+        "plausible_ja": "コード集合が小さく滅多に変わらず、下流が自力で拒否や修正を行えるなら、プロンプトに一覧を載せる程度で足りる場合がある。",
+        "not_best_ja": "約 40,000 件で毎週変わるため、プロンプトの一覧は更新の遅れや取りこぼしが起きる。指示は確実な拒否にならず、存在しない符号が下流に渡り得る。"
+      },
+      {
+        "label": "B",
+        "text_en": "Define the catalog codes as an enum in the output schema, and redeploy the schema after each weekly catalog update.",
+        "plausible_ja": "コード集合が小さく安定していて、再デプロイの費用も小さいなら、スキーマの enum で形式ごと制約する方法が有効になる。",
+        "not_best_ja": "スキーマが保証するのは形式であり、最新のカタログとの整合ではない。毎週の更新から再デプロイまでの間は古い定義が残り、すでに無効になった符号や、追加された符号の拒否が起き得る。"
+      },
+      {
+        "label": "C",
+        "text_en": "Look up each returned code in the live catalog in code before passing it on, and send unknown codes to a human review queue."
+      },
+      {
+        "label": "D",
+        "text_en": "Log every rejected order so that the catalog team can review the rejection patterns each week.",
+        "plausible_ja": "発生した誤りを分析して長期の改善につなげたい目的なら、ログの確認は有益である。",
+        "not_best_ja": "ログは事後の確認であり、誤った符号が下流に渡るのを防がない。下流を守るには、渡す前の検証が要る。"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "スキーマが保証するのは形式であり、毎週更新される外部のカタログとの整合ではない。下流に渡す前に、最新のカタログに対してコードで照合し、未知の符号は人間に回付する。システム側で強制できる統制をプロンプトや事後確認に任せず、変わり続ける真実の源に対する決定論的な検証を境界に置くのが一般原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "スキーマに適合しても存在しない符号が出得て、カタログが毎週変わるため、下流に渡す前に最新のカタログへ実行時に照合する必要がある。"
+  },
+  {
+    "id": "p-d1-q707",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A state unemployment office is at the start of an engagement to use Claude on its claim-decision letters. The sponsor says only that the letters should be made \"faster and better.\" No requirements, data constraints, or targets have been documented. What should the architect do FIRST?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Build prototypes on two different Claude models and let the caseworkers choose the one they prefer to read.",
+        "plausible_ja": "目標と制約が既に定まっていて、残る不確実性がモデル間の品質差だけなら、モデルを比較する試作が適切な次の活動になる。",
+        "not_best_ja": "何を『良い』とするかが決まっておらず、好みによる選択は再現できない。試作は目標が定まった後の設計の段階の活動である。"
+      },
+      {
+        "label": "B",
+        "text_en": "Design a production monitoring dashboard so that quality is tracked from the first day of live use.",
+        "plausible_ja": "導入の直前や運用の段階で、目標が決まっているなら、監視の設計は重要な活動になる。",
+        "not_best_ja": "監視は運用の段階の活動であり、何を測るべきかの基準が未定の今は設計できない。後のフェーズの活動を前倒しにしている。"
+      },
+      {
+        "label": "C",
+        "text_en": "Choose the architecture pattern now, so the team can give the sponsor a cost and schedule estimate for approval this week.",
+        "plausible_ja": "目標と制約が確定した後なら、構成を選んで見積りを出すことが次の自然な活動になる。",
+        "not_best_ja": "制約と成功基準が不明な状態で構成を選ぶと、見積りの根拠が無く、後で作り直しになる。"
+      },
+      {
+        "label": "D",
+        "text_en": "Collect a labeled sample of past letters to build the golden set that will be used to score prototypes.",
+        "plausible_ja": "成功の定義が合意された後なら、ラベル付きのデータを集めて評価セットを作るのが自然な次の活動である。",
+        "not_best_ja": "『良い手紙』の定義が決まる前では、何を基準にラベルを付けるかが決まらない。基準の合意が先になる。"
+      },
+      {
+        "label": "E",
+        "text_en": "Agree with the sponsor and caseworkers on measurable success criteria and constraints, such as turnaround time and error rate."
+      }
+    ],
+    "answer": [
+      "E"
+    ],
+    "answer_en": null,
+    "explanation_ja": "要件発見の段階では、設計に入る前に測定可能な成功基準(処理時間・許容する誤り率など)と制約(データの扱い・規制・予算)をステークホルダーと合意するのが最初の活動である。後続の構成選択・評価セット・試作・監視はすべてこの基準に依存する。基準を先に定めてから設計に進むというのが、フェーズの順序の一般原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "要件が未定義の発見の段階であり、後続のすべての活動の前提になる成功基準と制約を先に合意する必要がある。",
+    "lifecycle_phase": "discovery"
+  },
+  {
+    "id": "p-d1-q708",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A drug-safety team's orchestrator dispatches eight subagents, each searching a different adverse-event database. One database API returned errors, but its subagent replied \"no events found,\" and the orchestrator's report concluded there was no safety signal. Runs are costly and take hours. Which TWO changes best prevent this failure? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Require each subagent to return a structured result that separates \"searched, nothing found\" from \"search failed,\" with the error."
+      },
+      {
+        "label": "B",
+        "text_en": "Add a verifier subagent that independently repeats all eight database searches, then compares its results with the originals and flags any differences.",
+        "plausible_ja": "検証の費用が予算に収まり、各検索が同じ障害に影響されない独立の経路で行えるなら、全検索の再実行も有効な追加の保証になる。",
+        "not_best_ja": "再実行しても、失敗と本当に空の結果を区別する仕組みが無ければ、失敗の見落としは直らない。実行は高額で数時間かかるため、全検索の再実行は費用がほぼ倍になる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Tell every subagent in its prompt to double-check that its database was reachable before answering.",
+        "plausible_ja": "サブエージェントが接続の確認用のツールを持っていて、確認の結果を返す構造もあるなら、補助として有効になる。",
+        "not_best_ja": "システム側で扱うべき失敗の報告を、プロンプトの依頼に頼っている。サブエージェントの確認が欠落しても検出できず、構造化された失敗の信号の代わりにならない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Have the orchestrator retry or reassign just the failed segment and state any remaining coverage gap in the final report."
+      },
+      {
+        "label": "E",
+        "text_en": "Run the subagents one after another so a failure stops the run before any report is written.",
+        "plausible_ja": "部分的な結果に価値が無く、不完全な報告を出すこと自体が許されない場合は、失敗で全体を止める設計も妥当になる。",
+        "not_best_ja": "実行は高額で数時間かかるため、1 件の失敗で全体を止めると、成功した 7 件の検索の結果まで無駄になる。局所的に回復するほうが制約に合う。"
+      }
+    ],
+    "answer": [
+      "A",
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "サブエージェントの部分失敗は、成功した空の結果と区別できる構造化された形で報告させる。そのうえで orchestrator は失敗した部分だけを再試行・再割り当てし、残るカバレッジの欠落を最終報告に明示する。失敗を隠さず、局所的に回復するというのが、複数エージェントの調整での一般原則である。2 つは別の理由で必要で、前者は失敗の可視化、後者は回復と報告の正確さを担う。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "失敗が空の結果として隠れ、安全性の結論を誤らせた一方で、実行が高額なため全体のやり直しも避けたいので、失敗の可視化と局所的な回復が必要になる。"
+  },
+  {
+    "id": "p-d1-q709",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t6-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A payments processor uses Claude to assess chargeback evidence packets uploaded by merchants all day, about 200,000 per day with sharp peaks. Its contract promises a decision within 12 hours. In load tests, batches of this size have typically completed in under an hour. The current design calls the largest model synchronously on arrival, hits rate limits at peak, and exceeds the budget; offline evaluation shows the largest model is needed for accuracy. What should the architect do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Request higher rate limits so every packet can still be processed synchronously as it arrives.",
+        "plausible_ja": "決定の SLA が数秒〜数分で、即時の応答が事業要件なら、同期処理の容量を確保することが正しい対応になる。",
+        "not_best_ja": "SLA は 12 時間で即時性は不要なため、同期処理を維持する理由が無い。ピークに合わせた容量確保はコストの問題も解決しない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Queue the packets and submit them to the batch API on a frequent schedule, sending any request still unfinished well before the deadline to the synchronous path."
+      },
+      {
+        "label": "C",
+        "text_en": "Move all packets to the smallest model so each synchronous call is faster and cheaper.",
+        "plausible_ja": "精度の評価で小さなモデルでも要件を満たすと確認できたなら、モデルの縮小は費用と遅延の有効な手段になる。",
+        "not_best_ja": "評価で、最大のモデルが精度に必要だと確認されている。精度を犠牲にする縮小は要件に反する。"
+      },
+      {
+        "label": "D",
+        "text_en": "Add exponential backoff and a fallback model to the synchronous path, so rate-limit errors are absorbed at peak without queueing.",
+        "plausible_ja": "同期の応答が必須で、ピークの急増を吸収する必要がある場合は、バックオフとフォールバックが有効になる。",
+        "not_best_ja": "12 時間の SLA があれば、そもそも同期処理に頼らなくてよい。バックオフは予算超過を解決せず、フォールバックに使える小さなモデルでは精度の要件を満たせない。"
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "SLA が 12 時間で即時の応答が要らないなら、非同期のバッチ処理に切り替えるのが SLA から逆算した設計である。このサイズのバッチは通常 1 時間未満で完了するが、バッチは 24 時間で expire し 12 時間の SLA より長いため、期限までに終わらない分は期限の前に同期処理へ回して SLA を守る。ピークを平準化して rate limit を避け、バッチ処理の費用の割引も受けられ、精度に必要なモデルも維持できる。レイテンシや可用性の SLA が許す範囲で同期か非同期かを選ぶ、というのが一般原則である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/batch-processing",
+      "https://docs.claude.com/en/docs/about-claude/models/optimizing-for-cost-and-intelligence"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "SLA が 12 時間と緩く、かつ精度のために大きなモデルが必要なので、非同期のバッチ処理でピークと費用を同時に解く必要がある。"
+  },
+  {
+    "id": "p-d1-q710",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A renewable-energy developer uses a lead agent to coordinate subagents researching a wind-farm site. The lead's task descriptions say only \"research permitting for the site.\" Results show two subagents covering the same regulations, a gap on grid interconnection, and findings on parcels the lead had already excluded. Which TWO changes best fix this? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Give each subagent a distinct scope, such as one permitting topic, with an explicit output format and the sources to use."
+      },
+      {
+        "label": "B",
+        "text_en": "Forward the lead agent's entire conversation history to every subagent.",
+        "plausible_ja": "サブエージェントが親の判断の経緯をほぼ全て必要とする密結合のタスクなら、履歴の共有が有効になる場合がある。",
+        "not_best_ja": "文脈を分離して各サブエージェントを集中させる利点を失い、トークンも増える。必要な情報だけを明示的に渡せば足りる。"
+      },
+      {
+        "label": "C",
+        "text_en": "State the lead's relevant decisions, such as the excluded parcels, in each subagent's task description."
+      },
+      {
+        "label": "D",
+        "text_en": "Increase the number of subagents, so that overlapping coverage reduces the chance that a topic is missed by any single subagent.",
+        "plausible_ja": "発見の漏れの費用が非常に大きく、重複のための追加費用が許容できるなら、冗長な探索も有効な場合がある。",
+        "not_best_ja": "重複と欠落の原因は、範囲の曖昧さと必要な文脈の欠落である。数を増やすとさらに重複と費用が増え、原因は直らない。"
+      },
+      {
+        "label": "E",
+        "text_en": "Add a final subagent that removes duplicates and fills gaps from the others' output.",
+        "plausible_ja": "最後に統合する費用が小さく、各担当の範囲が既に明確なら、統合の役割を足すのは有益である。",
+        "not_best_ja": "重複と欠落は、委任時の範囲が曖昧なことが原因である。事後に取り除いても、無駄に使ったサブエージェントの費用は戻らず、除外区画のような文脈の欠落は埋まらない。"
+      }
+    ],
+    "answer": [
+      "A",
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "サブエージェントは親の文脈を継承しないため、委任する側が目標・出力形式・使う情報源・担当範囲の境界を明示し、必要な判断や事実もタスクの記述に含めて渡す必要がある。この 2 つは別の欠陥(範囲の曖昧さと文脈の欠落)を直す。事後の調整や数の増加ではなく、委任の質を上げるのが一般原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://docs.claude.com/en/api/agent-sdk/subagents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "サブエージェントが親の文脈を持たないため、範囲の曖昧さと必要な文脈の欠落の両方を委任の記述で解消する必要がある。"
+  },
+  {
+    "id": "p-d1-q711",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": false,
+    "stem_en": "A telecom operator's customer assistant handles about 400,000 inquiries per month. Roughly 80% are routine questions (plan details, bill dates), while the rest are billing disputes that need account history and careful reasoning. Spending is rising, and a quality drop on disputes would create regulatory complaints. Which design best addresses cost without hurting dispute quality?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Send every inquiry to the most capable model and add prompt caching for the instructions shared across requests.",
+        "plausible_ja": "問い合わせの大半が複雑で、高い品質が全件に必要なら、全件を高性能のモデルで処理し、キャッシュで費用を減らす構成が妥当になる。",
+        "not_best_ja": "80% が定型の質問で、高性能のモデルは過剰である。キャッシュは共有する指示の費用だけを減らし、問い合わせごとのモデルの選択の無駄は残る。"
+      },
+      {
+        "label": "B",
+        "text_en": "Truncate each inquiry to its first 200 words before processing, to reduce the input tokens billed per request.",
+        "plausible_ja": "入力が極端に長く、冒頭に必要な情報が集まっていると分かっているなら、切り詰めも費用の対策になる。",
+        "not_best_ja": "紛争の問い合わせは文脈に重要な情報があり、切り詰めると品質が落ちる。入力の長さが費用の主因という根拠も無い。"
+      },
+      {
+        "label": "C",
+        "text_en": "Replace the assistant with a decision tree for common inquiries and send every other inquiry, including all billing disputes, to staff.",
+        "plausible_ja": "問い合わせの種類が少なく、定型の応答だけで十分な業務なら、決定論的なツリーが安く確実である。",
+        "not_best_ja": "定型の質問にも自然な言い回しの違いがあり、紛争は人手の費用が大きい。LLM が適する理解と推論を使わない設計は、問い合わせの多様さに合わない。"
+      },
+      {
+        "label": "D",
+        "text_en": "Classify each inquiry on arrival, route routine ones to a cheaper model, and send disputes to a stronger model with account history."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "入力を到着時に分類して振り分け、定型の問い合わせは小さく安いモデルで、複雑な紛争には高性能のモデルと組み立てた文脈を使うのが、費用と品質の両立に適する。品質が重要な部分は落とさず、過剰な能力を使っている部分だけを安くする。入力の性質に応じた routing で費用と品質のトレードオフを分けるのが一般原則である。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents",
+      "https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1,
+    "binding_constraint_ja": "紛争の品質は落とせない一方で、大半を占める定型の問い合わせには高性能のモデルが過剰なため、入力の種類で処理を振り分ける必要がある。"
+  }
+]
