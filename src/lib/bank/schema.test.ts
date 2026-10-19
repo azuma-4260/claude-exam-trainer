@@ -508,3 +508,62 @@ describe("scenariosFileSchema", () => {
     expect(scenariosFileSchema.safeParse({ scenarios: [makeScenario({ id: "scenario1" })] }).success).toBe(false);
   });
 });
+
+// T-bundle / D6-8(specs/03 §1 mcq_bundle): 小問順・重複可の answer、MCQ の 4〜5 択 / Select TWO / 構造化解説は適用しない
+const yesNo = {
+  ...pSingle,
+  id: "p-d2-q020",
+  type: "mcq_bundle",
+  bundle_kind: "yes_no",
+  stem_en: "For each statement, choose Yes or No.",
+  choices: [
+    { label: "A", text_en: "Yes" },
+    { label: "B", text_en: "No" },
+  ],
+  sub_questions: [
+    { id: "s1", text_en: "One.", explanation_ja: "1" },
+    { id: "s2", text_en: "Two.", explanation_ja: "2" },
+    { id: "s3", text_en: "Three.", explanation_ja: "3" },
+  ],
+  answer: ["A", "B", "A"],
+  eligible_modes: ["practice", "mock"],
+} as const;
+
+describe("questionSchema: mcq_bundle(T-bundle / D6-8)", () => {
+  it("Yes/No Matrix と Drop-down Matching を受理する(answer は重複可・小問順)", () => {
+    expect(ok(yesNo)).toBe(true);
+    expect(ok({ ...yesNo, answer: ["A", "A", "A"] })).toBe(true);
+    expect(
+      ok({ ...yesNo, bundle_kind: "matching", choices: [{ label: "A", text_en: "x" }, { label: "B", text_en: "y" }, { label: "C", text_en: "z" }], answer: ["C", "A", "C"] }),
+    ).toBe(true);
+  });
+  it("F の exam でも受理する(型は exam 非依存。選択肢 2 件でも 4〜5 択の制約は掛からない)", () => {
+    expect(ok({ ...yesNo, id: "f-d2-q020", exam: "ccar-f", domain_id: "f-d2", primary_topic_id: "f-d2-t1-03" })).toBe(true);
+  });
+  it("answer の長さが小問数と違う・choices に無いラベルは拒否", () => {
+    expect(ng({ ...yesNo, answer: ["A", "B"] })).toBe(true);
+    expect(ng({ ...yesNo, answer: ["A", "B", "C"] })).toBe(true);
+  });
+  it("小問数は 2〜6、小問 id の重複・解説欠落は拒否", () => {
+    expect(ng({ ...yesNo, sub_questions: yesNo.sub_questions.slice(0, 1), answer: ["A"] })).toBe(true);
+    expect(ng({ ...yesNo, sub_questions: [yesNo.sub_questions[0], yesNo.sub_questions[0], yesNo.sub_questions[2]] })).toBe(true);
+    expect(ng({ ...yesNo, sub_questions: yesNo.sub_questions.map((s) => ({ ...s, explanation_ja: "" })) })).toBe(true);
+  });
+  it("yes_no は Yes / No の 2 件のみ。matching は 2〜6 件", () => {
+    expect(ng({ ...yesNo, choices: [{ label: "A", text_en: "True" }, { label: "B", text_en: "False" }] })).toBe(true);
+    expect(ng({ ...yesNo, choices: [{ label: "A", text_en: "Yes" }, { label: "B", text_en: "No" }, { label: "C", text_en: "Maybe" }] })).toBe(true);
+    expect(ng({ ...yesNo, bundle_kind: "matching", choices: [{ label: "A", text_en: "x" }], answer: ["A", "A", "A"] })).toBe(true);
+  });
+  it("drill に出さない・構造化解説フィールドを持たせない・bundle_kind 必須", () => {
+    expect(ng({ ...yesNo, eligible_modes: ["drill", "practice"] })).toBe(true);
+    expect(ng({ ...yesNo, binding_constraint_ja: "制約" })).toBe(true);
+    expect(ng({ ...yesNo, choices: yesNo.choices.map((c) => ({ ...c, plausible_ja: "x" })) })).toBe(true);
+    const noKind: Record<string, unknown> = { ...yesNo };
+    delete noKind.bundle_kind;
+    expect(ng(noKind)).toBe(true);
+  });
+  it("既存の mcq_single / mcq_multi の answer 重複拒否は不変", () => {
+    expect(ng({ ...mcqSingle, answer: ["B", "B"] })).toBe(true);
+    expect(ng({ ...mcqMulti, answer: ["A", "A"] })).toBe(true);
+  });
+});

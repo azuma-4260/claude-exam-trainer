@@ -3,7 +3,8 @@ import { examSchema, formIdSchema } from "@/lib/bank/schema";
 
 /** Mock API のリクエストスキーマ(specs/03 §exam_session、05 S-5) */
 
-const choiceLabelSchema = z.string().regex(/^[A-F]$/);
+/** "" は mcq_bundle の未回答小問だけが持つ(specs/03 §1)。形式別の検証(重複・長さ)は saveAnswer で行う */
+const choiceLabelSchema = z.string().regex(/^[A-F]?$/);
 
 /**
  * full 開始。フォームは `(exam, form_id)` でクライアントが明示指定する(03 §exam_session v1.3.2、D6-4)。
@@ -22,8 +23,6 @@ export const answerPatchRequestSchema = z
   .superRefine((p, ctx) => {
     if (p.chosen === undefined && p.flagged === undefined)
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "chosen か flagged のどちらかが必要" });
-    if (p.chosen && new Set(p.chosen).size !== p.chosen.length)
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["chosen"], message: "重複がある" });
   });
 export type AnswerPatchRequest = z.infer<typeof answerPatchRequestSchema>;
 

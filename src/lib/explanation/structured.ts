@@ -21,8 +21,16 @@ export type ChoiceView = {
   notBestJa: string | null;
 };
 
+/** まとめ形式(mcq_bundle)の小問。解説は回答後に表示する(Practice・総ざらい・レポート。Mock の試験中 DTO には含めない) */
+export type SubQuestionView = { id: string; textEn: string; explanationJa: string };
+
+export function subQuestionsOf(q: Question): SubQuestionView[] | null {
+  if (q.type !== "mcq_bundle") return null;
+  return q.sub_questions.map((s) => ({ id: s.id, textEn: s.text_en, explanationJa: s.explanation_ja }));
+}
+
 export function structuredOf(q: Question): StructuredFields {
-  if (q.type === "flash") return { bindingConstraintJa: null, lifecyclePhase: null };
+  if (q.type === "flash" || q.type === "mcq_bundle") return { bindingConstraintJa: null, lifecyclePhase: null };
   return { bindingConstraintJa: q.binding_constraint_ja ?? null, lifecyclePhase: q.lifecycle_phase ?? null };
 }
 

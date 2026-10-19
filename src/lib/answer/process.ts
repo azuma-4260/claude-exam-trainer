@@ -2,6 +2,7 @@ import { createEmptyCard, Rating, type Card, type Grade } from "ts-fsrs";
 import type { AttemptRow } from "@/db/schema";
 import { evaluatePool, type PoolContext } from "@/lib/bank/pool";
 import type { Question } from "@/lib/bank/schema";
+import { isOrderedAnswer, matchesAnswer } from "@/lib/bank/grading";
 import { cardToRow, rowToCard, type SrsStateUpsert } from "@/lib/srs/card-row";
 import { examDateOf } from "@/lib/exam/dates";
 import { applyRating } from "@/lib/srs/scheduler";
@@ -47,6 +48,7 @@ export interface AnswerDeps {
 
 export type AnswerResult =
   | { status: 200; replayed: boolean; attempt: AttemptRow; srs: SrsStateUpsert | null }
+  | { status: 400; error: "invalid_chosen"; reason: "duplicate_choice" | "sub_question_count" }
   | { status: 404; error: "unknown_question" }
   | { status: 409; error: "attempt_payload_mismatch" | "stale_question_rev" | "not_eligible"; reason?: string };
 
@@ -70,15 +72,9 @@ function sameArray(a: string[] | null, b: string[] | null): boolean {
   return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
-function sameSet(a: readonly string[], b: readonly string[]): boolean {
-  const sa = new Set(a);
-  const sb = new Set(b);
-  return sa.size === sb.size && [...sa].every((v) => sb.has(v));
-}
-
 /**
  * 正誤と rating の確定(04 §モード行列)。
- * - MCQ: 集合一致・部分点なし。正解 → Good / 不正解 → Again
+ * - MCQ: 集合一致・部分点なし(mcq_bundle は全小問が位置で一致したときだけ正解。bank/grading.ts)。正解 → Good / 不正解 → Again
  * - flash: 利用者の 4 択評価をそのまま rating にする。is_correct は Again のみ false、Hard / Good / Easy は true
  *   (04 §モード行列で確定: 「思い出せた」を正解とみなし、coverage の「1 回以上正解」もこの定義で数える)
  */
@@ -88,7 +84,7 @@ export function grade(q: Question, input: AnswerRequest): { isCorrect: boolean; 
     return { isCorrect: input.rating !== Rating.Again, rating: input.rating as Grade };
   }
   if (q.type === "flash") throw new Error("MCQ 入力だが問題は flash");
-  const isCorrect = sameSet(input.chosen, q.answer);
+  const isCorrect = matchesAnswer(isOrderedAnswer(q), input.chosen, q.answer);
   return { isCorrect, rating: isCorrect ? Rating.Good : Rating.Again };
 }
 
@@ -117,6 +113,12 @@ export async function processAnswer(input: AnswerRequest, deps: AnswerDeps): Pro
   if (q.type !== "flash" && input.kind === "mcq") {
     const labels = new Set(q.choices.map((c) => c.label));
     if (!input.chosen.every((l) => labels.has(l))) return { status: 409, error: "not_eligible", reason: "unknown_choice" };
+    // chosen の形(形式別): mcq_bundle は小問数と同じ長さ・重複可、それ以外は重複不可(03 §1)
+    if (q.type === "mcq_bundle") {
+      if (input.chosen.length !== q.sub_questions.length) return { status: 400, error: "invalid_chosen", reason: "sub_question_count" };
+    } else if (new Set(input.chosen).size !== input.chosen.length) {
+      return { status: 400, error: "invalid_chosen", reason: "duplicate_choice" };
+    }
   }
 
   // 3-4. srs_state(無ければ createEmptyCard)→ サーバー側で採点 → ts-fsrs

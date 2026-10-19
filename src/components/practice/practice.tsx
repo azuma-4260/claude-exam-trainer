@@ -10,9 +10,11 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { classifyAnswerResponse, type RejectReason } from "@/lib/answer/ack";
 import type { AnswerRequest } from "@/lib/answer/schema";
 import { examOfQuestionId } from "@/lib/exam/dates";
+import { subQuestionResults } from "@/lib/bank/grading";
 import { isRationaleOpen } from "@/lib/explanation/structured";
 import type { MockScenarioDto } from "@/lib/mock/dto";
 import {
+  canAnswer,
   canNext,
   initialPracticeState,
   practiceReducer,
@@ -123,7 +125,7 @@ export function Practice({
   }
 
   function onAnswer() {
-    if (cur.step !== "choosing" || cur.chosen.length === 0) return;
+    if (cur.step !== "choosing" || !canAnswer(item, cur.chosen)) return;
     // 起点未設定(effect 前の操作)や int4 を超える値(タブ長期放置)は null にする(S-3 と同じ理由)
     const elapsed = startedAtRef.current > 0 ? Date.now() - startedAtRef.current : null;
     const req: AnswerRequest = {
@@ -188,7 +190,11 @@ export function Practice({
           </section>
         ) : null}
 
-        <PracticeMcqCard item={item} cur={cur} onToggle={(label) => dispatch({ type: "TOGGLE", label })} />
+        {item.type === "mcq_bundle" ? (
+          <PracticeBundleCard item={item} cur={cur} onSet={(index, label) => dispatch({ type: "SET_SUB", index, label })} />
+        ) : (
+          <PracticeMcqCard item={item} cur={cur} onToggle={(label) => dispatch({ type: "TOGGLE", label })} />
+        )}
 
         {cur.step === "answered" ? (
           <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm leading-relaxed">
@@ -215,7 +221,7 @@ export function Practice({
       {/* 保存状態とナビゲーション(厳密 ACK、S-3 と同一) */}
       <footer className="sticky bottom-0 mt-6 flex flex-col gap-2 bg-background/95 pb-[env(safe-area-inset-bottom)] pt-2 backdrop-blur">
         {cur.step === "choosing" ? (
-          <Button size="lg" className="h-12 w-full text-base" disabled={cur.chosen.length === 0} onClick={onAnswer}>
+          <Button size="lg" className="h-12 w-full text-base" disabled={!canAnswer(item, cur.chosen)} onClick={onAnswer}>
             Answer
           </Button>
         ) : cur.step === "answered" ? (
@@ -349,6 +355,114 @@ function PracticeMcqCard({
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/**
+ * まとめ形式カード(S-4、specs/03 §1 mcq_bundle): 共通の選択肢を小問ごとに選び、全小問に回答すると Answer が活性化する。
+ * 採点は全小問正解のみ正解。回答後は小問ごとの正誤・正解・解説を出す
+ */
+function PracticeBundleCard({
+  item,
+  cur,
+  onSet,
+}: {
+  item: PracticeItem;
+  cur: PracticeStep;
+  onSet: (index: number, label: string) => void;
+}) {
+  const chosen = cur.step === "choosing" || cur.step === "answered" ? cur.chosen : [];
+  const answered = cur.step === "answered";
+  const subs = item.subQuestions ?? [];
+  const results = subQuestionResults(answered ? chosen : null, item.answer);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="rounded-2xl border border-border bg-card p-6">
+        {item.released ? (
+          <p className="mb-2">
+            <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">模試出題済み</span>
+          </p>
+        ) : null}
+        <p className="text-lg font-medium leading-relaxed">{item.stemEn}</p>
+        <p className="mt-2 text-xs text-muted-foreground">全小問に答えてください(全小問が正解のときだけ正解)。</p>
+      </div>
+      {cur.step === "answered" ? (
+        <p
+          className={cn(
+            "flex items-center gap-2 text-sm font-semibold",
+            cur.isCorrect ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400",
+          )}
+          role="status"
+        >
+          {cur.isCorrect ? <CircleCheck className="size-4" aria-hidden /> : <CircleX className="size-4" aria-hidden />}
+          {cur.isCorrect ? "正解" : "不正解"}
+        </p>
+      ) : null}
+      <ol className="flex flex-col gap-3">
+        {subs.map((sub, i) => (
+          <li key={sub.id} className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+            <p className="text-sm leading-snug">
+              <span className="mr-2 font-mono text-xs text-muted-foreground">{i + 1}.</span>
+              {sub.textEn}
+            </p>
+            {item.bundleKind === "matching" ? (
+              <select
+                aria-label={`小問 ${i + 1} の選択`}
+                disabled={cur.step !== "choosing"}
+                value={chosen[i] ?? ""}
+                onChange={(e) => onSet(i, e.target.value)}
+                className="min-h-11 rounded-lg border border-border bg-card px-3 py-2 text-sm"
+              >
+                <option value="" disabled>
+                  選択してください
+                </option>
+                {item.choices.map(({ label, textEn }) => (
+                  <option key={label} value={label}>
+                    {textEn}
+                  </option>
+                ))}
+              </select>
+            ) : null}
+            <div className={cn("flex flex-wrap gap-2", item.bundleKind === "matching" && "hidden")} role="group" aria-label={`小問 ${i + 1} の選択肢`}>
+              {item.choices.map(({ label, textEn }) => {
+                const picked = chosen[i] === label;
+                const correct = item.answer[i] === label;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled={cur.step !== "choosing"}
+                    aria-pressed={picked}
+                    onClick={() => onSet(i, label)}
+                    className={cn(
+                      "flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                      !answered && "border-border bg-card hover:bg-muted/60",
+                      !answered && picked && "border-primary bg-primary/5",
+                      answered && correct && "border-emerald-500/60 bg-emerald-500/10",
+                      answered && picked && !correct && "border-red-500/60 bg-red-500/10",
+                      answered && !picked && !correct && "border-border opacity-60",
+                    )}
+                  >
+                    {answered && correct ? <Check className="size-4 text-emerald-600 dark:text-emerald-400" aria-hidden /> : null}
+                    {answered && picked && !correct ? <X className="size-4 text-red-600 dark:text-red-400" aria-hidden /> : null}
+                    <span>{textEn}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {answered ? (
+              <div className="text-xs leading-relaxed text-muted-foreground">
+                <p className={results[i] ? "font-semibold text-emerald-600 dark:text-emerald-400" : "font-semibold text-red-600 dark:text-red-400"}>
+                  {results[i] ? "正解" : `不正解(正解: ${item.choices.find((c) => c.label === item.answer[i])?.textEn ?? item.answer[i]})`}
+                </p>
+                <p className="mt-1 whitespace-pre-wrap">{sub.explanationJa}</p>
+              </div>
+            ) : null}
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

@@ -42,7 +42,7 @@ describe("PATCH /api/mock/sessions/[id]/answers/[qid]", () => {
     expect((await patch(JSON.stringify({ chosen: ["A"] }), { qid: "q1" })).status).toBe(400);
     expect((await patch("{")).status).toBe(400);
     expect((await patch(JSON.stringify({}))).status).toBe(400);
-    expect((await patch(JSON.stringify({ chosen: ["A", "A"] }))).status).toBe(400);
+    // chosen の重複は形式依存のため入力スキーマではなく saveAnswer が拒否する(lifecycle.test.ts)
     expect((await patch(JSON.stringify({ chosen: [] }))).status).toBe(400);
     expect(saveAnswer).not.toHaveBeenCalled();
   });
