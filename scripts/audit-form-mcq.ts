@@ -3,7 +3,7 @@
 // validate-bank(specs/03 §mock_forms の spec 条件)が見ない C3b-* 固有の要件を検査する
 // (B-C3a-1 の恒久化。汎用 validator に足すと受理集合が変わるため別スクリプトにする):
 //   mock_forms.yaml の各 form(--form 指定時はその form のみ)の収載問題について
-//   1. 固定値: exam が form と一致 / type が mcq_single | mcq_multi / srs_eligible=false /
+//   1. 固定値: exam が form と一致 / type が mcq_single | mcq_multi | mcq_bundle / srs_eligible=false /
 //      eligible_modes が {mock, practice} と集合一致(specs/03 §1 フォーム収載問題の標準値。
 //      srs_eligible=false は B-D0-3-2 (2) の緩和として CI 相当の検査をここで担う)
 //   2. lifecycle: status が --status と一致(生成直後 flagged / Step 4 完了後 active。specs/07 Step 4)
@@ -12,7 +12,7 @@
 //      シナリオあたり問題数が 12〜18 の設計指針外(SOURCES.md §1.1 の非検証指針。CCAR-F のみ。
 //      P は独立問題形式でシナリオを持たない。specs/03 §mock_forms §CCAR-P の構造、T-pmock)
 //   5. 分布の表示(D6-9): form ごとの問題形式・difficulty の件数を INFO で出す。P は specs/07 §P 制作指針の
-//      目安(難易度 1 は 6 問以下 / 3 は 20 問以上 / single 43〜48・multi 15〜20)を外れたら warning
+//      目安(難易度 1 は 6 問以下 / 3 は 20 問以上 / 形式の件数。mcq_bundle を含むフォームは「使う場合」の目安)を外れたら warning
 //      (validator では強制しない。specs/03 §1)
 // 違反(1〜3)は fail closed(非 0)。warning のみなら 0。
 import { existsSync, readFileSync } from "node:fs";
@@ -33,7 +33,7 @@ export const ANSWER_SHARE_WARN = 0.35;
 
 /**
  * フォームの問題形式・難易度の目安(specs/07 §P 制作指針「フォームの目安」。warning のみ)。
- * 形式の目安はまとめ形式(T-bundle / D6-8)を使わない場合の値。F は目安が無いので表示のみ
+ * single / multi はまとめ形式(mcq_bundle)を使わない場合の値、withBundle は 1 問でも使う場合の値。F は目安が無いので表示のみ
  */
 export const FORM_DISTRIBUTION_GUIDE: Partial<
   Record<
@@ -43,16 +43,32 @@ export const FORM_DISTRIBUTION_GUIDE: Partial<
       readonly minDifficulty3: number;
       readonly single: { readonly min: number; readonly max: number };
       readonly multi: { readonly min: number; readonly max: number };
+      readonly withBundle: {
+        readonly single: { readonly min: number; readonly max: number };
+        readonly multi: { readonly min: number; readonly max: number };
+        /** Yes/No Matrix(bundle_kind=yes_no) */
+        readonly yesNo: { readonly min: number; readonly max: number };
+        /** Drop-down Matching(bundle_kind=matching) */
+        readonly matching: { readonly min: number; readonly max: number };
+      };
     }
   >
 > = {
-  "ccar-p": { maxDifficulty1: 6, minDifficulty3: 20, single: { min: 43, max: 48 }, multi: { min: 15, max: 20 } },
+  "ccar-p": {
+    maxDifficulty1: 6,
+    minDifficulty3: 20,
+    single: { min: 43, max: 48 },
+    multi: { min: 15, max: 20 },
+    withBundle: { single: { min: 30, max: 35 }, multi: { min: 15, max: 20 }, yesNo: { min: 5, max: 8 }, matching: { min: 5, max: 8 } },
+  },
 };
 
 /** form 1 本の問題形式・difficulty の件数 */
 export interface FormDistribution {
   formId: string;
-  types: { mcq_single: number; mcq_multi: number };
+  types: { mcq_single: number; mcq_multi: number; mcq_bundle: number };
+  /** mcq_bundle の内訳(Yes/No Matrix / Drop-down Matching) */
+  bundleKinds: { yes_no: number; matching: number };
   difficulty: { 1: number; 2: number; 3: number };
 }
 
@@ -75,7 +91,7 @@ export interface FormAuditResult {
 }
 
 export function formatDistribution(d: FormDistribution): string {
-  return `${d.formId}: 形式 single ${d.types.mcq_single} / multi ${d.types.mcq_multi}、難易度 1: ${d.difficulty[1]} / 2: ${d.difficulty[2]} / 3: ${d.difficulty[3]}`;
+  return `${d.formId}: 形式 single ${d.types.mcq_single} / multi ${d.types.mcq_multi} / bundle ${d.types.mcq_bundle}(Yes/No ${d.bundleKinds.yes_no}・Matching ${d.bundleKinds.matching})、難易度 1: ${d.difficulty[1]} / 2: ${d.difficulty[2]} / 3: ${d.difficulty[3]}`;
 }
 
 export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditResult {
@@ -116,7 +132,7 @@ export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditR
     const answerCounts = new Map<string, number>();
     let singles = 0;
     const perScenario = new Map<string, number>();
-    const dist: FormDistribution = { formId: f.id, types: { mcq_single: 0, mcq_multi: 0 }, difficulty: { 1: 0, 2: 0, 3: 0 } };
+    const dist: FormDistribution = { formId: f.id, types: { mcq_single: 0, mcq_multi: 0, mcq_bundle: 0 }, bundleKinds: { yes_no: 0, matching: 0 }, difficulty: { 1: 0, 2: 0, 3: 0 } };
     for (const qid of f.question_ids) {
       const q = byId.get(qid);
       if (!q) {
@@ -127,7 +143,7 @@ export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditR
 
       // 1. 固定値
       if (q.exam !== f.exam) errors.push(`${q.id}: exam ${q.exam}(form は ${f.exam})`);
-      if (q.type !== "mcq_single" && q.type !== "mcq_multi") errors.push(`${q.id}: type ${q.type}(フォーム収載は MCQ のみ)`);
+      if (q.type === "flash") errors.push(`${q.id}: type ${q.type}(フォーム収載は MCQ のみ。flash は不可)`);
       if (q.srs_eligible) errors.push(`${q.id}: srs_eligible が false でない`);
       const modes = new Set(q.eligible_modes);
       if (modes.size !== 2 || !modes.has("mock") || !modes.has("practice"))
@@ -140,7 +156,8 @@ export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditR
       for (const r of q.refs) if (!ledger.has(r)) errors.push(`${q.id}: refs ${r} がソース台帳に無い`);
 
       // 4. warning 用の集計
-      if (q.type === "mcq_single" || q.type === "mcq_multi") dist.types[q.type]++;
+      if (q.type !== "flash") dist.types[q.type]++;
+      if (q.type === "mcq_bundle") dist.bundleKinds[q.bundle_kind]++;
       dist.difficulty[q.difficulty as 1 | 2 | 3]++;
       if (q.scenario_id) perScenario.set(q.scenario_id, (perScenario.get(q.scenario_id) ?? 0) + 1);
       if (q.type === "mcq_single" && q.answer) {
@@ -169,9 +186,20 @@ export function runAuditFormMcq(dir: string, opts: FormAuditOptions): FormAuditR
         warnings.push(`${f.id}: 難易度 1 が ${dist.difficulty[1]} 問(目安 ${guide.maxDifficulty1} 問以下)`);
       if (dist.difficulty[3] < guide.minDifficulty3)
         warnings.push(`${f.id}: 難易度 3 が ${dist.difficulty[3]} 問(目安 ${guide.minDifficulty3} 問以上)`);
-      for (const [t, r] of [["mcq_single", guide.single], ["mcq_multi", guide.multi]] as const) {
-        const n = dist.types[t];
-        if (n < r.min || n > r.max) warnings.push(`${f.id}: ${t} が ${n} 問(目安 ${r.min}〜${r.max})`);
+      const bundled = dist.types.mcq_bundle > 0;
+      const ranges: [string, number, { min: number; max: number }][] = bundled
+        ? [
+            ["mcq_single", dist.types.mcq_single, guide.withBundle.single],
+            ["mcq_multi", dist.types.mcq_multi, guide.withBundle.multi],
+            ["Yes/No Matrix", dist.bundleKinds.yes_no, guide.withBundle.yesNo],
+            ["Drop-down Matching", dist.bundleKinds.matching, guide.withBundle.matching],
+          ]
+        : [
+            ["mcq_single", dist.types.mcq_single, guide.single],
+            ["mcq_multi", dist.types.mcq_multi, guide.multi],
+          ];
+      for (const [name, n, r] of ranges) {
+        if (n < r.min || n > r.max) warnings.push(`${f.id}: ${name} が ${n} 問(目安 ${r.min}〜${r.max}${bundled ? "。まとめ形式あり" : ""})`);
       }
     }
   }

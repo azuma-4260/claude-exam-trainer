@@ -226,12 +226,12 @@ export function validateBank(b: BankInput): ValidationResult {
       if (choiceRange) {
         const n = q.choices?.length ?? 0;
         if (q.type === "flash") errors.push(`${f.id}: ${qid} は flash(フォームは MCQ のみ)`);
-        else if (n < choiceRange.min || n > choiceRange.max)
+        else if (q.type !== "mcq_bundle" && (n < choiceRange.min || n > choiceRange.max))
           errors.push(`${f.id}: ${qid} の選択肢 ${n} 個(${choiceRange.min}〜${choiceRange.max} 個)`);
       }
       // P のフォーム収載問題は構造化解説フィールド必須(03 §mock_forms §CCAR-P、D6-9)。
       // 「書くなら全部」は Zod が 1 問内で強制するが、ここでは有無そのものを fail closed で検査する
-      if (FORM_REQUIRES_STRUCTURED_EXPLANATION[f.exam] && q.type !== "flash") {
+      if (FORM_REQUIRES_STRUCTURED_EXPLANATION[f.exam] && q.type !== "flash" && q.type !== "mcq_bundle") {
         if (q.binding_constraint_ja === undefined) errors.push(`${f.id}: ${qid} に binding_constraint_ja が無い(構造化解説フィールド必須)`);
         for (const c of q.choices) {
           if (q.answer.includes(c.label)) continue;
