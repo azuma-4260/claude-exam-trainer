@@ -7,6 +7,9 @@
 //           ID は独立 MCQ 帯 q501〜q599(BAND_P_INDEPENDENT。CP3 で確定、帯割当は content/ccar-p/SOURCES.md §13 CP3 節)で、
 //           ドメインごとに q501 からの連番(retired も履歴として含む。F の C5 帯と同じ規則)。
 //           --counts は syllabus のドメイン順(値の数 = ドメイン数)
+//           Drill 短問 MCQ(CP7)は q601〜q699 帯(BAND_P_DRILL。content/ccar-p/SOURCES.md §13.1)。独立 MCQ とは別に
+//           eligible_modes=["drill"] / srs_eligible=true / difficulty=1 / mcq_single / 4 択 / scenario_id=null / ドメイン内連番を検査し、
+//           --counts の件数・正解ラベル偏りには数えない(total には含める)
 // validate-bank(Zod スキーマ検証)が見ない C3a / C5 固有の要件を検査する(B-C3a-1 の恒久化。
 // 汎用 validator に足すと受理集合が変わるため別スクリプトにする。specs/07 Step 3a / Step 5)。
 // 帯は ID 番号で識別する(ファイル名非依存。帯割当は SOURCES.md §9 改訂履歴 2026-09-03 C5):
@@ -38,6 +41,9 @@ export const BAND_C3A: Band = { key: "c3a", min: 101, max: 199 };
 export const BAND_C5: Band = { key: "c5", min: 501, max: 599 };
 /** P の独立 MCQ 帯(CP3。F の C5 帯と同じ番号域。form 非収載の P MCQ はすべてこの帯) */
 export const BAND_P_INDEPENDENT = { min: 501, max: 599 } as const;
+/** P の Drill 短問 MCQ 帯(CP7。知識の適用型。eligible_modes=["drill"]・difficulty 1・4 択。独立 MCQ の件数・配分には数えない) */
+export const BAND_P_DRILL = { min: 601, max: 699 } as const;
+export const P_DRILL_CHOICE_COUNT = 4;
 export const C3A_COUNT_RANGE = { min: 15, max: 20 } as const;
 export const C3A_SCENARIO_COUNT = 2;
 export const C3A_MIN_PER_DOMAIN = 2;
@@ -224,11 +230,20 @@ function auditIndependent(
 
   // 帯と連番(form 非収載の MCQ 全件。retired も履歴として含む)
   const allByDomain = new Map<string, Question[]>();
+  const drillByDomain = new Map<string, Question[]>();
   for (const q of input.questions) {
     if (q.type === "flash" || inForm.has(q.id)) continue;
     const n = Number(/-q(\d+)$/.exec(q.id)?.[1]);
+    if (n >= BAND_P_DRILL.min && n <= BAND_P_DRILL.max) {
+      const arr = drillByDomain.get(q.domain_id) ?? [];
+      arr.push(q);
+      drillByDomain.set(q.domain_id, arr);
+      continue;
+    }
     if (!(n >= BAND_P_INDEPENDENT.min && n <= BAND_P_INDEPENDENT.max)) {
-      errors.push(`${q.id}: form 非収載の MCQ の ID が独立 MCQ の q${BAND_P_INDEPENDENT.min}〜q${BAND_P_INDEPENDENT.max} 帯でない`);
+      errors.push(
+        `${q.id}: form 非収載の MCQ の ID が独立 MCQ の q${BAND_P_INDEPENDENT.min}〜q${BAND_P_INDEPENDENT.max} 帯でない(Drill 短問は q${BAND_P_DRILL.min}〜q${BAND_P_DRILL.max})`,
+      );
       continue;
     }
     const arr = allByDomain.get(q.domain_id) ?? [];
@@ -243,6 +258,14 @@ function auditIndependent(
         `${domainId} 独立 MCQ 帯: question id が連番でない(実際 [${ids.join(", ")}] / 期待 q${BAND_P_INDEPENDENT.min}〜q${BAND_P_INDEPENDENT.min + qs.length - 1})`,
       );
   }
+  for (const [domainId, qs] of [...drillByDomain.entries()].sort()) {
+    const ids = qs.map((q) => q.id).sort();
+    const want = qs.map((_, i) => `${domainId}-q${String(BAND_P_DRILL.min + i).padStart(3, "0")}`);
+    if (ids.some((id, i) => id !== want[i]))
+      errors.push(
+        `${domainId} Drill 短問 MCQ 帯: question id が連番でない(実際 [${ids.join(", ")}] / 期待 q${BAND_P_DRILL.min}〜q${BAND_P_DRILL.min + qs.length - 1})`,
+      );
+  }
 
   const lifecycleIds = opts.batchIds ?? null;
   const seenLifecycleIds = new Set<string>();
@@ -253,18 +276,31 @@ function auditIndependent(
   for (const q of input.questions) {
     if (q.type === "flash" || inForm.has(q.id) || !isLive(q)) continue;
     total++;
+    const qn = Number(/-q(\d+)$/.exec(q.id)?.[1]);
+    const isDrill = qn >= BAND_P_DRILL.min && qn <= BAND_P_DRILL.max;
     if (q.exam !== exam) errors.push(`${q.id}: exam ${q.exam}`);
     if (!q.srs_eligible) errors.push(`${q.id}: srs_eligible が true でない`);
-    const modes = new Set(q.eligible_modes);
-    if (modes.size !== 2 || !modes.has("mock") || !modes.has("practice"))
-      errors.push(`${q.id}: eligible_modes が ["mock", "practice"] でない(実際 [${q.eligible_modes.join(", ")}])`);
-    if (q.scenario_id !== null) errors.push(`${q.id}: scenario_id が null でない(独立 MCQ)`);
+    if (isDrill) {
+      if (q.eligible_modes.length !== 1 || q.eligible_modes[0] !== "drill")
+        errors.push(`${q.id}: eligible_modes が ["drill"] でない(実際 [${q.eligible_modes.join(", ")}])`);
+      if (q.type !== "mcq_single") errors.push(`${q.id}: Drill 短問 MCQ が mcq_single でない(実際 ${q.type})`);
+      if (q.difficulty !== 1) errors.push(`${q.id}: Drill 短問 MCQ の difficulty が 1 でない(実際 ${q.difficulty})`);
+      if ((q.choices?.length ?? 0) !== P_DRILL_CHOICE_COUNT)
+        errors.push(`${q.id}: Drill 短問 MCQ の選択肢が ${P_DRILL_CHOICE_COUNT} 個でない(実際 ${q.choices?.length ?? 0})`);
+      if (q.scenario_id !== null) errors.push(`${q.id}: scenario_id が null でない(Drill 短問 MCQ)`);
+    } else {
+      const modes = new Set(q.eligible_modes);
+      if (modes.size !== 2 || !modes.has("mock") || !modes.has("practice"))
+        errors.push(`${q.id}: eligible_modes が ["mock", "practice"] でない(実際 [${q.eligible_modes.join(", ")}])`);
+      if (q.scenario_id !== null) errors.push(`${q.id}: scenario_id が null でない(独立 MCQ)`);
+    }
     for (const r of q.refs) if (!ledger.has(r)) errors.push(`${q.id}: refs ${r} がソース台帳に無い`);
     if (lifecycleIds === null || lifecycleIds.has(q.id)) {
       seenLifecycleIds.add(q.id);
       if (q.status !== opts.status) errors.push(`${q.id}: status ${q.status}(期待 ${opts.status})`);
       if (lifecycleIds !== null && q.rev !== 1) errors.push(`${q.id}: rev ${q.rev}(新規バッチは 1 を期待)`);
     }
+    if (isDrill) continue;
     perDomain.set(q.domain_id, (perDomain.get(q.domain_id) ?? 0) + 1);
     if (q.type === "mcq_single" && q.answer) {
       singles++;

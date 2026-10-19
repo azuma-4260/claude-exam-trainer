@@ -329,6 +329,58 @@ ${P_WEIGHTS.map(
     expect(r.total).toBe(9);
   });
 
+  // CP7: Drill 短問 MCQ(知識の適用型)は q601〜q699 帯・["drill"]・difficulty 1・4 択。独立 MCQ の件数・配分には数えない
+  const dmcq = (domain: number, n: number, over: Record<string, unknown> = {}) =>
+    pmcq(domain, 1, {
+      id: `p-d${domain}-q${600 + n}`,
+      eligible_modes: ["drill"],
+      difficulty: 1,
+      ...over,
+    });
+
+  it("Drill 短問 MCQ(q601 帯・drill)は独立 MCQ の件数に数えず、green", () => {
+    write("p.json", [...pBank(), dmcq(1, 1), dmcq(1, 2), dmcq(3, 1)]);
+    const r = runAuditPracticeMcq(dir, pOpts());
+    expect(r.errors).toEqual([]);
+    expect(r.total).toBe(12); // total は Drill 短問を含む。独立 MCQ の配分(--counts)には数えない
+  });
+
+  it.each([
+    ["eligible_modes が drill 以外", { eligible_modes: ["practice"] }, "eligible_modes が [\"drill\"] でない"],
+    ["srs_eligible=false", { srs_eligible: false }, "srs_eligible が true でない"],
+    ["difficulty が 1 でない", { difficulty: 2 }, "difficulty が 1 でない"],
+    ["選択肢が 4 個でない", { choices: ["A", "B", "C", "D", "E"].map((l) => ({ label: l, text_en: `c ${l}` })) }, "選択肢が 4 個でない"],
+    ["mcq_multi", { type: "mcq_multi", answer: ["A", "B"], stem_en: "Which two actions apply? (Select TWO.)" }, "mcq_single でない"],
+    ["scenario_id あり", { scenario_id: "sc-x" }, "scenario_id が null でない"],
+    ["台帳外 ref", { refs: [URL_OUT] }, "がソース台帳に無い"],
+    ["status 不一致", { status: "flagged" }, "status flagged(期待 active)"],
+  ])("Drill 短問の違反を検出: %s", (_, over, msg) => {
+    write("p.json", [...pBank(), dmcq(1, 1, over)]);
+    const r = runAuditPracticeMcq(dir, pOpts());
+    expect(r.errors.some((e) => e.startsWith("p-d1-q601") && e.includes(msg))).toBe(true);
+  });
+
+  it("独立 MCQ 帯の問題が drill だけ・Drill 帯の問題が practice を含むと検出する", () => {
+    write("p.json", pBank((d, n) => (d === 1 && n === 1 ? { eligible_modes: ["drill"] } : {})));
+    const a = runAuditPracticeMcq(dir, pOpts());
+    expect(a.errors.some((e) => e.startsWith("p-d1-q501") && e.includes("eligible_modes が [\"mock\", \"practice\"] でない"))).toBe(true);
+  });
+
+  it("Drill 帯もドメインごとの連番(欠番検出・retired 含む)", () => {
+    write("p.json", [...pBank(), dmcq(1, 1), dmcq(1, 3)]);
+    const gap = runAuditPracticeMcq(dir, pOpts());
+    expect(gap.errors.some((e) => e.startsWith("p-d1 Drill 短問 MCQ 帯: question id が連番でない"))).toBe(true);
+
+    write("p.json", [...pBank(), dmcq(1, 1, { status: "retired" }), dmcq(1, 2)]);
+    expect(runAuditPracticeMcq(dir, pOpts()).errors).toEqual([]);
+  });
+
+  it("q601〜q699 でも q501 帯でもない form 非収載 MCQ の ID は従来どおりエラー", () => {
+    write("p.json", [...pBank(), dmcq(1, 1, { id: "p-d1-q701" })]);
+    const r = runAuditPracticeMcq(dir, pOpts());
+    expect(r.errors.some((e) => e.startsWith("p-d1-q701") && e.includes("q501〜q599 帯でない"))).toBe(true);
+  });
+
   it("parseArgs: ccar-p は --counts の値数を 5 に固定しない", () => {
     const { opts, dir: d } = parseArgs(["--exam", "ccar-p", "--counts", "2,1,2,1,1,1,1"]);
     expect(opts.exam).toBe("ccar-p");
