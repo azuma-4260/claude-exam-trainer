@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { ExamSessionRow } from "@/db/schema";
 import { syllabusFileSchema } from "@/lib/bank/schema";
 import { mcq, syllabus } from "@/lib/queue/test-fixtures";
-import { buildMockReport, isRehearsal, type MockAttempt, type SubmittedFullSession } from "./report";
+import { buildMockReport, isRehearsal, reachedTarget, type MockAttempt, type SubmittedFullSession } from "./report";
 
 // D3-3: S-6 模試レポートの導出(specs/05 S-6、01 FR-5)。
 // 正誤の単一ソースは提出時一括生成の attempt。ここでは再採点しないことを前提に検証する。
@@ -228,5 +228,41 @@ describe("buildMockReport(CCAR-P、7 ドメイン)", () => {
   it("rehearsal は (exam, form_id) 単位: F の同名 form-a の提出は P の初回受験を rehearsal にしない", () => {
     expect(buildP({}, [prior({ exam: "ccar-f" })]).rehearsal).toBe(false);
     expect(buildP({}, [prior({ exam: "ccar-p" })]).rehearsal).toBe(true);
+  });
+});
+
+describe("domain mini のレポート(D4-1)", () => {
+  const mini = (over: Partial<ExamSessionRow> = {}): ExamSessionRow =>
+    session({ kind: "domain_mini", formId: null, domainId: "f-d2", questionIds: [Q3.id, Q4.id], scoreRaw: 1, ...over });
+  const ATT = [att(Q3.id, { isCorrect: true, chosen: ["B"] }), att(Q4.id, { isCorrect: false, chosen: ["A"] })];
+
+  it("rehearsal=false・domainId / domainName を持ち、ドメイン別は出題ドメインのみ", () => {
+    const report = buildMockReport({ session: mini(), attempts: ATT, priorSessions: [], findQuestion, syllabus });
+    expect(report).toMatchObject({ kind: "domain_mini", formId: null, domainId: "f-d2", domainName: "Domain 2", rehearsal: false, scoreRaw: 1, total: 2 });
+    expect(report.domains).toEqual([{ domainId: "f-d2", name: "Domain 2", weight: 40, total: 2, correct: 1 }]);
+    expect(report.weakestDomainId).toBe("f-d2");
+  });
+
+  it("full は domainId=null・domainName=null で全ドメイン行を返す(回帰なし)", () => {
+    const report = buildMockReport({ session: session(), attempts: [], priorSessions: [], findQuestion, syllabus });
+    expect(report).toMatchObject({ domainId: null, domainName: null });
+    expect(report.domains).toHaveLength(2);
+  });
+
+  it("syllabus に無い domainId は domainName=null(防御)", () => {
+    const report = buildMockReport({ session: mini({ domainId: "f-d7" }), attempts: ATT, priorSessions: [], findQuestion, syllabus });
+    expect(report.domainName).toBeNull();
+  });
+});
+
+describe("reachedTarget: 85% 到達は丸め前の分数で判定する(B-D3-3-5)", () => {
+  it("11/13 = 84.6% は表示上 85% でも未到達", () => {
+    expect(Math.round((11 / 13) * 100)).toBe(85);
+    expect(reachedTarget(11, 13)).toBe(false);
+  });
+  it("51/60 = 85.0% は到達、50/60 は未到達、0/0 は未到達", () => {
+    expect(reachedTarget(51, 60)).toBe(true);
+    expect(reachedTarget(50, 60)).toBe(false);
+    expect(reachedTarget(0, 0)).toBe(false);
   });
 });

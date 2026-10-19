@@ -14,6 +14,7 @@ import type { MockAnswerDto, MockQuestionDto, MockScenarioDto, MockSessionDto } 
  *   未完了・失敗中の保存がある間は提出できない(提出は全 ACK 後のみ)
  * - 期限超過をクライアントで検知したら submit を叩く(timeout 判定はサーバーが行う)
  * - 採点・解説は提出まで非表示(DTO に正解が含まれない)
+ * - D4-1: domain_mini は破棄(abandon)できる。full は不可(01 FR-5)
  */
 
 interface LoadedData {
@@ -21,6 +22,8 @@ interface LoadedData {
   answers: MockAnswerDto[];
   questions: MockQuestionDto[];
   scenarios: MockScenarioDto[];
+  /** domain mini のドメイン名(full は null) */
+  domain_name: string | null;
 }
 
 interface AnswerState {
@@ -57,6 +60,9 @@ export function MockExamScreen() {
   const [confirming, setConfirming] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitFailed, setSubmitFailed] = useState(false);
+  const [confirmingAbandon, setConfirmingAbandon] = useState(false);
+  const [abandoning, setAbandoning] = useState(false);
+  const [abandonError, setAbandonError] = useState<string | null>(null);
 
   // --- 保存キュー(FIFO・直列)。失敗したら先頭タスクを残して停止し、retry で再開する ---
   const queue = useRef<{ tasks: (() => Promise<Response>)[]; running: boolean; failed: boolean }>({
@@ -165,6 +171,35 @@ export function MockExamScreen() {
   useEffect(() => {
     submitRef.current = submit;
   }, [submit]);
+
+  // --- 破棄(domain_mini のみ。01 FR-5)。attempt は生成されない ---
+  // 409 session_terminal は並行して terminal 化した場合: submitted ならレポート、abandoned なら開始画面へ
+  const abandon = useCallback(async () => {
+    if (!data) return;
+    setAbandoning(true);
+    setAbandonError(null);
+    try {
+      const res = await fetch(`/api/mock/sessions/${data.session.id}/abandon`, { method: "POST" });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok) {
+        router.replace("/mock");
+        return;
+      }
+      if (res.status === 409 && body.session?.status === "submitted") {
+        setPhase({ kind: "submitted", session: body.session });
+        return;
+      }
+      if (res.status === 409 && body.session?.status === "abandoned") {
+        router.replace("/mock");
+        return;
+      }
+      setAbandonError(`破棄できませんでした(${body.error ?? res.status})`);
+    } catch {
+      setAbandonError("破棄できませんでした(通信エラー)");
+    } finally {
+      setAbandoning(false);
+    }
+  }, [data, router]);
 
   // --- 提出直後にレポートへ遷移(05 S-6)。timeout 提出の復元検知も同じ経路 ---
   useEffect(() => {
@@ -285,7 +320,8 @@ export function MockExamScreen() {
   }
 
   if (!data) return null;
-  const { session, questions, scenarios } = data;
+  const { session, questions, scenarios, domain_name: domainName } = data;
+  const isMini = session.kind === "domain_mini";
   const q = questions[index];
   const state = answers[q.id] ?? { chosen: null, flagged: false };
   const scenario = q.scenario_id ? scenarios.find((s) => s.id === q.scenario_id) : undefined;
@@ -295,7 +331,7 @@ export function MockExamScreen() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-4 p-4">
       <header className="flex items-center justify-between gap-2">
-        <div className="flex flex-col gap-0.5">
+        <div className="flex min-w-0 flex-col gap-0.5">
           {/* 試験中はタブナビを出さない(誤タップ離脱防止)。離脱は許容されるが時計は止まらない(05 S-5)。
               未 ACK の保存がある間はネイティブ disabled で離脱を止める(in-memory キューの消失防止) */}
           <Button
@@ -321,6 +357,7 @@ export function MockExamScreen() {
             {remainingMs === null ? "--:--" : fmtRemaining(remainingMs)}
           </span>
           <span className="text-sm text-muted-foreground">
+            {isMini && <span className="mr-2 font-medium text-foreground">ミニ模試 {domainName ?? session.domain_id}</span>}
             {index + 1} / {questions.length}(回答済 {answeredCount})
           </span>
         </div>
@@ -489,6 +526,28 @@ export function MockExamScreen() {
         )}
         {savesBlocked && <p className="text-xs text-muted-foreground">未保存の操作がある間は提出できません(全 ACK 後に有効になります)</p>}
         {session.kind === "full" && <p className="text-xs text-muted-foreground">フル模試は一時停止・破棄できません。閉じても再開できますが時計は進みます。</p>}
+        {isMini &&
+          (confirmingAbandon ? (
+            <div className="flex items-center justify-between gap-2 rounded-md border border-destructive p-2">
+              <span className="text-sm">このミニ模試を破棄します(回答は採点されず記録も残りません)。よろしいですか?</span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setConfirmingAbandon(false)}>
+                  戻る
+                </Button>
+                <Button variant="destructive" size="sm" disabled={abandoning || submitting} onClick={() => void abandon()}>
+                  破棄を確定
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">ミニ模試は途中で破棄できます。閉じても再開できますが時計は進みます。</p>
+              <Button variant="ghost" size="sm" disabled={abandoning || submitting} onClick={() => setConfirmingAbandon(true)}>
+                破棄する
+              </Button>
+            </div>
+          ))}
+        {abandonError && <p className="text-xs text-destructive">{abandonError}</p>}
       </footer>
     </main>
   );

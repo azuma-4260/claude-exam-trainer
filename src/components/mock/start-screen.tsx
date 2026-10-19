@@ -6,7 +6,7 @@ import { ExamBadge } from "@/components/exam-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EXAMS, type Exam } from "@/lib/bank/schema";
-import { formStartability, type MockFormOption, type MockFormOptions } from "@/lib/mock/availability";
+import { formStartability, type MiniDomainOption, type MockFormOption, type MockFormOptions } from "@/lib/mock/availability";
 import type { MockSessionDto } from "@/lib/mock/dto";
 
 /**
@@ -15,7 +15,10 @@ import type { MockSessionDto } from "@/lib/mock/dto";
  * D6-2: 推奨・開始可否は exam ごと(formStartability)。both ではフォームに exam ラベルを付ける。
  * D6-4: 開始は `{ exam, form_id }`(F と P の同名フォームもそれぞれ開始できる)。問題数はフォームから表示する。
  * 進行中セッションはスコープ外 exam でも表示するため常に exam ラベルを付ける。
+ * D4-1: ドメイン別ミニ模試(独立 MCQ プールのみ・abandon 可)。initialDomainId は S-6 ショートカット由来の初期強調
  */
+
+type StartBody = { exam: Exam; form_id: string } | { kind: "domain_mini"; exam: Exam; domain_id: string };
 
 type CurrentState =
   | { kind: "loading" }
@@ -38,10 +41,15 @@ function blockedReason(o: MockFormOption): string {
 export function MockStartScreen({
   formOptions,
   showExamLabel = false,
+  miniOptions,
+  initialDomainId = null,
 }: {
   formOptions: MockFormOptions;
   /** 学習スコープ both のときフォームに exam ラベル(F / P)を付ける(05 S-5) */
   showExamLabel?: boolean;
+  /** スコープ内 exam のドメイン別ミニ模試の選択肢(D4-1) */
+  miniOptions: readonly MiniDomainOption[];
+  initialDomainId?: string | null;
 }) {
   const router = useRouter();
   const [current, setCurrent] = useState<CurrentState>({ kind: "loading" });
@@ -67,14 +75,14 @@ export function MockStartScreen({
     };
   }, [router]);
 
-  const start = async (exam: Exam, formId: string) => {
+  const start = async (req: StartBody) => {
     setStarting(true);
     setError(null);
     try {
       const res = await fetch("/api/mock/sessions", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ exam, form_id: formId }),
+        body: JSON.stringify(req),
       });
       if (res.status === 201) {
         router.push("/mock/session");
@@ -97,6 +105,12 @@ export function MockStartScreen({
       if (res.status === 409 && body.error === "form_not_next") {
         // 画面表示後に提出状態が変わった等。推奨フォームを取り直す
         setError(`未実施フォームは自動選択の順で受験します(次は ${body.recommended_form_id})。`);
+        router.refresh();
+        return;
+      }
+      if (res.status === 409 && body.error === "domain_pool_short") {
+        // 画面表示後にフラグ追加等でプールが減った。選択肢を取り直す
+        setError(`このドメインの独立問題が不足しています(${body.pool_count ?? 0} / 最低 ${body.min_count ?? 0} 問)。`);
         router.refresh();
         return;
       }
@@ -188,15 +202,57 @@ export function MockStartScreen({
               <Button
                 disabled={busy || !startable}
                 variant={isRecommended && startable ? "default" : "outline"}
-                onClick={() => start(o.exam, o.formId)}
+                onClick={() => start({ exam: o.exam, form_id: o.formId })}
               >
                 開始
               </Button>
             </div>
           );
         })}
-        {error && <p className="text-sm text-destructive">{error}</p>}
       </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-medium">ドメイン別ミニ模試</h2>
+        <p className="text-sm text-muted-foreground">
+          独立問題(フォーム非収載)のみから 10〜15 問 / 1 問 2 分。<strong>途中で破棄できます</strong>。
+          スコアは readiness 判定には使いません。採点と解説は提出後まで表示されません。
+        </p>
+        {miniOptions.map((o) => {
+          const highlighted = o.domainId === initialDomainId;
+          return (
+            <div
+              key={`${o.exam}:${o.domainId}`}
+              className={`flex items-center justify-between gap-3 rounded-lg border p-4 ${highlighted ? "border-2 border-primary" : ""}`}
+            >
+              <div className="min-w-0">
+                <p className="flex flex-wrap items-center gap-2 font-medium">
+                  {showExamLabel && <ExamBadge exam={o.exam} />}
+                  <span className="truncate">{o.name}</span>
+                  {highlighted && <Badge>弱点ドメイン</Badge>}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  出題比重 {o.weight}%
+                  {o.available ? ` / ${o.questionCount} 問 / ${o.durationMin} 分` : ""}
+                </p>
+                {!o.available && (
+                  <p className="mt-1 text-sm text-destructive">
+                    開始不可: 独立問題が不足({o.poolCount} / 最低 {o.minCount} 問)
+                  </p>
+                )}
+              </div>
+              <Button
+                disabled={busy || !o.available}
+                variant={highlighted ? "default" : "outline"}
+                onClick={() => start({ kind: "domain_mini", exam: o.exam, domain_id: o.domainId })}
+              >
+                開始
+              </Button>
+            </div>
+          );
+        })}
+      </section>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </main>
   );
 }

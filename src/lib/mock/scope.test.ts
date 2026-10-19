@@ -117,7 +117,7 @@ describe("進行中セッションはスコープ切替後も復元・回答・�
     expect(restored.session.id).toBe(started.session.id);
 
     // 出題 DTO とシナリオはセッションの exam(P)側で解決する(P は独立問題形式なので F の sc-1 を出さない)
-    const payload = sessionPayload(restored.session, restored.answers, { deps: deps(store), forms: ctx.forms, scenariosFor: ctx.scenariosFor });
+    const payload = sessionPayload(restored.session, restored.answers, { deps: deps(store), forms: ctx.forms, questions: [], scenariosFor: ctx.scenariosFor, syllabusFor: () => null });
     expect(payload).not.toBeNull();
     expect(payload!.scenarios).toEqual([]);
     expect(payload!.questions).toHaveLength(63);
