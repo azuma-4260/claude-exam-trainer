@@ -17,6 +17,9 @@ export const dynamic = "force-dynamic";
 export default async function PracticePage() {
   const view = await loadPracticeView(getDb(), new Date());
 
+  // D-1 で先に Drill(low-stability)が来る日は、間違いノート → low-stability の順を保つため Drill を案内する
+  const drillFirst = view.dMinus1?.nextMode === "drill";
+
   if (view.kind === "ok") {
     return (
       <Practice
@@ -31,11 +34,20 @@ export default async function PracticePage() {
   const message =
     view.kind === "bank_empty"
       ? "問題バンクがまだ登録されていません。"
-      : "今日出題できる Practice 問題はありません(回答済み・holdout 対象を除く)。";
+      : drillFirst
+        ? "前日メニューの次は Drill(stability の低い順)です。Drill へ進んでください。"
+        : view.dMinus1
+          ? "前日メニューの Practice 分は完了しました。"
+          : "今日出題できる Practice 問題はありません(回答済み・holdout 対象を除く)。";
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col items-center justify-center gap-6 px-5">
       <p className="text-center text-sm text-muted-foreground">{message}</p>
+      {drillFirst ? (
+        <Link href="/drill" className={cn(buttonVariants())}>
+          Drill へ進む
+        </Link>
+      ) : null}
       <Link href="/study" className={cn(buttonVariants({ variant: "outline" }))}>
         <ArrowLeft data-icon="inline-start" aria-hidden />
         Study へ戻る

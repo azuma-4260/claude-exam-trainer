@@ -11,9 +11,14 @@ import { scopeExams, type StudyScope } from "@/lib/scope/scope";
 import { jstStartOfDay } from "@/lib/srs/jst";
 import type { SrsStateUpsert } from "@/lib/srs/card-row";
 import { daysUntilExam } from "@/lib/srs/scheduler";
+import { buildMistakeAttemptsSelect } from "@/lib/mistakes/load";
+import type { MistakeAttempt } from "@/lib/mistakes/derive";
 import { buildDailyQueue, queueModeFor, type QueueItem, type QueueSource } from "./build";
+import { leadingRun, selectDMinus1Items } from "./d-minus-1";
+import { preExamPhase, type PreExamPhase } from "./pre-exam";
 import { deriveConsumption, type Consumption } from "./consumption";
 import { DAILY_QUEUE_BUDGET_SEC, estSec } from "./estimate";
+import { SESSION_MAX, SESSION_MIN } from "./session-size";
 import { loadConsumptionRows, loadQueueSignals } from "./load";
 import type { NewPace } from "./pace";
 
@@ -22,13 +27,12 @@ import type { NewPace } from "./pace";
  * - buildDailyQueue(D1-4)の出力を画面が必要とする形(セッション分割・practice 分離)へ射影する
  * - 復元はサーバー再構築で実現: 保存済み attempt が srs_state / 消費シグナル経由で反映されるので、
  *   クライアントに「どこまでやったか」を持たない(specs/03 の厳密 ACK と同じ思想)
- * - D-1(単独スコープの試験日前日)はセレクタ(D5-1)未実装の間 fail closed の typed 値を返す(通常キューへ fallback しない)
+ * - D-1(単独スコープの試験日前日)は「間違いノート → low-stability 順」のセレクタ(d-minus-1.ts)を注入する。
+   Drill / Practice に分離される画面で順序を保つため、先頭 item の mode(nextMode)の連続区間だけを提示する
  * - 学習スコープ(v1.3): キュー・カウントダウンはスコープ内の exam。消費予算(spent)は全 exam で数える
  */
 
-/** FR-3: 1 セッション 5〜20 問 */
-export const SESSION_MIN = 5;
-export const SESSION_MAX = 20;
+export { SESSION_MAX, SESSION_MIN };
 
 /**
  * S-3 がクライアントへ渡す 1 問分。採点即時表示のため answer / 解説を含む(個人用アプリ)。
@@ -58,15 +62,18 @@ export type SessionPlan =
 /** スコープ内 exam の試験日カウントダウン(daysLeft < 0 は受験済み。01 FR-6) */
 export type ExamCountdown = { exam: Exam; examDateJst: string; daysLeft: number };
 
+/** D-1 の画面誘導。先頭 item の mode が次の回答先(順序保証)。queued は未回答の D-1 item 総数 */
+export type DMinus1View = { nextMode: "drill" | "practice" | null; queued: number };
+
 export type QueueView = {
-  kind: "ok" | "d_minus_1_unavailable";
+  kind: "ok";
   scope: StudyScope;
   countdowns: ExamCountdown[];
   budgetSec: number;
   spentTodaySec: number;
-  /** d_minus_1_unavailable では buildDailyQueue を通らないため null。スコープ全体の合計(specs/04) */
-  pace: NewPace | null;
-  /** exam ごとのペース(警告をどの exam のものか表示するため)。d_minus_1_unavailable では空 */
+  /** スコープ全体の合計(specs/04) */
+  pace: NewPace;
+  /** exam ごとのペース(警告をどの exam のものか表示するため) */
   paceByExam: { exam: Exam; pace: NewPace }[];
   totalEstSec: number;
   dueBacklogCount: number;
@@ -80,6 +87,16 @@ export type QueueView = {
   drillTotal: number;
   session: SessionPlan;
   bankEmpty: boolean;
+  /** 直前期(単独スコープで試験日 −7 日〜前日)の局面。推奨行動カード用。それ以外は null */
+  preExam: PreExamPhase | null;
+  /** D-1 のときだけ非 null */
+  dMinus1: DMinus1View | null;
+};
+
+/** D-1 のセレクタ入力(D-1 のときだけロードする) */
+export type DMinus1Signals = {
+  mistakeAttempts: readonly MistakeAttempt[];
+  answeredTodayIds: ReadonlySet<string>;
 };
 
 export type AssembleInputs = {
@@ -92,6 +109,8 @@ export type AssembleInputs = {
   srsRows: readonly SrsStateUpsert[];
   correctQuestionIds: ReadonlySet<string>;
   consumption: Consumption;
+  /** D-1 のとき必須(欠落は fail closed で throw)。Home / Drill / Practice の全経路で同じ値を渡す */
+  dMinus1Signals?: DMinus1Signals;
   examDates?: ExamDates;
 };
 
@@ -123,22 +142,11 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
     bankEmpty: inputs.bank.questions.length === 0,
   };
 
-  // D-1: セレクタ(D5-1)未実装の間は fail closed(buildDailyQueue の throw に到達させない)
-  if (queueModeFor(inputs.now, inputs.scope, examDates) === "d_minus_1") {
-    return {
-      ...base,
-      kind: "d_minus_1_unavailable",
-      pace: null,
-      paceByExam: [],
-      totalEstSec: 0,
-      dueBacklogCount: 0,
-      deferredPracticeCount: 0,
-      practiceItems: [],
-      queueQuestionIds: [],
-      drillTotal: 0,
-      session: { kind: "none" },
-    };
+  const isDMinus1 = queueModeFor(inputs.now, inputs.scope, examDates) === "d_minus_1";
+  if (isDMinus1 && !inputs.dMinus1Signals) {
+    throw new Error("D-1 の入力(mistakeAttempts / answeredTodayIds)が未提供。通常キューへは fallback しない");
   }
+  const signals = inputs.dMinus1Signals;
 
   const queue = buildDailyQueue({
     now: inputs.now,
@@ -151,11 +159,26 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
     spentTodaySec: inputs.consumption.spentTodaySec,
     introducedToday: inputs.consumption.introducedTodayByExam,
     examDates,
+    selectDMinus1: signals
+      ? () =>
+          selectDMinus1Items({
+            bank: inputs.bank,
+            poolCtx: inputs.poolCtx,
+            srsRows: inputs.srsRows,
+            mistakeAttempts: signals.mistakeAttempts,
+            answeredTodayIds: signals.answeredTodayIds,
+          })
+      : undefined,
   });
+
+  // D-1 は Drill / Practice に分離される画面でも「間違いノート → low-stability」の順序を保つため、
+  // 先頭 item の mode の連続区間だけを提示する。run を消化すると当日回答済みになり、リビルドで次の run が先頭になる
+  const shown = isDMinus1 ? leadingRun(queue.items) : queue.items;
+  const nextMode = shown[0]?.mode ?? null;
 
   const drillItems: DrillItem[] = [];
   const practiceItems: QueueItem[] = [];
-  for (const item of queue.items) {
+  for (const item of shown) {
     if (item.mode !== "drill") {
       practiceItems.push(item);
       continue;
@@ -191,6 +214,8 @@ export function assembleQueueView(inputs: AssembleInputs): QueueView {
     queueQuestionIds: queue.items.map((i) => i.questionId),
     drillTotal: drillItems.length,
     session: planSession(drillItems),
+    preExam: preExamPhase(inputs.now, inputs.scope, examDates),
+    dMinus1: isDMinus1 ? { nextMode, queued: queue.items.length } : null,
   };
 }
 
@@ -203,10 +228,13 @@ export async function loadQueueInputs(db: Db, now: Date) {
   const scope = await getStudyScope(db);
   const scoped = scopeBank(multi, scope);
   const todayStart = jstStartOfDay(now);
-  const [poolCtx, signals, consumptionRows] = await Promise.all([
+  const examDates = EXAM_DATE_JST;
+  const isDMinus1 = queueModeFor(now, scope, examDates) === "d_minus_1";
+  const [poolCtx, signals, consumptionRows, mistakeAttempts] = await Promise.all([
     loadPoolContext(db, multi.all.forms),
     loadQueueSignals(db),
     loadConsumptionRows(db, todayStart),
+    isDMinus1 ? buildMistakeAttemptsSelect(db) : Promise.resolve(null),
   ]);
   const consumption = deriveConsumption({
     todayRows: consumptionRows.todayRows,
@@ -216,12 +244,16 @@ export async function loadQueueInputs(db: Db, now: Date) {
       return q ? estSec(q) : null;
     },
   });
-  return { scope, scoped, poolCtx, signals, consumption, consumptionRows };
+  // D-1 のセレクタ入力。Home / Drill / Practice の全経路が同じ値を assembleQueueView に渡す
+  const dMinus1Signals: DMinus1Signals | undefined = mistakeAttempts
+    ? { mistakeAttempts, answeredTodayIds: new Set(consumptionRows.todayRows.map((r) => r.questionId)) }
+    : undefined;
+  return { scope, scoped, poolCtx, signals, consumption, consumptionRows, dMinus1Signals };
 }
 
 /** RSC から呼ぶ I/O 合成(Home / Drill ページ共用)。specs/05: Study 進入時のキュー取得が Neon warm-up */
 export async function loadQueueView(db: Db, now: Date): Promise<QueueView> {
-  const { scope, scoped, poolCtx, signals, consumption } = await loadQueueInputs(db, now);
+  const { scope, scoped, poolCtx, signals, consumption, dMinus1Signals } = await loadQueueInputs(db, now);
   return assembleQueueView({
     now,
     scope,
@@ -231,5 +263,6 @@ export async function loadQueueView(db: Db, now: Date): Promise<QueueView> {
     srsRows: signals.srsRows,
     correctQuestionIds: signals.correctQuestionIds,
     consumption,
+    dMinus1Signals,
   });
 }

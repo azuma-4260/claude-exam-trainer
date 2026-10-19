@@ -160,7 +160,7 @@ describe("D-1 は単独スコープのときだけ、その exam の試験日前
     expect(q.items.map((i) => i.questionId)).toEqual(["p-d1-q001"]);
   });
 
-  it("assembleQueueView: both の P 前日は ok、ccar-p の P 前日は d_minus_1_unavailable", () => {
+  it("assembleQueueView: both の P 前日は通常キュー(dMinus1 なし)、ccar-p の P 前日は D-1", () => {
     const d1 = at("2026-12-11T09:00:00");
     const qs: Question[] = [pflash("p-d1-q001")];
     const bank: Bank = { questions: qs, forms: [], byId: new Map(qs.map((q) => [q.id, q])) };
@@ -173,8 +173,9 @@ describe("D-1 は単独スコープのときだけ、その exam の試験日前
       correctQuestionIds: new Set<string>(),
       consumption: { spentTodaySec: 0, introducedTodayCount: 0, introducedTodayByExam: {} },
     };
-    expect(assembleQueueView({ ...base, scope: "both" }).kind).toBe("ok");
-    expect(assembleQueueView({ ...base, scope: "ccar-p" }).kind).toBe("d_minus_1_unavailable");
+    expect(assembleQueueView({ ...base, scope: "both" }).dMinus1).toBeNull();
+    const signals = { mistakeAttempts: [], answeredTodayIds: new Set<string>() };
+    expect(assembleQueueView({ ...base, scope: "ccar-p", dMinus1Signals: signals }).dMinus1).not.toBeNull();
   });
 });
 
