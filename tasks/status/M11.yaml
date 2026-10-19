@@ -1,0 +1,3 @@
+state: done
+evidence: "オーナー指示(2026-10-19)で Claude が本番 https://claude-exam-trainer.vercel.app をブラウザ確認して記録。スコープ P のみで /practice の P 独立 MCQ p-d1-q501 に回答 → /api/export?exam=ccar-p に attempt 1acded58-1d28-4732-8595-52e9485259cd(mode=practice、exam=ccar-p、answeredAt 2026-10-19T12:14:31Z、isCorrect=true、appliedRating=3)が保存。依存 M10 / CP3 は done 記録済み"
+recorded: 2026-10-19
