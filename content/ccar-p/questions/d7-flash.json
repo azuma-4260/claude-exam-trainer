@@ -191,7 +191,7 @@
       "https://docs.claude.com/en/docs/claude-code/common-workflows"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -241,5 +241,29 @@
     "difficulty": 3,
     "status": "active",
     "rev": 1
+  },
+  {
+    "id": "p-d7-q011",
+    "exam": "ccar-p",
+    "domain_id": "p-d7",
+    "primary_topic_id": "p-d7-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A developer has a very long build log and wants a one-off root-cause explanation without opening an interactive session, so how should the log reach Claude Code?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Pipe the log into non-interactive mode with a prompt that asks for the root cause.\nStdin and stdout work like any Unix tool, so the output can also be redirected.",
+    "explanation_ja": "Claude Code を非対話モード(claude -p)で使うと、標準入力と標準出力が通常の Unix ツールと同じように働き、cat build-error.txt | claude -p ... > output.txt のようにログをパイプで渡して原因の説明を得られる。対話セッションを開かずに一度きりの診断ができ、出力もリダイレクトで保存できる。このパイプの例は headless のドキュメント(Pipe data through Claude)に挙げられている。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/headless"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 2
   }
 ]

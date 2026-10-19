@@ -391,7 +391,7 @@
       "https://www.anthropic.com/news/contextual-retrieval"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -463,7 +463,7 @@
       "https://www.anthropic.com/news/contextual-retrieval"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -535,7 +535,7 @@
       "https://www.anthropic.com/engineering/built-multi-agent-research-system"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -704,6 +704,78 @@
     "answer": null,
     "answer_en": "A hybrid: retrieve some data up front for speed and let the agent explore further on its own.\nThe hybrid might be better suited to contexts with less dynamic content.",
     "explanation_ja": "最も効果的なエージェントは、一部のデータを最初に読み込んで速度を確保し、その先は自律的な探索に任せるハイブリッド戦略を取ることがある。Claude Code も CLAUDE.md を最初に文脈へ入れ、glob や grep で必要なファイルをその場で取りに行く構成になっている。動的なコンテンツが少ない法務や金融のような領域にこのハイブリッドが向くとされる。決定境界はタスクによって変わるため、単純な方式から始めて、必要に応じて自律探索の幅を広げる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q030",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t5-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team is choosing between two embeddings providers for a finance-heavy corpus, and one was trained on a much larger dataset that contains little financial text. How should the team weigh that provider's training data?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Weigh the dataset's size together with its relevance to the finance domain.\nA larger dataset does not automatically fit the domain better.",
+    "explanation_ja": "埋め込みプロバイダーの選定では、学習データの規模と、それが対象ドメインにどれだけ関係するかを合わせて見る必要がある。規模が大きくても金融分野の文章が少なければ、金融中心のコーパスには合いにくい。規模だけで選ばず、ドメインへの適合度を並べて判断する。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/embeddings"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q031",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A help-center search uses only BM25, and users who type \"get my money back\" never find the page titled \"Refund policy\". What should the team add, and what should it keep?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Add embedding search, which captures semantic relationships such as this paraphrase.\nKeep BM25 for exact matches and combine both result lists.",
+    "explanation_ja": "BM25 は語彙の一致で探す手法のため、言い換えのように語が一致しない表現には向かない。埋め込みは意味的な関係の捕捉に優れ、「get my money back」と「Refund policy」のような言い換えを結び付けられる。ただし埋め込みは固有の識別子の厳密な一致を外すことがあるため、BM25 も残して両方の結果を組み合わせる。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d3-q032",
+    "exam": "ccar-p",
+    "domain_id": "p-d3",
+    "primary_topic_id": "p-d3-t6-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An agent must answer a one-off question over a very large database export that cannot fit in its context window. How can the agent analyze the data without loading all of it?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Let it write targeted queries and store the results, then inspect them with commands such as head and tail.\nThe full data objects never enter the context.",
+    "explanation_ja": "コンテキストに収まらない大量データでも、エージェントが対象を絞ったクエリを書き、結果を保存し、head や tail のようなコマンドで必要な部分だけを確認すれば、全体を読み込まずに分析できる。分析に必要な部分だけを実行時に取り出すので、データ全体を事前に文脈へ入れる方式の制約を避けられる。一回きりの静的な検索では足りない調査でも、探索しながら絞り込む方式が合う。",
     "refs": [
       "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
     ],

@@ -441,6 +441,7 @@ CP3(`07` Step 5 相当・独立 MCQ)専用の節。CP2(flash)が追加する台�
 
 - **`q501〜q599` = 独立 MCQ**(form 非収載・`eligible_modes: ["mock","practice"]`・`srs_eligible: true`・`scenario_id: null`)。ドメインごとに q501 からの連番(retired も履歴として含む)。F の C5 帯(`content/ccar-f/SOURCES.md` §9 2026-09-03)と同じ番号域で、flash の `q001〜` と衝突しない
 - `scripts/audit-practice-mcq.ts --exam ccar-p` が同じ定義(`BAND_P_INDEPENDENT`)で帯・連番を検査する。form 非収載の P MCQ が帯の外にあれば error
+- **`q601〜q699` = Drill 短問 MCQ**(CP7・知識の適用型。form 非収載・`eligible_modes: ["drill"]`・`srs_eligible: true`・`difficulty: 1`・`mcq_single`・4 択・`scenario_id: null`)。ドメインごとに q601 からの連番(retired も履歴として含む)。独立 MCQ の件数・配分(`--counts`)・正解ラベル偏りには数えない。`BAND_P_DRILL`(`scripts/audit-practice-mcq.ts`)が検査する。ID 規約のみでスキーマ・enum は変えない(`07` §P 制作指針 Drill 短問 MCQ)
 - 配分と新規 ID 一覧は `content/ccar-p/CP3-allocation.md`
 
 ### 13.2 refs ソース台帳(CP3)

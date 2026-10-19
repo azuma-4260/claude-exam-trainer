@@ -16,15 +16,21 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Expand the system prompt with detailed refusal rules and worked examples of jailbreak attempts, so the main model declines out-of-scope requests itself."
+        "text_en": "Expand the system prompt with detailed refusal rules and worked examples of jailbreak attempts, so the main model declines out-of-scope requests itself.",
+        "plausible_ja": "リスクが低く、攻撃を受けても失うものが小さい内部ツールなら、プロンプトだけの対応でも許容できる",
+        "not_best_ja": "red team で言い換えにより制限を回避された事実があり、プロンプト内の指示はモデルが従うかどうかに依存する確率的な対策で、攻撃文が主会話に入るのを止められない"
       },
       {
         "label": "B",
-        "text_en": "Apply a keyword blocklist to the main model's final replies, so any response containing disallowed content is suppressed before it is displayed."
+        "text_en": "Apply a keyword blocklist to the main model's final replies, so any response containing disallowed content is suppressed before it is displayed.",
+        "plausible_ja": "有害な出力の表示を最後の砦として抑えたい場合は、出力側の検査が補助として有効",
+        "not_best_ja": "出力側だけの照合は入力が主会話に届いた後の対応で、「届く前に止める」を満たさず、言い換えられた要求も捉えにくい"
       },
       {
         "label": "C",
-        "text_en": "Ask the main model to answer each message and then re-read its own reply, flagging cases where it may have been manipulated into going off-topic."
+        "text_en": "Ask the main model to answer each message and then re-read its own reply, flagging cases where it may have been manipulated into going off-topic.",
+        "plausible_ja": "コストと遅延に余裕があり、自己点検の層を追加したいなら検討できる",
+        "not_best_ja": "同じ主モデルを 2 回動かすため遅延とコストが増え、しかも操作された可能性のあるモデル自身に判定させている"
       },
       {
         "label": "D",
@@ -35,14 +41,15 @@
       "D"
     ],
     "answer_en": null,
-    "explanation_ja": "プロンプトの外で強制する入力スクリーニングとして、軽量モデルで各入力を事前に分類し、通過したものだけを本体に渡す構成が docs の「harmlessness screen」(structured outputs で分類結果を制約する)に沿うため D が正解で、小型モデルなので遅延とコストの増加も小さい。A はプロンプト内の指示であり、モデルの外で強制する統制ではなく、主会話の中に攻撃文が入ってしまう。B は出力側だけのキーワード照合で、入力が主会話に届いた後の対応となり、言い換えられた要求を捉えにくい。C は同じ主モデルを 2 回動かして自己点検させるため、コストと遅延が増えるうえ、操作された同じモデルに判定を任せている。",
+    "binding_constraint_ja": "範囲外・jailbreak の入力を主会話に届く前に止めつつ、遅延とコストの増加を小さく抑える必要がある",
+    "explanation_ja": "プロンプトの外で強制する入力スクリーニングとして、軽量モデルで各メッセージを事前に分類し、通過したものだけを本体に渡す D が binding constraint を満たす。docs の「harmlessness screen」は structured outputs で分類結果を制約する構成を示しており、小型モデルなので遅延とコストの増加も小さい。一般原則として、確実に止めたい統制は主モデルの判断に頼らず、モデルの外に置く。",
     "refs": [
       "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks",
       "https://docs.claude.com/en/docs/about-claude/use-case-guides/content-moderation"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d5-q502",
@@ -57,7 +64,7 @@
       "practice"
     ],
     "srs_eligible": true,
-    "stem_en": "An email-triage agent summarizes inbound messages from unknown senders and files them into folders. Its configuration still includes a send-email tool and read access to a credentials vault left over from the prototype. A security review shows that an attacker could embed instructions in an email body. Which approach gives the strongest layered defense?",
+    "stem_en": "An email-triage agent summarizes inbound messages from unknown senders and files them into folders. Its configuration still includes a send-email tool and read access to a credentials vault left over from the prototype. A security review shows that an attacker could embed instructions in an email body. Which approach best limits the damage if an injection succeeds?",
     "choices": [
       {
         "label": "A",
@@ -65,28 +72,35 @@
       },
       {
         "label": "B",
-        "text_en": "Instruct Claude in the system prompt to ignore any directives found inside emails, and keep the current tools since that single rule covers every wording an attacker might use."
+        "text_en": "Instruct Claude in the system prompt to ignore any directives found inside emails, and keep the current tools and vault access unchanged.",
+        "plausible_ja": "読み取り専用で外部への副作用を持つツールが無いエージェントなら、プロンプトの指示は追加の 1 層として妥当",
+        "not_best_ja": "プロンプトの指示は確率的な 1 層だけで、送信ツールと秘密情報へのアクセスが残るため、注入が成功した場合の被害を減らさない"
       },
       {
         "label": "C",
-        "text_en": "Place each email body in the user turn so that Claude reads it together with the request, and add a filter for phrases such as \"ignore previous instructions\"."
+        "text_en": "Place each email body in the user turn so that Claude reads it together with the request, and add a filter for phrases such as \"ignore previous instructions\".",
+        "plausible_ja": "本文を信頼できないデータとして区切る仕組みが別にあるなら、フレーズ照合は補助として有用",
+        "not_best_ja": "本文を user ターンに混ぜると指示との境界が曖昧になり、固定フレーズの照合は言い換えで回避される"
       },
       {
         "label": "D",
-        "text_en": "Move triage to a larger model that resists injected instructions better, leaving the existing tool permissions in place so the workflow does not have to change."
+        "text_en": "Move triage to a larger model that resists injected instructions better, leaving the existing tool permissions in place because they are already configured and approved.",
+        "plausible_ja": "判定精度が主な課題で、権限がすでに絞られている場合は、モデルの更新が有効",
+        "not_best_ja": "モデルを大型化しても、プロトタイプ由来の送信ツールと vault への権限が残るので、成功した注入が使える操作の範囲は変わらない"
       }
     ],
     "answer": [
       "A"
     ],
     "answer_en": null,
-    "explanation_ja": "信頼できない入力の隔離(source を明示した JSON エンコードの tool_result として渡し、system prompt で信頼しないデータと宣言する)と、権限の最小化(不要な送信ツールと秘密情報へのアクセスを外す)を重ねており、docs が挙げる間接 prompt injection 対策に沿うため A が正解。B はプロンプト指示という確率的な 1 層だけで、注入が成功した場合の被害を減らさない。C は信頼できない本文を user ターンに混ぜて指示との境界を曖昧にし、固定フレーズの照合だけでは言い換えを防げない。D はモデルの大型化で権限の問題を解決しようとするもので、成功した注入が使える操作の範囲が変わらない。",
+    "binding_constraint_ja": "メール本文は信頼できない入力であり、注入が成功しても被害が出ないよう、隔離と権限の最小化を重ねる必要がある",
+    "explanation_ja": "信頼できない入力の隔離(source を明示した JSON エンコードの tool_result として渡し、system prompt で信頼しないデータと宣言する)と、権限の最小化(不要な送信ツールと秘密情報へのアクセスを外す)を重ねる A が正解。docs が挙げる間接 prompt injection 対策に沿い、防御の 1 層が破られても被害が残らない構成になる。一般原則として、注入を完全には防げない前提で、成功した場合の被害を最小化する設計を選ぶ。",
     "refs": [
       "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks"
     ],
-    "difficulty": 3,
+    "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 3
   },
   {
     "id": "p-d5-q503",
@@ -131,7 +145,7 @@
       "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -153,15 +167,21 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Automate all three tasks and review the same small random sample of outputs for each, since one uniform control is easy to operate."
+        "text_en": "Automate all three tasks and review the same small random sample of outputs for each, since one uniform control is easy to operate.",
+        "plausible_ja": "3 つのタスクのリスクがほぼ同じなら、均一な統制で運用の手間を減らせる",
+        "not_best_ja": "適格性判断は影響が大きく、要約や定型返信と同じ抜き取りでは見合う統制にならない"
       },
       {
         "label": "B",
-        "text_en": "Automate all three tasks now, then track citizen complaints over the coming months to learn which uses cause real harm, and tighten controls where they prove to be needed."
+        "text_en": "Automate all three tasks now, then track citizen complaints over the coming months to learn which uses cause real harm, and tighten controls where they prove to be needed.",
+        "plausible_ja": "被害が小さく後から取り返せる用途なら、事後の苦情を手掛かりに統制を調整する運用も成り立つ",
+        "not_best_ja": "適格性の誤りは住民に先に被害が出て取り返しにくい。苦情を待つ検知的な対応では、影響の大きい判断を守れない"
       },
       {
         "label": "C",
-        "text_en": "Require a caseworker to read every output of all three tasks before release, because an error in any of them could reach a citizen."
+        "text_en": "Require a caseworker to read every output of all three tasks before release, because an error in any of them could reach a citizen.",
+        "plausible_ja": "件数が少なく、3 つとも誤りの影響が大きい業務なら、全件の人手確認も妥当",
+        "not_best_ja": "要約や定型返信は低リスクなので、全件を人が読むと自動化の利点を失い、リスクに応じた統制の選択にならない"
       },
       {
         "label": "D",
@@ -172,14 +192,14 @@
       "D"
     ],
     "answer_en": null,
-    "explanation_ja": "リスク評価は影響度と発生可能性に応じて統制を選ぶもので、自動化しない判断も含む。docs は最も単純な解から始め、必要なときだけ複雑さを増すこと、また Anthropic の研究が融資・住宅の適格性のような高リスク用途での自動判断を是認していないことを述べており、低リスクは自動化し影響の大きい判断は人に残す D が正解。A は全タスクに同じ統制をかけ、影響の大きい適格性判断に見合う統制が無い。B は被害が出てから知る検知的な対応だけで、住民への影響が先に出る。C は全件を人が読むので、低リスクの作業まで自動化の利点を失い、リスクに応じた統制の選択になっていない。",
+    "binding_constraint_ja": "緊急住宅支援の適格性判断は影響が大きく取り消しにくいため、リスクに応じて統制を分け、この判断は人に残す必要がある",
+    "explanation_ja": "リスク評価は影響度と発生可能性に応じて統制を選ぶもので、自動化しない判断も含む。Anthropic の discrimination research が融資・住宅の適格性のような高リスク用途での自動判断を是認していないことを述べており、低リスクの要約と定型返信は抜き取りレビュー付きで自動化し、影響の大きい適格性の判断は担当者に残す D が正しい。一般原則として、統制の強さはタスクごとの影響の大きさと取り消しにくさに合わせる。",
     "refs": [
-      "https://www.anthropic.com/engineering/building-effective-agents",
       "https://www.anthropic.com/news/evaluating-and-mitigating-discrimination-in-language-model-decisions"
     ],
-    "difficulty": 3,
+    "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 3
   },
   {
     "id": "p-d5-q505",
@@ -198,11 +218,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Keep the 85 cutoff and treat the higher auto-send share as an efficiency gain, since the newer judge model is the more capable grader."
+        "text_en": "Keep the 85 cutoff and treat the higher auto-send share as an efficiency gain, since the newer judge model is the more capable grader.",
+        "plausible_ja": "新しい judge の採点が専門家と一致することを別途確認できているなら、自動送信の増加は効率向上として受け入れられる",
+        "not_best_ja": "judge の性能が高いことと採点が専門家と一致することは別で、下書きが変わっていないのに割合が急増したのは採点が甘くなった兆候であり、確認が済んでいない"
       },
       {
         "label": "B",
-        "text_en": "Raise the cutoff until the auto-send share returns to 40%, so the volume of human review matches what the team had before the switch."
+        "text_en": "Raise the cutoff until the auto-send share returns to 40%, so the volume of human review matches what the team had before the switch.",
+        "plausible_ja": "新しい judge の一致度が確認済みで、レビューの人手を一定に保つことが目的なら、閾値の調整は運用として妥当",
+        "not_best_ja": "割合を元に戻しても専門家との一致度は測られておらず、新しい judge の誤りの傾向が変わっていれば閾値の位置も正しくない"
       },
       {
         "label": "C",
@@ -210,20 +234,23 @@
       },
       {
         "label": "D",
-        "text_en": "Leave the setup unchanged and rely on customer complaints about auto-sent replies to reveal whether the new judge scores too generously."
+        "text_en": "Leave the setup unchanged and rely on customer complaints about auto-sent replies to reveal whether the new judge scores too generously.",
+        "plausible_ja": "誤りの影響が小さく、顧客の指摘を学習機会として受け入れられる用途なら、フィードバック頼みでも成り立つ",
+        "not_best_ja": "誤った返信が顧客に届いてから気づく運用になり、フィードバックはまばらで偏るため、先に較正を確かめる必要がある"
       }
     ],
     "answer": [
       "C"
     ],
     "answer_en": null,
-    "explanation_ja": "demystifying-evals は、LLM 判定者(grader)を人間の専門家と密に較正して人間の採点とのずれが小さいことを確かめるよう述べ、定期的な人間による較正も挙げている。閾値 85 は旧い判定者と専門家ラベルの一致を根拠に決めたもので、判定者のモデルを替えればその根拠は引き継がれない(この点は設問での推論)。下書き側は変わっていないのに自動送信の割合が急増したのは、判定者の採点が甘くなった可能性を示すので、新しい標本で専門家との一致度を測り直し、確認できるまで自動送信を以前の量に抑える C が正しい。A は、判定者が高性能であることと採点が専門家と一致することを混同しており、較正を確かめていない。B は、割合を元に戻すだけで一致度を測っておらず、新しい判定者の誤りの傾向が変わっていれば閾値の位置も正しくない。D は、同記事がユーザーフィードバックの短所として「まばらで偏りがある」「主に利用者に問題を見つけてもらうことは利用者への悪影響を伴いうる」と挙げるとおり、誤った自動送信が顧客に届いてから気づく運用になる。",
+    "binding_constraint_ja": "閾値 85 は旧 judge と専門家ラベルの一致を根拠に決めたもので、judge を替えるとその根拠が失われ、誤った自動送信は顧客に届く",
+    "explanation_ja": "demystifying-evals は、LLM 判定者(grader)を人間の専門家と密に較正して人間の採点とのずれが小さいことを確かめるよう述べ、定期的な人間による較正も挙げている。判定者のモデルを替えれば較正の根拠は引き継がれない(この点は設問での推論)。新しい標本で専門家との一致度を測り直し、確認できるまで自動送信を以前の量に抑える C が binding constraint を満たす。一般原則として、自動化の閾値は、その時点の判定者を人間の評価で較正した根拠の上に置く。",
     "refs": [
       "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
     ],
     "difficulty": 3,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d5-q506",
@@ -246,29 +273,36 @@
       },
       {
         "label": "B",
-        "text_en": "Keep the first-party API's default routing, which selects whichever geography offers the best performance and availability at request time."
+        "text_en": "Keep the first-party API's default routing, which selects whichever geography offers the best performance and availability at request time.",
+        "plausible_ja": "性能と可用性を優先してよく、データの所在に制約が無い用途なら、既定の routing で足りる",
+        "not_best_ja": "既定の routing は最適な性能のために任意の地域で推論されうるため、EU 内だけという契約要件を保証しない"
       },
       {
         "label": "C",
-        "text_en": "Set inference_geo to \"us\" and create the workspace with a US geo, so that inference and stored data stay in one fixed geography."
+        "text_en": "Set inference_geo to \"us\" and create the workspace with a US geo, so that inference and stored data stay in one fixed geography.",
+        "plausible_ja": "処理を US 内に限る要件(US の顧客など)なら、US 固定の設定は妥当",
+        "not_best_ja": "このシナリオの要件は EU 内の処理で、US に固定すると要件と逆の地理になる"
       },
       {
         "label": "D",
-        "text_en": "Use the Bedrock global endpoint instead, since dynamic routing to regions with spare capacity gives the highest availability for customers."
+        "text_en": "Use the Bedrock global endpoint instead, since dynamic routing to regions with spare capacity gives the highest availability for customers.",
+        "plausible_ja": "データの所在に柔軟で、可用性を最優先するアプリなら、global endpoint が向く",
+        "not_best_ja": "global endpoint は空き容量のある地域へ動的にルーティングされ、EU 内だけという要件を満たさない"
       }
     ],
     "answer": [
       "A"
     ],
     "answer_en": null,
-    "explanation_ja": "データの所在を規制・契約から逆算する問題。Bedrock の regional endpoint は指定した地域を経由するルーティングを保証し、EU も選べると docs に記載があるため A が正解。B の既定(global)は最適な性能のために任意の地域で推論されうる。C は first-party API の inference_geo が取る値が global と us だけで、EU を指定できず、US 固定にしても EU 内処理の要件は満たさない。D の global endpoint は空き容量のある地域へ動的にルーティングされ、docs が「データの所在に柔軟なアプリ向け」とする構成であり、要件に反する。",
+    "binding_constraint_ja": "契約上、個人データを EU 内だけで処理する必要があり、地理を保証できる提供経路を選ぶ必要がある",
+    "explanation_ja": "データの所在を規制・契約から逆算する問題。docs は Bedrock の regional endpoint が指定した地域を経由するルーティングを保証し、EU も選べると述べており、EU 内だけという要件には A が合う。一般原則として、データの所在は契約・規制の要件から逆算し、地域を保証する提供経路と設定を選ぶ(提供経路の対応地域は時点で変わるため、採用時に現行の docs で確認する)。",
     "refs": [
       "https://docs.claude.com/en/docs/build-with-claude/data-residency",
       "https://docs.claude.com/en/docs/build-with-claude/claude-on-amazon-bedrock"
     ],
-    "difficulty": 3,
+    "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d5-q507",
@@ -311,7 +345,7 @@
       "https://docs.claude.com/en/docs/build-with-claude/zero-data-retention"
     ],
     "difficulty": 3,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -356,7 +390,7 @@
       "https://www.anthropic.com/news/claude-gov-models-for-u-s-national-security-customers"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -376,15 +410,21 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Strip applicant names from the prompt and treat the matter as settled, since the model can no longer see who the applicant is."
+        "text_en": "Remove applicant names from the prompt, since the model can then no longer see who the applicant is.",
+        "plausible_ja": "名前以外に属性の代理になる情報が入力に無いと確認できているなら、名前の除去は有効な緩和策",
+        "not_best_ja": "名前を外しても住所や職歴などが属性の代理になりうるうえ、出力の差を測っていないので公平性を確かめたことにならない"
       },
       {
         "label": "B",
-        "text_en": "Tell Claude in the system prompt to be fair and unbiased, then read a handful of summaries each month to confirm that it complied."
+        "text_en": "Tell Claude in the system prompt to be fair and unbiased, then read a handful of summaries each month to confirm that it complied.",
+        "plausible_ja": "リスクが小さく監視で足りる用途なら、指示と目視確認が最初の一手になりうる",
+        "not_best_ja": "公平にという指示と少数の目視では、属性間の差を定量的に確かめられず、継続的な監視にもならない"
       },
       {
         "label": "C",
-        "text_en": "Compare overall approval rates before and after launch, and investigate further only if the rate drops by a wide margin from the level seen under the old manual process."
+        "text_en": "Compare overall approval rates before and after launch, and investigate further only if the rate drops by a wide margin from the level seen under the old manual process.",
+        "plausible_ja": "属性を直接比較できない状況での全体傾向の監視としては、承認率の推移も補助指標になる",
+        "not_best_ja": "全体の承認率では属性ごとの差が相殺されて見え、属性間の不公平を検出できない。大きく落ちるまで調べない運用も遅い"
       },
       {
         "label": "D",
@@ -395,14 +435,15 @@
       "D"
     ],
     "answer_en": null,
-    "explanation_ja": "Anthropic の研究は、属性情報だけを系統的に変えたプロンプト群でモデルの出力差を測る手法を示しており、同一内容で属性だけを変えた評価セットを作り、変更のたびに再測定する D が正解(継続的な評価は eval の運用にも沿う)。A は名前を外しても他の情報が属性の代理になりえ、差を測定していない。B は公平にという指示と少数の目視だけで、属性間の差を定量的に確かめていない。C は全体の承認率の比較であり、属性ごとの差は相殺されて見えず、属性間の不公平を検出できない。",
+    "binding_constraint_ja": "属性間の扱いの差を示すには、属性だけを変えた同一入力で出力の差を測り、変更のたびに測り直す必要がある",
+    "explanation_ja": "Anthropic の研究は、属性情報だけを系統的に変えたプロンプト群でモデルの出力差を測る手法を示している。同一内容で属性だけを変えた評価セットを作って出力差を測り、変更のたびに再測定する D が binding constraint を満たす(継続的な再測定は eval の運用にも沿う)。一般原則として、公平性は主張や指示ではなく、属性だけを変えた比較による測定で確かめる。",
     "refs": [
       "https://www.anthropic.com/news/evaluating-and-mitigating-discrimination-in-language-model-decisions",
       "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
     ],
-    "difficulty": 3,
+    "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d5-q510",
@@ -425,27 +466,399 @@
       },
       {
         "label": "B",
-        "text_en": "Prompt Claude to append the title of each source document to its answer, and have staff spot-check those titles every week."
+        "text_en": "Prompt Claude to append the title of each source document to its answer, and have staff spot-check those titles every week.",
+        "plausible_ja": "文書単位の出典表示で足りる要件なら、文書名の併記と抽出確認で間に合う",
+        "not_best_ja": "文書名を書き足すだけでは該当箇所への検証可能な参照が保証されず、担当者の抽出確認にも依存する"
       },
       {
         "label": "C",
-        "text_en": "Ask Claude to attach a confidence percentage to every statement so that readers can see which ones deserve a double-check."
+        "text_en": "Ask Claude to attach a confidence percentage to every statement so that readers can see which ones deserve a double-check.",
+        "plausible_ja": "優先度付けが目的で、根拠の提示が別に確保されているなら、確信度は補助情報になる",
+        "not_best_ja": "確信度はモデルの自己申告の数値で、根拠となる原文の箇所を示さないため、読者が個々の主張を検証できない"
       },
       {
         "label": "D",
-        "text_en": "Show a standing notice that answers come from an AI and may contain errors, with a link to the full policy document library."
+        "text_en": "Show a standing notice that answers come from an AI and may contain errors, with a link to the full policy document library.",
+        "plausible_ja": "AI の利用と限界の開示が主な要件なら、この表示が適切",
+        "not_best_ja": "AI 利用の開示にはなるが、個々の主張を原文の箇所と突き合わせるという要件を満たさない"
       }
     ],
     "answer": [
       "A"
     ],
     "answer_en": null,
-    "explanation_ja": "判断の根拠・出典をユーザーに示す透明性の設計。citations 機能は各主張を支える原文の箇所を返し、API が解析するため提供文書への有効な参照が保証されると docs が述べており、引用箇所を主張の隣に表示する A が正解。B はモデルが文書名を書き足すだけで、箇所への検証可能な参照が保証されず、担当者の抽出確認にも依存する。C の確信度は自己申告の数値で、根拠となる原文を示さないので読者が検証できない。D は AI の利用と限界の開示にはなるが、個々の主張を原文と突き合わせるという要件を満たさない。",
+    "binding_constraint_ja": "各主張を、読者が原文の該当箇所まで検証できる必要がある",
+    "explanation_ja": "citations 機能は各主張を支える原文の箇所を返し、API が解析するため提供文書への有効な参照が保証されると docs が述べており、引用箇所を主張の隣に表示する A が binding constraint を満たす。一般原則として、透明性は注意書きではなく、主張ごとに検証できる根拠の提示で実現する。",
     "refs": [
       "https://docs.claude.com/en/docs/build-with-claude/citations",
       "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations"
     ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 2
+  },
+  {
+    "id": "p-d5-q511",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-02",
+    "secondary_topic_ids": [
+      "p-d5-t1-02"
+    ],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A finance team plans an agent for a 15-step month-end close: it reconciles ledgers, posts journal entries, and then initiates vendor payments. In testing each step is usually correct, yet a few runs end with wrong payments that went out before anyone noticed. Which change best addresses this agent-specific risk?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Have the agent re-read its full transcript after the final step and flag anything suspicious, since it holds the most context about what it did.",
+        "plausible_ja": "取り消せる操作で、事後の見直しを低コストな追加層にしたい場合は、最終点検が有効",
+        "not_best_ja": "最終ステップの後では支払いがすでに実行され、取り消せない。同じエージェントが自分の誤りを見直す自己レビューにも限界がある"
+      },
+      {
+        "label": "B",
+        "text_en": "Add a nightly reconciliation report that flags mismatched payments, and have the accounts-payable team review it the next morning.",
+        "plausible_ja": "支払いを後から取り消せる、または誤りの影響が小さい業務なら、事後の突合は有効な検知手段",
+        "not_best_ja": "翌朝の突合は検知であって予防ではなく、支払いが出た後では取り戻せない。このシナリオは実行前に止める統制を求める"
+      },
+      {
+        "label": "C",
+        "text_en": "Check each step's result against the ledger as the run proceeds, and pause for human approval before the payment step, which cannot be undone."
+      },
+      {
+        "label": "D",
+        "text_en": "Run three independent agents through the whole close, and initiate payments only when a majority of them produce the same final payment list.",
+        "plausible_ja": "各ステップが取り消し可能で、独立した誤りを減らすことが主な課題なら、多数決が有効",
+        "not_best_ja": "共通の誤りは 3 つのエージェントで同じ結果になりうるうえ、支払いの前に環境で検証する工程も人間の承認も無く、不可逆な実行を止められない"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "支払いは取り消せないため、誤りの累積が実行される前に、各ステップの検証と承認で止める必要がある",
+    "explanation_ja": "エージェントは多段で動くため誤りが累積しうる。Anthropic の記事は、各ステップで環境から ground truth を得て進捗を確かめ、チェックポイントで人間の確認を挟むことを述べており、不可逆な支払いの前に台帳との照合と人間の承認ゲートを置く C が binding constraint を満たす。一般原則として、不可逆な操作の前には予防的な統制を置き、事後の点検や冗長化だけに頼らない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
     "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q512",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t4-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A telehealth company wants Claude to summarize clinician notes containing PHI through the Claude API. The same account also runs a marketing-copy workload that depends on a beta feature not listed as HIPAA-eligible. What should the architect do?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Request zero data retention for the existing organization and treat it as sufficient for PHI, because responses are not stored once returned.",
+        "plausible_ja": "PHI を扱わず、データ保持の最小化だけが目的の用途なら、ZDR が適切",
+        "not_best_ja": "ZDR は保持に関する取り決めで、PHI の取り扱いに必要な BAA と HIPAA readiness の代わりにならない"
+      },
+      {
+        "label": "B",
+        "text_en": "Sign the BAA and enable HIPAA readiness on the shared organization, and keep the marketing workload there on the understanding that the BAA covers the whole account.",
+        "plausible_ja": "マーケティング側も対応機能だけを使うなら、同じ組織で運用できる",
+        "not_best_ja": "マーケティング側が HIPAA 対象外の beta 機能に依存しており、対応機能の表に無い機能を含むリクエストは 400 で拒否されるため、共有組織では成り立たない"
+      },
+      {
+        "label": "C",
+        "text_en": "Mask patient names in the notes before sending them from the existing organization, and skip the BAA since names are the identifying information.",
+        "plausible_ja": "ノートからすべての識別子を確実に除去でき、PHI でなくなる場合は、BAA が不要になりうる",
+        "not_best_ja": "臨床ノートには名前以外にも識別につながる情報が含まれ、PHI として扱う前提のこのシナリオで BAA を省く根拠にならない"
+      },
+      {
+        "label": "D",
+        "text_en": "Prototype the summaries on real clinician notes in the existing organization, and execute the BAA only after the prompts have been tuned.",
+        "plausible_ja": "PHI を含まない合成データだけで試作する段階なら、BAA の前に開発を進めてよい",
+        "not_best_ja": "実際の臨床ノートを処理する時点で PHI を扱うので、BAA と HIPAA readiness は試作の前に必要で、後回しにできない"
+      },
+      {
+        "label": "E",
+        "text_en": "Execute the BAA and enable HIPAA readiness on a dedicated organization for the PHI workload, keeping the marketing workload in a separate one."
+      }
+    ],
+    "answer": [
+      "E"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "PHI を扱うには BAA と HIPAA readiness が組織単位で必要で、対象外の機能に依存するワークロードを同じ組織に置けない",
+    "explanation_ja": "PHI を扱うなら署名済みの BAA を伴う HIPAA readiness が使う取り決めで、組織単位で強制される。対象外の機能に依存する別のワークロードがあるなら、組織を分けて PHI 用の専用組織だけで有効化する E が binding constraint を満たす。一般原則として、規制対象データを扱う範囲は専用の境界(組織・アカウント)に閉じ込め、対象外の用途と混在させない。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/zero-data-retention",
+      "https://docs.claude.com/en/docs/build-with-claude/api-and-data-retention"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q513",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t4-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A federal civilian agency will use Claude for sensitive but unclassified casework, and its security office requires the FedRAMP High authorization level. How should the agency proceed?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Procure the Claude Gov models from the start, since they were built for the most demanding national security environments and suit any sensitive work.",
+        "plausible_ja": "機密環境で運用される国家安全保障の用途なら、Claude Gov モデルが対象になる",
+        "not_best_ja": "Claude Gov は機密環境向けで、今回は機微だが非機密の業務であり、要求された認可水準を満たす根拠にもならない"
+      },
+      {
+        "label": "B",
+        "text_en": "Call the commercial API with inference_geo set to \"us\", since keeping inference in US infrastructure is treated as meeting the required authorization level.",
+        "plausible_ja": "推論を US 内に限る要件(データの所在)なら、この設定が妥当",
+        "not_best_ja": "inference_geo は推論を実行する地理の指定で、FedRAMP の認可水準とは別の統制であり、設定しただけで要件を満たしたとはみなせない"
+      },
+      {
+        "label": "C",
+        "text_en": "Check each offering's current authorization status in the vendor's official materials and FedRAMP's public records, then procure only a confirmed match."
+      },
+      {
+        "label": "D",
+        "text_en": "Choose the offering the vendor markets to government customers, and treat that positioning as evidence that the FedRAMP High level is met.",
+        "plausible_ja": "販売元が当該水準の認可を文書で示しているなら、その資料は確認の入口になる",
+        "not_best_ja": "販売上の位置づけは認可の証拠ではなく、提供経路ごとの現行の認可状況を公式な記録で確認していない"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "FedRAMP High という認可水準は提供経路ごとに異なり時点でも変わるため、現行の公式な記録で確認できた経路だけを調達する必要がある",
+    "explanation_ja": "認可水準を満たす経路は提供経路ごとに異なり時点でも変わりうるため、要求水準(FedRAMP High)を満たすと現行の公式情報で確認できた経路だけを調達する C が正しい(これは原則からの推論であり、認可状況そのものを暗記させる問いではない)。Anthropic の発表は、水準や用途ごとに提供経路が分かれること(機密環境向けの Claude Gov モデルと、機微だが非機密の業務向けの Claude for Government など)を例示している。一般原則として、規制要件は認可の公式記録で提供経路ごとに検証し、名称や用途の位置づけから推定しない。",
+    "refs": [
+      "https://www.anthropic.com/news/offering-expanded-claude-access-across-all-three-branches-of-government",
+      "https://www.anthropic.com/news/claude-gov-models-for-u-s-national-security-customers"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q514",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t1-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A platform team runs Claude Code unattended in CI to upgrade dependencies. The agent has shell access on a runner that can reach the production network, and the system prompt already forbids running the production deploy script. The security review requires controls that still hold if the model ignores or misreads its instructions. Which TWO changes best meet this requirement? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Extend the system prompt with a full list of forbidden commands and several worked examples of declining them.",
+        "plausible_ja": "指示の誤解を減らすことだけが目的で、強制力は別の層が担う場合は、補助として有効",
+        "not_best_ja": "プロンプトの指示は確率的で、モデルが無視・誤解すれば効かない。すでに禁止を書いても不十分とされている前提と同じ層の対策である"
+      },
+      {
+        "label": "B",
+        "text_en": "Add a deny permission rule for the production deploy command so the tool call is blocked before it runs."
+      },
+      {
+        "label": "C",
+        "text_en": "Add a PostToolUse hook that records every executed command to the team's log pipeline for review after each run.",
+        "plausible_ja": "実行後の追跡と調査が目的なら、監視として有用",
+        "not_best_ja": "実行後に記録するだけでデプロイの実行を止められない。要件は指示が破られても効く統制であり、予防ではなく事後確認になっている"
+      },
+      {
+        "label": "D",
+        "text_en": "Have a second Claude instance review each proposed command and approve it before it runs.",
+        "plausible_ja": "コマンドを事前に列挙できず、決定論的な規則では判断できない場面では、補助的な審査層として使える",
+        "not_best_ja": "別のモデルの判断も確率的で、同じ誤読や操作の影響を受けうる。モデルの判断に依存しない統制という要件を満たさない"
+      },
+      {
+        "label": "E",
+        "text_en": "Run the agent's shell commands inside an OS-level sandbox that restricts filesystem and network access."
+      }
+    ],
+    "answer": [
+      "B",
+      "E"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "モデルが指示に従わなくても効く統制が必要で、モデルの判断に依存しない決定論的な層(permission による遮断と OS の境界)で強制する必要がある",
+    "explanation_ja": "正解は 2 つで、それぞれ独立した理由で必要になる。deny の permission ルールは、既知の禁止された呼出し(本番デプロイ)をモデルの判断に関係なく実行前に遮断する。OS が強制する sandbox は、許可済みのコマンドが名前以上のことをしても、実行中のプロセスのファイルとネットワークの境界を保つため、ルールに列挙できない操作の被害を限定する。一般原則として、強制すべき統制はプロンプトではなくモデルの外の決定論的な層に置き、遮断と境界の両方を重ねる。",
+    "refs": [
+      "https://docs.claude.com/en/docs/claude-code/permissions",
+      "https://docs.claude.com/en/docs/claude-code/sandboxing",
+      "https://docs.claude.com/en/docs/claude-code/hooks-guide"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q515",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t5-03",
+    "secondary_topic_ids": [
+      "p-d5-t1-02"
+    ],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A company is rolling out two agent uses. Employees will run a coding assistant from their laptops with their own credentials, and the finance team will deploy an unattended agent that reconciles invoices overnight. The CISO wants accountability to be clear for both before launch. Which TWO actions best achieve this? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Give the overnight agent a shared administrator account, so that every action can be traced back to one identity in the audit trail.",
+        "plausible_ja": "全操作を 1 つの ID に集約して追跡することだけが目的で、権限の広さが問題にならない検証環境なら成り立つ",
+        "not_best_ja": "共有の管理者アカウントは最小権限に反し、どのエージェントや人の操作かも区別できず、責任の帰属が明確にならない"
+      },
+      {
+        "label": "B",
+        "text_en": "Run the overnight agent with the finance lead's own credentials, so that each action is tied to a named, accountable person.",
+        "plausible_ja": "本人が結果を日常的に確認できる範囲の作業なら、本人の資格情報で動かすことは妥当",
+        "not_best_ja": "夜間に無人で動くエージェントが、本人の見ていないシステムに本人の委任された ID を持ち込むと、責任が曖昧になりインシデントを説明できなくなる"
+      },
+      {
+        "label": "C",
+        "text_en": "Run the overnight agent under its own single-purpose, least-privilege service account, so its actions are attributable to the agent."
+      },
+      {
+        "label": "D",
+        "text_en": "State in policy that an employee running an agent on their own credentials is accountable for its actions, as with any other use of them."
+      },
+      {
+        "label": "E",
+        "text_en": "Have the agent write a justification for every action into its log, and treat that log as the accountable record of its decisions.",
+        "plausible_ja": "判断の根拠を後から透明化する補助としては有用",
+        "not_best_ja": "ログは判断の記録であって責任の所在ではなく、リスクを受け入れる判断は権限を持つ人間が行う。夜間エージェントの ID と権限の設計も解決しない"
+      }
+    ],
+    "answer": [
+      "C",
+      "D"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "責任は、本人が見ている自分の資格情報での操作か、単一目的の専用 ID で動く操作のどちらかに明確に帰属させる必要があり、本人が見ていないシステムに委任された ID は責任を曖昧にする",
+    "explanation_ja": "正解は 2 つで、それぞれ別の使い方に対する別の理由で必要になる。人の資格情報で動くエージェントは、キーボードの前の本人が他の操作と同様に責任を負うことを方針で明示する。無人のエージェントは、単一目的で最小権限の専用 service account で動かし、人間の ID を使わずエージェント自身の操作として帰属させる。一般原則として、責任は人間か明確に割り当てた専用 ID に置き、委任された ID が本人の見ていないシステムに及ぶ領域を作らない。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q601",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t2-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A security lead reviewing a new agent finds that its API actions appear in audit logs under the same employee user ID as human actions, and none of them reach the SIEM. What should the lead fix first to close this gap?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Add a classifier that screens every tool output for untrusted content before the agent reads it."
+      },
+      {
+        "label": "B",
+        "text_en": "Reduce the agent's write permissions to the smallest set its task needs."
+      },
+      {
+        "label": "C",
+        "text_en": "Mark the agent's actions as distinct from user actions and send them to the SIEM."
+      },
+      {
+        "label": "D",
+        "text_en": "Require a human to approve every action the agent takes before it executes."
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "CISO ガイドの 4 つの質問のうち観測可能性は、エージェントの操作をユーザーの操作と区別でき、SIEM に記録されるかを問います。今回は区別も記録もできていないので、操作に印を付けて SIEM に送る C が当たります。A は信頼できない入力、B は誤動作時の影響範囲に対する別の統制で、観測できない状態そのものは直りません。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d5-q602",
+    "exam": "ccar-p",
+    "domain_id": "p-d5",
+    "primary_topic_id": "p-d5-t3-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A support team wants to use an LLM-as-judge grader's scores to decide which drafted replies need human review. What should the team do before trusting those scores?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Run the judge twice on each reply and average the two scores."
+      },
+      {
+        "label": "B",
+        "text_en": "Compare its scores with human experts' grades on a labeled sample until the two diverge very little."
+      },
+      {
+        "label": "C",
+        "text_en": "Switch to the largest available model as the judge, since larger models grade more accurately."
+      },
+      {
+        "label": "D",
+        "text_en": "Wait for customer complaints and adjust the judge only when they show it is wrong."
+      }
+    ],
+    "answer": [
+      "B"
+    ],
+    "answer_en": null,
+    "explanation_ja": "LLM-as-judge は人間の専門家と較正し、人間の採点とモデルの採点の乖離が小さいことを確かめてから信頼します。したがって B が当たります。A は採点のばらつきを減らしても専門家とのずれは直らず、C は大きなモデルでも人間の基準との一致を確かめる必要があります。D は誤りが顧客に届いてからの対応になります。",
+    "refs": [
+      "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+    ],
+    "difficulty": 1,
     "status": "active",
     "rev": 1
   }

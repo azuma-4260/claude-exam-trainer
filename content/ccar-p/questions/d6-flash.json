@@ -92,7 +92,7 @@
       "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -141,7 +141,7 @@
       "https://claude.com/blog/deploying-ai-from-pilot-to-production"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -501,6 +501,55 @@
     "refs": [
       "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
       "https://www.anthropic.com/research/measuring-agent-autonomy"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q022",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t1-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A sponsor's only requirement for a support assistant is that it be accurate and fast, so what should the architect do before building starts?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Turn the wish into specific, measurable success criteria across several dimensions, such as task fidelity, consistency, tone, latency and price, and agree them with the sponsor.\nVague goals like \"good performance\" cannot be evaluated.",
+    "explanation_ja": "「正確で速い」だけでは評価できないため、着手前に具体的で測定可能な成功基準へ落とし込みます。基準は精度だけでなく、タスクへの忠実さ、一貫性、トーン、レイテンシ、価格など複数の次元で決めます。一覧は網羅的ではないので、自社の用途に合う次元を足して関係者と合意します。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/define-success"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d6-q023",
+    "exam": "ccar-p",
+    "domain_id": "p-d6",
+    "primary_topic_id": "p-d6-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A CISO is wary of approving an agentic deployment, so how should the architect frame the proposal to make the decision easier to take?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Make the risk legible and bounded: state what the system can touch, limit its scope, and say which risks are accepted on purpose.\nPair each open decision with the person who owns it.",
+    "explanation_ja": "相手が判断できるのは、リスクが読み取れる形で示され、範囲が限定されているときです。CISO ガイドは、エージェントのリスクを legible(読み取れる)かつ bounded(範囲が限定)にし、管理できるものを意図して受け入れることを役割として挙げています。移行ガイドの青写真と同様に、判断ごとに責任者を決めておくと意思決定が進みます。",
+    "refs": [
+      "https://claude.com/blog/ciso-guide-to-agentic-ai",
+      "https://claude.com/blog/deploying-ai-from-pilot-to-production"
     ],
     "difficulty": 2,
     "status": "active",

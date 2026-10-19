@@ -16,11 +16,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Send both steps to one Claude call with the rate table in the prompt, so a single component owns intake and the categories live in one place."
+        "text_en": "Send both steps to one Claude call with the rate table in the prompt, so a single component owns intake and the categories live in one place.",
+        "plausible_ja": "処理が 1 件ずつ小さく、保守する部品を 1 つにまとめる運用上の利点を最優先し、計算の誤りも許容できるなら成り立つ。",
+        "not_best_ja": "書式検査と表引きの計算は決定論的コードで正確かつ安価に解けるのに、LLM に任せるとコストと誤りの余地が増える。"
       },
       {
         "label": "B",
-        "text_en": "Give the deductible arithmetic to Claude with the rate table in context, and keep the classification in the existing keyword rules engine."
+        "text_en": "Give the deductible arithmetic to Claude with the rate table in context, and keep the classification in the existing keyword rules engine.",
+        "plausible_ja": "カテゴリが固定で単一言語のキーワードで十分に判別できるなら、既存のルールエンジンの継続が妥当である。",
+        "not_best_ja": "複数言語の自由記述を四半期ごとに変わるカテゴリへ分けるには意味理解が要り、キーワード規則では保守しきれない。一方で計算は決定論的コードで足りる。"
       },
       {
         "label": "C",
@@ -28,21 +32,24 @@
       },
       {
         "label": "D",
-        "text_en": "Train a supervised classifier per language for the descriptions first, and bring in Claude only after enough labeled claims accumulate."
+        "text_en": "Train a supervised classifier per language for the descriptions first, and bring in Claude only after enough labeled claims accumulate.",
+        "plausible_ja": "ラベル付きデータが大量にあり、カテゴリが安定しているなら、教師あり分類器も有力である。",
+        "not_best_ja": "ラベルが数十件しかなく、カテゴリが四半期ごとに変わるため、言語別の分類器は学習データも再学習も賄えない。"
       }
     ],
     "answer": [
       "C"
     ],
     "answer_en": null,
-    "explanation_ja": "業務課題を分解し、LLM が効く部分と決定論的処理で足りる部分を分けるのが設計の出発点。非構造・多言語のテキストを、頻繁に変わるカテゴリへ少数のラベルで分類するのは LLM が従来の ML より適する典型条件であり、書式検証と表引きの計算はコードの方が安く確実なので C が正解。A は決定論的に解ける計算まで LLM に任せ、コストと誤りの余地を増やす。B は役割が逆で、計算を LLM に、意味理解が要る分類をキーワード規則に割り当てている。D の言語別の教師あり分類器は大量のラベルと再学習を要し、四半期ごとのカテゴリ変更に追従しにくい。",
+    "binding_constraint_ja": "分類クラスが四半期ごとに変わり、ラベル付きデータも少ない多言語の自由記述には LLM が向き、書式検証と表引きの計算は決定論的コードで足りる。",
+    "explanation_ja": "正解の C は、LLM が効く意味理解の分類と、コードで足りる検証・計算を分けている。LLM は少数のラベルしかなくても、条件で定義されたクラスを適用でき、カテゴリが変わってもプロンプトの更新で追従できる。一般原則として、LLM は決定論的に解ける処理には使わず、意味理解が要る部分に絞る。",
     "refs": [
       "https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing",
       "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d1-q502",
@@ -85,7 +92,7 @@
       "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -105,15 +112,21 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Instruct the model to reply with valid JSON only, let the payment system accept whatever parses, and have auditors review the paid claims each month."
+        "text_en": "Instruct the model to reply with valid JSON only, let the payment system accept whatever parses, and have auditors review the paid claims each month.",
+        "plausible_ja": "少額で取り消しやすい処理で、事後の抑止と是正が主目的なら、月次の監査も補完として妥当である。",
+        "not_best_ja": "検知が月次監査に寄り、誤データが支払システムに入った後の事後確認にとどまる。支払い前に止める予防的な統制がない。"
       },
       {
         "label": "B",
-        "text_en": "Add a second Claude call that re-reads each statement and approves the first result, then pay approved records without further code-level checks, which keeps the pipeline fast and simple."
+        "text_en": "Add a second Claude call that re-reads each statement and approves the first result, then pay approved records without further code-level checks, which keeps the pipeline fast and simple.",
+        "plausible_ja": "意味的な誤り(項目の読み違いなど)の検出であれば、別の呼出しによる再確認も有効である。",
+        "not_best_ja": "合計が内訳の和に等しいかは決定論的に判定できるのに、コードでの検査を省いてモデルの承認に頼っている。"
       },
       {
         "label": "C",
-        "text_en": "Enable schema-constrained output and treat the response as trusted, since the schema guarantees every field and the arithmetic relationships between them."
+        "text_en": "Enable schema-constrained output and treat the response as trusted, since the schema guarantees every field and the arithmetic relationships between them.",
+        "plausible_ja": "スキーマは形式の準拠を保証するので、形式崩れへの対策としては有効である。",
+        "not_best_ja": "スキーマは形式の制約で、合計と内訳の整合までは表せない。refusal や max_tokens 到達で準拠しない出力も起こり得るのに、例外経路を扱っていない。"
       },
       {
         "label": "D",
@@ -124,13 +137,15 @@
       "D"
     ],
     "answer_en": null,
-    "explanation_ja": "出力検証は下流に渡す前の予防的な統制として置く。構造化出力は schema に沿った形式を返すが、refusal や max_tokens 到達のときは出力が schema に一致しない場合があると docs に明記されている。また、schema は形式の制約であり、給付合計が内訳の和に等しいといった業務上の整合までは表現できない(この点は docs の記述からの推論)。D はコードで整合を検証し、失敗時はエラー内容付きで再試行し、なお失敗なら人に回すので正しい。A は検出が月次監査に寄り、誤データが支払システムに入った後の検知的統制にとどまる。B は同じモデルの再読で承認するだけで、決定論的に判定できる合計の検査を省いている。C は schema が算術関係まで保証すると誤解しており、refusal などの例外経路も扱えない。",
+    "binding_constraint_ja": "支払いは出力に基づいて実行され、スキーマ準拠でも refusal や max_tokens で形式が崩れ、業務上の整合(合計が内訳の和に等しいこと)も保証されないため、支払い前にコードで検証する必要がある。",
+    "explanation_ja": "正解の D は、構造化出力で形式崩れを減らしつつ、合計の整合をコードで支払い前に検証し、失敗時はエラー内容つきで再試行して、なお失敗なら人に回す。構造化出力でも refusal や max_tokens 到達では出力が schema に一致しないことがあると docs は述べ、プログラムによるゲートで中間結果を確認し人にも戻れる設計は building-effective-agents に示されている。schema が業務上の算術関係を表現できない点は、docs の記述からの推論である。一般原則は、予防的な検証を下流の前に置くことである。",
     "refs": [
-      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs"
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 2,
-    "status": "active",
-    "rev": 1
+    "status": "retired",
+    "rev": 2
   },
   {
     "id": "p-d1-q504",
@@ -149,33 +164,41 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Append every agent correction to the live prompt as a new example each night, and watch the correction rate over the following weeks."
+        "text_en": "Append every agent correction to the live prompt as a new example each night, and watch the correction rate over the following weeks.",
+        "plausible_ja": "例の追加が効くと別途確認済みで、悪化を検知する回帰テストが整っているなら、例の自動追加も運用できる。",
+        "not_best_ja": "検証なしで本番プロンプトを毎晩変えるため、悪化しても原因の変更を特定できない。"
       },
       {
         "label": "B",
-        "text_en": "Collect a thumbs-up or thumbs-down rating on each routing decision, and publish a monthly dashboard so leadership can decide when to revise the prompt."
+        "text_en": "Collect a thumbs-up or thumbs-down rating on each routing decision, and publish a monthly dashboard so leadership can decide when to revise the prompt.",
+        "plausible_ja": "満足度の傾向を経営に報告する目的なら、評価の集計は有用である。",
+        "not_best_ja": "評価セットがなく、評価値が出てもどの変更が効いたか分からない。訂正の入力と正解ラベルも蓄積されず、改善に結び付かない。"
       },
       {
         "label": "C",
-        "text_en": "Have a second Claude instance read each night's transcripts and rewrite the production prompt directly, based on the patterns it finds."
+        "text_en": "Have a second Claude instance read each night's transcripts and rewrite the production prompt directly, based on the patterns it finds.",
+        "plausible_ja": "評価セットが整備済みで変更がゲートを通る前提なら、モデルによる改稿案の生成は補助になり得る。",
+        "not_best_ja": "モデルの自己判断だけで本番プロンプトを書き換え、人間の訂正という正解も、リリース前の検証ゲートも使っていない。"
       },
       {
         "label": "D",
-        "text_en": "Log each correction with the input, model output, and final label, add real failures to an eval set, and require each prompt change to pass that set before release."
+        "text_en": "Log each correction with its input, model output, and final label, add real failures to an eval set, and gate every prompt change on that set."
       }
     ],
     "answer": [
       "D"
     ],
     "answer_en": null,
-    "explanation_ja": "本番ログ・人間の訂正・実際の失敗を評価セットへ還流し、プロンプト変更を評価で判断する閉ループが必要で、実際の失敗から作る少数のタスクでも評価の出発点になる。D は訂正を入力・出力・正解ラベルと対で蓄積し、リリース前ゲートに使うので正しい。A は検証なしで本番プロンプトを毎晩変えるため、悪化しても原因を特定できない。B は評価セットがなく、評価値が出てもどの変更が効いたかを言えず、改善に結び付かない。C はモデルの自己判断だけで本番プロンプトを書き換え、人間の訂正という正解を使わず、検証ゲートも置いていない。",
+    "binding_constraint_ja": "本番で人間が直した事例は正解つきの実データなので、評価セットに還流し、プロンプトの変更をリリース前の評価で判断する閉ループが必要である。",
+    "lifecycle_phase": "iteration",
+    "explanation_ja": "正解の D は、訂正を入力・出力・最終ラベルと対で記録し、実際の失敗を評価セットに加え、変更をそのセットで検証してから出すので、閉ループが成立する。実際の失敗から作る少数のタスクでも、評価の出発点になる。一般原則は、プロンプトの変更を逸話ではなく評価で判断することである。",
     "refs": [
       "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
       "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d1-q505",
@@ -194,11 +217,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Give the call a memory store that saves each answered question with its status lookup, and serve repeat questions from that saved memory first."
+        "text_en": "Give the call a memory store that saves each answered question with its status lookup, and serve repeat questions from that saved memory first.",
+        "plausible_ja": "同じ質問が繰り返され、回答が変わらないデータなら、過去の回答を保存して再利用するメモリは有効である。",
+        "not_best_ja": "契約状態は毎日変わるため、保存した回答や照会結果を先に返すと古い内容を返しうる。"
       },
       {
         "label": "B",
-        "text_en": "Load the full contract corpus and a nightly export of the status table into every prompt, so the model has complete context and no retrieval or lookup component is needed."
+        "text_en": "Load the full contract corpus and a nightly export of the status table into every prompt, so the model has complete context and no retrieval or lookup component is needed.",
+        "plausible_ja": "文書が少量で 1 つのコンテキストに収まり、状態の更新も頻繁でないなら、全文投入でも成立する。",
+        "not_best_ja": "約二千件の全文は毎回のコンテキストに収まりにくく、夜間エクスポートの状態表も日中の変更を反映しない。"
       },
       {
         "label": "C",
@@ -206,21 +233,24 @@
       },
       {
         "label": "D",
-        "text_en": "Index the contract text and the status records together in a single retrieval index that is rebuilt every night, so one retrieval step supplies everything."
+        "text_en": "Index the contract text and the status records together in a single retrieval index that is rebuilt every night, so one retrieval step supplies everything.",
+        "plausible_ja": "状態の変化が夜間更新で十分に許容できるなら、1 つの索引にまとめる構成は運用が単純である。",
+        "not_best_ja": "状態レコードを夜間再構築の索引に混ぜるため、日中に変わった契約状態を返せず、古い回答の原因になる。"
       }
     ],
     "answer": [
       "C"
     ],
     "answer_en": null,
-    "explanation_ja": "Anthropic は、エージェント的システムの基本部品を、検索・ツール・メモリで拡張した LLM(augmented LLM)と説明し、モデルが自ら検索クエリを生成しツールを選べるとする。C は、量が多く静的な契約本文を検索で、毎日変わる契約状態と最新の条項版を業務システムへ照会するツールで取得する、単一の拡張呼出しなので正しい(どのデータにどの拡張を当てるかの対応付けは、この設問での推論)。A は、メモリに過去の回答と照会結果を保存して再利用するため、毎日変わる契約状態について古い内容を返しうる。メモリは会話や作業の継続のための拡張で、変化する業務データの正本の代わりにはならない(この点も推論)。B は、二千件の全文を毎回入れるとコンテキストに収まらず、夜間エクスポートの状態表は最新でもない。D は、状態レコードを夜間再構築の索引に混ぜるため、日中に変わった契約状態を返せず、古い回答の原因になる。",
+    "binding_constraint_ja": "契約本文は量が多く静的、契約状態と最新の条項版は毎日変わる業務データなので、前者は検索で、後者は照会ツールで取得する。",
+    "explanation_ja": "正解の C は、量の多い静的な本文を検索で、毎日変わる状態をツールの照会で取得し、単一の呼出しを検索とツールで拡張するだけで済ませる。Anthropic はエージェント的システムの基本部品を、検索・ツール・メモリで拡張した LLM と説明する。どのデータにどの拡張を当てるかの対応付けは、この設問での推論である。一般原則は、データの更新頻度に合わせて取得方法を選ぶことである。",
     "refs": [
       "https://www.anthropic.com/engineering/building-effective-agents",
       "https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d1-q506",
@@ -241,7 +271,9 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Build an autonomous agent with all four tools, and let Claude decide the order per case so edge cases get flexible handling."
+        "text_en": "Build an autonomous agent with all four tools, and let Claude decide the order per case so edge cases get flexible handling.",
+        "plausible_ja": "例外が多く手順を事前に固定できない案件なら、モデル主導の順序も選択肢になる。",
+        "not_best_ja": "手順が毎回同じなのにモデルに順序を決めさせると、コスト・レイテンシ・誤りの累積を負い、監査可能な順序も保証できない。"
       },
       {
         "label": "B",
@@ -249,24 +281,29 @@
       },
       {
         "label": "C",
-        "text_en": "Build an autonomous agent, and describe the required order in its system prompt, relying on the instruction alone to keep every case in the required order for compliance."
+        "text_en": "Build an autonomous agent, and describe the required order in its system prompt, relying on the instruction alone to keep every case in the required order for compliance.",
+        "plausible_ja": "順序の逸脱が低リスクで、監査要件が緩いなら、指示だけで運用できる。",
+        "not_best_ja": "順序の遵守がプロンプト指示に依存し、コードで強制していないため、コンプライアンスが求める順序を保証できない。"
       },
       {
         "label": "D",
-        "text_en": "Add a second agent that watches the first agent at runtime and reports any step taken out of order, for later review."
+        "text_en": "Add a second agent that watches the first agent at runtime and reports any step taken out of order, for later review.",
+        "plausible_ja": "順序の逸脱を事後に把握する必要があるなら、実行時の監視は補完として有用である。",
+        "not_best_ja": "逸脱を後から報告するだけの補償的な統制で、逸脱そのものを防がず、エージェントも増える。"
       }
     ],
     "answer": [
       "B"
     ],
     "answer_en": null,
-    "explanation_ja": "手順が予測でき一貫性が要るタスクには、事前に定義したコードパスで LLM を編成する workflow が向き、agent はオープンエンドで手順を固定できない課題に使う。B は順序をコードで固定し、理解と生成が必要な部分にだけ Claude を使うので監査にも耐える。A は手順が固定できる業務にモデル主導の順序を持ち込み、コスト・レイテンシ・誤りの累積を負う。C は順序の遵守がプロンプト指示に依存し、コードで強制していない。D は逸脱を後から検知するだけの補償的な統制で、順序の予防にならず、エージェントも増える。",
+    "binding_constraint_ja": "コンプライアンスが一貫した監査可能な順序を要求し、手順も毎回同じなので、順序をコードで強制する workflow が合う。",
+    "explanation_ja": "正解の B は、四つの手順の順序をコードで固定し、理解と生成が必要な理由の分類と文面の作成にだけ Claude を使うので、順序を保証でき監査にも耐える。手順が予測でき一貫性が要るタスクには、事前定義のコードパスで LLM を編成する workflow が向き、agent はオープンエンドで手順を固定できない課題に使う。一般原則は、システム側で強制すべき統制をプロンプトに頼らないことである。",
     "refs": [
       "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d1-q507",
@@ -285,15 +322,21 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Refactoring a tightly coupled module, where each edit depends on the result of the previous one and all edits share one codebase view."
+        "text_en": "Refactoring a tightly coupled module, where each edit depends on the result of the previous one and every edit needs the same shared view of the codebase.",
+        "plausible_ja": "編集が独立したモジュールに分かれ、並行に進められるなら、複数エージェントの余地はある。",
+        "not_best_ja": "各編集が前の結果に依存し全員が同じコードベースを共有する密結合の作業で、協調の負担が利益を上回る。"
       },
       {
         "label": "B",
-        "text_en": "Answering routine product FAQs at very high volume, where each question is small and each answer is worth little."
+        "text_en": "Answering routine product FAQs at very high volume, where each question is small and each answer is worth little.",
+        "plausible_ja": "1 件の価値が高い、または並列に処理すべき重要な問い合わせなら、採算が合うことがある。",
+        "not_best_ja": "1 件あたりの価値が低く、増えるトークンコストを回収できない。"
       },
       {
         "label": "C",
-        "text_en": "Summarizing one report that fits comfortably in a single context window, where the output is needed in a single pass."
+        "text_en": "Summarizing one report that fits comfortably in a single context window, where the output is needed in a single pass.",
+        "plausible_ja": "報告書が長大でコンテキストに収まらず、観点ごとに並列化できるなら、複数エージェントの余地がある。",
+        "not_best_ja": "1 つのコンテキストに収まり並列化の余地もないため、単一の呼出しで足りる。"
       },
       {
         "label": "D",
@@ -304,13 +347,14 @@
       "D"
     ],
     "answer_en": null,
-    "explanation_ja": "マルチエージェントは、強く並列化でき、情報が単一のコンテキストに収まらず、タスクの価値がトークン増加(チャットの十数倍)を上回る場合に効く。D は独立した多数の情報源を並列に探索でき、各サブエージェントが自分の文脈で圧縮して返せるので正しい。A は全員が同じ文脈を共有し依存が多い密結合タスクで、協調の負担が利益を上回る。B は 1 件あたりの価値が低く、増えるトークンコストを回収できない。C は単一の文脈で済み、並列化の余地もないので、単一の呼出しで足りる。",
+    "binding_constraint_ja": "マルチエージェントはトークン消費が大きいため、価値が高く、単一のコンテキストに収まらず、独立した方向を並列に探索できる作業に限って見合う。",
+    "explanation_ja": "正解の D は、独立した多数の情報源を並列に探索でき、素材が単一のコンテキストを超え、各サブエージェントが自分の文脈で圧縮して返せるので、増えるトークンに見合う。マルチエージェントはトークン消費が通常のチャットより大幅に増えるため、タスクの価値が増加コストを上回る場合に限って使う。一般原則は、multi-agent を万能の上位解とせず、並列化の余地と価値が揃う作業にだけ当てることである。",
     "refs": [
       "https://www.anthropic.com/engineering/built-multi-agent-research-system"
     ],
-    "difficulty": 3,
+    "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d1-q508",
@@ -331,11 +375,15 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Wrap the entire run in an automatic retry from the start, up to three attempts, because identical restarts keep the system state consistent and predictable."
+        "text_en": "Wrap the entire run in an automatic retry from the start, up to three attempts, because identical restarts keep the system state consistent and predictable.",
+        "plausible_ja": "実行が数分で終わり、中間状態の保存コストの方が高いなら、全体の再試行でも足りる。",
+        "not_best_ja": "数時間かかる実行を毎回最初からやり直すため、高コストな再実行を繰り返すだけで、後半の失敗に弱いままである。"
       },
       {
         "label": "B",
-        "text_en": "Drop the unreliable source from the design, and have the lead skip any unavailable source silently so every run completes on time."
+        "text_en": "Drop the unreliable source from the design, and have the lead skip any unavailable source silently so every run completes on time.",
+        "plausible_ja": "その情報源が任意で結果への影響が小さく、欠落を利用者に明示するなら、除外して進めるのも妥当である。",
+        "not_best_ja": "失敗を黙って捨てるので結果の欠落が利用者に伝わらず、情報源の失敗への適応にもならない。"
       },
       {
         "label": "C",
@@ -343,20 +391,23 @@
       },
       {
         "label": "D",
-        "text_en": "Give every subagent the full shared history, so any of them can take over a sibling's unfinished work when that sibling fails."
+        "text_en": "Give every subagent the full shared history, so any of them can take over a sibling's unfinished work when that sibling fails.",
+        "plausible_ja": "サブエージェントが密結合で、同じ履歴を共有する方が効率的な小規模タスクなら、引き継ぎ可能な設計も考えられる。",
+        "not_best_ja": "全履歴の共有で各コンテキストが膨らみ、失敗した部分だけを回復させる局所的な回復にならない。"
       }
     ],
     "answer": [
       "C"
     ],
     "answer_en": null,
-    "explanation_ja": "エージェントは状態を持ち、軽微な障害でも致命的になり得るため、失敗時に最初からやり直すのではなく、止まった地点から再開できるようにする。Anthropic のマルチエージェント研究システムの記事は、ツールが失敗していることをエージェントに伝えて適応させる方法がうまく働くと述べ、リトライのような決定論的な安全策と定期的なチェックポイントを組み合わせている。C は計画と完了結果を保存し、失敗したサブエージェントだけに失敗内容を伝えて別の方法を試させ、完了済みの結果は再利用するので正しい(失敗分だけの再実行という具体形は、この記述からの適用)。A は毎回全体をやり直すため、高コストな再実行を繰り返すだけ。B は失敗を黙って捨てるので、結果の欠落が利用者に伝わらない。D は全履歴の共有でコンテキストを膨らませ、局所回復にもならない。",
+    "binding_constraint_ja": "数時間かかる状態を持つ実行の後半で 1 つの失敗が全体を巻き戻すと損失が大きいので、進捗を保存し、失敗した部分だけ回復させる。",
+    "explanation_ja": "正解の C は、計画と完了結果を保存し、失敗したサブエージェントだけに失敗内容を伝えて別の経路を試させ、完了済みの作業は再利用するので、後半の失敗でも再実行のコストを抑えられる。Anthropic のマルチエージェント研究システムの記事は、ツールの失敗をエージェントに伝えて適応させる方法がうまく働くと述べ、リトライなどの決定論的な安全策と定期的なチェックポイントを組み合わせている。失敗した分だけを再実行する具体形は、この記述の適用である。一般原則は、状態を持つ長時間の実行では、最初からやり直さず止まった地点から再開することである。",
     "refs": [
       "https://www.anthropic.com/engineering/built-multi-agent-research-system"
     ],
-    "difficulty": 3,
+    "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d1-q509",
@@ -377,7 +428,9 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Run the same six-step pipeline, fixed in advance from past cases, so that every investigation follows an identical path and any auditor can reproduce it later."
+        "text_en": "Run the same six-step pipeline, fixed in advance from past cases, so that every investigation follows an identical path and any auditor can reproduce it later.",
+        "plausible_ja": "再現性が最優先で、調べる項目が過去事例で網羅できる定型の監査なら、固定パイプラインが適する。",
+        "not_best_ja": "今回は何が重要か事前に分からず、過去事例から固定した手順では必要な確認が漏れる恐れがある。"
       },
       {
         "label": "B",
@@ -385,25 +438,30 @@
       },
       {
         "label": "C",
-        "text_en": "Ask for every subtask in a single pass, execute them all without revisiting the list, and keep the token cost low."
+        "text_en": "Ask for every subtask in a single pass, execute them all without revisiting the list, and keep the token cost low.",
+        "plausible_ja": "サブタスクが事前に列挙でき相互に独立なら、一括で作って実行するのが安価である。",
+        "not_best_ja": "最初に全課題を列挙して見直さないため、調査の途中で出る発見が後続の確認に反映されない。"
       },
       {
         "label": "D",
-        "text_en": "Divide the records into equal batches by count, summarize each batch in parallel, and concatenate the summaries."
+        "text_en": "Divide the records into equal batches by count, summarize each batch in parallel, and concatenate the summaries.",
+        "plausible_ja": "記録が独立で件数が多い単純な要約や集計なら、均等分割して並列に処理するのは有効である。",
+        "not_best_ja": "件数で機械的に分けるだけで、発見に応じて次の確認が決まる調査の依存関係を捉えられない。"
       }
     ],
     "answer": [
       "B"
     ],
     "answer_en": null,
-    "explanation_ja": "構造が予測できる処理は固定パイプライン、オープンエンドな調査は中間結果に基づく動的分解(計画 → 実行 → 再計画)が向く。必要な部分課題を事前に予測できないとき、オーケストレーターが入力に応じて課題を決める。B は発見に応じて計画を更新するので正しい。A は過去事例から固定した手順で、今回の調査で必要になる確認が手順に含まれない恐れがある。C は最初に全課題を列挙して再検討しないため、途中の発見が反映されない。D は件数で機械的に分けるだけで、調査の依存関係を捉えていない。",
+    "binding_constraint_ja": "調べるべき記録は事前に分からず、発見ごとに次の確認が決まるため、中間結果で計画を更新する動的な分解が要る。",
+    "explanation_ja": "正解の B は、初期のサブタスクを実行し、中間の発見から計画を改訂するので、次の確認が発見に依存する調査に合う。構造が予測できる処理は固定のパイプライン、必要なサブタスクを事前に予測できないオープンエンドな調査は動的な分解が向き、後者ではオーケストレーターが入力に応じてサブタスクを決める。一般原則は、分解の方式を作業の予測可能性で選ぶことである。",
     "refs": [
       "https://www.anthropic.com/engineering/building-effective-agents",
       "https://www.anthropic.com/engineering/built-multi-agent-research-system"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d1-q510",
@@ -424,7 +482,9 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "The number of new service lines launched on top of the capability, and the revenue attributed to those new lines over the following two fiscal years."
+        "text_en": "The number of new service lines launched on top of the capability, and the revenue attributed to those new lines over the following two fiscal years.",
+        "plausible_ja": "目的が新しいサービスの創出(変革)なら、新サービスの数や売上が指標になる。",
+        "not_best_ja": "目的は既存業務の効率化であり、新しい能力の売上は書類作成の短縮を測らない。"
       },
       {
         "label": "B",
@@ -432,25 +492,31 @@
       },
       {
         "label": "C",
-        "text_en": "Peak requests per second and 99th-percentile response time under load, reported against a contractual availability target."
+        "text_en": "Peak requests per second and 99th-percentile response time under load, reported against a contractual availability target.",
+        "plausible_ja": "契約上の可用性や応答時間を守る性能 SLA が目的なら、ピーク時のスループットや p99 が指標になる。",
+        "not_best_ja": "性能 SLA の指標で、手作業の書類作成がどれだけ短縮されたかを示さない。"
       },
       {
         "label": "D",
-        "text_en": "The month-over-month change in the total token bill, since lower spend shows the assistant is working efficiently."
+        "text_en": "The month-over-month change in the total token bill, since lower spend shows the assistant is working efficiently.",
+        "plausible_ja": "コスト削減が目的なら、トークン費用の推移も指標の 1 つになる。",
+        "not_best_ja": "費用だけを見る指標で、利用が増えれば悪化して見え、業務時間の短縮という効率化の効果を示さない。"
       }
     ],
     "answer": [
       "B"
     ],
     "answer_en": null,
-    "explanation_ja": "価値の柱(効率化・変革・コスト・性能 SLA など)のどれを狙うかで KPI が変わり、成功基準は目的に関連し測定可能であるべきだ。既存業務の短縮という効率化には、処理時間と修正なしの採用率を導入前のベースラインと比べるのが合う。B が正しい。A は新しい能力を狙う変革の指標であり、既存業務の短縮を測らない。C は性能 SLA の指標で、業務時間の短縮を示さない。D はトークン費用だけを見る指標で、利用が増えれば悪化して見え、業務効果も示さない。",
+    "binding_constraint_ja": "スポンサーの目的が既存業務の効率化なので、成功指標は処理時間や修正なしの採用率など、導入前のベースラインと比べられる業務効果で測る。",
+    "explanation_ja": "正解の B は、既存業務の効率化という価値の柱に合わせ、処理時間と修正なしの採用率を導入前のベースラインと比べるので、効果を測定できる。価値の柱(効率化・変革・コスト・性能 SLA など)が違えば KPI も変わり、成功基準は目的に関連し測定可能であるべきだ。一般原則は、指標を最初に決めた目的から選ぶことである。",
     "refs": [
       "https://docs.claude.com/en/docs/about-claude/use-case-guides/customer-support-chat",
-      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests",
+      "https://www.anthropic.com/news/driving-ai-transformation-with-claude"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d1-q511",
@@ -471,32 +537,42 @@
     "choices": [
       {
         "label": "A",
-        "text_en": "Run a pilot on real volume, record current handling time and error rates as a baseline, then compare them against total cost including review effort and maintenance."
+        "text_en": "Run a pilot on real volume, record current handling time and error rates as a baseline, then compare them against total cost including review effort."
       },
       {
         "label": "B",
-        "text_en": "Compare the projected monthly token bill with the salaries of the staff involved, and approve the rollout whenever the bill is lower."
+        "text_en": "Compare the projected monthly token bill with the salaries of the staff involved, and approve the rollout whenever the bill is lower.",
+        "plausible_ja": "作業量が明らかで運用工数が無視できるなら、トークン代と人件費の概算比較で粗い見込みを出せる。",
+        "not_best_ja": "費用をトークン代だけに絞り、人によるレビューや保守の工数を落としている。比較の基準になる効果の測定もない。"
       },
       {
         "label": "C",
-        "text_en": "Roll out to everyone first, and infer the savings from the department's overall budget change in the following quarter."
+        "text_en": "Roll out to everyone first, and infer the savings from the department's overall budget change in the following quarter.",
+        "plausible_ja": "展開が可逆で小規模なら、実績から事後に効果を見る方法もある。",
+        "not_best_ja": "全面展開の後では、効果と他の要因を切り分けられず、展開前に求められる経営判断にも間に合わない。"
       },
       {
         "label": "D",
-        "text_en": "Take the model's published benchmark results as a proxy for accuracy, and extrapolate the savings without any pilot on hospital data."
+        "text_en": "Take the model's published benchmark results as a proxy for accuracy, and extrapolate the savings without any pilot on hospital data.",
+        "plausible_ja": "ベンチマークは、候補モデルを絞り込む材料にはなる。",
+        "not_best_ja": "公開ベンチマークは病院のコーディングデータでの精度や効果を表さず、現状のベースラインもないため、削減額を外挿できない。"
       }
     ],
     "answer": [
       "A"
     ],
     "answer_en": null,
-    "explanation_ja": "ROI は、トークン費用だけでなく、人間レビュー工数・保守などを含む総コストと、業務上の効果を比べて判断する(総コストの枠組みは設計上の推論)。docs は、成功基準を測定可能にし、現状のベースラインや過去版との比較で評価するよう述べているため、導入前の現状を測ったうえで実データのパイロットを行うのが筋である。A が正しい。B は費用をトークン代だけに絞り、レビューや保守の工数を落とす。C は全面展開してからでは、効果と他の要因を切り分けられず、判断にも間に合わない。D は公開ベンチマークが自社データでの精度や効果を表さず、ベースラインもない。",
+    "binding_constraint_ja": "全面展開の前に投資対効果を示す必要があるので、現状のベースラインを測り、実データのパイロットで、レビュー工数を含む総コストと効果を比べる。",
+    "lifecycle_phase": "discovery",
+    "explanation_ja": "正解の A は、現状の処理時間と誤り率を基準に実データのパイロットで効果を測り、レビュー工数まで含む総コストと比べるので、全面展開の前に見込みを示せる。成功基準を測定可能にし、現状との比較で評価することは docs に述べられ、時間短縮の見積もりには出力を仕上げる追加の人手が含まれない場合があるという注意も Anthropic の研究にある。一般原則は、効果を主張する前にベースラインを測ることである。",
     "refs": [
-      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"
+      "https://docs.claude.com/en/docs/test-and-evaluate/develop-tests",
+      "https://claude.com/blog/a-guide-to-cost-visibility-and-control-in-claude",
+      "https://www.anthropic.com/research/estimating-productivity-gains"
     ],
     "difficulty": 2,
     "status": "active",
-    "rev": 1
+    "rev": 2
   },
   {
     "id": "p-d1-q512",
@@ -539,7 +615,502 @@
       "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
     ],
     "difficulty": 3,
+    "status": "retired",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q513",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t1-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A retailer wants an assistant that answers employee questions about HR policy. The team has proposed a planner agent, a retrieval agent, and a verification agent from day one, although no prototype exists and no quality measurements have been taken. What should the architect recommend?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Start with one Claude call that receives retrieved policy passages, measure it on real questions, and add stages only where results show a specific gap."
+      },
+      {
+        "label": "B",
+        "text_en": "Build the three-agent design now, because reworking a simple prototype into a multi-agent system later costs more than designing for scale up front.",
+        "plausible_ja": "すでに計測で単一の呼出しの限界(検索と検証の分離が必要なこと)が示されているなら、段階を分けた設計が妥当である。",
+        "not_best_ja": "プロトタイプも計測もない段階で多段エージェントを固定すると、効果が未確認のままコストとレイテンシだけを負う。"
+      },
+      {
+        "label": "C",
+        "text_en": "Adopt a full agent framework first, so routing, retries, and memory come prebuilt, and postpone prompt quality checks until the framework is in place.",
+        "plausible_ja": "チームがそのフレームワークに習熟し、プロンプトと応答を直接確認できる運用が整っているなら、選べる。",
+        "not_best_ja": "フレームワークは下層のプロンプトと応答を見えにくくし、不要な複雑さを招く。しかも品質の確認を後回しにしている。"
+      },
+      {
+        "label": "D",
+        "text_en": "Use the most capable model with one long prompt holding the entire handbook, and judge quality from pilot-user complaints instead of a prepared question set.",
+        "plausible_ja": "社内の少人数・低リスクの試験導入で、ハンドブックが 1 つのコンテキストに収まるなら、最小構成の出発点にはなる。",
+        "not_best_ja": "準備した質問セットがなければ改善を測れず、苦情の件数に頼ると失敗を後から知るだけで、足すべき段階も分からない。"
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "品質の計測が一度もなく、必要な複雑さも未確認なので、最小の構成を測定し、不足が見えた箇所にだけ段階を足す。",
+    "explanation_ja": "正解の A は、最小の構成で実際の質問を測り、不足が見えた箇所にだけ複雑さを足すので、binding constraint を満たす。多くの用途は検索と例を加えた単一の呼出しで足り、workflow や agent は性能と引き換えにレイテンシとコストを払う。一般原則は、最も高度な構成ではなく、制約を満たす最小十分な構成を選ぶことである。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
     "status": "active",
     "rev": 1
+  },
+  {
+    "id": "p-d1-q514",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t6-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A bank gives branch staff a Claude assistant that summarizes a customer's account history, including transactions posted minutes ago, while the customer waits at the desk. The SLA requires the first words to appear within about two seconds at the 95th percentile. Today's design uses the most capable model, a long prompt, and a full-length summary returned in one piece, and the first words take about six seconds. Which change best meets the SLA?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Switch to a faster model, shorten the prompt and output, and stream the summary, tracking time to first token against the SLA."
+      },
+      {
+        "label": "B",
+        "text_en": "Precompute each customer's summary in an overnight batch job, and show the stored summary at the desk instead of calling the model.",
+        "plausible_ja": "データが日次の更新で足り、窓口で待たせずに済む事前生成で足りるなら、夜間バッチは遅延をなくす手段になる。",
+        "not_best_ja": "数分前に計上された取引を含める必要があり、夜間に作った要約は古い内容になる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Keep the most capable model and enable extended reasoning, so the opening sentences are accurate enough to show right away.",
+        "plausible_ja": "遅延の制約がなく、精度が最優先の分析なら、拡張推論は有効である。",
+        "not_best_ja": "最初の語が出るまでの待ち時間をむしろ延ばし、2 秒の SLA の方向と逆になる。"
+      },
+      {
+        "label": "D",
+        "text_en": "Cache the long, repeated prompt prefix to speed up its processing, and keep the rest of the design and the return format unchanged.",
+        "plausible_ja": "同じ長い指示を何度も送る構成で遅延を縮めたいなら、共通部分のキャッシュは有効である。",
+        "not_best_ja": "共通部分の処理が速くなるだけで、要約全体ができてから一度に返す設計は変わらず、最初の語を 2 秒以内に出せるとは限らない。"
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "顧客が窓口で待つ間に、数分前に計上された取引を含む要約を出す必要があり、p95 で約 2 秒以内に最初の語を出すという SLA が設計を制約する。",
+    "explanation_ja": "正解の A は、速いモデルの選択、プロンプトと出力の短縮、ストリーミングを組み合わせ、最初のトークンまでの時間(TTFT)で SLA を測るので、窓口での待ち時間の制約を満たす。reduce-latency のドキュメントは、これらを遅延を下げる手段として挙げ、ストリーミングでは TTFT が重要な指標になると述べる。ただし、品質を先に確認してから遅延を削るべきだという注意もある。一般原則は、SLA を設計の制約として扱い、遅延の根本に効く手段から選ぶことである。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
+    ],
+    "difficulty": 2,
+    "status": "retired",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q515",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-03",
+    "secondary_topic_ids": [
+      "p-d1-t3-02"
+    ],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A telecom company wants to automate billing-dispute handling. About 90% of disputes follow the same documented steps: look up the invoice, apply the credit policy, and draft a reply. The remaining 10% involve unusual situations, such as an invoice that spans two billing systems after an acquisition, and nobody can list in advance what must be checked. Compliance also requires that credits above a set amount follow a fixed, auditable approval order. Which TWO design decisions best fit these requirements? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Let one autonomous agent with every billing tool handle each dispute end to end, so common and unusual cases share one design and no routing step is needed.",
+        "plausible_ja": "どの案件も事前に手順を決められず、承認順序の規制もないなら、1 つの自律エージェントで足りる。",
+        "not_best_ja": "9 割は手順が固定で承認順序の監査要件もあり、すべてをモデル主導にするとコスト・レイテンシ・誤りの累積を負い、順序も保証できない。"
+      },
+      {
+        "label": "B",
+        "text_en": "Encode the documented steps and the credit-approval order in code, and call Claude inside the steps to read the dispute and draft the reply."
+      },
+      {
+        "label": "C",
+        "text_en": "Assign one subagent to each billing system under a lead agent for every dispute, so each system's context stays isolated.",
+        "plausible_ja": "ほとんどの案件が複数のシステムにまたがり、案件の価値が高く並列調査が効くなら、システムごとの分担も検討できる。",
+        "not_best_ja": "複数のシステムにまたがるのは例外の一部で、全件にマルチエージェントを使うと、定型の大半にトークンと調整のコストを払うだけの過剰設計になる。"
+      },
+      {
+        "label": "D",
+        "text_en": "Run an evaluator-optimizer loop on every drafted reply until a second model rates it acceptable against the rubric, to maximize reply quality.",
+        "plausible_ja": "評価基準が明確で、反復が品質を測定可能に上げる文面なら、有効である。",
+        "not_best_ja": "課題は返信の品質ではなく、定型の順序の強制と列挙できない例外の扱いである。全件に反復を回してもコストと遅延が増えるだけで、どちらの要件にも答えていない。"
+      },
+      {
+        "label": "E",
+        "text_en": "Detect the unusual disputes with a classification step and send them to a separate path where Claude investigates with human checkpoints."
+      }
+    ],
+    "answer": [
+      "B",
+      "E"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "9 割の定型は手順と承認順序をコードで固定して監査可能にし、事前に列挙できない 1 割だけを別経路で扱うという、性質の異なる 2 つの要件が混在している。",
+    "explanation_ja": "正解の B は、手順が予測でき承認順序に監査可能性が要る大半の案件を、コードで定義した workflow にして順序を保証し、理解と生成が要る箇所にだけ Claude を使う。E は、事前に確認項目を列挙できない例外を分類して別経路に送り、人が確認できるチェックポイントつきで Claude に調べさせるので、固定の手順に押し込まずに済む。2 つは別の要件に答えており、片方だけでは、定型の統制か例外の扱いのどちらかが欠ける。一般原則は、最も高度な構成ではなく制約を満たす最小十分な構成を、案件の性質ごとに選ぶことである。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 3,
+    "status": "active",
+    "rev": 2
+  },
+  {
+    "id": "p-d1-q516",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t4-02",
+    "secondary_topic_ids": [
+      "p-d1-t5-03"
+    ],
+    "type": "mcq_multi",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A research system runs one lead agent and four subagents on competitive-analysis questions. Reviewers find that two subagents often investigate the same sources, and the lead agent's context fills up with the raw reports the subagents send back, so synthesis quality drops late in each run. Which TWO changes address these two problems? (Select TWO.)",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Rewrite each subagent's instructions to state its objective, the expected output format, the tools to use, and clear task boundaries."
+      },
+      {
+        "label": "B",
+        "text_en": "Move the lead agent to a larger model so it can hold all of the raw reports and spot overlapping work by itself.",
+        "plausible_ja": "受け渡し方式を変えられず、コンテキストの余裕だけが不足しているなら、より大きなモデルは暫定策として使える。",
+        "not_best_ja": "重複の原因は担当範囲の曖昧さで、モデルを替えても防げず、生の報告がコンテキストを埋める構造も残る。診断より先に部品を替える対応になっている。"
+      },
+      {
+        "label": "C",
+        "text_en": "Have subagents save large reports to an external store and return only lightweight references to the lead agent."
+      },
+      {
+        "label": "D",
+        "text_en": "Add more subagents to each question, so that duplicated investigation cross-checks the findings and raises the reliability of the final answer.",
+        "plausible_ja": "重複を意図した独立検証が目的なら、同じ問いに複数のエージェントを当てる設計もある。",
+        "not_best_ja": "重複は問題の症状であり、増員すると調整とトークンのコストが増え、lead に返る報告も増えて文脈の圧迫が悪化する。"
+      },
+      {
+        "label": "E",
+        "text_en": "Give every subagent the lead's full conversation history, so each one can see what the others already cover.",
+        "plausible_ja": "サブタスクが密結合で、履歴を共有する方が効率的な小規模タスクなら、有効である。",
+        "not_best_ja": "各サブエージェントのコンテキストが膨らみ、担当範囲の境界は明確にならない。lead の文脈の圧迫も解消しない。"
+      }
+    ],
+    "answer": [
+      "A",
+      "C"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "重複の原因は指示の曖昧さ(担当範囲の境界の欠如)、lead の文脈の圧迫の原因は成果物の受け渡し方式であり、別々の原因なので別々の対処が要る。",
+    "explanation_ja": "正解の A は、各サブエージェントに目的・出力形式・使うツール・担当範囲の境界を渡すことで、重複した調査と抜けを防ぐ。C は、大きな成果物を外部のシステムに保存して軽量な参照だけを lead に返すことで、受け渡しでの情報の損失とトークン消費を抑え、lead の文脈を保つ。2 つは別の症状に別の原因から対処しており、片方だけでは問題が残る。一般原則は、症状ごとに原因の層を特定してから対処し、最初に部品を替えないことである。",
+    "refs": [
+      "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "https://claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q517",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-02",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An insurer extracts fields from benefit statements with Claude and feeds the result straight into its claims-payment system. Occasionally the JSON is malformed, a field is missing, or the benefit total does not equal the sum of the itemized amounts. Payments cannot be recalled once sent. Which design best protects the payment system?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Use schema-constrained output, check in code that the required fields are present and the amounts are numeric, pay, and have auditors review a sample of paid claims each month.",
+        "plausible_ja": "合計と内訳の不整合が稀で、支払いも取り消しやすい少額の処理なら、形式の検査と月次の抽出監査でも成り立つ。",
+        "not_best_ja": "合計が内訳の和に等しいかを支払い前に確かめておらず、不整合は月次の抽出監査まで見つからない。取り消せない支払いでは、支払い前に決定的な検査で止める必要がある。"
+      },
+      {
+        "label": "B",
+        "text_en": "Add a second Claude call that re-reads each statement and compares it with the extracted result, pay only the claims it approves, and limit code checks to JSON parsing.",
+        "plausible_ja": "項目の読み違いなど意味的な誤りの検出が主目的なら、別の呼出しによる再確認は有効な補完になる。",
+        "not_best_ja": "合計が内訳の和に等しいかは決定論的に判定できるのに、コードでの算術検査をせず、確率的な再確認の承認に頼っている。同じ読み違いを繰り返して見逃す余地も残る。"
+      },
+      {
+        "label": "C",
+        "text_en": "Use schema-constrained output so the format is guaranteed, and verify in code only that every required field is present before sending the payment.",
+        "plausible_ja": "欠落や形式崩れが主な事故で、金額の整合は上流で別に保証されているなら、スキーマと必須項目の確認で足りる。",
+        "not_best_ja": "必須項目が揃っていても、合計が内訳の和に等しいとは限らない。refusal や max_tokens 到達で出力がスキーマに合わない場合の扱いもなく、整合の不一致がそのまま支払われる。"
+      },
+      {
+        "label": "D",
+        "text_en": "Use schema-constrained output, verify in code before payment that the total equals the sum of the items, retry once with the error details, and send repeat failures to a human review queue."
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "支払いは出力に基づいて実行され、いったん送ると取り消せない。スキーマに準拠していても業務上の整合(合計が内訳の和に等しいこと)は保証されないため、支払い前にコードで検証する必要がある。",
+    "explanation_ja": "正解の D は、構造化出力で形式崩れを減らしつつ、合計の整合をコードで支払い前に検証し、失敗時はエラー内容つきで再試行して、なお失敗なら人に回す。構造化出力でも refusal や max_tokens 到達では出力が schema に一致しないことがあると docs は述べ、プログラムによるゲートで中間結果を確認し人にも戻れる設計は building-effective-agents に示されている。schema が業務上の算術関係を表現できない点は、docs の記述からの推論である。一般原則は、予防的な検証を下流の前に置くことである。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/structured-outputs",
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 2
+  },
+  {
+    "id": "p-d1-q518",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t6-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "mock",
+      "practice"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A bank gives branch staff a Claude assistant that summarizes a customer's account history, including transactions posted minutes ago, while the customer waits at the desk. The SLA requires the first words to appear within about two seconds at the 95th percentile. Today's design uses the most capable model, a long prompt built mostly from that customer's own account history, which differs on every request, with only a two-sentence instruction shared across requests, and a full-length summary returned in one piece, and the first words take about six seconds. Which change best meets the SLA?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Switch to a faster model, shorten the prompt and output, and stream the summary, tracking time to first token against the SLA."
+      },
+      {
+        "label": "B",
+        "text_en": "Precompute each customer's summary in an overnight batch job, and show the stored summary at the desk instead of calling the model.",
+        "plausible_ja": "データが日次の更新で足り、窓口で待たせずに済む事前生成で足りるなら、夜間バッチは遅延をなくす手段になる。",
+        "not_best_ja": "数分前に計上された取引を含める必要があり、夜間に作った要約は古い内容になる。"
+      },
+      {
+        "label": "C",
+        "text_en": "Keep the most capable model and enable extended reasoning, so the opening sentences are accurate enough to show right away.",
+        "plausible_ja": "遅延の制約がなく、精度が最優先の分析なら、拡張推論は有効である。",
+        "not_best_ja": "拡張推論は応答の前に思考のトークンを生成するため、最初の語が出るまでの待ち時間をむしろ延ばし、約 2 秒の SLA の方向と逆になる。"
+      },
+      {
+        "label": "D",
+        "text_en": "Cache the repeated part of the prompt to speed up its processing, and keep the rest of the design and the return format unchanged.",
+        "plausible_ja": "同じ長い指示や資料が毎回の先頭に繰り返し送られる構成で、遅延と費用を縮めたいなら、共通部分のキャッシュは有効である。",
+        "not_best_ja": "この要約では長いプロンプトの大半が顧客ごとに異なる口座履歴で、リクエスト間で共通なのは短い指示文だけなので、キャッシュで処理が速くなる部分はごくわずかである。要約全体を一度に返す設計も変わらず、最初の語を 2 秒以内に出せない。"
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "binding_constraint_ja": "顧客が窓口で待つ間に、数分前に計上された取引を含む要約を出す必要があり、p95 で約 2 秒以内に最初の語を出すという SLA が設計を制約する。",
+    "explanation_ja": "正解の A は、速いモデルの選択、プロンプトと出力の短縮、ストリーミングを組み合わせ、最初のトークンまでの時間(TTFT)で SLA を測るので、窓口での待ち時間の制約を満たす。reduce-latency のドキュメントは、これらを遅延を下げる手段として挙げ、ストリーミングでは TTFT が重要な指標になると述べる。ただし、品質を先に確認してから遅延を削るべきだという注意もある。一般原則は、SLA を設計の制約として扱い、遅延の根本に効く手段から選ぶことである。",
+    "refs": [
+      "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency",
+      "https://docs.claude.com/en/docs/build-with-claude/extended-thinking"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q601",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A prototype calls Claude once per request, but it cannot see the team's internal wiki, cannot update tickets, and forgets what a user said last week. Which augmentations turn this call into Anthropic's basic building block?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "Fine-tuning on the wiki, prompt caching for ticket calls, and batching for older sessions"
+      },
+      {
+        "label": "B",
+        "text_en": "A planner for the wiki, a worker pool for ticket updates, and an evaluator for older sessions"
+      },
+      {
+        "label": "C",
+        "text_en": "Retrieval for the wiki, tools for ticket updates, and memory for older sessions"
+      },
+      {
+        "label": "D",
+        "text_en": "Embeddings for the wiki, reranking for ticket updates, and chunking for older sessions"
+      }
+    ],
+    "answer": [
+      "C"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Anthropic はエージェント的システムの基本部品を、retrieval・tools・memory で拡張した LLM(augmented LLM)と位置付ける。社内 wiki の参照は検索、チケットの更新は外部を操作するツール、過去のやり取りの保持はメモリが担う。fine-tuning や batching は性能やコストの最適化で、不足している能力を補わない。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q602",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A RAG assistant's knowledge base holds 40,000 chunks, but the generation prompt can hold only a handful. At query time, which chunks should the pipeline add to the prompt?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The chunks most semantically similar to the query, found by vector search"
+      },
+      {
+        "label": "B",
+        "text_en": "The most recently uploaded chunks, in upload order, until the prompt is full"
+      },
+      {
+        "label": "C",
+        "text_en": "A random sample of chunks, so that no region of the knowledge base is favored"
+      },
+      {
+        "label": "D",
+        "text_en": "Every chunk from the top-ranked document, whatever its relevance to the query"
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "実行時にはクエリを埋め込み、ベクトルデータベースで意味的な類似度が最も高い chunk を探して、生成モデルに送るプロンプトへ加える。アップロード順やランダムな選択は問いとの関連度を使わないので、必要な情報がプロンプトに入る保証がない。文書全体を無差別に入れると、限られたプロンプトを無関係な内容で埋めてしまう。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 1,
+    "status": "retired",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q603",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A team will let an autonomous agent run for many turns on an open-ended task that touches live systems, and errors could compound. What should be in place before launch?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "A single review of the final answer at the end of each run"
+      },
+      {
+        "label": "B",
+        "text_en": "A prompt line telling the agent to double-check every step, with no limits on its environment"
+      },
+      {
+        "label": "C",
+        "text_en": "Weekly human reading of the production logs after the agent goes live"
+      },
+      {
+        "label": "D",
+        "text_en": "Extensive testing in a sandboxed environment together with appropriate guardrails"
+      }
+    ],
+    "answer": [
+      "D"
+    ],
+    "answer_en": null,
+    "explanation_ja": "Anthropic は、手順を固定できないオープンエンドな課題に agent を使う場合、自律的に多数のターンを動くため誤りが積み重なりやすく、サンドボックス環境での十分なテストと適切なガードレールを前提にするよう述べている。最後に 1 回だけ確認する方法や週次のログ確認は、誤りが累積した後の事後確認にとどまる。プロンプトの指示だけで環境の制限がない構成は、システム側で強制すべき統制を指示に頼っている。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q604",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-01",
+    "secondary_topic_ids": [],
+    "type": "mcq_single",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A RAG assistant's knowledge base holds 40,000 chunks, but the generation prompt can hold only a handful. A user asks, \"What operating margin did Acme Corp report for Q2 2025?\" At query time, which chunks should the pipeline add to the prompt?",
+    "choices": [
+      {
+        "label": "A",
+        "text_en": "The chunks whose embeddings are most similar to the user's question, found by vector search"
+      },
+      {
+        "label": "B",
+        "text_en": "The chunks that contain the exact words \"Acme\" and \"margin\", picked by keyword matching alone"
+      },
+      {
+        "label": "C",
+        "text_en": "The chunks most recently added to the knowledge base, on the assumption that newer filings are more relevant"
+      },
+      {
+        "label": "D",
+        "text_en": "A short summary of all 40,000 chunks, written ahead of time and placed in the prompt"
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "answer_en": null,
+    "explanation_ja": "実行時には質問を埋め込み、ベクトルデータベースで意味的な類似度が最も高い chunk を探して、生成モデルに送るプロンプトへ加える。キーワード一致だけでは言い換えや表記の違いを拾えず、必要な chunk を逃したり、会社名だけ一致する無関係な chunk を選んだりする。質問の内容を見ずに新着順で選ぶと、Acme Corp の 2025 年 Q2 の数値を含む保証がない。全 chunk の短い要約では個別の数値(営業利益率)が失われ、質問に答えられない。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 1,
+    "status": "active",
+    "rev": 3
   }
 ]

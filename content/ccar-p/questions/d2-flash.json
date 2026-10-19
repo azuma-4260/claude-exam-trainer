@@ -166,7 +166,7 @@
       "https://docs.claude.com/en/docs/about-claude/use-case-guides/ticket-routing"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -337,7 +337,7 @@
       "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
     ],
     "difficulty": 3,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -458,6 +458,56 @@
     "refs": [
       "https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview",
       "https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q020",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t2-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A template pastes three variable reports and a question into one prompt, and Claude confuses which facts came from which report. How should the template present the reports?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Wrap each report in its own tag, nested inside an outer tag, with metadata such as the source in sub-tags.\nKeep the tag names consistent and refer to them by name in the instructions.",
+    "explanation_ja": "複数の文書を入れるテンプレートでは、各文書を専用のタグで包み、出典などのメタデータをサブタグに持たせると、どの事実がどの文書に由来するかを Claude が区別しやすくなる。外側のタグで入れ子にし、タグ名を一貫させて指示から名前で参照すると、文書の数が変わってもテンプレートを使い回せる。決まった「正しい」タグ名があるわけではなく、内容に合う名前を選ぶことが要点である。",
+    "refs": [
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/long-context-tips",
+      "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/use-xml-tags"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d2-q021",
+    "exam": "ccar-p",
+    "domain_id": "p-d2",
+    "primary_topic_id": "p-d2-t4-02",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A long-running coding agent nears its context limit and the team is writing the prompt that summarizes the history for compaction, so how should it tune what the summary keeps?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Start by maximizing recall so the summary captures every relevant detail, such as decisions and unresolved bugs.\nThen iterate to improve precision by dropping redundant tool outputs and superfluous content.",
+    "explanation_ja": "compaction は上限に近い会話を要約して新しいコンテキストで続ける技法で、何を残し何を捨てるかの選択が品質を決める。まず再現率を最大にして関連情報を漏らさない要約を作り、そのあとで冗長なツール出力や余分な内容を削って精度を上げる、という順序で調整する。最初から短くしすぎると、後で必要になる設計判断や未解決の不具合が失われる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "https://docs.claude.com/en/docs/build-with-claude/compaction"
     ],
     "difficulty": 2,
     "status": "active",

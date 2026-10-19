@@ -116,7 +116,7 @@
       "https://www.anthropic.com/news/contextual-retrieval"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -236,7 +236,7 @@
       "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 2,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -356,7 +356,7 @@
       "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 3,
-    "status": "active",
+    "status": "retired",
     "rev": 1
   },
   {
@@ -622,6 +622,78 @@
     "explanation_ja": "Anthropic のレイテンシ対策ガイドは、ユースケースに合ったモデルの選択を、レイテンシを下げる最も直接的な方法の一つとして最初に挙げている。モデルごとに能力と性能特性が異なるため、速度と出力品質の両面で要件に最も合うものを選ぶ。応答時間の SLA は、この選択で満たすべき速度の条件になる。",
     "refs": [
       "https://docs.claude.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q027",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A design hard-codes every search query and every tool call that the application sends around a single LLM call. Which capability of the augmented LLM does this design leave unused?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Current models can actively use retrieval and tools: generating their own search queries, selecting appropriate tools, and deciding what information to retain.\nThe design should give the LLM an easy, well-documented interface to these capabilities.",
+    "explanation_ja": "augmented LLM は、モデル自身が検索クエリを生成し、適切なツールを選び、保持する情報を決められる点が要である。アプリケーション側がクエリやツール呼出しをすべて固定すると、この能力を使わず、モデルの判断力を捨てることになる。実装では、モデルが使いやすく十分に文書化されたインターフェースを用意し、用途に合わせて拡張機能を整える。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q028",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t2-01",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "A RAG assistant retrieves a chunk that reads 'Revenue grew 3% over the previous quarter' without naming the company or the period, so retrieval for specific questions fails. Which indexing-time technique fixes this?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "Contextual Retrieval: prepend a short chunk-specific explanatory context to each chunk before embedding it and before building the BM25 index.\nThis reduces failed retrievals.",
+    "explanation_ja": "chunk に分割すると、元の文書にあった文脈が失われ、関連する情報を検索で見つけられなくなることがある。Contextual Retrieval は、各 chunk に固有の説明的な文脈を、埋め込みと BM25 の索引を作る前に付け足してこの問題を解く。会社名や期間のような情報を chunk に持たせると、特定の質問に対する取得の失敗が減る。",
+    "refs": [
+      "https://www.anthropic.com/news/contextual-retrieval"
+    ],
+    "difficulty": 2,
+    "status": "active",
+    "rev": 1
+  },
+  {
+    "id": "p-d1-q029",
+    "exam": "ccar-p",
+    "domain_id": "p-d1",
+    "primary_topic_id": "p-d1-t3-03",
+    "secondary_topic_ids": [],
+    "type": "flash",
+    "scenario_id": null,
+    "eligible_modes": [
+      "drill"
+    ],
+    "srs_eligible": true,
+    "stem_en": "An autonomous agent works for many turns on an open-ended task, and nobody notices when it drifts off course. What should the architect require of each step to keep it grounded?",
+    "choices": null,
+    "answer": null,
+    "answer_en": "At each step the agent should obtain ground truth from the environment, such as tool call results or code execution, to assess its progress.\nIt can also pause for human feedback at checkpoints.",
+    "explanation_ja": "agent は多数のターンを自律的に動くため、環境からの実際の結果を得ずに進むと、誤りに気付かないまま積み重なる。各ステップでツールの実行結果やコードの実行結果といった ground truth を得れば、進捗を自分で評価できる。さらにチェックポイントで人間のフィードバックを受ける設計と組み合わせると、逸脱を早く捉えられる。",
+    "refs": [
+      "https://www.anthropic.com/engineering/building-effective-agents"
     ],
     "difficulty": 2,
     "status": "active",
