@@ -1,12 +1,15 @@
 import {
+  filterPool,
   formAvailability,
   formKey,
   unsubmittedFormKeys,
   type FormAvailability,
   type OpenFlag,
+  type PoolContext,
   type PoolSession,
 } from "@/lib/bank/pool";
-import type { Exam, MockForm, Question } from "@/lib/bank/schema";
+import type { Exam, MockForm, Question, Syllabus } from "@/lib/bank/schema";
+import { MINI_MINUTES_PER_QUESTION, MINI_QUESTION_MAX, MINI_QUESTION_MIN } from "./mini";
 
 /**
  * S-5 開始画面のフォーム選択肢(01 FR-5、05 S-5)。
@@ -80,4 +83,49 @@ export function formStartability(option: MockFormOption, all: MockFormOptions): 
   if (!option.availability.available) return { recommended, startable: false, blocked: "unavailable" };
   if (!option.submitted && !recommended) return { recommended, startable: false, blocked: "not_next" };
   return { recommended, startable: true, blocked: null };
+}
+
+/** S-5 開始画面のドメイン別ミニ模試の選択肢(D4-1, 01 FR-5)。DB 保存せず都度導出 */
+export interface MiniDomainOption {
+  /** domain_id は exam 内でのみ意味を持つ(開始は `{ exam, domain_id }`) */
+  exam: Exam;
+  domainId: string;
+  name: string;
+  weight: number;
+  /** domain_mini 判定を通過した独立 MCQ 数 */
+  poolCount: number;
+  /** 開始時の出題数 = min(MAX, poolCount)。開始不可なら 0 */
+  questionCount: number;
+  /** 制限時間(分)= questionCount × 2。開始不可なら 0 */
+  durationMin: number;
+  /** poolCount >= MIN */
+  available: boolean;
+  minCount: number;
+}
+
+export function buildMiniDomainOptions(
+  syllabus: Syllabus,
+  questions: readonly Question[],
+  ctx: PoolContext,
+): MiniDomainOption[] {
+  return syllabus.domains.map((d) => {
+    const poolCount = filterPool(
+      questions.filter((q) => q.exam === syllabus.exam),
+      { mode: "mock", kind: "domain_mini", domainId: d.id },
+      ctx,
+    ).length;
+    const available = poolCount >= MINI_QUESTION_MIN;
+    const questionCount = available ? Math.min(MINI_QUESTION_MAX, poolCount) : 0;
+    return {
+      exam: syllabus.exam,
+      domainId: d.id,
+      name: d.name,
+      weight: d.weight,
+      poolCount,
+      questionCount,
+      durationMin: questionCount * MINI_MINUTES_PER_QUESTION,
+      available,
+      minCount: MINI_QUESTION_MIN,
+    };
+  });
 }

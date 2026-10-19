@@ -1,8 +1,11 @@
 import type { ExamSessionAnswerRow, ExamSessionRow, SessionKind, SubmissionReason } from "@/db/schema";
-import type { Exam, MockForm, Question } from "@/lib/bank/schema";
-import { formAvailability, type OpenFlag, type PoolSession } from "@/lib/bank/pool";
+import type { Exam, MockForm, Question, Syllabus } from "@/lib/bank/schema";
+import { filterPool, formAvailability, type OpenFlag, type PoolContext, type PoolSession } from "@/lib/bank/pool";
 import { isOrderedAnswer, matchesAnswer, normalizeMockChosen } from "@/lib/bank/grading";
 import { buildMockFormOptions } from "./availability";
+import { MINI_MINUTES_PER_QUESTION, MINI_QUESTION_MAX, MINI_QUESTION_MIN } from "./mini";
+
+export { MINI_MINUTES_PER_QUESTION, MINI_QUESTION_MAX, MINI_QUESTION_MIN };
 
 /**
  * 模試ライフサイクル(specs/03 §exam_session, §Mock の attempt 生成、01 FR-5、05 S-5)。
@@ -89,6 +92,8 @@ export type StartInput = {
   blocked?: { openFlagCount: number; inactiveCount: number };
   /** 未実施フォームは自動選択(次の有効な未実施フォーム)以外を開始不可(01 FR-5) */
   notNext?: { recommendedFormId: string };
+  /** domain mini のプール不足(③ と同じ位置で評価。questionIds は空で渡す) */
+  poolShort?: { poolCount: number; minCount: number };
 };
 
 export type StartResult =
@@ -96,8 +101,8 @@ export type StartResult =
   | { status: 409; error: "session_in_progress"; session: ExamSessionRow }
   | { status: 409; error: "form_blocked"; openFlagCount: number; inactiveCount: number }
   | { status: 409; error: "form_not_next"; recommendedFormId: string }
-  /** 開始候補に同名 form が複数 exam 分ある(学習スコープ both。exam 指定の開始は D6-4) */
-  | { status: 404; error: "unknown_form" | "unknown_question"; questionId?: string };
+  | { status: 409; error: "domain_pool_short"; poolCount: number; minCount: number }
+  | { status: 404; error: "unknown_form" | "unknown_domain" | "unknown_question"; questionId?: string };
 
 export type SaveResult =
   | { status: 200; session: ExamSessionRow }
@@ -188,6 +193,10 @@ export async function startSession(input: StartInput, deps: MockDeps): Promise<S
   if (input.blocked) {
     return { status: 409, error: "form_blocked", openFlagCount: input.blocked.openFlagCount, inactiveCount: input.blocked.inactiveCount };
   }
+  // ③' domain mini のプール不足(full の blocked と同じ位置: 進行中の解決より後、作成より前)
+  if (input.poolShort) {
+    return { status: 409, error: "domain_pool_short", poolCount: input.poolShort.poolCount, minCount: input.poolShort.minCount };
+  }
   // ④ 自動選択外の未実施フォーム
   if (input.notNext) {
     return { status: 409, error: "form_not_next", recommendedFormId: input.notNext.recommendedFormId };
@@ -267,6 +276,53 @@ export async function startFullMock(
   );
 }
 
+/**
+ * mini の問題選定(純関数)。プール通過問題を注入乱数で Fisher–Yates シャッフルし先頭 MAX 件を取る。
+ * 出題順もシャッフル結果そのまま(固定フォームと違い、mini に定義順は無い)
+ */
+export function pickMiniQuestions(pool: readonly Question[], random: () => number): string[] {
+  const ids = pool.map((q) => q.id);
+  for (let i = ids.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+  }
+  return ids.slice(0, MINI_QUESTION_MAX);
+}
+
+/**
+ * domain mini 開始(01 FR-5、03 §出題プールの判定順序)。
+ * 候補は filterPool の domain_mini 判定(holdout → full form 収載は提出済みでも除外 → シナリオ問題除外 →
+ * domain 一致 → status → 現行 rev フラグ → eligible_modes)を通過した独立 MCQ のみ。
+ * 未知ドメインは 404、プール < MINI_QUESTION_MIN は 409 domain_pool_short(セッションは作らない)
+ */
+export async function startDomainMini(
+  domainId: string,
+  questions: readonly Question[],
+  poolCtx: PoolContext,
+  syllabus: Syllabus | null,
+  deps: MockDeps,
+  random: () => number = Math.random,
+): Promise<StartResult> {
+  const domain = syllabus?.domains.find((d) => d.id === domainId);
+  if (!syllabus || !domain) return { status: 404, error: "unknown_domain" };
+  // domain_id は exam 接頭辞付き(f-d1 / p-d1)だが、他 exam の問題が混ざらないよう exam でも明示的に絞る
+  const pool = filterPool(questions.filter((q) => q.exam === syllabus.exam), { mode: "mock", kind: "domain_mini", domainId }, poolCtx);
+  const poolShort = pool.length < MINI_QUESTION_MIN ? { poolCount: pool.length, minCount: MINI_QUESTION_MIN } : undefined;
+  const questionIds = poolShort ? [] : pickMiniQuestions(pool, random);
+  return startSession(
+    {
+      exam: syllabus.exam,
+      kind: "domain_mini",
+      formId: null,
+      domainId,
+      questionIds,
+      durationMin: questionIds.length * MINI_MINUTES_PER_QUESTION,
+      poolShort,
+    },
+    deps,
+  );
+}
+
 /** 保存系の共通前段: 期限検査 → in_progress でなければ 409 */
 async function requireActive(
   sessionId: string,
@@ -335,13 +391,13 @@ export async function submitSession(sessionId: string, deps: MockDeps): Promise<
   throw new Error(`提出 claim に失敗したが in_progress のまま: ${sessionId}`);
 }
 
-/** abandon(01 FR-5: full 不可・domain_mini のみ可) */
+/** abandon(01 FR-5 / 03 §exam_session: domain_mini のみ可。full も half も不可) */
 export async function abandonSession(sessionId: string, deps: MockDeps): Promise<AbandonResult> {
   const session = await deps.store.findSession(sessionId);
   if (!session) return { status: 404, error: "unknown_session" };
   const resolved = await resolveExpiry(session, deps);
   if (resolved.status !== "in_progress") return { status: 409, error: "session_terminal", session: resolved };
-  if (resolved.kind === "full") return { status: 409, error: "abandon_not_allowed", session: resolved };
+  if (resolved.kind !== "domain_mini") return { status: 409, error: "abandon_not_allowed", session: resolved };
   const updated = await deps.store.abandon(sessionId, deps.now);
   const latest = (await deps.store.findSession(sessionId)) ?? resolved;
   if (!updated && latest.status !== "abandoned") return { status: 409, error: "session_terminal", session: latest };

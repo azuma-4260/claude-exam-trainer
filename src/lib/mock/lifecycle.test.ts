@@ -2,15 +2,20 @@ import { describe, expect, it } from "vitest";
 import { mockFormSchema, type MockForm, type Question } from "@/lib/bank/schema";
 import type { OpenFlag, PoolSession } from "@/lib/bank/pool";
 import type { ExamSessionAnswerRow } from "@/db/schema";
-import { bundle, mcq } from "@/lib/queue/test-fixtures";
+import { bundle, mcq, syllabus } from "@/lib/queue/test-fixtures";
 import { FakeMockStore } from "./test-store";
 import {
   FULL_DURATION_MIN,
+  MINI_MINUTES_PER_QUESTION,
+  MINI_QUESTION_MAX,
+  MINI_QUESTION_MIN,
   abandonSession,
   gradeMockAnswers,
+  pickMiniQuestions,
   restoreCurrent,
   saveAnswer,
   savePosition,
+  startDomainMini,
   startFullMock,
   startSession,
   submitSession,
@@ -53,7 +58,28 @@ const MINI_QUESTIONS: Question[] = [
 /** T-bundle: まとめ形式(小問 3 件、answer = A, B, A)。MINI_QUESTIONS とは別に持ち、既存テストの件数を変えない */
 const BUNDLE = bundle("f-d2-q910");
 
-const ALL = new Map([...FORM_QUESTIONS, ...MINI_QUESTIONS, BUNDLE].map((q) => [q.id, q]));
+/**
+ * D4-1: f-d2 の独立 MCQ プール 20 問(mock 適格・scenario_id=null)+ 候補から外れるべき問題群。
+ * syllabus fixture は f-d1 / f-d2 の 2 ドメイン
+ */
+const MOCK_MODES = ["drill", "practice", "mock"] as const;
+const D2_POOL: Question[] = Array.from({ length: 20 }, (_, i) =>
+  mcq(`f-d2-q${String(500 + i)}`, { eligible_modes: [...MOCK_MODES] }),
+);
+const D2_EXCLUDED = {
+  scenario: mcq("f-d2-q600", { eligible_modes: [...MOCK_MODES], scenario_id: "sc-standalone" }),
+  inactive: mcq("f-d2-q601", { eligible_modes: [...MOCK_MODES], status: "retired" }),
+  flagged: mcq("f-d2-q602", { eligible_modes: [...MOCK_MODES] }),
+  practiceOnly: mcq("f-d2-q603", { eligible_modes: ["practice"] }),
+  otherDomain: mcq("f-d1-q700", { eligible_modes: [...MOCK_MODES] }),
+};
+const D2_FLAG: OpenFlag = { questionId: D2_EXCLUDED.flagged.id, questionRev: D2_EXCLUDED.flagged.rev, resolvedAt: null };
+const MINI_BANK: Question[] = [...FORM_QUESTIONS, ...D2_POOL, ...Object.values(D2_EXCLUDED)];
+const SUBMITTED_A: PoolSession = { exam: "ccar-f", kind: "full", formId: "form-a", status: "submitted" };
+/** 決定的な乱数(常に 0 → シャッフルで各要素が先頭へ順送りされる) */
+const zeroRandom = () => 0;
+
+const ALL = new Map([...FORM_QUESTIONS, ...MINI_QUESTIONS, ...MINI_BANK, BUNDLE].map((q) => [q.id, q]));
 
 let seq = 0;
 const deps = (store: FakeMockStore, now = NOW): MockDeps => ({
@@ -76,6 +102,110 @@ const startMini = async (store: FakeMockStore, now = NOW) => {
   if (r.status !== 201) throw new Error(`開始失敗: ${JSON.stringify(r)}`);
   return r.session;
 };
+
+const startMiniD2 = (store: FakeMockStore, over: { sessions?: PoolSession[]; flags?: OpenFlag[]; now?: Date; bank?: Question[] } = {}) =>
+  startDomainMini(
+    "f-d2",
+    over.bank ?? MINI_BANK,
+    { forms: [FORM_A], sessions: over.sessions ?? [], flags: over.flags ?? [D2_FLAG] },
+    syllabus,
+    deps(store, over.now),
+    zeroRandom,
+  );
+
+describe("domain mini 開始: 独立 MCQ プールのみ(D4-1, 01 FR-5, 03 §出題プールの判定順序)", () => {
+  it("フォーム収載問題(未提出・提出済みとも)・シナリオ問題・他ドメイン・inactive・現行 rev フラグ・mock 非適格は候補に 0 件(DoD)", async () => {
+    for (const sessions of [[], [SUBMITTED_A]]) {
+      const store = new FakeMockStore();
+      const r = await startMiniD2(store, { sessions });
+      if (r.status !== 201) throw new Error(JSON.stringify(r));
+      const ids = new Set(r.session.questionIds);
+      expect(FORM_QUESTIONS.some((q) => ids.has(q.id))).toBe(false);
+      for (const q of Object.values(D2_EXCLUDED)) expect(ids.has(q.id)).toBe(false);
+      expect(r.session.questionIds.every((id) => D2_POOL.some((q) => q.id === id))).toBe(true);
+    }
+  });
+
+  it("問題数は min(MAX, プール数)、kind=domain_mini / domain_id / form_id=null、deadline は 2 分 × 問題数", async () => {
+    const store = new FakeMockStore();
+    const r = await startMiniD2(store);
+    if (r.status !== 201) throw new Error(JSON.stringify(r));
+    expect(r.session.questionIds).toHaveLength(MINI_QUESTION_MAX);
+    expect(new Set(r.session.questionIds).size).toBe(MINI_QUESTION_MAX);
+    expect(r.session).toMatchObject({ kind: "domain_mini", domainId: "f-d2", formId: null, exam: "ccar-f", status: "in_progress" });
+    expect(r.session.deadlineAt).toEqual(LATER(MINI_QUESTION_MAX * MINI_MINUTES_PER_QUESTION));
+    expect(r.answers).toHaveLength(MINI_QUESTION_MAX);
+    expect(r.answers.every((a) => a.chosen === null && !a.flagged && a.questionRev === 1)).toBe(true);
+  });
+
+  it("プールが MAX 未満なら全問(MIN 以上)を出題する", async () => {
+    const store = new FakeMockStore();
+    const bank = [...FORM_QUESTIONS, ...D2_POOL.slice(0, 12)];
+    const r = await startMiniD2(store, { bank });
+    if (r.status !== 201) throw new Error(JSON.stringify(r));
+    expect(r.session.questionIds).toHaveLength(12);
+    expect(r.session.deadlineAt).toEqual(LATER(12 * MINI_MINUTES_PER_QUESTION));
+  });
+
+  it("プールが MIN 未満なら 409 domain_pool_short でセッションを作らない", async () => {
+    const store = new FakeMockStore();
+    const bank = [...FORM_QUESTIONS, ...D2_POOL.slice(0, MINI_QUESTION_MIN - 1)];
+    const r = await startMiniD2(store, { bank });
+    expect(r).toEqual({ status: 409, error: "domain_pool_short", poolCount: MINI_QUESTION_MIN - 1, minCount: MINI_QUESTION_MIN });
+    expect(store.sessions.size).toBe(0);
+  });
+
+  it("フラグ追加でプールが MIN を割ればその時点で開始不可になる(実バンクの f-d5 = 10 問ちょうどの形)", async () => {
+    const store = new FakeMockStore();
+    const bank = [...FORM_QUESTIONS, ...D2_POOL.slice(0, MINI_QUESTION_MIN)];
+    expect((await startMiniD2(store, { bank })).status).toBe(201);
+    const store2 = new FakeMockStore();
+    const flags = [{ questionId: D2_POOL[0].id, questionRev: D2_POOL[0].rev, resolvedAt: null }];
+    expect(await startMiniD2(store2, { bank, flags })).toMatchObject({ status: 409, error: "domain_pool_short", poolCount: MINI_QUESTION_MIN - 1 });
+  });
+
+  it("未知ドメインは 404 unknown_domain", async () => {
+    const store = new FakeMockStore();
+    const r = await startDomainMini("f-d7", MINI_BANK, { forms: [FORM_A], sessions: [], flags: [] }, syllabus, deps(store), zeroRandom);
+    expect(r).toEqual({ status: 404, error: "unknown_domain" });
+    expect(store.sessions.size).toBe(0);
+  });
+
+  it("他 exam の問題は候補に 0 件(DoD): exam=ccar-p の問題だけのバンクでは F の mini はプール不足", async () => {
+    const store = new FakeMockStore();
+    const otherExam = D2_POOL.map((q) => ({ ...q, exam: "ccar-p" as const }));
+    const r = await startMiniD2(store, { bank: otherExam });
+    expect(r).toEqual({ status: 409, error: "domain_pool_short", poolCount: 0, minCount: MINI_QUESTION_MIN });
+    expect(store.sessions.size).toBe(0);
+  });
+
+  it("進行中セッション(full)があれば mini も 409 session_in_progress(プール判定より先)", async () => {
+    const store = new FakeMockStore();
+    const full = await startFull(store);
+    const r = await startMiniD2(store, { bank: [...FORM_QUESTIONS, ...D2_POOL.slice(0, 3)] });
+    expect(r).toMatchObject({ status: 409, error: "session_in_progress", session: { id: full.id } });
+  });
+
+  it("選定は注入乱数で決定的(重複なし・プール内)、乱数が変われば並びが変わる", () => {
+    const a = pickMiniQuestions(D2_POOL, zeroRandom);
+    const b = pickMiniQuestions(D2_POOL, () => 0.999);
+    expect(a).toHaveLength(MINI_QUESTION_MAX);
+    expect(new Set(a).size).toBe(a.length);
+    expect(a.every((id) => D2_POOL.some((q) => q.id === id))).toBe(true);
+    expect(a).not.toEqual(b);
+    expect(pickMiniQuestions(D2_POOL.slice(0, 4), zeroRandom)).toHaveLength(4);
+  });
+
+  it("startDomainMini で始めた mini は abandon でき status=abandoned・attempt 0 行(DoD)", async () => {
+    const store = new FakeMockStore();
+    const r = await startMiniD2(store);
+    if (r.status !== 201) throw new Error(JSON.stringify(r));
+    const ab = await abandonSession(r.session.id, deps(store, LATER(3)));
+    expect(ab).toMatchObject({ status: 200, session: { status: "abandoned", finishedAt: LATER(3) } });
+    expect(store.attempts).toHaveLength(0);
+    expect(await store.findInProgress()).toBeNull();
+  });
+});
 
 describe("開始: 全行一括生成と rev snapshot(03 §exam_session)", () => {
   it("60 問全問の answer 行を chosen=null / flagged=false で生成し、question_rev を snapshot する", async () => {
@@ -429,6 +559,16 @@ describe("abandon: full 不可 / domain_mini 可(01 FR-5)", () => {
     const session = await startMini(store);
     await submitSession(session.id, deps(store, LATER(1)));
     expect((await abandonSession(session.id, deps(store, LATER(2)))).status).toBe(409);
+  });
+  it("half も abandon できない(03: domain mini のみ abandon 可)", async () => {
+    const store = new FakeMockStore();
+    const r = await startSession(
+      { exam: "ccar-f", kind: "half", formId: null, domainId: null, questionIds: MINI_QUESTIONS.map((q) => q.id), durationMin: 60 },
+      deps(store),
+    );
+    if (r.status !== 201) throw new Error(JSON.stringify(r));
+    expect(await abandonSession(r.session.id, deps(store, LATER(1)))).toMatchObject({ status: 409, error: "abandon_not_allowed" });
+    expect(await store.findSession(r.session.id)).toMatchObject({ status: "in_progress" });
   });
 });
 

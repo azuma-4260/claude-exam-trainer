@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { examSchema, formIdSchema } from "@/lib/bank/schema";
+import { domainIdSchema, examSchema, formIdSchema } from "@/lib/bank/schema";
 
 /** Mock API のリクエストスキーマ(specs/03 §exam_session、05 S-5) */
 
@@ -11,7 +11,12 @@ const choiceLabelSchema = z.string().regex(/^[A-F]?$/);
  * availability 検証・自動選択は D3-2
  */
 export const startMockRequestSchema = z.object({ exam: examSchema, form_id: formIdSchema }).strict();
+/** domain mini 開始(D4-1)。問題選定はサーバー(独立 MCQ プールから抽出)。domain は exam 内の syllabus で検証する */
+export const startMiniRequestSchema = z
+  .object({ kind: z.literal("domain_mini"), exam: examSchema, domain_id: domainIdSchema })
+  .strict();
 export type StartMockRequest = z.infer<typeof startMockRequestSchema>;
+export type StartMiniRequest = z.infer<typeof startMiniRequestSchema>;
 
 /** 回答・見直しフラグの保存(どちらか一方以上)。chosen: null = 回答取り消し */
 export const answerPatchRequestSchema = z

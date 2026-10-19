@@ -5,18 +5,17 @@ import type { Exam } from "@/lib/bank/schema";
 import { BindingConstraintBox, ChoiceRationale } from "@/components/explanation/structured-explanation";
 import { EXAM_LABEL } from "@/lib/exam/label";
 import { isRationaleOpen } from "@/lib/explanation/structured";
-import type { MockReport, MockReportDomain } from "@/lib/mock/report";
+import { reachedTarget, TARGET_PCT, type MockReport, type MockReportDomain } from "@/lib/mock/report";
 
 /**
  * S-6 模試レポート(specs/05 S-6、01 FR-5)。server component(誤答の解説展開は details/summary)。
  * - 素点(大)+ 85% ラインのゲージが画面の主役(スケールドスコアは出さない: 決定事項 10)
  * - ドメイン別横棒は素点ゲージと同じ文法(重み併記)
  * - rehearsal はヘッダで明示し readiness 判定外を注記
+ * - D4-1: domain mini はヘッダにドメイン名、readiness 判定外を注記。「次の一手」はミニ模試の開始導線
  */
 
 const pct = (correct: number, total: number): number => (total > 0 ? Math.round((correct / total) * 100) : 0);
-
-const TARGET_PCT = 85;
 
 function fmtFinishedAt(iso: string | null): string | null {
   if (!iso) return null;
@@ -25,13 +24,16 @@ function fmtFinishedAt(iso: string | null): string | null {
   );
 }
 
-/** 素点ゲージ。85% の目標線を tick として重ねる(S-6 のシグネチャ要素) */
-function ScoreGauge({ percent, className }: { percent: number; className?: string }) {
+/**
+ * 素点ゲージ。85% の目標線を tick として重ねる(S-6 のシグネチャ要素)。
+ * 到達色は丸め後の percent ではなく reached(丸め前の分数判定)で決める(B-D3-3-5)
+ */
+function ScoreGauge({ percent, reached, className }: { percent: number; reached: boolean; className?: string }) {
   return (
     <div className={`relative ${className ?? ""}`}>
       <div className="h-3 overflow-hidden rounded-full bg-muted">
         <div
-          className={`h-full rounded-full ${percent >= TARGET_PCT ? "bg-primary" : "bg-primary/60"}`}
+          className={`h-full rounded-full ${reached ? "bg-primary" : "bg-primary/60"}`}
           style={{ width: `${Math.min(100, Math.max(0, percent))}%` }}
         />
       </div>
@@ -64,17 +66,22 @@ function DomainBar({ d }: { d: MockReportDomain }) {
 
 export function MockReportScreen({ report }: { report: MockReport }) {
   const percent = pct(report.scoreRaw, report.total);
+  const reached = reachedTarget(report.scoreRaw, report.total);
   const finished = fmtFinishedAt(report.finishedAt);
   const weakest = report.domains.find((d) => d.domainId === report.weakestDomainId) ?? null;
+  const isMini = report.kind === "domain_mini";
+  // 次の一手: full は弱点ドメインのミニ模試、mini は同じドメインをもう一度(01 FR-5 / 05 S-6)
+  const nextDomainId = isMini ? report.domainId : weakest?.domainId ?? null;
 
   return (
     // 余白・下部ナビ分の padding は (tabs) layout が供給する
     <main className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-xl font-semibold">模試レポート</h1>
+          <h1 className="text-xl font-semibold">{isMini ? "ミニ模試レポート" : "模試レポート"}</h1>
           <Badge variant="outline">{EXAM_LABEL[report.exam as Exam] ?? report.exam}</Badge>
           {report.formId && <Badge variant="outline">{report.formId}</Badge>}
+          {isMini && <Badge variant="outline">{report.domainName ?? report.domainId}</Badge>}
           {report.rehearsal && <Badge variant="secondary">rehearsal(再受験)</Badge>}
         </div>
         {finished && <p className="text-sm text-muted-foreground">{finished} 提出</p>}
@@ -86,6 +93,11 @@ export function MockReportScreen({ report }: { report: MockReport }) {
             再受験のスコアは rehearsal 扱いで、readiness 判定には使われません。
           </p>
         )}
+        {isMini && (
+          <p className="text-sm text-muted-foreground">
+            ドメイン別ミニ模試(独立問題のみ)のスコアは readiness 判定には使われません。
+          </p>
+        )}
       </header>
 
       <section aria-label="素点" className="rounded-lg border p-4">
@@ -95,7 +107,7 @@ export function MockReportScreen({ report }: { report: MockReport }) {
             {report.scoreRaw} / {report.total}
           </span>
         </p>
-        <ScoreGauge percent={percent} className="mt-3" />
+        <ScoreGauge percent={percent} reached={reached} className="mt-3" />
         <p className="mt-2 text-xs text-muted-foreground">| 内部目標 {TARGET_PCT}%(スケールドスコアは表示しません)</p>
       </section>
 
@@ -210,16 +222,18 @@ export function MockReportScreen({ report }: { report: MockReport }) {
       </section>
 
       <section aria-label="次の一手" className="flex flex-col gap-2 border-t pt-4">
-        {weakest && (
+        {weakest && nextDomainId && (
           <div className="flex items-center justify-between gap-3 rounded-lg border p-4">
             <div>
-              <p className="font-medium">弱点ドメインのミニ模試</p>
+              <p className="font-medium">{isMini ? "同じドメインでもう一度" : "弱点ドメインのミニ模試"}</p>
               <p className="text-sm text-muted-foreground">
                 {weakest.name}({pct(weakest.correct, weakest.total)}%)
               </p>
             </div>
-            {/* D4-1(ドメイン別ミニ模試)実装後に開始導線へ差し替える */}
-            <span className="shrink-0 rounded-md border border-dashed px-3 py-2 text-xs text-muted-foreground">準備中</span>
+            {/* 開始画面でこのドメインを初期強調する(プール不足なら開始画面側で理由付き選択不可になる) */}
+            <Link href={`/mock?domain=${encodeURIComponent(nextDomainId)}`} className={buttonVariants({ className: "shrink-0" })}>
+              ミニ模試へ
+            </Link>
           </div>
         )}
         <Link href="/mock" className={buttonVariants({ variant: "outline" })}>

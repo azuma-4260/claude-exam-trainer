@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { mockFormSchema, type MockForm, type Question } from "@/lib/bank/schema";
 import type { OpenFlag, PoolSession } from "@/lib/bank/pool";
-import { mcq } from "@/lib/queue/test-fixtures";
-import { buildMockFormOptions, formStartability } from "./availability";
+import { mcq, syllabus } from "@/lib/queue/test-fixtures";
+import { buildMiniDomainOptions, buildMockFormOptions, formStartability } from "./availability";
+import { MINI_MINUTES_PER_QUESTION, MINI_QUESTION_MAX, MINI_QUESTION_MIN } from "./mini";
 
 // D3-2: S-5 開始画面のフォーム選択肢(01 FR-5、05 S-5)。
 // availability・submitted(rehearsal)・推奨フォームは DB に保存せず都度導出する。
@@ -161,5 +162,44 @@ describe("D6-2 / D6-4: 開始可否は exam ごとの推奨で判定し、同名
     expect(at(r, "ccar-f", "form-a")).toEqual({ recommended: false, startable: true, blocked: null });
     expect(at(r, "ccar-f", "form-b")).toEqual({ recommended: true, startable: true, blocked: null });
     expect(at(r, "ccar-f", "form-c")).toEqual({ recommended: false, startable: false, blocked: "unavailable" });
+  });
+});
+
+describe("buildMiniDomainOptions(D4-1, 01 FR-5 / 05 S-5)", () => {
+  const modes = ["drill", "practice", "mock"] as const;
+  const pool = (domain: string, n: number) =>
+    Array.from({ length: n }, (_, i) => mcq(`${domain}-q${String(800 + i)}`, { eligible_modes: [...modes] }));
+  const d1 = pool("f-d1", 20);
+  const d2 = pool("f-d2", MINI_QUESTION_MIN);
+
+  it("syllabus のドメイン順に、プール数・min(MAX, プール数)・2 分×問題数を返す", () => {
+    const r = buildMiniDomainOptions(syllabus, [...qa, ...d1, ...d2], { forms: [formA], sessions: [], flags: [] });
+    expect(r.map((o) => o.domainId)).toEqual(["f-d1", "f-d2"]);
+    expect(r[0]).toEqual({
+      exam: "ccar-f",
+      domainId: "f-d1",
+      name: "Domain 1",
+      weight: 60,
+      poolCount: 20,
+      questionCount: MINI_QUESTION_MAX,
+      durationMin: MINI_QUESTION_MAX * MINI_MINUTES_PER_QUESTION,
+      available: true,
+      minCount: MINI_QUESTION_MIN,
+    });
+    expect(r[1]).toMatchObject({ poolCount: MINI_QUESTION_MIN, questionCount: MINI_QUESTION_MIN, durationMin: MINI_QUESTION_MIN * 2, available: true });
+  });
+
+  it("フォーム収載問題は提出済みでもプールに数えず、MIN 未満は available:false・questionCount 0", () => {
+    const r = buildMiniDomainOptions(syllabus, [...qa, ...d2], { forms: [formA], sessions: [submittedA], flags: [] });
+    expect(r[0]).toMatchObject({ domainId: "f-d1", poolCount: 0, questionCount: 0, durationMin: 0, available: false });
+    const flagged = buildMiniDomainOptions(syllabus, [...d2], { forms: [], sessions: [], flags: [openFlag(d2[0])] });
+    expect(flagged[1]).toMatchObject({ poolCount: MINI_QUESTION_MIN - 1, available: false, questionCount: 0 });
+  });
+
+  it("他 exam の問題は同じ domain_id でもプールに数えない(exam で絞る。DoD: 他 exam の問題が候補 0 件)", () => {
+    // exam だけ差し替える(mcq() は P の id 接頭辞などを検証するため使わない)。同じ domain_id でも exam が違えば除外
+    const otherExam = pool("f-d1", 20).map((q) => ({ ...q, exam: "ccar-p" as const }));
+    const r = buildMiniDomainOptions(syllabus, otherExam, { forms: [], sessions: [], flags: [] });
+    expect(r[0]).toMatchObject({ exam: "ccar-f", domainId: "f-d1", poolCount: 0, available: false });
   });
 });

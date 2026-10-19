@@ -66,12 +66,27 @@ export interface MockReportWrongItem extends StructuredFields {
   revChanged: boolean;
 }
 
+/** 内部目標 85%(決定事項 10) */
+export const TARGET_PCT = 85;
+
+/**
+ * 85% 到達判定。表示用の丸め(Math.round)と分離し、丸め前の分数で比較する
+ * (11/13 = 84.6% は「85%」と表示されるが未到達。B-D3-3-5)
+ */
+export function reachedTarget(correct: number, total: number): boolean {
+  return total > 0 && correct * 100 >= total * TARGET_PCT;
+}
+
 export interface MockReport {
   sessionId: string;
   /** レポートで exam を明示する(05 S-6) */
   exam: string;
   formId: string | null;
   kind: string;
+  /** domain_mini の対象ドメイン(full は null) */
+  domainId: string | null;
+  /** syllabus から引いたドメイン名(未知なら null) */
+  domainName: string | null;
   scoreRaw: number;
   total: number;
   rehearsal: boolean;
@@ -141,10 +156,12 @@ export function buildMockReport(args: {
     }
   });
 
-  const domains: MockReportDomain[] = syllabus.domains.map((d) => {
+  const allDomains: MockReportDomain[] = syllabus.domains.map((d) => {
     const c = counts.get(d.id) as { total: number; correct: number };
     return { domainId: d.id, name: d.name, weight: d.weight, total: c.total, correct: c.correct };
   });
+  // domain mini は単一ドメインの試験なので、出題のあったドメインだけを載せる(full は全ドメイン行)
+  const domains = session.kind === "domain_mini" ? allDomains.filter((d) => d.total > 0) : allDomains;
 
   // 正答率の比較は分数のまま(correct_a * total_b と correct_b * total_a)行い浮動小数を避ける
   let weakest: MockReportDomain | null = null;
@@ -164,6 +181,8 @@ export function buildMockReport(args: {
     exam: session.exam,
     formId: session.formId,
     kind: session.kind,
+    domainId: session.domainId,
+    domainName: session.domainId ? (syllabus.domains.find((d) => d.id === session.domainId)?.name ?? null) : null,
     scoreRaw: session.scoreRaw ?? derivedScore,
     total: session.questionIds.length,
     rehearsal: isRehearsal(session, priorSessions),
