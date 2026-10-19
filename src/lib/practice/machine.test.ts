@@ -154,3 +154,67 @@ describe("toAnswerRequest", () => {
     });
   });
 });
+
+describe("T-bundle: mcq_bundle の Practice 状態遷移(specs/03 §1、05 S-4)", () => {
+  const sub = (id: string) => ({ id, textEn: id, explanationJa: "理由" });
+  const item = (over: Partial<PracticeItem> = {}): PracticeItem => ({
+    questionId: "p-d2-q020",
+    rev: 1,
+    type: "mcq_bundle",
+    subQuestions: [sub("s1"), sub("s2"), sub("s3")],
+    scenarioId: null,
+    stemEn: "stem",
+    choices: [
+      { label: "A", textEn: "Yes", plausibleJa: null, notBestJa: null },
+      { label: "B", textEn: "No", plausibleJa: null, notBestJa: null },
+    ],
+    bindingConstraintJa: null,
+    lifecyclePhase: null,
+    answer: ["A", "B", "A"],
+    explanationJa: "全体",
+    refs: ["https://docs.claude.com/en/docs/mcp"],
+    released: false,
+    source: "pool",
+    ...over,
+  });
+  const set = (s: ReturnType<typeof initialPracticeState>, index: number, label: string) =>
+    practiceReducer(s, { type: "SET_SUB", index, label });
+
+  it("初期状態は小問数ぶんの空文字。全小問に答えるまで ANSWER は無効", () => {
+    let s = initialPracticeState([item()]);
+    expect(s.current).toEqual({ step: "choosing", chosen: ["", "", ""] });
+    s = set(s, 0, "A");
+    s = set(s, 1, "B");
+    expect(practiceReducer(s, { type: "ANSWER", attemptId: "a", elapsedMs: null })).toBe(s);
+    s = set(s, 2, "A");
+    expect(practiceReducer(s, { type: "ANSWER", attemptId: "a", elapsedMs: null }).current.step).toBe("answered");
+  });
+  it("同じ選択肢を複数の小問が選べる。TOGGLE は bundle では無視", () => {
+    let s = initialPracticeState([item()]);
+    s = set(s, 0, "A");
+    s = set(s, 1, "A");
+    s = set(s, 2, "A");
+    expect(s.current).toEqual({ step: "choosing", chosen: ["A", "A", "A"] });
+    expect(practiceReducer(s, { type: "TOGGLE", label: "B" })).toBe(s);
+  });
+  it("即時採点: 全小問一致のみ正解、順序違いは不正解。ACK 後の NEXT で次の問題は空文字から始まる", () => {
+    const run = (picks: string[]) => {
+      let s = initialPracticeState([item(), item({ questionId: "p-d2-q021" })]);
+      picks.forEach((l, i) => (s = set(s, i, l)));
+      return practiceReducer(s, { type: "ANSWER", attemptId: "a", elapsedMs: null });
+    };
+    expect(run(["A", "B", "A"]).current).toMatchObject({ step: "answered", isCorrect: true });
+    expect(run(["A", "A", "B"]).current).toMatchObject({ step: "answered", isCorrect: false });
+    let s = run(["A", "B", "A"]);
+    s = practiceReducer(s, { type: "SAVE_OK" });
+    s = practiceReducer(s, { type: "NEXT" });
+    expect(s.current).toEqual({ step: "choosing", chosen: ["", "", ""] });
+  });
+  it("toAnswerRequest は chosen を小問順のまま送る", () => {
+    let s = initialPracticeState([item()]);
+    [0, 1, 2].forEach((i) => (s = set(s, i, "A")));
+    s = practiceReducer(s, { type: "ANSWER", attemptId: "a", elapsedMs: null });
+    if (s.current.step !== "answered") throw new Error("not answered");
+    expect(toAnswerRequest(s.items[0], s.current)).toMatchObject({ kind: "mcq", chosen: ["A", "A", "A"] });
+  });
+});

@@ -366,6 +366,25 @@ describe("validateBank(CCAR-P の固定フォーム。T-pmock)", () => {
     expect(validateBank(makePBank())).toEqual({ errors: [], warnings: [] });
   });
 
+  // T-bundle / D6-8: mcq_bundle は P のフォームに収載でき、4〜5 択・構造化解説フィールドの検査は適用しない
+  it("mcq_bundle を収載しても緑(選択肢 2 件・構造化解説フィールドなし)。ただし srs_eligible=false 等の標準値は検査する", () => {
+    const b = makePBank();
+    const questions = [...b.questions];
+    const base = questions[1];
+    questions[1] = {
+      id: base.id, exam: base.exam, domain_id: base.domain_id, primary_topic_id: base.primary_topic_id, secondary_topic_ids: [],
+      type: "mcq_bundle", bundle_kind: "yes_no", scenario_id: null, eligible_modes: ["mock", "practice"], srs_eligible: false,
+      stem_en: "For each statement, choose Yes or No.",
+      choices: [{ label: "A", text_en: "Yes" }, { label: "B", text_en: "No" }],
+      sub_questions: [{ id: "s1", text_en: "One.", explanation_ja: "1" }, { id: "s2", text_en: "Two.", explanation_ja: "2" }],
+      answer: ["A", "A"], answer_en: null, explanation_ja: "全体", refs: base.refs, difficulty: 2, status: base.status, rev: 1,
+    } as unknown as Question;
+    b.questions = questions;
+    expect(validateBank(b)).toEqual({ errors: [], warnings: [] });
+    (b.questions[1] as { srs_eligible: boolean }).srs_eligible = true;
+    expect(validateBank(b).errors.join("\n")).toMatch(/form-a: p-d1-q002 の srs_eligible が false でない/);
+  });
+
   const bad: [string, (b: BankInput) => void, RegExp][] = [
     ["問題数が 63 でない", (b) => { b.forms = [{ ...b.forms[0], question_ids: b.forms[0].question_ids.slice(1) }]; }, /form-a: 問題数 62\(63 問必須\)/],
     ["scenario_ids を持つ", (b) => { b.forms = [{ ...b.forms[0], scenario_ids: ["sc-1"] }]; }, /form-a: 独立問題形式のため scenario_ids は空/],

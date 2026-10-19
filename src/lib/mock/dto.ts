@@ -11,12 +11,16 @@ import type { Question, Scenario } from "@/lib/bank/schema";
 
 export interface MockQuestionDto {
   id: string;
-  type: "mcq_single" | "mcq_multi";
+  type: "mcq_single" | "mcq_multi" | "mcq_bundle";
   scenario_id: string | null;
   stem_en: string;
   choices: { label: string; text_en: string }[];
-  /** mcq_multi の選択数(answer 自体は含めない) */
+  /** mcq_multi の選択数 / mcq_bundle は小問数(answer 自体は含めない) */
   select_count: number;
+  /** mcq_bundle の小問(id / text_en だけ。explanation_ja は提出まで渡さない)。それ以外は省略 */
+  sub_questions?: { id: string; text_en: string }[];
+  /** mcq_bundle の種別(Yes/No か Matching か) */
+  bundle_kind?: "yes_no" | "matching";
 }
 
 export interface MockScenarioDto {
@@ -85,6 +89,9 @@ export function toQuestionDtos(
       stem_en: q.stem_en,
       choices: q.choices.map((c) => ({ label: c.label, text_en: c.text_en })),
       select_count: q.answer.length,
+      ...(q.type === "mcq_bundle"
+        ? { sub_questions: q.sub_questions.map((s) => ({ id: s.id, text_en: s.text_en })), bundle_kind: q.bundle_kind }
+        : {}),
     });
   }
   return dtos;

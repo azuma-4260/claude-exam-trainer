@@ -104,6 +104,39 @@ const mcqMultiQuestionSchema = mcqBase
   })
   .strict();
 
+/** まとめ形式(specs/03 §1 mcq_bundle): Yes/No Matrix = yes_no、Drop-down Matching = matching */
+export const BUNDLE_KINDS = ["yes_no", "matching"] as const;
+export const bundleKindSchema = z.enum(BUNDLE_KINDS);
+export type BundleKind = z.infer<typeof bundleKindSchema>;
+
+/** まとめ形式の小問数・共通選択肢数の範囲(specs/03 §1) */
+export const BUNDLE_SUB_QUESTION_RANGE = { min: 2, max: 6 } as const;
+export const BUNDLE_MATCHING_CHOICE_RANGE = { min: 2, max: 6 } as const;
+
+export const subQuestionSchema = z
+  .object({
+    id: z.string().regex(/^s\d+$/, "sub_question id は s1 形式"),
+    text_en: z.string().trim().min(1),
+    explanation_ja: z.string().trim().min(1),
+  })
+  .strict();
+export type SubQuestion = z.infer<typeof subQuestionSchema>;
+
+/**
+ * まとめ形式。共通の選択肢で複数の小問に答え 1 問として数える。answer[i] = sub_questions[i] の正解ラベル(重複可)。
+ * choices は label / text_en だけ(構造化解説フィールドは持たせない)、MCQ の 4〜5 択・Select TWO は適用しない
+ */
+const mcqBundleQuestionSchema = questionBase
+  .extend({
+    type: z.literal("mcq_bundle"),
+    bundle_kind: bundleKindSchema,
+    choices: z.array(choiceSchema).min(2).max(BUNDLE_MATCHING_CHOICE_RANGE.max),
+    sub_questions: z.array(subQuestionSchema).min(BUNDLE_SUB_QUESTION_RANGE.min).max(BUNDLE_SUB_QUESTION_RANGE.max),
+    answer: z.array(choiceLabelSchema).min(BUNDLE_SUB_QUESTION_RANGE.min),
+    answer_en: z.null(),
+  })
+  .strict();
+
 /**
  * MCQ の選択肢数(specs/03 §1 P の MCQ の不変条件: P はフォーム収載に限らず全 MCQ で 4〜5 択)。
  * 定義の無い exam(F)は検証しない(既存バンクの受理集合を変えない)
@@ -119,7 +152,7 @@ const MULTI_ANSWER_COUNT: Partial<Record<Exam, number>> = { "ccar-p": 2 };
 const SELECT_WORDS: Record<number, string> = { 2: "TWO", 3: "THREE", 4: "FOUR", 5: "FIVE" };
 
 export const questionSchema = z
-  .discriminatedUnion("type", [flashQuestionSchema, mcqSingleQuestionSchema, mcqMultiQuestionSchema])
+  .discriminatedUnion("type", [flashQuestionSchema, mcqSingleQuestionSchema, mcqMultiQuestionSchema, mcqBundleQuestionSchema])
   .superRefine((q, ctx) => {
     const issue = (path: string, message: string) =>
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message });
@@ -151,6 +184,27 @@ export const questionSchema = z
 
     const labels = q.choices.map((c) => c.label);
     if (!uniqueArray(labels)) issue("choices", "label が重複している");
+
+    if (q.type === "mcq_bundle") {
+      // answer は小問順・重複可(位置比較)。MCQ 共通の「answer 重複なし」「4〜5 択」「構造化解説」は適用しない
+      if (q.eligible_modes.includes("drill")) issue("eligible_modes", "mcq_bundle は drill に出さない");
+      if (!uniqueArray(q.sub_questions.map((s) => s.id))) issue("sub_questions", "id が重複している");
+      if (q.answer.length !== q.sub_questions.length)
+        issue("answer", `answer の長さ(${q.answer.length})が小問数(${q.sub_questions.length})と一致しない`);
+      for (const a of q.answer) {
+        if (!labels.includes(a)) issue("answer", `${a} は choices に存在しない`);
+      }
+      if (q.bundle_kind === "yes_no") {
+        const ok = q.choices.length === 2 && q.choices[0].text_en === "Yes" && q.choices[1].text_en === "No";
+        if (!ok) issue("choices", "yes_no の choices は Yes / No の 2 件(この順)");
+      } else if (q.choices.length < BUNDLE_MATCHING_CHOICE_RANGE.min) {
+        issue("choices", `matching の choices は ${BUNDLE_MATCHING_CHOICE_RANGE.min}〜${BUNDLE_MATCHING_CHOICE_RANGE.max} 件`);
+      }
+      // 構造化解説フィールド: question 側は strict で拒否される。choice 側は共通スキーマなのでここで拒否
+      if (q.choices.some((c) => c.plausible_ja !== undefined || c.not_best_ja !== undefined))
+        issue("choices", "mcq_bundle の選択肢は plausible_ja / not_best_ja を持たない");
+      return;
+    }
     if (!uniqueArray(q.answer)) issue("answer", "重複がある");
     for (const a of q.answer) {
       if (!labels.includes(a)) issue("answer", `${a} は choices に存在しない`);
@@ -193,7 +247,8 @@ export const questionSchema = z
 
 export type Question = z.infer<typeof questionSchema>;
 export type FlashQuestion = Extract<Question, { type: "flash" }>;
-export type McqQuestion = Extract<Question, { type: "mcq_single" | "mcq_multi" }>;
+export type McqQuestion = Extract<Question, { type: "mcq_single" | "mcq_multi" | "mcq_bundle" }>;
+export type BundleQuestion = Extract<Question, { type: "mcq_bundle" }>;
 
 /** questions/*.json: 1 ファイル = 問題配列。ファイル内 id 重複を拒否(ファイル横断は validator) */
 export const questionsFileSchema = z.array(questionSchema).superRefine((qs, ctx) => {

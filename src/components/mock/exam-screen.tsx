@@ -211,6 +211,14 @@ export function MockExamScreen() {
     [data, enqueue],
   );
 
+  /** mcq_bundle: index 番目の小問に label を選ぶ。chosen は小問順・未回答の小問は空文字(全空なら null で保存される。specs/03 §1) */
+  const chooseSub = (q: MockQuestionDto, index: number, label: string) => {
+    const n = q.sub_questions?.length ?? 0;
+    const current = answers[q.id]?.chosen ?? Array.from({ length: n }, () => "");
+    const next = current.map((c, i) => (i === index ? (c === label ? "" : label) : c));
+    patchAnswer(q.id, { chosen: next.every((c) => c === "") ? null : next });
+  };
+
   const choose = (q: MockQuestionDto, label: string) => {
     const current = answers[q.id]?.chosen ?? null;
     let next: string[] | null;
@@ -343,7 +351,55 @@ export function MockExamScreen() {
           </Button>
         </div>
         {q.type === "mcq_multi" && <p className="text-xs text-muted-foreground">{q.select_count} つ選択</p>}
-        <div className="flex flex-col gap-2">
+        {q.type === "mcq_bundle" && (
+          <ol className="flex flex-col gap-3">
+            {(q.sub_questions ?? []).map((sub, i) => (
+              <li key={sub.id} className="flex flex-col gap-2 rounded-lg border p-3">
+                <p className="text-sm">
+                  <span className="mr-2 text-xs text-muted-foreground">{i + 1}.</span>
+                  {sub.text_en}
+                </p>
+                {q.bundle_kind === "matching" && (
+                  <select
+                    aria-label={`小問 ${i + 1} の選択`}
+                    value={state.chosen?.[i] ?? ""}
+                    onChange={(e) => {
+                      const n = q.sub_questions?.length ?? 0;
+                      const cur = state.chosen ?? Array.from({ length: n }, () => "");
+                      const next = cur.map((c, k) => (k === i ? e.target.value : c));
+                      patchAnswer(q.id, { chosen: next.every((c) => c === "") ? null : next });
+                    }}
+                    className="rounded-lg border bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="">未選択</option>
+                    {q.choices.map((c) => (
+                      <option key={c.label} value={c.label}>
+                        {c.text_en}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <div className={q.bundle_kind === "matching" ? "hidden" : "flex flex-wrap gap-2"}>
+                  {q.choices.map((c) => {
+                    const selected = state.chosen?.[i] === c.label;
+                    return (
+                      <button
+                        key={c.label}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() => chooseSub(q, i, c.label)}
+                        className={`rounded-lg border px-3 py-2 text-sm transition-colors ${selected ? "border-primary bg-primary/10" : "hover:bg-muted/50"}`}
+                      >
+                        {c.text_en}
+                      </button>
+                    );
+                  })}
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+        <div className={q.type === "mcq_bundle" ? "hidden" : "flex flex-col gap-2"}>
           {q.choices.map((c) => {
             const selected = state.chosen?.includes(c.label) ?? false;
             return (
@@ -375,14 +431,16 @@ export function MockExamScreen() {
         {questions.map((qq, i) => {
           const a = answers[qq.id];
           const answered = (a?.chosen ?? null) !== null;
+          // mcq_bundle で一部の小問だけ回答済みなら「未回答あり」(問題一覧で目立たせる。specs/05 S-5)
+          const partial = answered && qq.type === "mcq_bundle" && (a?.chosen ?? []).some((c) => c === "");
           return (
             <button
               key={qq.id}
               type="button"
               onClick={() => goTo(i)}
               aria-current={i === index}
-              title={`${i + 1}${a?.flagged ? "(フラグ)" : ""}`}
-              className={`relative h-8 rounded border text-xs tabular-nums ${i === index ? "ring-2 ring-ring" : ""} ${answered ? "bg-primary text-primary-foreground" : "bg-background"}`}
+              title={`${i + 1}${a?.flagged ? "(フラグ)" : ""}${partial ? "(未回答の小問あり)" : ""}`}
+              className={`relative h-8 rounded border text-xs tabular-nums ${i === index ? "ring-2 ring-ring" : ""} ${answered ? (partial ? "border-dashed border-primary bg-primary/30" : "bg-primary text-primary-foreground") : "bg-background"}`}
             >
               {i + 1}
               {a?.flagged && <span className="absolute -right-0.5 -top-1 text-[10px]">🚩</span>}

@@ -2,7 +2,7 @@ import type { Db } from "@/db/client";
 import type { Bank } from "@/lib/bank/load";
 import { filterPool, holdoutFormOf, type PoolContext } from "@/lib/bank/pool";
 import type { Question, Scenario } from "@/lib/bank/schema";
-import { structuredOf, toChoiceView, type ChoiceView, type StructuredFields } from "@/lib/explanation/structured";
+import { structuredOf, subQuestionsOf, toChoiceView, type ChoiceView, type StructuredFields, type SubQuestionView } from "@/lib/explanation/structured";
 import { toScenarioDtos, type MockScenarioDto } from "@/lib/mock/dto";
 import type { QueueItem } from "@/lib/queue/build";
 import { assembleQueueView, loadQueueInputs, type DMinus1View } from "@/lib/queue/serve";
@@ -30,7 +30,11 @@ export const PRACTICE_BATCH_MAX = 20;
 export type PracticeItem = StructuredFields & {
   questionId: string;
   rev: number;
-  type: "mcq_single" | "mcq_multi";
+  type: "mcq_single" | "mcq_multi" | "mcq_bundle";
+  /** mcq_bundle の小問(それ以外は null)。answer / chosen は小問順の位置配列(03 §1) */
+  subQuestions?: SubQuestionView[] | null;
+  /** mcq_bundle の種別。matching は小問ごとにドロップダウンで選ぶ(05 S-4) */
+  bundleKind?: "yes_no" | "matching" | null;
   scenarioId: string | null;
   stemEn: string;
   choices: ChoiceView[];
@@ -74,6 +78,8 @@ export function assemblePracticeView(inputs: PracticeAssembleInputs): PracticeVi
       scenarioId: q.scenario_id,
       stemEn: q.stem_en,
       choices: q.choices.map(toChoiceView),
+      subQuestions: subQuestionsOf(q),
+      bundleKind: q.type === "mcq_bundle" ? q.bundle_kind : null,
       ...structuredOf(q),
       answer: [...q.answer],
       explanationJa: q.explanation_ja,

@@ -1,7 +1,7 @@
 import { evaluatePool, holdoutFormOf, type PoolContext } from "@/lib/bank/pool";
 import type { Bank } from "@/lib/bank/load";
 import type { McqQuestion, Scenario } from "@/lib/bank/schema";
-import { structuredOf, toChoiceView } from "@/lib/explanation/structured";
+import { structuredOf, subQuestionsOf, toChoiceView } from "@/lib/explanation/structured";
 import { toScenarioDtos, type MockScenarioDto } from "@/lib/mock/dto";
 import { estSec } from "@/lib/queue/estimate";
 import { SESSION_MAX } from "@/lib/queue/session-size";
@@ -111,7 +111,11 @@ export function assembleMistakesView(inputs: AssembleMistakesInputs): MistakesVi
     stemEn: question.stem_en,
     released: holdoutFormOf(question.id, inputs.bank.forms) !== null,
   }));
-  const reviewCandidates = visible.filter(({ question }) => !inputs.reviewExcludeIds?.has(question.id));
+  // 総ざらいは Quick Drill 形式(選択即送信・集合比較)で周回するため、小問ごとに答えるまとめ形式は対象外
+  // (一覧には出る。Practice で解き直す。tasks/backlog/B-T-bundle-1.md)
+  const reviewCandidates = visible.filter(
+    ({ question }) => question.type !== "mcq_bundle" && !inputs.reviewExcludeIds?.has(question.id),
+  );
   const reviewItems: DrillItem[] = reviewCandidates.slice(0, SESSION_MAX).map(({ question }) => ({
     questionId: question.id,
     rev: question.rev,
@@ -119,6 +123,7 @@ export function assembleMistakesView(inputs: AssembleMistakesInputs): MistakesVi
     scenarioId: question.scenario_id,
     stemEn: question.stem_en,
     choices: question.choices.map(toChoiceView),
+    subQuestions: subQuestionsOf(question),
     ...structuredOf(question),
     answer: [...question.answer],
     explanationJa: question.explanation_ja,

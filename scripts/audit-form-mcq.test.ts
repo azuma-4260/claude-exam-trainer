@@ -93,7 +93,7 @@ describe("runAuditFormMcq", () => {
   it("F は分布を表示するだけで目安の warning を出さない(D6-9)", () => {
     writeBank(dir);
     const r = runAuditFormMcq(dir, { formId: null, status: "flagged" });
-    expect(r.distributions).toEqual([{ formId: "form-a", types: { mcq_single: 60, mcq_multi: 0 }, difficulty: { 1: 0, 2: 60, 3: 0 } }]);
+    expect(r.distributions).toEqual([{ formId: "form-a", types: { mcq_single: 60, mcq_multi: 0, mcq_bundle: 0 }, bundleKinds: { yes_no: 0, matching: 0 }, difficulty: { 1: 0, 2: 60, 3: 0 } }]);
     expect(r.warnings.some((w) => /目安/.test(w))).toBe(false);
   });
 
@@ -231,9 +231,9 @@ domains:
   it("form ごとの問題形式・難易度の分布を返す", () => {
     const r = runAuditFormMcq(dir, { exam: "ccar-p", formId: null, status: "flagged" });
     expect(r.distributions).toEqual([
-      { formId: "form-a", types: { mcq_single: 45, mcq_multi: 18 }, difficulty: { 1: 5, 2: 38, 3: 20 } },
+      { formId: "form-a", types: { mcq_single: 45, mcq_multi: 18, mcq_bundle: 0 }, bundleKinds: { yes_no: 0, matching: 0 }, difficulty: { 1: 5, 2: 38, 3: 20 } },
     ]);
-    expect(formatDistribution(r.distributions[0])).toBe("form-a: 形式 single 45 / multi 18、難易度 1: 5 / 2: 38 / 3: 20");
+    expect(formatDistribution(r.distributions[0])).toBe("form-a: 形式 single 45 / multi 18 / bundle 0(Yes/No 0・Matching 0)、難易度 1: 5 / 2: 38 / 3: 20");
   });
 
   it("目安を外れると warning を出すが errors にはしない", () => {
@@ -247,6 +247,29 @@ domains:
       "form-a: mcq_single が 63 問(目安 43〜48)",
       "form-a: mcq_multi が 0 問(目安 15〜20)",
     ]);
+  });
+
+  // T-bundle / D6-8: まとめ形式(mcq_bundle)の収載を許容し、内訳を表示し、使うフォームは「使う場合」の目安で判定する
+  it("mcq_bundle の収載を許容し、種別の内訳を表示する。「使う場合」の目安で判定する", () => {
+    const bundleQ = (n: number, kind: "yes_no" | "matching") => ({
+      ...pq(n),
+      type: "mcq_bundle",
+      bundle_kind: kind,
+      stem_en: "For each statement, choose an option.",
+      choices: kind === "yes_no" ? [{ label: "A", text_en: "Yes" }, { label: "B", text_en: "No" }] : [{ label: "A", text_en: "x" }, { label: "B", text_en: "y" }, { label: "C", text_en: "z" }],
+      sub_questions: [1, 2, 3].map((i) => ({ id: `s${i}`, text_en: `S${i}`, explanation_ja: "理由" })),
+      answer: ["A", "B", "A"],
+    });
+    // single 30 / multi 18 / Yes/No 8 / Matching 7(合計 63)。後ろ 15 問を bundle に置換
+    const qs = Array.from({ length: 63 }, (_, i) => (i >= 48 ? bundleQ(i + 1, i < 56 ? "yes_no" : "matching") : pq(i + 1)));
+    writeP(qs);
+    const r = runAuditFormMcq(dir, { exam: "ccar-p", formId: null, status: "flagged" });
+    expect(r.errors).toEqual([]);
+    expect(r.distributions[0].types.mcq_bundle).toBe(15);
+    expect(r.distributions[0].bundleKinds).toEqual({ yes_no: 8, matching: 7 });
+    expect(formatDistribution(r.distributions[0])).toContain("bundle 15(Yes/No 8・Matching 7)");
+    // single 48 問は「使わない場合」(43〜48)なら範囲内だが、bundle ありでは「使う場合」(30〜35)で判定され warning になる
+    expect(r.warnings.some((w) => /mcq_single が \d+ 問/.test(w) && w.includes("まとめ形式あり"))).toBe(true);
   });
 
   it("--exam ccar-p は既定ディレクトリを content/ccar-p にする", () => {

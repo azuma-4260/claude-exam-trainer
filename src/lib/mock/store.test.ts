@@ -103,8 +103,9 @@ describe("提出の 2 文(claim → 新スナップショットで採点・attem
   });
   const { text, params } = compile(
     buildSubmitFinalize(SID, NOW, [
-      { questionId: "f-d1-q001", correct: ["B"] },
-      { questionId: "f-d1-q002", correct: null },
+      { questionId: "f-d1-q001", correct: ["B"], ordered: false },
+      { questionId: "f-d1-q002", correct: null, ordered: false },
+      { questionId: "f-d1-q003", correct: ["A", "B", "A"], ordered: true },
     ]),
   );
   it("第 2 文は claim marker(finished_at 一致)で守られ、exam_session_answer から attempt を導出する", () => {
@@ -127,9 +128,13 @@ describe("提出の 2 文(claim → 新スナップショットで採点・attem
   });
   it("score_raw は同一文内の集合一致採点から導出し、正答は jsonb パラメータで渡す", () => {
     expect(text).toContain("set score_raw = (select count(*)::int from graded where is_correct)");
-    expect(text).toContain("array_agg(x order by x)");
+    // 形式別の比較: ordered(mcq_bundle)は小問順(ordinality)を保持、それ以外は x でソートした集合比較
+    expect(text).toContain("case when (e->>'ordered')::boolean then ord else 0 end, x");
+    expect(text).toContain("case when k.ordered then ord else 0 end, x");
+    expect(text).toContain("unnest(a.chosen) with ordinality");
     const keyParam = params.find((p) => typeof p === "string" && p.includes("question_id"));
     expect(keyParam).toContain('"correct":["B"]');
     expect(keyParam).toContain('"correct":null');
+    expect(keyParam).toContain('"correct":["A","B","A"],"ordered":true');
   });
 });

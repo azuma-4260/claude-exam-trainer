@@ -53,6 +53,39 @@ export const mcq = (id: string, over: Partial<Question> = {}): Question =>
     ...over,
   });
 
+/** まとめ形式 mcq_bundle(Yes/No Matrix。小問 3 件で answer = Yes, No, Yes。practice / mock 専用) */
+export const bundle = (id: string, over: Record<string, unknown> = {}): Question =>
+  questionSchema.parse({
+    exam: "ccar-f",
+    secondary_topic_ids: [],
+    scenario_id: null,
+    eligible_modes: ["practice", "mock"],
+    srs_eligible: true,
+    stem_en: "For each statement, choose Yes or No.",
+    bundle_kind: "yes_no",
+    choices: [
+      { label: "A", text_en: "Yes" },
+      { label: "B", text_en: "No" },
+    ],
+    sub_questions: [
+      { id: "s1", text_en: "Statement one.", explanation_ja: "1 の理由。" },
+      { id: "s2", text_en: "Statement two.", explanation_ja: "2 の理由。" },
+      { id: "s3", text_en: "Statement three.", explanation_ja: "3 の理由。" },
+    ],
+    answer: ["A", "B", "A"],
+    answer_en: null,
+    explanation_ja: "全体の解説。",
+    refs: ["https://docs.claude.com/en/docs/mcp"],
+    difficulty: 2,
+    status: "active",
+    rev: 1,
+    ...over,
+    type: "mcq_bundle",
+    id,
+    domain_id: domainOf(id),
+    primary_topic_id: `${domainOf(id)}-t1-01`,
+  });
+
 /** flash(schema 制約により drill 専用) */
 export const flash = (id: string, over: Partial<Question> = {}): Question =>
   questionSchema.parse({

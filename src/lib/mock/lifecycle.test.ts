@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mockFormSchema, type MockForm, type Question } from "@/lib/bank/schema";
 import type { OpenFlag, PoolSession } from "@/lib/bank/pool";
 import type { ExamSessionAnswerRow } from "@/db/schema";
-import { mcq } from "@/lib/queue/test-fixtures";
+import { bundle, mcq } from "@/lib/queue/test-fixtures";
 import { FakeMockStore } from "./test-store";
 import {
   FULL_DURATION_MIN,
@@ -50,7 +50,10 @@ const MINI_QUESTIONS: Question[] = [
   mcq("f-d2-q902", { eligible_modes: ["drill", "practice", "mock"], type: "mcq_multi", answer: ["A", "B"], stem_en: "Select TWO transports." }),
 ];
 
-const ALL = new Map([...FORM_QUESTIONS, ...MINI_QUESTIONS].map((q) => [q.id, q]));
+/** T-bundle: まとめ形式(小問 3 件、answer = A, B, A)。MINI_QUESTIONS とは別に持ち、既存テストの件数を変えない */
+const BUNDLE = bundle("f-d2-q910");
+
+const ALL = new Map([...FORM_QUESTIONS, ...MINI_QUESTIONS, BUNDLE].map((q) => [q.id, q]));
 
 let seq = 0;
 const deps = (store: FakeMockStore, now = NOW): MockDeps => ({
@@ -452,8 +455,9 @@ describe("復元(05 S-5: 閉じても再開できる)", () => {
 
 describe("gradeMockAnswers: 採点規則の単一ソース(store 実装の意味論)", () => {
   const key: AnswerKeyEntry[] = [
-    { questionId: "f-d2-q900", correct: ["B"] },
-    { questionId: "f-d2-q902", correct: ["A", "B"] },
+    { questionId: "f-d2-q900", correct: ["B"], ordered: false },
+    { questionId: "f-d2-q902", correct: ["A", "B"], ordered: false },
+    { questionId: "f-d2-q910", correct: ["A", "B", "A"], ordered: true },
   ];
   const row = (questionId: string, over: Partial<ExamSessionAnswerRow> = {}): ExamSessionAnswerRow => ({
     sessionId: "s1",
@@ -483,5 +487,86 @@ describe("gradeMockAnswers: 採点規則の単一ソース(store 実装の意味
     const g = gradeMockAnswers([row("f-d9-q999", { chosen: ["A"] })], key, LATER(9));
     expect(g.scoreRaw).toBe(0);
     expect(g.attempts[0]).toMatchObject({ isCorrect: false });
+  });
+});
+
+describe("T-bundle: mcq_bundle の Mock 保存・採点(specs/03 §1、§Mock の attempt 生成)", () => {
+  const startMixed = async (store: FakeMockStore, now = NOW) => {
+    const r = await startSession(
+      { exam: "ccar-f", kind: "domain_mini", formId: null, domainId: "f-d2", questionIds: ["f-d2-q910", "f-d2-q900", "f-d2-q902"], durationMin: 30 },
+      deps(store, now),
+    );
+    if (r.status !== 201) throw new Error(`開始失敗: ${JSON.stringify(r)}`);
+    return r.session;
+  };
+  const chosenOf = async (store: FakeMockStore, sid: string, qid: string) => (await store.listAnswers(sid)).find((a) => a.questionId === qid)?.chosen;
+
+  it("小問順・重複ありの chosen を保存でき、一部未回答(空文字)は保持される", async () => {
+    const store = new FakeMockStore();
+    const s = await startMixed(store);
+    expect((await saveAnswer(s.id, "f-d2-q910", { chosen: ["A", "A", "A"] }, deps(store, LATER(1)))).status).toBe(200);
+    expect(await chosenOf(store, s.id, "f-d2-q910")).toEqual(["A", "A", "A"]);
+    expect((await saveAnswer(s.id, "f-d2-q910", { chosen: ["A", "", "B"] }, deps(store, LATER(2)))).status).toBe(200);
+    expect(await chosenOf(store, s.id, "f-d2-q910")).toEqual(["A", "", "B"]);
+  });
+  it("全小問が空文字の chosen は null に正規化(未回答 = null の既存規則)。answer_updated_at は回答操作として更新される", async () => {
+    const store = new FakeMockStore();
+    const s = await startMixed(store);
+    await saveAnswer(s.id, "f-d2-q910", { chosen: ["A", "B", "A"] }, deps(store, LATER(1)));
+    await saveAnswer(s.id, "f-d2-q910", { chosen: ["", "", ""] }, deps(store, LATER(2)));
+    expect(await chosenOf(store, s.id, "f-d2-q910")).toBeNull();
+    await submitSession(s.id, deps(store, LATER(5)));
+    expect(store.attempts.find((a) => a.questionId === "f-d2-q910")).toMatchObject({ chosen: null, isCorrect: false, answeredAt: LATER(5) });
+  });
+  it("長さが小問数と違う・選択肢に無いラベルは 400 invalid_chosen で保存しない。mcq_single / mcq_multi の重複・空文字も 400", async () => {
+    const store = new FakeMockStore();
+    const s = await startMixed(store);
+    const d = deps(store, LATER(1));
+    expect(await saveAnswer(s.id, "f-d2-q910", { chosen: ["A", "B"] }, d)).toMatchObject({ status: 400, error: "invalid_chosen" });
+    expect(await saveAnswer(s.id, "f-d2-q910", { chosen: ["A", "B", "F"] }, d)).toMatchObject({ status: 400, error: "invalid_chosen" });
+    expect(await saveAnswer(s.id, "f-d2-q902", { chosen: ["A", "A"] }, d)).toMatchObject({ status: 400, error: "invalid_chosen" });
+    expect(await saveAnswer(s.id, "f-d2-q900", { chosen: [""] }, d)).toMatchObject({ status: 400, error: "invalid_chosen" });
+    expect(await chosenOf(store, s.id, "f-d2-q910")).toBeNull();
+  });
+  it("提出: 全小問一致のみ正解(部分一致・順序違いは不正解)、answered_at は chosen あり = answer_updated_at。MCQ は従来どおり集合一致", async () => {
+    const store = new FakeMockStore();
+    const s = await startMixed(store);
+    await saveAnswer(s.id, "f-d2-q910", { chosen: ["A", "B", "A"] }, deps(store, LATER(1)));
+    await saveAnswer(s.id, "f-d2-q902", { chosen: ["B", "A"] }, deps(store, LATER(2)));
+    await submitSession(s.id, deps(store, LATER(9)));
+    expect(store.sessions.get(s.id)?.scoreRaw).toBe(2);
+    expect(store.attempts.find((a) => a.questionId === "f-d2-q910")).toMatchObject({ isCorrect: true, chosen: ["A", "B", "A"], answeredAt: LATER(1) });
+
+    const store2 = new FakeMockStore();
+    const s2 = await startMixed(store2, LATER(20));
+    await saveAnswer(s2.id, "f-d2-q910", { chosen: ["A", "B", "B"] }, deps(store2, LATER(21)));
+    await submitSession(s2.id, deps(store2, LATER(29)));
+    expect(store2.attempts.find((a) => a.questionId === "f-d2-q910")).toMatchObject({ isCorrect: false, chosen: ["A", "B", "B"], answeredAt: LATER(21) });
+    expect(store2.sessions.get(s2.id)?.scoreRaw).toBe(0);
+  });
+  it("timeout 提出でも同じ key(ordered)で採点される", async () => {
+    const store = new FakeMockStore();
+    const s = await startMixed(store);
+    await saveAnswer(s.id, "f-d2-q910", { chosen: ["A", "B", "A"] }, deps(store, LATER(1)));
+    await submitSession(s.id, deps(store, LATER(31)));
+    expect(store.sessions.get(s.id)).toMatchObject({ submissionReason: "timeout", scoreRaw: 1 });
+  });
+});
+
+describe("T-bundle: gradeMockAnswers(SQL 実装 buildSubmitFinalize と同じ意味論の単一ソース)", () => {
+  const row = (chosen: string[] | null): ExamSessionAnswerRow => ({
+    sessionId: "s1", questionId: "f-d2-q910", questionRev: 1, chosen, flagged: false, answerUpdatedAt: chosen ? LATER(1) : null, updatedAt: NOW,
+  });
+  const key: AnswerKeyEntry[] = [{ questionId: "f-d2-q910", correct: ["A", "B", "A"], ordered: true }];
+  const cases: [string[] | null, boolean][] = [
+    [["A", "B", "A"], true],
+    [["A", "A", "B"], false], // 同じ集合でも順序違いは不正解
+    [["A", "B", ""], false], // 一部未回答
+    [["A", "B"], false], // 長さ不足
+    [["A", "B", "A", "A"], false], // 過剰
+    [null, false],
+  ];
+  it.each(cases)("chosen=%j → is_correct=%s", (chosen, expected) => {
+    expect(gradeMockAnswers([row(chosen)], key, LATER(9)).attempts[0].isCorrect).toBe(expected);
   });
 });

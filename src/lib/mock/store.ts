@@ -118,7 +118,7 @@ export function buildSubmitClaim(sessionId: string, reason: SubmissionReason, fi
  * score_raw 確定を行う。意味論は lifecycle.gradeMockAnswers と同一。
  */
 export function buildSubmitFinalize(sessionId: string, finishedAt: Date, key: readonly AnswerKeyEntry[]): SQL {
-  const keyJson = JSON.stringify(key.map((k) => ({ question_id: k.questionId, correct: k.correct })));
+  const keyJson = JSON.stringify(key.map((k) => ({ question_id: k.questionId, correct: k.correct, ordered: k.ordered })));
   return sql`
     with claimed as (
       select id, exam, finished_at from exam_session
@@ -126,15 +126,19 @@ export function buildSubmitFinalize(sessionId: string, finishedAt: Date, key: re
     ),
     key as (
       select e->>'question_id' as question_id,
+             -- ordered(mcq_bundle)は小問順を保持、それ以外は集合比較のためソート(重複なしの MCQ 前提)
              case when jsonb_typeof(e->'correct') = 'array'
-                  then (select coalesce(array_agg(x order by x), array[]::text[]) from jsonb_array_elements_text(e->'correct') x)
-                  else null end as correct
+                  then (select coalesce(array_agg(x order by case when (e->>'ordered')::boolean then ord else 0 end, x), array[]::text[])
+                          from jsonb_array_elements_text(e->'correct') with ordinality t(x, ord))
+                  else null end as correct,
+             coalesce((e->>'ordered')::boolean, false) as ordered
       from jsonb_array_elements(${keyJson}::jsonb) e
     ),
     graded as (
       select a.question_id, a.question_rev, a.chosen, a.answer_updated_at,
              (a.chosen is not null and k.correct is not null and
-              (select coalesce(array_agg(x order by x), array[]::text[]) from unnest(a.chosen) x) = k.correct) as is_correct
+              (select coalesce(array_agg(x order by case when k.ordered then ord else 0 end, x), array[]::text[])
+                 from unnest(a.chosen) with ordinality t(x, ord)) = k.correct) as is_correct
       from exam_session_answer a
       left join key k on k.question_id = a.question_id
       where a.session_id = ${sessionId}

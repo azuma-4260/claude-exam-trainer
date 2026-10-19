@@ -5,7 +5,7 @@ import type { PoolContext } from "@/lib/bank/pool";
 import { loadMultiBank, scopeBank } from "@/lib/bank/runtime";
 import type { Exam, Question, Syllabus } from "@/lib/bank/schema";
 import { EXAM_DATE_JST, examDateOf, type ExamDates } from "@/lib/exam/dates";
-import { structuredOf, toChoiceView, type ChoiceView, type StructuredFields } from "@/lib/explanation/structured";
+import { structuredOf, toChoiceView, type ChoiceView, type StructuredFields, type SubQuestionView } from "@/lib/explanation/structured";
 import { getStudyScope } from "@/lib/scope/repo";
 import { scopeExams, type StudyScope } from "@/lib/scope/scope";
 import { jstStartOfDay } from "@/lib/srs/jst";
@@ -44,6 +44,8 @@ export type DrillItem = StructuredFields & {
   type: Question["type"];
   stemEn: string;
   choices: ChoiceView[] | null;
+  /** mcq_bundle の小問(それ以外は null)。answer / chosen は小問順の位置配列 */
+  subQuestions?: SubQuestionView[] | null;
   answer: string[] | null;
   answerEn: string | null;
   explanationJa: string;

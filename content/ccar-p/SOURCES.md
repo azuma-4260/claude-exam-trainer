@@ -67,7 +67,7 @@ F の "Exam structure: 4 scenarios drawn from a bank of 6" に相当する行は
 | Reddit 調査メモ(`ExamGuide/memo.md`、オーナー作成 2026-10-03) | 受験者証言の整理 + 設計推奨 | 965 点の受験者が Yes/No Matrix(1 シナリオ × 約 5 statement を独立に Yes/No)と Drop-down Matching(複数シナリオを再利用可能な共通 option から分類)を報告。multiple-response は「much more frequent」との証言。F の「4 シナリオ × 15 問」を P に流用しないこと。形式別の比率は公式値なし(memo §31 LOW) |
 | Partner Academy FAQ(https://anthropic-partners.skilljar.com/page/faq-certifications) | 公式 | "All Claude certification exams use multiple choice and scenario-based multiple response questions." Pearson VUE で実施 |
 
-- **採点**: Guide §9 は "the percentage of items you answered correctly within each content domain" のみ。まとめ形式・multiple-response の部分点の有無を直接述べる一次情報は見つからない(2026-10-03 調査)
+- **採点**: Guide §9 は "the percentage of items you answered correctly within each content domain" のみ。まとめ形式・multiple-response の部分点の有無を直接述べる一次情報は見つからない(2026-10-03 調査)。**まとめ形式は「全小問正解のみ正解」で実装する**(オーナー決定 2026-10-19, T-bundle。一次情報が得られたら見直す。`03` §1 `mcq_bundle`)
 - **T-pmock の確定事項**(オーナー決定 2026-10-03): 独立問題形式(各問 stem に状況説明)/ 63 問 / 配分 11-8-12-10-9-9-4 / 問題形式の件数は validator で固定しない。まとめ形式は `09` T-bundle(採点確定が着手条件)。memo の制作指針は `09` S-4 で `07` に反映した(memo の節ごとの区分・信頼度・振り分けは §14)
 
 ### 1.2 ドメイン配分(§6 Blueprint)— `02` の重みを**確認**

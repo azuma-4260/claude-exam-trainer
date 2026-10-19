@@ -1,6 +1,7 @@
 import type { ExamSessionAnswerRow, ExamSessionRow, SessionKind, SubmissionReason } from "@/db/schema";
 import type { Exam, MockForm, Question } from "@/lib/bank/schema";
 import { formAvailability, type OpenFlag, type PoolSession } from "@/lib/bank/pool";
+import { isOrderedAnswer, matchesAnswer, normalizeMockChosen } from "@/lib/bank/grading";
 import { buildMockFormOptions } from "./availability";
 
 /**
@@ -20,6 +21,8 @@ export const FULL_DURATION_MIN = 120;
 export interface AnswerKeyEntry {
   questionId: string;
   correct: string[] | null;
+  /** true = 小問順の位置比較(mcq_bundle)、false = 集合比較。提出 SQL も同じ意味論で採点する */
+  ordered: boolean;
 }
 
 /** gradeMockAnswers が生成する attempt の素(session_id / exam は store 側で付与) */
@@ -98,7 +101,7 @@ export type StartResult =
 
 export type SaveResult =
   | { status: 200; session: ExamSessionRow }
-  | { status: 400; error: "invalid_index" }
+  | { status: 400; error: "invalid_index" | "invalid_chosen" }
   | { status: 404; error: "unknown_session" | "unknown_question" }
   | { status: 409; error: "session_terminal"; session: ExamSessionRow };
 
@@ -117,16 +120,10 @@ export type RestoreResult =
   | { status: 200; kind: "in_progress"; session: ExamSessionRow; answers: ExamSessionAnswerRow[] }
   | { status: 200; kind: "timed_out"; session: ExamSessionRow };
 
-const sameSet = (a: readonly string[], b: readonly string[]): boolean => {
-  const sa = new Set(a);
-  const sb = new Set(b);
-  return sa.size === sb.size && [...sa].every((v) => sb.has(v));
-};
-
 /**
  * Mock 採点の単一ソース(03 §Mock の attempt 生成 手順 1-2)。
  * store.submit の SQL 実装はこの意味論と一致しなければならない(store.test.ts で形を検証):
- * - is_correct: chosen と正答の集合一致(部分点なし)。未回答・key 欠落は false
+ * - is_correct: 集合一致(部分点なし)。mcq_bundle(key.ordered)は小問順の位置一致。未回答・key 欠落は false
  * - answered_at: 回答済 = answer_updated_at、未回答 = finished_at
  * - question_rev: 開始時 snapshot(exam_session_answer の値)
  */
@@ -135,10 +132,10 @@ export function gradeMockAnswers(
   key: readonly AnswerKeyEntry[],
   finishedAt: Date,
 ): { scoreRaw: number; attempts: AttemptSeed[] } {
-  const byId = new Map(key.map((k) => [k.questionId, k.correct]));
+  const byId = new Map(key.map((k) => [k.questionId, k]));
   const attempts = answers.map((a): AttemptSeed => {
-    const correct = byId.get(a.questionId) ?? null;
-    const isCorrect = a.chosen !== null && correct !== null && sameSet(a.chosen, correct);
+    const k = byId.get(a.questionId);
+    const isCorrect = a.chosen !== null && !!k && k.correct !== null && matchesAnswer(k.ordered, a.chosen, k.correct);
     return {
       questionId: a.questionId,
       questionRev: a.questionRev,
@@ -161,7 +158,7 @@ const isExpired = (s: ExamSessionRow, now: Date): boolean =>
 const buildKey = (questionIds: readonly string[], deps: MockDeps): AnswerKeyEntry[] =>
   questionIds.map((id) => {
     const q = deps.findQuestion(id);
-    return { questionId: id, correct: q && q.type !== "flash" ? q.answer : null };
+    return { questionId: id, correct: q && q.type !== "flash" ? q.answer : null, ordered: q ? isOrderedAnswer(q) : false };
   });
 
 /**
@@ -286,7 +283,21 @@ export async function saveAnswer(sessionId: string, questionId: string, patch: A
   const active = await requireActive(sessionId, deps);
   if (!active.ok) return active.result;
   if (!active.session.questionIds.includes(questionId)) return { status: 404, error: "unknown_question" };
-  const updated = await deps.store.patchAnswer(sessionId, questionId, patch, deps.now);
+  // chosen の形(形式別): mcq_bundle は小問数と同じ長さ・重複可・全小問が空なら null に正規化、
+  // それ以外は空文字・重複を拒否(03 §1)。flash 等 MCQ でない問題は回答保存の対象外
+  let toSave = patch;
+  if (patch.chosen) {
+    const q = deps.findQuestion(questionId);
+    if (!q || q.type === "flash") return { status: 400, error: "invalid_chosen" };
+    const labels = new Set(q.choices.map((c) => c.label));
+    const shapeOk =
+      q.type === "mcq_bundle"
+        ? patch.chosen.length === q.sub_questions.length && patch.chosen.every((l) => l === "" || labels.has(l))
+        : patch.chosen.length > 0 && patch.chosen.every((l) => labels.has(l)) && new Set(patch.chosen).size === patch.chosen.length;
+    if (!shapeOk) return { status: 400, error: "invalid_chosen" };
+    toSave = { ...patch, chosen: normalizeMockChosen(q, patch.chosen) };
+  }
+  const updated = await deps.store.patchAnswer(sessionId, questionId, toSave, deps.now);
   if (!updated) {
     // 検査と更新の間に terminal 化した(並行提出等)
     const latest = (await deps.store.findSession(sessionId)) ?? active.session;

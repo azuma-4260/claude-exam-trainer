@@ -133,7 +133,35 @@ export function MockReportScreen({ report }: { report: MockReport }) {
                 lifecyclePhase={w.lifecyclePhase}
                 className=""
               />
-              {w.choices && (
+              {w.subQuestions && w.choices && (
+                <ol className="flex flex-col gap-2">
+                  {w.subQuestions.map((sub, i) => {
+                    const pick = w.chosen[i] ?? "";
+                    const ans = w.correct?.[i] ?? "";
+                    const text = (label: string) => w.choices?.find((c) => c.label === label)?.text_en ?? label;
+                    const ok = pick !== "" && pick === ans;
+                    return (
+                      <li key={sub.id} className={`rounded-md border p-2 ${ok ? "border-primary bg-primary/10" : "border-destructive"}`}>
+                        <p>
+                          <span className="mr-2 font-semibold">{i + 1}.</span>
+                          {sub.textEn}
+                        </p>
+                        <p className="mt-1 text-xs">
+                          {ok ? (
+                            <span className="font-medium text-primary">正解({text(ans)})</span>
+                          ) : (
+                            <span className="font-medium text-destructive">
+                              {pick === "" ? "未回答" : `選択: ${text(pick)}`} / 正解: {text(ans)}
+                            </span>
+                          )}
+                        </p>
+                        <p className="mt-1 whitespace-pre-line text-xs text-muted-foreground">{sub.explanationJa}</p>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
+              {w.choices && !w.subQuestions && (
                 <ul className="flex flex-col gap-1">
                   {w.choices.map((c) => {
                     const isCorrect = w.correct?.includes(c.label) ?? false;

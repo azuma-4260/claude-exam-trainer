@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mcq, structuredPmcq } from "@/lib/queue/test-fixtures";
+import { bundle, mcq, structuredPmcq } from "@/lib/queue/test-fixtures";
 import { toQuestionDtos } from "./dto";
 
 // D6-9: 試験中 DTO の正解の漏洩防止(specs/03 §1)。構造化解説フィールドは正解の選択肢だけ持たないため、
@@ -29,5 +29,22 @@ describe("toQuestionDtos(試験中 DTO)", () => {
       select_count: 1,
     });
     for (const d of dtos) for (const c of d.choices) expect(Object.keys(c).sort()).toEqual(["label", "text_en"]);
+  });
+});
+
+describe("toQuestionDtos: mcq_bundle(T-bundle / D6-8)", () => {
+  const b = bundle("f-d2-q910");
+  const dtos = toQuestionDtos([b.id], (id) => (id === b.id ? b : null));
+  it("小問は id / text_en だけ。正解(answer)・小問の解説は提出まで渡さない", () => {
+    if (!dtos) throw new Error("null");
+    expect(dtos[0]).toMatchObject({ type: "mcq_bundle", bundle_kind: "yes_no", select_count: 3 });
+    expect(dtos[0].sub_questions).toEqual([
+      { id: "s1", text_en: "Statement one." },
+      { id: "s2", text_en: "Statement two." },
+      { id: "s3", text_en: "Statement three." },
+    ]);
+    const text = JSON.stringify(dtos);
+    for (const key of ["answer", "explanation_ja", "refs"]) expect(text).not.toContain(`"${key}"`);
+    expect(text).not.toContain("の理由");
   });
 });

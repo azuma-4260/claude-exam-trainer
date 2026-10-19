@@ -163,7 +163,8 @@ export function runAuditChoiceBalance(dir: string, opts: ChoiceBalanceOptions): 
   const warnings: string[] = [];
   if (loaded.errors.length > 0) return { errors, warnings, total: 0, longestIsCorrect: 0 };
 
-  const target = loaded.questions.filter((q) => q.type !== "flash" && q.status === opts.status);
+  // mcq_bundle は共通の選択肢(Yes/No 等)を全小問で使うため、正解だけが長いなどの偏り検査の対象外
+  const target = loaded.questions.filter((q) => q.type !== "flash" && q.type !== "mcq_bundle" && q.status === opts.status);
   let longestIsCorrect = 0;
   let correctN = 0;
   let distractorN = 0;

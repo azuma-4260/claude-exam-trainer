@@ -1,6 +1,6 @@
 import type { AttemptRow, ExamSessionRow } from "@/db/schema";
 import type { Question, Syllabus } from "@/lib/bank/schema";
-import { structuredOf, type StructuredFields } from "@/lib/explanation/structured";
+import { structuredOf, subQuestionsOf, type StructuredFields, type SubQuestionView } from "@/lib/explanation/structured";
 
 /**
  * S-6 模試レポートの導出(specs/05 S-6、01 FR-5)。DB 非依存の純関数。
@@ -58,6 +58,8 @@ export interface MockReportWrongItem extends StructuredFields {
   correct: string[] | null;
   stemEn: string | null;
   choices: MockReportChoice[] | null;
+  /** mcq_bundle の小問(chosen / correct は小問順の位置配列。小問ごとの正誤は位置比較で導出する)。それ以外は null */
+  subQuestions: SubQuestionView[] | null;
   explanationJa: string | null;
   refs: string[];
   /** 開始時 snapshot の rev と現行 rev が異なる(解説が改訂後のものである可能性) */
@@ -130,6 +132,7 @@ export function buildMockReport(args: {
                 not_best_ja: c.not_best_ja ?? null,
               }))
             : null,
+        subQuestions: q ? subQuestionsOf(q) : null,
         ...(q ? structuredOf(q) : { bindingConstraintJa: null, lifecyclePhase: null }),
         explanationJa: q?.explanation_ja ?? null,
         refs: q?.refs ?? [],

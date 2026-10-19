@@ -5,6 +5,7 @@ import type { PoolContext } from "@/lib/bank/pool";
 import { questionSchema, type MockForm, type Question } from "@/lib/bank/schema";
 import type { SrsStateUpsert } from "@/lib/srs/card-row";
 import { AttemptPkConflictError, processAnswer, type AnswerDeps, type AnswerStore } from "./process";
+import { bundle } from "@/lib/queue/test-fixtures";
 import { answerRequestSchema, type AnswerRequest } from "./schema";
 
 // T-write: 学習回答の書込プロトコル(specs/03 §学習回答の書込プロトコル、04 §モード行列、06 §接続方式)。
@@ -278,8 +279,8 @@ describe("バンクとの整合", () => {
   });
 
   it("chosen の重複は入力で拒否、選択肢に無いラベルは採点せず拒否", async () => {
-    expect(answerRequestSchema.safeParse({ ...mcqReq(), chosen: ["B", "B"] }).success).toBe(false);
     const store = new FakeStore();
+    expect(await processAnswer(mcqReq({ chosen: ["B", "B"] }), deps(store, [q()]))).toMatchObject({ status: 400, error: "invalid_chosen", reason: "duplicate_choice" });
     expect(await processAnswer(mcqReq({ chosen: ["E"] }), deps(store, [q()]))).toMatchObject({ status: 409, reason: "unknown_choice" });
     expect(await processAnswer(mcqReq({ chosen: ["B", "E"] }), deps(store, [q()]))).toMatchObject({ status: 409, reason: "unknown_choice" });
     expect(store.commits).toBe(0);
@@ -327,5 +328,59 @@ describe("T-exam: rating はカードの exam の試験日で scheduler を作�
     expect(row.exam).toBe("ccar-p");
     expect(row.scheduledDays).toBeLessThanOrEqual(72);
     expect(row.scheduledDays).toBeGreaterThan(1);
+  });
+});
+
+describe("T-bundle: まとめ形式 mcq_bundle の Practice 保存(specs/03 §1、04 §モード行列)", () => {
+  const BQ = bundle("f-d2-q910");
+  const bReq = (chosen: string[], over: Partial<Extract<AnswerRequest, { kind: "mcq" }>> = {}) =>
+    mcqReq({ question_id: "f-d2-q910", mode: "practice", chosen, ...over });
+
+  it("全小問が位置で一致したときだけ正解 → Good、attempt は 1 問 1 行で chosen は小問順のまま保存", async () => {
+    const store = new FakeStore();
+    const res = await processAnswer(bReq(["A", "B", "A"]), deps(store, [BQ]));
+    expect(res.status).toBe(200);
+    if (res.status !== 200) return;
+    expect(res.attempt).toMatchObject({ isCorrect: true, appliedRating: Rating.Good, chosen: ["A", "B", "A"] });
+    expect(store.attempts.size).toBe(1);
+    expect(store.srs.get("f-d2-q910")?.reps).toBe(1);
+  });
+  it("1 小問でも違えば不正解 → Again(部分点なし)。順序違いは同じ集合でも不正解", async () => {
+    for (const chosen of [["A", "B", "B"], ["B", "A", "A"], ["A", "A", "B"]]) {
+      const store = new FakeStore();
+      const res = await processAnswer(bReq(chosen, { attempt_id: UUID }), deps(store, [BQ]));
+      expect(res.status === 200 && res.attempt).toMatchObject({ isCorrect: false, appliedRating: Rating.Again });
+    }
+  });
+  it("重複 ID(複数小問が同じ選択肢)を受理する。mcq_single / mcq_multi の重複は 400 のまま", async () => {
+    expect((await processAnswer(bReq(["A", "A", "A"]), deps(new FakeStore(), [BQ]))).status).toBe(200);
+    expect(await processAnswer(mcqReq({ question_id: "f-d2-q003", chosen: ["A", "A"] }), deps(new FakeStore(), [multi()]))).toMatchObject({ status: 400, reason: "duplicate_choice" });
+  });
+  it("長さが小問数と異なる(一部未回答・過剰)は 400 で保存しない。空文字は入力スキーマが拒否", async () => {
+    const store = new FakeStore();
+    expect(await processAnswer(bReq(["A", "B"]), deps(store, [BQ]))).toMatchObject({ status: 400, reason: "sub_question_count" });
+    expect(await processAnswer(bReq(["A", "B", "A", "A"]), deps(store, [BQ]))).toMatchObject({ status: 400, reason: "sub_question_count" });
+    expect(answerRequestSchema.safeParse({ ...bReq(["A", "B", "A"]), chosen: ["A", "", "A"] }).success).toBe(false);
+    expect(store.commits).toBe(0);
+  });
+  it("選択肢に無いラベルは拒否。mcq_bundle は drill では出題・保存されない", async () => {
+    const store = new FakeStore();
+    expect(await processAnswer(bReq(["A", "B", "E"]), deps(store, [BQ]))).toMatchObject({ status: 409, reason: "unknown_choice" });
+    expect(await processAnswer(bReq(["A", "B", "A"], { mode: "drill" }), deps(store, [BQ]))).toMatchObject({ status: 409, error: "not_eligible" });
+    expect(store.commits).toBe(0);
+  });
+  it("冪等: 同 attempt_id・同 chosen の再送は replayed、小問順が違えば 409 attempt_payload_mismatch", async () => {
+    const store = new FakeStore();
+    await processAnswer(bReq(["A", "B", "A"]), deps(store, [BQ]));
+    const again = await processAnswer(bReq(["A", "B", "A"]), deps(store, [BQ]));
+    expect(again).toMatchObject({ status: 200, replayed: true });
+    expect(await processAnswer(bReq(["A", "A", "B"]), deps(store, [BQ]))).toMatchObject({ status: 409, error: "attempt_payload_mismatch" });
+    expect(store.commits).toBe(1);
+  });
+  it("srs_eligible=false(解放済みフォーム問題)は Practice でも applied_rating=null、is_correct は付く", async () => {
+    const store = new FakeStore();
+    const res = await processAnswer(bReq(["A", "B", "A"]), deps(store, [bundle("f-d2-q910", { srs_eligible: false })]));
+    expect(res.status === 200 && res.attempt).toMatchObject({ isCorrect: true, appliedRating: null });
+    expect(store.srs.size).toBe(0);
   });
 });
