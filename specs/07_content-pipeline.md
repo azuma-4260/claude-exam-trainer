@@ -126,9 +126,9 @@ CCAR-P は定義の暗記ではなく「不完全な enterprise シナリオか�
 
 #### 形式・選択肢数・難易度
 
-- **形式**: `mcq_single` と `mcq_multi`。P の `mcq_multi` は **Select TWO のみ**(validator で強制。`03` §1)。選択肢は P の Practice・フォームの MCQ で **4〜5 個**(validator で強制)、multi は 5 択を推奨。Drill 短問 MCQ は 4 択でよい
+- **形式**: `mcq_single` と `mcq_multi`、まとめ形式 `mcq_bundle`(`03` §1。Yes/No Matrix = `bundle_kind: yes_no`、Drop-down Matching = `matching`。Practice とフォーム専用で Drill には出さない)。P の `mcq_multi` は **Select TWO のみ**(validator で強制)。選択肢は P の `mcq_single` / `mcq_multi` で **4〜5 個**(validator で強制。`mcq_bundle` には適用しない: yes_no は Yes/No の 2 件、matching は 2〜6 件)、multi は 5 択を推奨。Drill 短問 MCQ は 4 択でよい。`mcq_bundle` の小問ごとの理由は `sub_questions[].explanation_ja` に書き、構造化解説フィールド(`binding_constraint_ja` 等)は持たせない
 - **難易度**(P の MCQ。`03` §1): 1 = 知識の適用(必要な知識が分かれば直接解ける。ただし定義の想起にはしない)/ 2 = 制約判断(技術的に妥当な選択肢が 2 つ以上あり、binding constraint で BEST が決まる)/ 3 = アーキテクチャのトレードオフ(複数の制約を同時に示し、1 つの技術知識だけでは解けない)。flash の `difficulty` は従来の意味のまま
-- **フォームの目安**(validator では強制しない。`audit:form` が分布を表示する): 難易度 1 は 6 問以下、3 は 20 問以上(本番は模試より難しいという証言があるため、模試を本番と同等以上にする)。問題形式は、まとめ形式(T-bundle / D6-8)を使わない場合 single 43〜48 / multi 15〜20、CP4-A の着手前に D6-8 が merge 済みでまとめ形式を使う場合 single 30〜35 / multi 15〜20 / Yes/No Matrix 5〜8 / Drop-down Matching 5〜8(合計 63)。比率の公式値は無く(`content/ccar-p/SOURCES.md` §14 の LOW)、受験者の証言が増えたら見直す
+- **フォームの目安**(validator では強制しない。`audit:form` が分布を表示する): 難易度 1 は 6 問以下、3 は 20 問以上(本番は模試より難しいという証言があるため、模試を本番と同等以上にする)。問題形式は、まとめ形式(`mcq_bundle`)を使わない場合 single 43〜48 / multi 15〜20、使う場合 single 30〜35 / multi 15〜20 / Yes/No Matrix 5〜8 / Drop-down Matching 5〜8(合計 63)。`audit:form` は `mcq_bundle` を含むフォームでは後者を目安にする。比率の公式値は無く(`content/ccar-p/SOURCES.md` §14 の LOW)、受験者の証言が増えたら見直す
 - **Drill 短問 MCQ(知識の適用型)**: 定義を思い出すだけのフラッシュの置き換え先(CP7)。1〜2 文の状況から、知識を当てはめて答える 4 択(例: 安定した長い prefix が繰り返し送られている → prompt caching)。`eligible_modes: ["drill"]` / `srs_eligible: true` / `difficulty: 1`。構造化解説フィールドは任意
 
 #### 構造化解説フィールドの書き方(`03` §1)

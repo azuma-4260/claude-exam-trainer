@@ -28,7 +28,7 @@ content/ccar-p/              # v1.3。syllabus.yaml / mock_forms.yaml / SOURCES.
 {
   "id": "f-d2-q014", "exam": "ccar-f", "domain_id": "f-d2",
   "primary_topic_id": "f-d2-t1-03", "secondary_topic_ids": [],
-  "type": "mcq_single",                       // mcq_single | mcq_multi | flash
+  "type": "mcq_single",                       // mcq_single | mcq_multi | mcq_bundle | flash
   "scenario_id": null,
   "eligible_modes": ["drill"],                // drill | practice | mock
   "srs_eligible": true,
@@ -60,6 +60,30 @@ P の MCQ の構造化解説フィールド(v1.3.3・S-4。任意):
 
 不変条件(Zod 強制): flash は choices/answer=null・answer_en 必須 / mcq_single は answer 1 件 / mcq_multi は 2 件以上・集合一致・部分点なし・"Select TWO" 明記 / scenario_id・topic・domain の整合 / refs >= 1。
 
+**まとめ形式 `mcq_bundle`(T-bundle / D6-8。採点・chosen はオーナー承認 2026-10-19。停止条件: 採点・永続データの意味)**: 受験記(`content/ccar-p/SOURCES.md` §1.1.1)の Yes/No Matrix・Drop-down Matching。共通の選択肢で複数の小問に答え、**1 問として数える**。
+
+```jsonc
+{
+  "id": "p-d3-q0xx", "exam": "ccar-p", "type": "mcq_bundle",
+  "bundle_kind": "yes_no",                    // yes_no | matching
+  "stem_en": "...",                           // 共通の状況説明と指示
+  "choices": [ { "label": "A", "text_en": "Yes" }, { "label": "B", "text_en": "No" } ],   // 全小問で共通
+  "sub_questions": [                          // 2〜6 件。出題順
+    { "id": "s1", "text_en": "...", "explanation_ja": "この小問の正解の理由" },
+    ...
+  ],
+  "answer": ["A", "B", "A"],                  // answer[i] = sub_questions[i] の正解ラベル。重複可
+  ...
+}
+```
+
+- **採点: 全小問が正解のときだけ正解**(部分点なし)。`is_correct` は boolean のまま、attempt は 1 問 1 行、素点・Practice の rating(正解 → Good / 不正解 → Again)・coverage は既存 MCQ と同じ意味。**小問ごとの正誤は attempt に保存せず、`chosen` と `answer` の位置比較から導出して解説に表示する**(`05` §解説の表示)
+- **`chosen` の保存形式: 小問順の選択肢ラベル配列**。`chosen[i]` = `sub_questions[i]` に選んだラベル。長さ = 小問数。**重複を許す**(複数の小問が同じ選択肢を選び得る)。未回答の小問は空文字 `""`。`mcq_single` / `mcq_multi` の `chosen` は従来どおり**集合比較・重複拒否**で、この規則は `mcq_bundle` にだけ適用する(形式別に分岐する)
+- **比較規則**: `mcq_bundle` は位置ごとの完全一致(長さ・順序・重複を保持。並べ替えない)。それ以外の MCQ は集合一致
+- **未回答の判定**: Mock では、全小問が `""` の `chosen` は保存時に **null へ正規化**する(未回答 = null の既存規則を保つ。`answered_at` も null 判定に従う = 未回答は `finished_at`)。一部の小問だけ回答した場合は `chosen` を保持し、`is_correct = false`・回答済みとして扱う(`answered_at` = `answer_updated_at`)。Practice は**全小問に回答してから**送信できる(`chosen` の長さ = 小問数・空文字なし。一部未回答は 400)。Drill は `mcq_bundle` を出題しない
+- 不変条件(Zod 強制): `bundle_kind=yes_no` は choices が `Yes` / `No` の 2 件 / `matching` は choices 2〜6 件 / `sub_questions` 2〜6 件(id 一意・`explanation_ja` 必須)/ `answer` の長さ = 小問数で、各要素は choices に存在する / **MCQ の選択肢数 4〜5・Select TWO・構造化解説フィールド(`binding_constraint_ja` 等)は `mcq_bundle` に適用しない**(持たせない。小問ごとの理由は `sub_questions[].explanation_ja`)/ `eligible_modes` に drill を含めない / `refs` >= 1
+- 既存の `mcq_single` / `mcq_multi` / flash の受理集合・採点・保存は変更しない。DB スキーマの変更なし(`attempt.chosen` / `exam_session_answer.chosen` は text[] のまま)
+
 **構造化解説フィールド(v1.3.3・S-4。オーナー承認 2026-10-03)**: 利用者が「決め手になる制約」と「もっともらしい誤答がなぜ BEST でないか」を解説画面で直接見られるようにする(`05`、作り方は `07` §P 制作指針)。バンクは静的ファイルなので DB スキーマ・attempt の意味は変わらない。
 
 - `binding_constraint_ja`(question、非空文字列、任意): 決め手になる制約
@@ -70,7 +94,7 @@ P の MCQ の構造化解説フィールド(v1.3.3・S-4。任意):
 - 値がある問題の `explanation_ja` は正解の理由と一般原則に絞る(誤答の説明はフィールド側)。値が無い問題は従来どおり `explanation_ja` に全選択肢の説明を書く
 - **正解の漏洩防止(停止条件: Mock のスコア)**: フィールドの有無で正解の選択肢が分かる(正解の選択肢だけ `plausible_ja` / `not_best_ja` を持たない)ため、構造化解説フィールドは `answer` / `explanation_ja` と同じ扱いにする。**Mock では提出まで(進行中セッションの DTO に)含めない**(`src/lib/mock/dto.ts` は選択肢を `label` / `text_en` だけに詰め直す現行方式を維持する)。Practice・Drill は採点の即時表示のため、回答前から `answer` と解説をクライアントに渡す現行設計(個人用アプリ)のままとし、画面は回答するまで表示しない(`05` §解説の表示)
 
-**P の MCQ の不変条件(v1.3.3・S-4。Zod / validator 強制)**: `mcq_multi` は "Select TWO" のみ(answer 2 件)/ 選択肢は 4〜5 個(フォーム収載に限らず全 P MCQ。既存 76 問は 4 択で適合)。問題形式・難易度の分布はどこでも強制しない(`07` の目安、`audit:form` が表示する)。
+**P の `mcq_single` / `mcq_multi` の不変条件(v1.3.3・S-4。Zod / validator 強制。`mcq_bundle` には適用しない)**: `mcq_multi` は "Select TWO" のみ(answer 2 件)/ 選択肢は 4〜5 個(フォーム収載に限らず全 P MCQ。既存 76 問は 4 択で適合)。問題形式・難易度の分布はどこでも強制しない(`07` の目安、`audit:form` が表示する)。
 
 **P の MCQ の `difficulty`(v1.3.3・S-4 で再定義)**: 1 = 知識の適用 / 2 = 制約判断 / 3 = アーキテクチャのトレードオフ(定義は `07` §P 制作指針)。flash と F の問題は従来の意味のまま。値はアプリのロジック(出題・SRS・採点)では使わない(SRS の `srs_state.difficulty` は FSRS の値で別物)。既存 76 問は付け替えだけのための改訂はせず、CP7 の再監査で付け直す。
 
@@ -133,8 +157,8 @@ validator(CCAR-F): 60 問 / ドメイン配分 16-11-12-12-9 / form 間の問題
 | 問題数 | **63 問** / 120 分 | Guide §5(`content/ccar-p/SOURCES.md` §1) |
 | ドメイン配分 | **p-d1..p-d7 = 11 / 8 / 12 / 10 / 9 / 9 / 4** | Guide §6 の重み × 63 を largest-remainder で丸めた値(`SOURCES.md` §1.1) |
 | シナリオ構造 | **独立問題形式**。フォームは `scenario_ids` を空にし、全問 `scenario_id = null`。状況説明(2〜4 文)は各問の `stem_en` に書く | Guide にシナリオ構造の記述なし。受験記(`SOURCES.md` §1.1 追記)。F の形式は流用しない |
-| 問題形式 | `mcq_single` / `mcq_multi` を含めてよい。**形式ごとの件数・比率は validator で固定しない**。選択肢は 4〜5 個(validator が検証。flash は収載しない) | Guide は "each item states how many responses to select" のみ。比率の公式値なし |
-| 採点 | 全 exam 共通(`mcq_multi` は集合一致・部分点なし) | 既存 |
+| 問題形式 | `mcq_single` / `mcq_multi` / `mcq_bundle` を含めてよい。**形式ごとの件数・比率は validator で固定しない**。`mcq_single` / `mcq_multi` の選択肢は 4〜5 個(validator が検証。flash は収載しない) | Guide は "each item states how many responses to select" のみ。比率の公式値なし |
+| 採点 | 全 exam 共通(`mcq_multi` は集合一致・部分点なし。`mcq_bundle` は全小問正解のみ正解・位置比較) | 既存 + 2026-10-19 |
 
 ```yaml
 forms:
@@ -144,9 +168,9 @@ forms:
     question_ids: [ ...63 件、出題順 ]
 ```
 
-validator(CCAR-P): 63 問 / ドメイン配分 11-8-12-10-9-9-4 / form 間の問題重複なし / 全問 eligible_modes に mock を含む / **全問 scenario_id == null** / **form.scenario_ids は空** / **全問 MCQ で選択肢 4〜5 個** / **全問が構造化解説フィールド(`binding_constraint_ja` と正解でない選択肢の `plausible_ja`・`not_best_ja`)を持つ**(v1.3.3・S-4)。問題形式・難易度の件数は検証しない(`audit:form` が分布を表示する)。
+validator(CCAR-P): 63 問 / ドメイン配分 11-8-12-10-9-9-4 / form 間の問題重複なし / 全問 eligible_modes に mock を含む / **全問 scenario_id == null** / **form.scenario_ids は空** / **全問 MCQ(`mcq_single` / `mcq_multi` / `mcq_bundle`)** / **`mcq_single` / `mcq_multi` は選択肢 4〜5 個** / **`mcq_single` / `mcq_multi` は構造化解説フィールド(`binding_constraint_ja` と正解でない選択肢の `plausible_ja`・`not_best_ja`)を持つ(`mcq_bundle` は対象外)**(v1.3.3・S-4)。問題形式・難易度の件数は検証しない(`audit:form` が分布を表示する)。
 
-- まとめ形式(Yes/No Matrix・Drop-down Matching。受験記で報告された「共通の選択肢で複数の小問に答え、1 問として数える」形式)は取り入れる方針だが、**採点の一次情報が無い**ため本節の対象外。型・採点・保存は `09` の T-bundle / D6-8 で扱い、その冒頭で採点を確定する(停止条件: 採点)。それまで P フォームは `mcq_single` / `mcq_multi` のみで構成する
+- まとめ形式(`mcq_bundle`)は上記 §1 のとおり確定(2026-10-19)。採点・chosen・未回答判定は §1 の `mcq_bundle` を参照
 
 ## 2. 進捗 DB(Postgres)
 
@@ -243,7 +267,7 @@ create table exam_session_answer (
 
 模試実施中は attempt を生成しない(回答状態は exam_session_answer のみ)。manual / timeout 提出時に 1 トランザクションで:
 
-1. final の exam_session_answer から score_raw を計算
+1. final の exam_session_answer から score_raw を計算(`mcq_bundle` は位置比較、それ以外の MCQ は集合比較。提出 SQL の answer key に問題形式を含め、`lifecycle.gradeMockAnswers` と同じ判定にする)
 2. 全問題について attempt を 1 行ずつ生成: mode='mock'、applied_rating=null、未回答は chosen=null・is_correct=false。answered_at は回答済みなら answer_updated_at、未回答なら finished_at。question_rev は snapshot 値
 3. attempt 一括 INSERT + exam_session の terminal 更新(status/submission_reason/finished_at/score_raw)
 4. 冪等性は attempt_mock_session_question_uq で保証(提出リトライは既提出を検知して 200)
